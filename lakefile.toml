@@ -1,0 +1,25 @@
+name = "AnalyticNumberTheory"
+version = "0.1.0"
+defaultTargets = ["AnalyticNumberTheory", "Encyclopedia"]
+leanOptions = { pp.unicode.fun = true, autoImplicit = false, relaxedAutoImplicit = false }
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.36.0"
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "v4.36.0"
+
+[[require]]
+name = "MD4Lean"
+git = "https://github.com/acmepjz/md4lean"
+rev = "7dd00147f8bd1320fa0cfad2a92cb4df08b8814e"
+
+[[lean_lib]]
+name = "AnalyticNumberTheory"
+
+[[lean_lib]]
+name = "Encyclopedia"

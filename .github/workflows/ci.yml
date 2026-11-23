@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build library and encyclopedia
+        uses: leanprover/lean-action@v1
+        with:
+          build: "true"
+          test: "false"
+          lint: "false"
+          use-mathlib-cache: "true"
+          use-github-cache: "true"
+          build-args: "AnalyticNumberTheory Encyclopedia"
+
+      - name: Verify zero sorry, admit, and custom axioms
+        run: |
+          if grep -rnE '\bsorry\b|\badmit\b' AnalyticNumberTheory/ Encyclopedia/ AnalyticNumberTheory.lean Encyclopedia.lean; then
+            echo "ERROR: Found sorry or admit!"
+            exit 1
+          fi
+          if grep -rnE '^\s*axiom\s+' AnalyticNumberTheory/ AnalyticNumberTheory.lean; then
+            echo "ERROR: Found custom axiom declaration!"
+            exit 1
+          fi
+          echo "All Lean files are free of sorry, admit, and custom axioms."

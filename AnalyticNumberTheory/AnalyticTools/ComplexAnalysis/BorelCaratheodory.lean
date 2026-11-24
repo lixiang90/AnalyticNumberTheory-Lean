@@ -445,7 +445,7 @@ theorem landau_logDeriv_le_of_ne_zero {f : ℂ → ℂ} {z₀ z : ℂ} {r R M : 
 `Metric.closedBall z₀ r₀` (`0 < r₀ < R`) as a factorized rational polynomial `polyP` times a
 nonvanishing analytic function `g` on `Metric.closedBall z₀ r₀`, bounded on `Metric.closedBall z₀ R`
 by `M * (r₀ / (R - r₀)) ^ N`. -/
-private lemma extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
+theorem extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
     (hr₀ : 0 < r₀) (hr₀R : r₀ < R)
     (hf : AnalyticOnNhd ℂ f (Metric.closedBall z₀ R)) (hz₀ : f z₀ ≠ 0)
     (hf_bound : ∀ w ∈ Metric.sphere z₀ R, ‖f w / f z₀‖ ≤ M) :

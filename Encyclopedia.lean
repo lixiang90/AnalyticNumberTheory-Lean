@@ -3,6 +3,7 @@ import Encyclopedia.DirichletSeries
 import Encyclopedia.Zeta
 import Encyclopedia.Characters
 import Encyclopedia.Primes
+import Encyclopedia.PrimeOscillation
 import Encyclopedia.ArithmeticProgressions
 import Encyclopedia.BombieriVinogradov
 import Encyclopedia.PartitionAsymptotic
@@ -27,6 +28,9 @@ import Encyclopedia.Perron
 import Encyclopedia.ZetaZeros
 import Encyclopedia.ZeroDensity
 import Encyclopedia.CriticalMoments
+import Encyclopedia.HardyZeros
+import Encyclopedia.RiemannHypothesis
+import Encyclopedia.ExceptionalZeros
 import Encyclopedia.LFunctions
 import Encyclopedia.Eta
 import Encyclopedia.References
@@ -66,11 +70,19 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.CriticalMoments}
 
+{include 0 Encyclopedia.HardyZeros}
+
+{include 0 Encyclopedia.RiemannHypothesis}
+
 {include 0 Encyclopedia.Characters}
 
 {include 0 Encyclopedia.LFunctions}
 
+{include 0 Encyclopedia.ExceptionalZeros}
+
 {include 0 Encyclopedia.Primes}
+
+{include 0 Encyclopedia.PrimeOscillation}
 
 {include 0 Encyclopedia.ArithmeticProgressions}
 

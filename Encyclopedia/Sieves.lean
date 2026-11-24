@@ -33,3 +33,17 @@ $$`\#\{a\in A:\gcd(a,P)=1\}=\sum_{d\mid P}\mu(d)\,\#A_d.`
 {index}[Selberg 上界筛]同时筛去使 $`n` 或 $`n+2` 有小素因子的剩余类，便可控制孪生素数对的个数。对于 $`x\ge3`，Selberg 筛给出 $`O(x/(\log x)^2)` 的上界。
 
 {docstring selberg_twin_primes_bound}
+
+# 孪生素数与二元 Goldbach 表示
+%%%
+tag := "brun-and-selberg"
+file := "brun-selberg"
+%%%
+
+{index}[Brun 定理]对所有 $`p,p+2` 都是素数的 $`p`，级数 $`\sum 1/p` 收敛。证明把 $`p` 按 $`2^k\le p<2^{k+1}` 分组，再用 Brun 筛所得的计数上界估计每一组。
+
+{docstring brun_twin_primes_summable}
+
+对于偶数 $`2N`，Selberg 筛还给出素数表示 $`2N=p+p'` 的个数上界。奇素数 $`\ell` 通常筛去两个剩余类，当 $`\ell\mid N` 时这两个类重合。由此在统一上界 $`O(N/(\log N)^2)` 上出现修正因子 $`\prod_{\ell\mid N,\,\ell>2}(1+1/(\ell-2))`。{ref "goldbach-exceptional-set"}[Goldbach 例外集]一文则说明有表示的偶数占多大比例。
+
+{docstring selberg_goldbach_upper_bound}

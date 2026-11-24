@@ -3472,12 +3472,15 @@ end ClassicalZeroFreeRegion
 
 section LandauTheorem
 
-private lemma changeLevel_isReal {d q : ℕ} (hd : d ∣ q) {χ : DirichletCharacter ℂ d}
+/-- Reality of a character is preserved by induction to a multiple of its modulus. -/
+theorem changeLevel_isReal {d q : ℕ} (hd : d ∣ q) {χ : DirichletCharacter ℂ d}
     (hreal : IsReal χ) : IsReal (DirichletCharacter.changeLevel hd χ) := by
   rw [isReal_iff_sq_eq_one] at hreal ⊢
   rw [← map_pow, hreal, map_one]
 
-private lemma changeLevel_ne_one_of_distinct_primitive {q₁ q₂ : ℕ} [NeZero q₁] [NeZero q₂]
+/-- Inducing two distinct primitive nonprincipal characters to a common modulus
+preserves nonprincipality of both factors and of their product when the first is real. -/
+theorem changeLevel_ne_one_of_distinct_primitive {q₁ q₂ : ℕ} [NeZero q₁] [NeZero q₂]
     {χ₁ : DirichletCharacter ℂ q₁} {χ₂ : DirichletCharacter ℂ q₂}
     (hp₁ : χ₁.IsPrimitive) (hp₂ : χ₂.IsPrimitive)
     (hr₁ : IsReal χ₁) (h₁ : χ₁ ≠ 1) (h₂ : χ₂ ≠ 1)
@@ -4974,6 +4977,30 @@ private lemma fourFoldMulC_LSeries_eq {q : ℕ} [NeZero q] {ψ₁ ψ₂ : Dirich
     LSeries_convolution' hs0 hs1, LSeries_convolution' hs2 hs12,
     hz_eq, hchar_eq ψ₁ hr₁, hchar_eq ψ₂ hr₂, hchar_eq (ψ₁ * ψ₂) hr₁₂]
   ring
+
+/-- The four-character Estermann bound, retaining the Taylor truncation order. -/
+theorem exists_estermann_order_real_character_product :
+    ∃ E : ℝ, 0<E ∧ ∀ {q : ℕ} [NeZero q] {χ ψ : DirichletCharacter ℂ q},
+      IsReal χ → IsReal ψ → χ ≠ 1 → ψ ≠ 1 → χ*ψ ≠ 1 →
+      ∀ {β : ℝ}, 3/4 ≤ β → β < 1 → DirichletCharacter.LFunction ψ (β:ℂ) = 0 →
+      ∃ N : ℕ, 1 ≤ N ∧ (N:ℝ) ≤ Real.log (12*(E*(1000*(q:ℝ)^2)^3+1))/Real.log (6/5)+2 ∧
+      (1/2:ℝ) ≤ (DirichletCharacter.LFunction χ 1*DirichletCharacter.LFunction ψ 1*
+        DirichletCharacter.LFunction (χ*ψ) 1).re * ((2-β)^N / (1-β)) := by
+  obtain ⟨E,hE,hest⟩ := estermann_taylor_half_lower_bound
+  refine ⟨E,hE,fun {q} _ {χ ψ} hrχ hrψ hχ hψ hprod {β} hβ hβ' hz => ?_⟩
+  let F := fun z => DirichletCharacter.LFunction χ z*DirichletCharacter.LFunction ψ z*
+    DirichletCharacter.LFunction (χ*ψ) z
+  have hF : Differentiable ℂ F := ((DirichletCharacter.differentiable_LFunction hχ).mul
+    (DirichletCharacter.differentiable_LFunction hψ)).mul (DirichletCharacter.differentiable_LFunction hprod)
+  let B := (1000*(q:ℝ)^2)^3
+  have hball (z : ℂ) (hz : z ∈ Metric.closedBall (2:ℂ) (3/2:ℝ)) : ‖F z‖ ≤ B := by
+    dsimp only [F,B]; rw [norm_mul,norm_mul]
+    convert mul_le_mul (mul_le_mul (page_LFunction_ball_bound hχ z hz) (page_LFunction_ball_bound hψ z hz)
+      (norm_nonneg _) (by positivity)) (page_LFunction_ball_bound hprod z hz) (norm_nonneg _) (by positivity) using 1 <;> ring
+  have hzero : (riemannZeta (β:ℂ)*F (β:ℂ)).re ≤ 0 := by simp [F,hz]
+  exact hest F (fourFoldMulC χ ψ) B (by dsimp [B]; positivity) hF hball
+    (fourFoldMulC_nonneg_real hrχ hrψ) (fourFoldMulC_one hrχ hrψ) (fourFoldMulC_abscissa χ ψ)
+    (fun _ hs => fourFoldMulC_LSeries_eq hrχ hrψ hs) hβ hβ' hzero
 
 private lemma harmonic_sum_le_one_add_log (q : ℕ) (hq : 1 ≤ q) :
     ∑ m ∈ Finset.Icc 1 q, (m : ℝ)⁻¹ ≤ 1 + Real.log (q : ℝ) := by

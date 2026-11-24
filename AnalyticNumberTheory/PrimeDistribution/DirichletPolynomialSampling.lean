@@ -82,9 +82,10 @@ def dirichletPolyEnergy (a : ℕ → ℂ) (N : ℕ) (σ : ℝ) : ℝ :=
 private lemma energy_nonneg' (a : ℕ → ℂ) (N : ℕ) (σ : ℝ) : 0 ≤ dirichletPolyEnergy a N σ :=
   sum_nonneg fun n _ => by positivity
 
-private lemma logTwist_energy (a : ℕ → ℂ) {N : ℕ} (hN : 1 ≤ N)
+/-- Cost in square mean of inserting up to two logarithmic weights on a vertical line. -/
+lemma dirichletPoly_logTwist_energy (a : ℕ → ℂ) {N : ℕ} (hN : 1 ≤ N)
     {σ u : ℝ} (hu : σ ≤ u) {k : ℕ} (hk : k ≤ 2) :
-    dirichletPolyEnergy (logTwist a k) N u ≤ (1+Real.log N)^4 * dirichletPolyEnergy a N σ := by
+    dirichletPolyEnergy (fun n => a n * (-Complex.log n)^k) N u ≤ (1+Real.log N)^4 * dirichletPolyEnergy a N σ := by
   simp only [dirichletPolyEnergy, mul_sum]
   refine sum_le_sum fun n hn => ?_
   have hn₁ : (1:ℝ) ≤ n := by exact_mod_cast (mem_Icc.mp hn).1
@@ -96,7 +97,7 @@ private lemma logTwist_energy (a : ℕ → ℂ) {N : ℕ} (hN : 1 ≤ N)
   have hw : (n:ℝ)^(-2*u) ≤ (n:ℝ)^(-2*σ) := Real.rpow_le_rpow_of_exponent_le hn₁ (by linarith)
   have hln : ‖Complex.log n‖ = Real.log n := by
     rw [← Complex.ofReal_natCast, ← Complex.ofReal_log hn₀.le, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hlog0]
-  simp only [logTwist,norm_mul,norm_pow,norm_neg,hln,mul_pow,← pow_mul]
+  simp only [norm_mul,norm_pow,norm_neg,hln,mul_pow,← pow_mul]
   have hklog : (Real.log n)^(k*2) ≤ (1+Real.log N)^4 :=
     (pow_le_pow_left₀ hlog0 (by linarith : Real.log n ≤ 1+Real.log N) _).trans
       (pow_le_pow_right₀ (by linarith) (by omega))
@@ -117,9 +118,9 @@ private lemma poly_vertical_integral (a : ℕ → ℂ) {N L : ℕ} (hN : 1 ≤ N
   apply (hmono.trans hs).trans
   rw [mul_assoc (2*(L:ℝ)+2*Real.pi*N)]
   apply mul_le_mul_of_nonneg_left _ (by positivity)
-  exact logTwist_energy a hN hu hk
+  exact dirichletPoly_logTwist_energy a hN hu hk
 
-private lemma sampling_vertical_integrals {S : Finset ℂ} {L : ℕ} {K : ℝ} (hK : 0 ≤ K)
+private lemma sampling_vertical_integrals {S : Finset ℂ} {L : ℕ} {K : ℝ}
     (hL : ∀ z ∈ S, 0 ≤ z.im ∧ z.im < L)
     (hmult : ∀ j < L, ((S.filter (fun z => ⌊z.im⌋₊ = j)).card : ℝ) ≤ K)
     (a : ℕ → ℂ) (N k : ℕ) (u : ℝ) :
@@ -152,18 +153,49 @@ private lemma sampling_vertical_integrals {S : Finset ℂ} {L : ℕ} {K : ℝ} (
   rw [intervalIntegral.integral_add (f:=fun t => 2*‖poly a N k u t‖^2) (g:=fun t => ‖poly a N (k+1) u t‖^2) ((continuous_const.mul ((continuous_poly_t ..).norm.pow 2)).intervalIntegrable ..)
     (((continuous_poly_t ..).norm.pow 2).intervalIntegrable ..), intervalIntegral.integral_const_mul]
 
-private lemma sampling_vertical {S : Finset ℂ} {L : ℕ} {K : ℝ} (hK : 0 ≤ K)
-    (hL : ∀ z ∈ S, 0 ≤ z.im ∧ z.im < L)
-    (hmult : ∀ j < L, ((S.filter (fun z => ⌊z.im⌋₊ = j)).card : ℝ) ≤ K)
-    (a : ℕ → ℂ) {N : ℕ} (hN : 1 ≤ N) {σ u : ℝ} (hu : σ ≤ u) {k : ℕ} (hk : k ≤ 1) :
-    ∑ z ∈ S, ‖poly a N k u z.im‖^2 ≤ 3*K *
-      ((2*(L:ℝ)+2*Real.pi*N) * (1+Real.log N)^4 * dirichletPolyEnergy a N σ) := by
-  apply (sampling_vertical_integrals hK hL hmult a N k u).trans
-  have h1 := poly_vertical_integral a (L:=L) hN hu (k:=k) (by omega)
-  have h2 := poly_vertical_integral a (L:=L) hN hu (k:=k+1) (by omega)
+/-- A common bound for the vertical square means of the first two logarithmic derivatives
+yields a strip sampling bound for a finite family of Dirichlet polynomials. -/
+theorem dirichletPoly_family_sampling_strip {ι : Type*} (F : Finset ι) (a : ι → ℕ → ℂ) (S : ι → Finset ℂ)
+    {N L : ℕ} {K B σ : ℝ} (hK : 0 ≤ K)
+    (hre : ∀ p ∈ F, ∀ z ∈ S p, z.re ∈ Set.Icc σ (σ+1))
+    (hL : ∀ p ∈ F, ∀ z ∈ S p, 0 ≤ z.im ∧ z.im < L)
+    (hmult : ∀ p ∈ F, ∀ j < L, (((S p).filter (fun z => ⌊z.im⌋₊=j)).card : ℝ) ≤ K)
+    (hmean : ∀ u ∈ Set.Icc σ (σ+1), ∀ k ≤ 2,
+      ∑ p ∈ F, (∫ t in (0:ℝ)..L, ‖dirichletPoly (fun n => a p n * (-Complex.log n)^k) N ((u:ℂ)+(t:ℂ)*I)‖^2) ≤ B) :
+    ∑ p ∈ F, ∑ z ∈ S p, ‖dirichletPoly (a p) N z‖^2 ≤ 9*K*B := by
+  let f (p : ι) (z : ℂ) (u : ℝ) := 2*‖poly (a p) N 0 u z.im‖^2 + ‖poly (a p) N 1 u z.im‖^2
+  have hfc (p : ι) (z : ℂ) : Continuous (f p z) :=
+    (continuous_const.mul ((continuous_poly_r ..).norm.pow 2)).add ((continuous_poly_r ..).norm.pow 2)
+  have hfcs (p : ι) : Continuous fun u => ∑ z ∈ S p, f p z u :=
+    continuous_finsetSum _ fun z _ => hfc p z
+  have hz (p : ι) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) :
+      ‖dirichletPoly (a p) N z‖^2 ≤ ∫ r in σ..σ+1, f p z r := by
+    have h := sobolev_square_unit (hre p hp z hz) (fun t => poly_dr (a p) N 0 t z.im) (continuous_poly_r (a p) N 1 z.im)
+    have hzero : logTwist (a p) 0 = a p := funext fun n => by simp [logTwist]
+    simpa [f,poly,hzero,Complex.re_add_im] using h
+  have hswap (p : ι) : (∑ z ∈ S p, ∫ r in σ..σ+1, f p z r) =
+      ∫ r in σ..σ+1, ∑ z ∈ S p, f p z r :=
+    (intervalIntegral.integral_finsetSum (fun z _ => (hfc p z).intervalIntegrable ..)).symm
+  have hvert (t : ℝ) (ht : t ∈ Set.Icc σ (σ+1)) (k : ℕ) (hk : k ≤ 1) :
+      ∑ p ∈ F, ∑ z ∈ S p, ‖poly (a p) N k t z.im‖^2 ≤ 3*K*B := by
+    apply (sum_le_sum fun p hp => sampling_vertical_integrals (hL p hp) (hmult p hp) (a p) N k t).trans
+    rw [←mul_sum, sum_add_distrib, ←mul_sum]
+    have h1 := hmean t ht k (by omega)
+    have h2 := hmean t ht (k+1) (by omega)
+    calc
+      _ ≤ K*(2*B+B) := mul_le_mul_of_nonneg_left (add_le_add (mul_le_mul_of_nonneg_left h1 (by norm_num : (0:ℝ)≤2)) h2) hK
+      _ = _ := by ring
+  apply (sum_le_sum fun p hp => sum_le_sum (hz p hp)).trans
+  simp_rw [hswap]
+  rw [← intervalIntegral.integral_finsetSum (fun p _ => (hfcs p).intervalIntegrable ..)]
   calc
-    _ ≤ K*(2*_ + _) := mul_le_mul_of_nonneg_left (add_le_add (mul_le_mul_of_nonneg_left h1 (by norm_num : 0≤(2:ℝ))) h2) hK
-    _ = _ := by ring
+    _ ≤ ∫ _r in σ..σ+1, 9*K*B := by
+      apply intervalIntegral.integral_mono_on (by linarith) ((continuous_finsetSum _ (fun p _ => hfcs p)).intervalIntegrable ..)
+        (continuous_const.intervalIntegrable ..)
+      intro t ht
+      simp only [f,sum_add_distrib,← mul_sum]
+      linarith only [hvert t ht 0 (by decide), hvert t ht 1 (by decide)]
+    _ = _ := by simp
 
 /-- A Dirichlet-polynomial square mean on a finite set of points with varying
 real parts in a strip of width one and at most `K` ordinates per unit interval. -/
@@ -174,27 +206,10 @@ theorem dirichletPoly_sampling_strip {S : Finset ℂ} {L : ℕ} {K σ : ℝ} (hK
     (a : ℕ → ℂ) {N : ℕ} (hN : 1 ≤ N) :
     ∑ z ∈ S, ‖dirichletPoly a N z‖^2 ≤ 9*K *
       ((2*(L:ℝ)+2*Real.pi*N) * (1+Real.log N)^4 * dirichletPolyEnergy a N σ) := by
-  let f (z : ℂ) (u : ℝ) := 2*‖poly a N 0 u z.im‖^2 + ‖poly a N 1 u z.im‖^2
-  have hfc (z : ℂ) : Continuous (f z) :=
-    (continuous_const.mul ((continuous_poly_r ..).norm.pow 2)).add ((continuous_poly_r ..).norm.pow 2)
-  have hz (z : ℂ) (hz : z ∈ S) : ‖dirichletPoly a N z‖^2 ≤ ∫ r in σ..σ+1, f z r := by
-    have h := sobolev_square_unit (hre z hz) (fun t => poly_dr a N 0 t z.im) (continuous_poly_r a N 1 z.im)
-    have hzero : logTwist a 0 = a := funext fun n => by simp [logTwist]
-    simpa [f,poly,hzero,Complex.re_add_im] using h
-  apply (sum_le_sum hz).trans
-  rw [← intervalIntegral.integral_finsetSum (fun z _ => (hfc z).intervalIntegrable ..)]
-  let B := (2*(L:ℝ)+2*Real.pi*N) * (1+Real.log N)^4 * dirichletPolyEnergy a N σ
-  calc
-    _ ≤ ∫ _t in σ..σ+1, 9*K*B := by
-      apply intervalIntegral.integral_mono_on (by linarith) ((continuous_finsetSum _ (fun z _ => hfc z)).intervalIntegrable ..)
-        (continuous_const.intervalIntegrable ..)
-      intro t ht
-      change (∑ z ∈ S, (2*‖poly a N 0 t z.im‖^2 + ‖poly a N 1 t z.im‖^2)) ≤ _
-      rw [sum_add_distrib, ←mul_sum]
-      have h1 := sampling_vertical hK hL hmult a hN ht.1 (k:=0) (by decide)
-      have h2 := sampling_vertical hK hL hmult a hN ht.1 (k:=1) (by decide)
-      change _ ≤ 3*K*B at h1 h2
-      linarith only [h1,h2]
-    _ = _ := by simp [B]
+  simpa only [sum_singleton] using dirichletPoly_family_sampling_strip ({()} : Finset Unit) (fun _ => a) (fun _ => S)
+    hK (fun _ _ => hre) (fun _ _ => hL) (fun _ _ => hmult) (fun u hu k hk => by
+      rw [sum_singleton]
+      have hm := poly_vertical_integral a (L:=L) hN hu.1 hk
+      simpa only [poly, show logTwist a k = (fun n => a n * (-Complex.log n)^k) from rfl] using hm)
 
 end AnalyticNumberTheory.PrimeDistribution

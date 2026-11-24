@@ -23,7 +23,7 @@ namespace AnalyticNumberTheory.PrimeDistribution
 def zetaDetectorCoeff (N n : ℕ) : ℂ :=
   ∑ d ∈ n.divisors, if d ≤ N ∧ n/d ≤ N then (μ d : ℂ) else 0
 
-private lemma norm_moebius_complex_le (d : ℕ) : ‖(μ d : ℂ)‖ ≤ 1 := by
+lemma norm_moebius_complex_le (d : ℕ) : ‖(μ d : ℂ)‖ ≤ 1 := by
   rw [← Complex.ofReal_intCast, Complex.norm_real, Real.norm_eq_abs]
   exact_mod_cast (ArithmeticFunction.abs_moebius_le_one (n:=d))
 
@@ -62,13 +62,14 @@ private lemma detector_fiber {N n : ℕ} (hn : 0 < n) :
     have hij : 0 < i*j := h ▸ hn
     exact ⟨⟨⟨Nat.pos_of_mul_pos_right hij,hi⟩,Nat.pos_of_mul_pos_left hij,hj⟩,h⟩
 
-/-- Exact multiplication rule for the finite zero detector. -/
-theorem zetaDetector_product (N : ℕ) (s : ℂ) :
-    dirichletPoly (fun n => (μ n:ℂ)) N s * dirichletPoly (fun _ => 1) N s =
-      dirichletPoly (zetaDetectorCoeff N) (N^2) s := by
+/-- Exact multiplication rule after twisting both polynomials by a completely multiplicative weight. -/
+theorem zetaDetector_product_twist (g : ℕ → ℂ) (hg : ∀ m n, g (m*n) = g m * g n)
+    (N : ℕ) (s : ℂ) :
+    dirichletPoly (fun n => (μ n:ℂ)*g n) N s * dirichletPoly g N s =
+      dirichletPoly (fun n => zetaDetectorCoeff N n * g n) (N^2) s := by
   unfold dirichletPoly
-  simp only [one_mul, sum_mul, mul_sum]
-  rw [sum_comm, ← sum_product (f := fun p : ℕ × ℕ => (μ p.1:ℂ)*(p.1:ℂ)^(-s)*(p.2:ℂ)^(-s))]
+  simp only [sum_mul, mul_sum]
+  rw [sum_comm, ← sum_product (f := fun p : ℕ × ℕ => (μ p.1:ℂ)*g p.1*(p.1:ℂ)^(-s)*(g p.2*(p.2:ℂ)^(-s)))]
   let D := Icc 1 N ×ˢ Icc 1 N
   have hmap (p : ℕ × ℕ) (hp : p ∈ D) : p.1*p.2 ∈ Icc 1 (N^2) := by
     have h := mem_product.mp hp
@@ -79,14 +80,23 @@ theorem zetaDetector_product (N : ℕ) (s : ℂ) :
   rw [show D.filter (fun p : ℕ × ℕ => p.1*p.2=n) =
       n.divisorsAntidiagonal.filter (fun p => p.1 ≤ N ∧ p.2 ≤ N) from detector_fiber (mem_Icc.mp hn).1]
   have hterm (p : ℕ × ℕ) (hp : p ∈ n.divisorsAntidiagonal) :
-      (μ p.1:ℂ)*(p.1:ℂ)^(-s)*(p.2:ℂ)^(-s) = (μ p.1:ℂ)*(n:ℂ)^(-s) := by
-    rw [mul_assoc, ← Complex.natCast_mul_natCast_cpow, ← Nat.cast_mul, (Nat.mem_divisorsAntidiagonal.mp hp).1]
+      (μ p.1:ℂ)*g p.1*(p.1:ℂ)^(-s)*(g p.2*(p.2:ℂ)^(-s)) = (μ p.1:ℂ)*(g n * (n:ℂ)^(-s)) := by
+    have he := (Nat.mem_divisorsAntidiagonal.mp hp).1
+    rw [← he, hg, Nat.cast_mul, Complex.natCast_mul_natCast_cpow]
+    ring
   calc
-    _ = ∑ p ∈ n.divisorsAntidiagonal.filter (fun p => p.1 ≤ N ∧ p.2 ≤ N), (μ p.1:ℂ)*(n:ℂ)^(-s) :=
+    _ = ∑ p ∈ n.divisorsAntidiagonal.filter (fun p => p.1 ≤ N ∧ p.2 ≤ N), (μ p.1:ℂ)*(g n * (n:ℂ)^(-s)) :=
       sum_congr rfl fun p hp => hterm p (mem_filter.mp hp).1
     _ = _ := by
       rw [← sum_mul, sum_filter, Nat.sum_divisorsAntidiagonal (fun d k => if d ≤ N ∧ k ≤ N then (μ d:ℂ) else 0)]
-      rfl
+      change zetaDetectorCoeff N n * (g n * _) = _
+      ring
+
+/-- Exact multiplication rule for the finite zero detector. -/
+theorem zetaDetector_product (N : ℕ) (s : ℂ) :
+    dirichletPoly (fun n => (μ n:ℂ)) N s * dirichletPoly (fun _ => 1) N s =
+      dirichletPoly (zetaDetectorCoeff N) (N^2) s := by
+  simpa only [mul_one] using zetaDetector_product_twist (fun _ => 1) (by simp) N s
 
 /-- The product consists of one constant and its high-frequency tail. -/
 theorem zetaDetector_product_eq_one_add {N : ℕ} (hN : 1 ≤ N) (s : ℂ) :

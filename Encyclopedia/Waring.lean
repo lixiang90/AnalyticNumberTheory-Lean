@@ -1,4 +1,8 @@
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringSingularSeries
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringPrimeModuli
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringVolume
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringSingularIntegral
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringMinorArcs
 import VersoManual
 
 open Verso.Genre Manual
@@ -37,6 +41,14 @@ file := "waring"
 
 {docstring waringCount_three_squares_eq_zero}
 
+在素数模 $`p` 下，每个非零剩余类至多有 $`k` 个 $`k` 次根。对幂剩余集合反复应用 Cauchy–Davenport 不等式，可以证明每个剩余类都能表示成 $`k` 个 $`k` 次幂之和。
+
+{docstring waringLocalCount_pos_prime}
+
+当 $`p\nmid k` 且允许再加一个变量时，可以把这个额外变量在模 $`p` 下固定为一。其余变量任选提升后，差额是一个模 $`p` 等于一的单位。这些单位组成的群具有素数幂阶，取 $`k` 次幂在该群上是双射，因而每个目标都能提升到任意 $`p^r`。
+
+{docstring waringLocalCount_pos_prime_pow}
+
 {index}[Waring 奇异级数]在模 $`q` 的频率中只取既约分数，将每个完整指数和除以 $`q`，便得到奇异级数的第 $`q` 项。完整和的界说明该项的模至多为 $`C_k^s q^{1-s/k}`。当 $`s>2k` 时，指数小于负一，因此级数绝对收敛。这个控制与目标整数 $`n` 无关，同一个截断点对所有 $`n` 都适用。
 
 {docstring tendstoUniformly_waringSingularSeries}
@@ -44,3 +56,15 @@ file := "waring"
 在素数模 $`p` 下，每个非零频率都是既约频率。将零频率的贡献一加回第 $`p` 项，便恢复了归一化的局部解数。
 
 {docstring one_add_waringSingularTerm_prime}
+
+实数解的几何因子来自正象限中 $`\sum_i x_i^k\le t` 的体积。将所有坐标同时放大 $`t^{1/k}`，体积随 $`t^{s/k}` 变化。求导得到 $`t=1` 处的实密度 $`\Gamma(1+1/k)^s/\Gamma(s/k)`。
+
+{docstring hasDerivAt_waringVolume}
+
+连续相位积分 $`v_k(\beta)=\int_0^1 e(\beta u^k)\,du` 随频率衰减。在 $`|\beta|\ge1` 时，其模为 $`O(|\beta|^{-1/k})`。因此只要 $`s>k`，$`v_k(\beta)^s e(-t\beta)` 在整条实线上绝对可积，任意实数目标 $`t` 都有良定义的 Fourier 奇异积分。
+
+{docstring integrable_waringSingularIntegrand}
+
+对于 $`k\ge 2` 和 $`s>2^k`，可以在次弧上用 Weyl 不等式控制多出的变量，用 Hua 引理控制其余 $`2^k` 个变量的均值。由此得到与目标整数无关的界 $`O(P^{s-k-\delta})`，其中 $`\delta>0`。这里主弧分母的截点取 $`P^\eta`，且 $`0<\eta\le1/2`。
+
+{docstring waringMinorArc_power_saving}

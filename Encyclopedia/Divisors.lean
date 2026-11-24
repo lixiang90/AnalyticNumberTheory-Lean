@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
-import AnalyticNumberTheory.DivisorProblems.DyadicDivisorEstimates
+import AnalyticNumberTheory.DivisorProblems.DivisorCubeRoot
 import VersoManual
 
 open Verso.Genre Manual
@@ -29,3 +29,9 @@ $$`\sum_{n\le N}d(n)+u^2=2\sum_{a=1}^u\lfloor N/a\rfloor.`
 在二进区间 $`D<n\le 2D` 上，相位 $`A/n` 的二阶导数 $`2A/n^3` 在端点之间只相差常数倍。van der Corput 二阶导数估计因此可以一致地用于该区间的任一子区间。
 
 {docstring norm_sum_reciprocal_phase_le}
+
+将锯齿函数夹在两个有限 Fourier 和之间，再逐频率使用二阶导数估计，可以把每个二进区间的贡献控制在 $`O(x^{1/3})` 内。从一到 $`\sqrt x` 共有 $`O(\log x)` 个区间，包括末尾可能不完整的一段。合起来便将双曲线法的平方根误差改进到
+
+$$`\Delta(x)=O\bigl(x^{1/3}\log x\bigr).`
+
+{docstring abs_divisorError_le_cubeRoot_mul_log}

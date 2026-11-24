@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachMajorArcIntegral
+import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachAsymptotic
 import VersoManual
 
 open Verso.Genre Manual
@@ -27,6 +27,20 @@ file := "goldbach"
 
 {docstring norm_goldbachTernary_minorArcIntegral_le}
 
-奇异级数记录各个素数处的局部限制。三元奇异级数在所有奇数上有统一的正下界。要据此推出充分大的奇数确实有三个素数的表示，还需要主弧积分的渐近公式以及从加权计数到素数计数的误差控制。
+奇异级数记录各个素数处的局部限制。三元奇异级数在所有奇数上有统一的正下界。这个下界使主项具有统一的正大小。
 
 {docstring goldbachTernarySingularSeries_pos_of_odd}
+
+对无权主项，积过一个完整周期给出三元正整数分拆数 $`\binom{N-1}{2}`。将积分区间截断到 $`[-H,H]` 时，几何级数估计给出尾部至多 $`1/(8H^2)`。据此可将分母相关的局部积分还原为完整奇异级数乘以同一个组合主项。
+
+{docstring norm_ternarySingularIntegral_sub_choose_le}
+
+{docstring abs_goldbachTernaryWeighted_sub_series_le}
+
+设 Siegel–Walfisz 估计成立，即在对数幂大小的模数范围内，素数在简化剩余类中具有一致的分布误差。取主弧分母截点为对数的适当幂，合并主弧和次弧估计，得到三元加权表示数的下述渐近公式。对任意自然数 $`A`，误差为 $`O_A(N^2/(\log N)^A)`。
+
+{docstring ternaryGoldbach_asymptotic}
+
+对奇数 $`N`，奇异级数的正下界使主项压过误差。扣掉来自真正素数幂 $`p^j`（$`j\ge 2`）以及素数二的贡献后，剩下的表示由三个奇素数组成。这条定理仍以同一个 Siegel–Walfisz 估计为前提。
+
+{docstring eventually_odd_sum_three_odd_primes_of_siegelWalfisz}

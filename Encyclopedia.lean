@@ -11,6 +11,11 @@ import Encyclopedia.Sieves
 import Encyclopedia.Goldbach
 import Encyclopedia.LatticePoints
 import Encyclopedia.DirichletPolynomials
+import Encyclopedia.Transforms
+import Encyclopedia.Perron
+import Encyclopedia.ZetaZeros
+import Encyclopedia.LFunctions
+import Encyclopedia.Eta
 import Encyclopedia.References
 
 open Verso.Genre Manual
@@ -26,13 +31,21 @@ tag := "encyclopedia-home"
 
 从{ref "euler-products"}[Euler 乘积]出发，可以追踪素数幂如何进入{ref "prime-counting"}[素数定理]。从{ref "exponential-sums"}[指数和]出发，可以看到一个周期上的积分如何提取{ref "waring"}[幂和方程的解数]。
 
+{include 0 Encyclopedia.Transforms}
+
 {include 0 Encyclopedia.Summation}
 
 {include 0 Encyclopedia.DirichletSeries}
 
+{include 0 Encyclopedia.Perron}
+
 {include 0 Encyclopedia.Zeta}
 
+{include 0 Encyclopedia.ZetaZeros}
+
 {include 0 Encyclopedia.Characters}
+
+{include 0 Encyclopedia.LFunctions}
 
 {include 0 Encyclopedia.Primes}
 
@@ -45,6 +58,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.Divisors}
 
 {include 0 Encyclopedia.LatticePoints}
+
+{include 0 Encyclopedia.Eta}
 
 {include 0 Encyclopedia.Partitions}
 

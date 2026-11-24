@@ -2,6 +2,7 @@ import AnalyticNumberTheory.SieveMethods.CombinatorialSieve
 import AnalyticNumberTheory.SieveMethods.LargeSieve
 import AnalyticNumberTheory.SieveMethods.LegendrePrimeCounting
 import AnalyticNumberTheory.SieveMethods.SelbergSieve
+import AnalyticNumberTheory.SieveMethods.PrimeHybridSieve
 import VersoManual
 
 open Verso.Genre Manual
@@ -47,3 +48,19 @@ file := "brun-selberg"
 对于偶数 $`2N`，Selberg 筛还给出素数表示 $`2N=p+p'` 的个数上界。奇素数 $`\ell` 通常筛去两个剩余类，当 $`\ell\mid N` 时这两个类重合。由此在统一上界 $`O(N/(\log N)^2)` 上出现修正因子 $`\prod_{\ell\mid N,\,\ell>2}(1+1/(\ell-2))`。{ref "goldbach-exceptional-set"}[Goldbach 例外集]一文则说明有表示的偶数占多大比例。
 
 {docstring selberg_goldbach_upper_bound}
+
+# 素数支撑的混合大筛
+%%%
+tag := "prime-hybrid-sieve"
+file := "prime-hybrid-sieve"
+%%%
+
+设 $`Q,T\ge1`，$`Y\ge[Q^2(T+2)]^8`。在任意有限素数集 $`S\subset(Y,\infty)` 上给定复系数 $`a_p`，同时对模数不超过 $`Q` 的原特征和高度 $`|t|\le T` 取均方，有
+
+$$`\sum_{q\le Q}\ \sum_{\chi\bmod q}^{*}\int_{-T}^{T}
+\left|\sum_{p\in S}a_p\chi(p)p^{-it}\right|^2dt
+\le\frac{6\pi^3}{\log Y}\sum_{p\in S}p\,|a_p|^2.`
+
+利用系数只支撑在素数上，可把同一个特征提升到多个辅助模数。对这些模数应用大筛，会在分母得到 $`\log Y`。界与 $`S` 中最大素数无关，也包括模一的特征。
+
+{docstring prime_hybrid_large_sieve}

@@ -23,6 +23,7 @@ import Encyclopedia.DirichletPolynomials
 import Encyclopedia.Transforms
 import Encyclopedia.Gamma
 import Encyclopedia.ComplexBounds
+import Encyclopedia.PowerSums
 import Encyclopedia.EntireFunctions
 import Encyclopedia.Perron
 import Encyclopedia.ZetaZeros
@@ -55,6 +56,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.Gamma}
 
 {include 0 Encyclopedia.ComplexBounds}
+
+{include 0 Encyclopedia.PowerSums}
 
 {include 0 Encyclopedia.EntireFunctions}
 

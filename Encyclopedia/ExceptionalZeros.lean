@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.DirichletLFunctions.RealZeroRepulsion
-import AnalyticNumberTheory.DirichletLFunctions.DeuringHeilbronn
+import AnalyticNumberTheory.DirichletLFunctions.FamilyZeroRepulsion
 import VersoManual
 
 open Verso.Genre Manual
@@ -37,3 +37,7 @@ $$`1-\beta\ \ge\ \min\!\left\{\frac1{32},\frac{\log(1/(C(1-\alpha)L))}{CL}\right
 这里 $`\psi` 可以是复特征。证明对四个对数导数取高阶导数，用局部零点展开得到幂和，再以 Fejér 加权的幂和估计检测零点。所得下界同时记录了两个导子和目标零点的高度。
 
 {docstring deuring_heilbronn_distinct_primitive}
+
+对同一个实特征，异常实零点还排斥它的其他零点以及黎曼 ζ 函数的零点。对于非原始特征，可以先传到诱导它的原特征。统一定理按目标特征的导子给出临界带中的排斥界，并且允许给整个特征族选用同一个参数 $`L`。
+
+{docstring deuring_heilbronn_family}

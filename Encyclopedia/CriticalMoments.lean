@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
+import AnalyticNumberTheory.RiemannZeta.FourthMoment
 import VersoManual
 
 open Verso.Genre Manual
@@ -47,3 +48,21 @@ file := "periodic-coefficients"
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_periodicLFunctions}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_LFunctions_of_ne}
+
+# ζ 函数的四阶矩
+%%%
+tag := "critical-fourth-moment"
+file := "fourth-moment"
+%%%
+
+{index}[ζ 函数的四阶矩]对每个 $`\varepsilon>0`，存在常数 $`C_\varepsilon`，使对所有 $`T\ge1` 有
+
+$$`\int_1^T |\zeta(1/2+it)|^4\,dt\le C_\varepsilon T^{1+\varepsilon}.`
+
+在 $`t\in[T,2T]` 上，从{ref "riemann-xi"}[光滑函数方程]出发，将 $`\zeta(1/2+it)^2` 展开为带正因子数系数 $`d(n)` 的两个加权多项式。对任意固定 $`\eta>0`，在 $`\lceil T^{1+\eta}\rceil` 处截断的点态误差为 $`O_\eta(1)`。
+
+{docstring norm_zeta_sq_sub_fourthMomentPieces_le}
+
+每个多项式的积分权由高斯函数支配。使用除数多项式的均方估计，并把高度按二的幂分段求和，就得到上述四阶矩界。
+
+{docstring fourthMoment_riemannZeta_le}

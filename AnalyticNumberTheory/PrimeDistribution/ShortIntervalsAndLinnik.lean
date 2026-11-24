@@ -10,10 +10,10 @@ import AnalyticNumberTheory.RiemannZeta.PoleAndBounds
 import Mathlib.Analysis.Calculus.Deriv.Star
 
 /-!
-# Short Intervals, Zero-Density Estimates, Bombieri–Vinogradov, and Linnik's Theorem
+# Short Intervals, Zero-Density Estimates and the Bombieri–Vinogradov Reduction
 
 This file develops the prime-distribution deductions around zero-density estimates, short
-intervals, the Bombieri–Vinogradov theorem, and Linnik's theorem in
+intervals and the Bombieri–Vinogradov theorem in
 `AnalyticNumberTheory.PrimeDistribution`:
 
 1. **Zero-density counting function**: defines `zeroDensityN σ T` counting nontrivial zeros of
@@ -29,10 +29,6 @@ intervals, the Bombieri–Vinogradov theorem, and Linnik's theorem in
    version `bombieriVinogradov_thetaAP`, and proves the primitive character reduction
    `bombieriVinogradov_primitive_char_reduction` via character orthogonality and conductor
    factorization.
-4. **Linnik's theorem**: defines `LinnikStatement`, `LogFreeZeroDensityData`,
-   `DeuringHeilbronnData`, and `LinnikSmoothedHypothesis`, and proves
-   `linnik_of_logFreeZeroDensity_and_deuringHeilbronn` covering both the non-exceptional and
-   Siegel–Landau exceptional-zero regimes.
 -/
 
 noncomputable section

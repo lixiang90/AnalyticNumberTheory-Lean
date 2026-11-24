@@ -35,9 +35,9 @@ jobs:
 
       - name: Verify generated HTML
         run: |
-          test -f _out/html-multi/index.html
-          echo "Generated files in _out/html-multi:"
-          ls -la _out/html-multi
+          for page in index.html waring/index.html sieve-methods/index.html index-terms/index.html; do
+            test -s "_out/html-multi/$page"
+          done
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

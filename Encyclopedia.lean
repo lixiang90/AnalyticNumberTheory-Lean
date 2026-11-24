@@ -8,6 +8,9 @@ import Encyclopedia.Waring
 import Encyclopedia.Divisors
 import Encyclopedia.Partitions
 import Encyclopedia.Sieves
+import Encyclopedia.Goldbach
+import Encyclopedia.LatticePoints
+import Encyclopedia.DirichletPolynomials
 import Encyclopedia.References
 
 open Verso.Genre Manual
@@ -37,11 +40,17 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.Waring}
 
+{include 0 Encyclopedia.Goldbach}
+
 {include 0 Encyclopedia.Divisors}
+
+{include 0 Encyclopedia.LatticePoints}
 
 {include 0 Encyclopedia.Partitions}
 
 {include 0 Encyclopedia.Sieves}
+
+{include 0 Encyclopedia.DirichletPolynomials}
 
 # 索引
 %%%

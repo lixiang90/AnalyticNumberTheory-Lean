@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
+import AnalyticNumberTheory.DivisorProblems.DyadicDivisorEstimates
 import VersoManual
 
 open Verso.Genre Manual
@@ -20,3 +21,11 @@ $$`\sum_{n\le N}d(n)+u^2=2\sum_{a=1}^u\lfloor N/a\rfloor.`
 以 $`N=10` 为例，$`u=3`，右端为 $`2(10+5+3)=36`，故除数个数的总和为 $`27`。将取整误差与调和和式结合，可得主项 $`x\log x+(2\gamma-1)x` 及以下余项界。
 
 {docstring abs_divisorError_le_of_one_le}
+
+若要研究余项中的抵消，可以保留每个取整误差的符号。令 $`\psi(t)=\{t\}-1/2`，则除数余项与 $`-2\sum_{d\le\sqrt x}\psi(x/d)` 的差至多为八。这个约化把改进余项的任务化为估计一个振荡和。
+
+{docstring abs_divisorError_add_two_sum_sawtooth_le}
+
+在二进区间 $`D<n\le 2D` 上，相位 $`A/n` 的二阶导数 $`2A/n^3` 在端点之间只相差常数倍。van der Corput 二阶导数估计因此可以一致地用于该区间的任一子区间。
+
+{docstring norm_sum_reciprocal_phase_le}

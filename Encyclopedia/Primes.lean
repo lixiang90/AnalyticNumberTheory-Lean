@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
+import AnalyticNumberTheory.PrimeDistribution.LeastPrime
 import VersoManual
 
 open Verso.Genre Manual
@@ -20,3 +21,9 @@ $$`|\psi(x)-x|\le Cx\exp(-c\sqrt{\log x}).`
 除去高次素数幂并作分部求和，可以恢复普通素数计数 $`\pi(x)`。本库采用从 $`2` 起算的对数积分 $`\int_2^x dt/\log t`。下面的存在量词允许误差常数改变。
 
 {docstring abs_primePi_sub_logIntegral_le_exp}
+
+{index}[等差数列中的最小素数]在模 $`q` 的互素剩余类 $`a` 内，$`\theta(x;q,a)` 是一个有限和，每项都是正的素数对数。因此它首次取正值的阈值，恰好是这一类的最小素数。若从 $`\psi(x;q,a)` 出发，还须扣除高次素数幂可能贡献的部分。
+
+{docstring leastPrimeAP_le_iff_thetaAP_pos}
+
+{docstring leastPrimeAP_le_of_psiAP}

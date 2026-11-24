@@ -39,7 +39,8 @@ private theorem complex_mul_star_dp (z : ℂ) :
     z * star z = ((‖z‖ ^ 2 : ℝ) : ℂ) := by
   rw [RCLike.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.ofReal_pow]
 
-private theorem hilbert_inequality_real_dp {κ : Type*} (J : Finset κ) (x : κ → ℝ) {δ : ℝ}
+/-- Hilbert's inequality for an arbitrary finite set of separated real frequencies. -/
+theorem hilbert_inequality_separated {κ : Type*} (J : Finset κ) (x : κ → ℝ) {δ : ℝ}
     (hδ : 0 < δ) (hx : ∀ r ∈ J, ∀ s ∈ J, r ≠ s → δ ≤ |x r - x s|) (u : κ → ℂ) :
     ‖∑ r ∈ J, ∑ s ∈ J,
         (if r = s then (0 : ℂ) else u r * star (u s) / ((x r - x s : ℝ) : ℂ))‖ ≤
@@ -501,7 +502,7 @@ private theorem norm_integral_dirichlet_sub_diag_le (a : ℕ → ℂ) (N : ℕ) 
         Real.pi * (N : ℝ) * ∑ n ∈ S, ‖a n‖ ^ 2 * (n : ℝ) ^ (-2 * σ) := by
     intro t
     have hN_inv_pos : (0 : ℝ) < (N : ℝ)⁻¹ := inv_pos.mpr (by exact_mod_cast hN1)
-    have hh := hilbert_inequality_real_dp S (fun n => Real.log n) hN_inv_pos hlog_spaced
+    have hh := hilbert_inequality_separated S (fun n => Real.log n) hN_inv_pos hlog_spaced
       (fun n => c n * (n : ℂ) ^ (-(t : ℂ) * Complex.I))
     have hinv_inv : ((N : ℝ)⁻¹)⁻¹ = (N : ℝ) := inv_inv _
     have hnorm_sum :

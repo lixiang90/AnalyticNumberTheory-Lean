@@ -106,4 +106,26 @@ theorem gaussian_weighted_mean_bound {a b K E : ℝ} (hab : a ≤ b) (hK : 0 ≤
   nlinarith only [Real.sq_sqrt (by positivity : 0 ≤ 2*π),
     congrArg (fun z : ℝ => K^2*z*E) (Real.sq_sqrt (by positivity : 0 ≤ 2*π))]
 
+/-- The Gaussian estimate for translated or reflected samples of a
+bounded continuous function, using a bound on every interval of length `T`. -/
+theorem gaussian_shifted_dyadic_mean {T K E : ℝ} (hT : 0≤T) (hK : 0≤K)
+    (p : ℝ → ℂ) (hp : Continuous p) (hb : ∃ M : ℝ, ∀ u, ‖p u‖≤M)
+    (hE : ∀ a b : ℝ, b-a=T → (∫ u in a..b, ‖p u‖^2) ≤ E)
+    (negative : Bool) (F : ℝ → ℝ → ℂ)
+    (hF : ∀ t ∈ Ioc T (2*T), ∀ v, ‖F t v‖ ≤ K*Real.exp (-(1/2:ℝ)*v^2)) :
+    (∫ t in T..2*T, ‖∫ v, F t v*p (if negative then v-t else v+t)‖^2) ≤ 2*π*K^2*E := by
+  let P := fun t v : ℝ => p (if negative then v-t else v+t)
+  have hc : Continuous (Function.uncurry P) := by
+    cases negative <;> apply hp.comp <;> first | exact continuous_snd.add continuous_fst | exact continuous_snd.sub continuous_fst
+  obtain ⟨M,hM⟩ := hb
+  apply gaussian_weighted_mean_bound (by linarith) hK F P hc ⟨M,fun t v => hM _⟩ hF
+  intro v
+  cases negative
+  · change (∫ t in T..2*T, (fun u => ‖p u‖^2) (v+t)) ≤ _
+    rw [intervalIntegral.integral_comp_add_left (fun u : ℝ => ‖p u‖^2) v]
+    exact hE _ _ (by ring)
+  · change (∫ t in T..2*T, (fun u => ‖p u‖^2) (v-t)) ≤ _
+    rw [intervalIntegral.integral_comp_sub_left (fun u : ℝ => ‖p u‖^2) v]
+    exact hE _ _ (by ring)
+
 end AnalyticNumberTheory.AnalyticTools

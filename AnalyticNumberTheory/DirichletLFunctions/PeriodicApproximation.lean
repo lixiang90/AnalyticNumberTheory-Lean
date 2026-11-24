@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.HurwitzApproximation
 import AnalyticNumberTheory.RiemannZeta.AsymptoticsAndMeans
 import Mathlib.NumberTheory.LSeries.DirichletContinuation
 
@@ -14,7 +15,8 @@ open AnalyticNumberTheory.DirichletSeries AnalyticNumberTheory.RiemannZeta
 
 namespace AnalyticNumberTheory.DirichletLFunctions
 
-private theorem sum_residues_succ {q : ℕ} [NeZero q] {E : Type*} [AddCommMonoid E] (f : ZMod q → E) :
+/-- Enumerate residue classes using the representatives from one to the modulus. -/
+theorem sum_residues_succ {q : ℕ} [NeZero q] {E : Type*} [AddCommMonoid E] (f : ZMod q → E) :
     ∑ j : ZMod q, f j = ∑ r ∈ range q, f ((r+1:ℕ):ZMod q) := by
   rw [← Equiv.sum_comp (Equiv.addRight (1 : ZMod q)) f]
   refine sum_bij (fun j _ => j.val) (fun j _ => mem_range.mpr (ZMod.val_lt j))
@@ -80,34 +82,6 @@ private theorem split_periodic_poly {q : ℕ} [NeZero q] (Φ : ZMod q → ℂ) (
   rw [← he] at hx'
   simpa only [x,Complex.ofReal_add,Complex.ofReal_natCast] using hx'.symm
 
-private theorem hurwitz_sub_poly_bound {c : ℝ} (hc : 0 < c) (hc' : c < 2*π) :
-    ∃ K > 0, ∀ {a : ℝ} {N : ℕ} {σ t : ℝ}, a ∈ Set.Ioc (0:ℝ) 1 → 0 < N → 0 < σ → σ ≤ 1 →
-      0 < |t| → |t| ≤ c*N →
-      let s := (σ:ℂ)+t*I
-      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s - ∑ m ∈ Icc 0 N, ((m:ℂ)+a)^(-s)‖ ≤
-        ((N:ℝ)+1)^(1-σ)/|t|+K*(N:ℝ)^(-σ) := by
-  obtain ⟨K,hK,H⟩ := hurwitzZeta_approx_dirichletPoly hc hc'
-  refine ⟨K,hK,?_⟩
-  intro a N σ t ha hN hσ hσ' ht hTN s
-  have hr : 0 < (N:ℝ) := by exact_mod_cast hN
-  have hs : s ≠ 1 := by intro h; have h' := congrArg Complex.im h; simp [s] at h'; simp [h'] at ht
-  have hz : 0 < (N:ℝ)+a := add_pos hr ha.1
-  have hnorm : |t| ≤ ‖1-s‖ := by simpa [s] using Complex.abs_im_le_norm (1-s)
-  have hmain := H ha (N:=N) hσ hs (hTN.trans (by nlinarith [mul_pos hc ha.1]))
-  let D := ∑ m ∈ Icc 0 N, ((m:ℂ)+a)^(-s)
-  let e := ((N:ℂ)+a)^(1-s)/(1-s)
-  have he : ‖e‖ ≤ ((N:ℝ)+1)^(1-σ)/|t| := by
-    dsimp [e]
-    rw [norm_div, ← Complex.ofReal_natCast, ← Complex.ofReal_add, Complex.norm_cpow_eq_rpow_re_of_pos hz]
-    simp only [s,sub_re,one_re,add_re,ofReal_re,mul_I_re,ofReal_im,neg_zero,add_zero]
-    exact div_le_div₀ (by positivity)
-      (Real.rpow_le_rpow hz.le (by linarith only [ha.2]) (by linarith)) ht hnorm
-  have herr : K*((N:ℝ)+a)^(-σ) ≤ K*(N:ℝ)^(-σ) := by
-    exact mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_nonpos hr (by linarith only [ha.1]) (by linarith)) hK.le
-  have hb : ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s - (D-e)‖ ≤ K*((N:ℝ)+a)^(-σ) := hmain
-  calc _ = ‖(HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s - (D-e)) + (-e)‖ := by congr 1; dsimp [D]; ring
-       _ ≤ _ := (norm_add_le ..).trans (by rw [norm_neg,add_comm]; exact add_le_add he (hb.trans herr))
-
 /-- Sharp finite Dirichlet approximation for a bounded periodic coefficient
 function. The cutoff `q(N+1)` includes whole periods. The implied constant
 depends only on the fixed allowed height-to-length ratio `c < 2π`. -/
@@ -117,7 +91,7 @@ theorem periodicLFunction_approx_dirichletPoly {c : ℝ} (hc : 0 < c) (hc' : c <
       let s := (σ:ℂ)+t*I
       ‖ZMod.LFunction Φ s-dirichletPoly (fun n : ℕ => Φ n) (q*(N+1)) s‖ ≤
         (q:ℝ)^(1-σ)*(((N:ℝ)+1)^(1-σ)/|t|+K*(N:ℝ)^(-σ)) := by
-  obtain ⟨K,hK,H⟩ := hurwitz_sub_poly_bound hc hc'
+  obtain ⟨K,hK,H⟩ := hurwitzZeta_dirichletPoly_error hc hc'
   refine ⟨K,hK,?_⟩
   intro q _ Φ hΦ N σ t hN hσ hs1 ht hTN s
   let E := ((N:ℝ)+1)^(1-σ)/|t|+K*(N:ℝ)^(-σ)

@@ -257,13 +257,15 @@ noncomputable def rectangleBoundary (f : ℂ → ℂ) (z w : ℂ) : ℂ :=
     I*(∫ y : ℝ in z.im..w.im, f (w.re+y*I)) - I*(∫ y : ℝ in z.im..w.im, f (z.re+y*I))
 
 set_option maxHeartbeats 600000 in
-/-- Cauchy's integral formula for an entire function on a rectangular contour. -/
-theorem rectangleBoundary_cauchy {f : ℂ → ℂ} (hf : Differentiable ℂ f) {p z w : ℂ}
+/-- Cauchy's integral formula when the integrand is holomorphic near a closed vertical strip. -/
+theorem rectangleBoundary_cauchy_on_strip {f : ℂ → ℂ} {p z w : ℂ}
+    (hf : ∀ u : ℂ, u.re ∈ Icc z.re w.re → AnalyticAt ℂ f u)
     (hzre : z.re < p.re) (hpre : p.re < w.re) (hzim : z.im < p.im) (hpim : p.im < w.im) :
     rectangleBoundary (fun u => f u/(u-p)) z w = 2*π*I*f p := by
   let S := dslope f p
-  have hS : Differentiable ℂ S := fun v => ((hf.analyticAt v).dslope p).differentiableAt
-  have hline (P : ℝ → ℂ) (hP : Continuous P) (h : ∀ x : ℝ, P x ≠ p) (a b : ℝ) :
+  have hS (v : ℂ) (hv : v.re ∈ Icc z.re w.re) : DifferentiableAt ℂ S v := ((hf v hv).dslope p).differentiableAt
+  have hline (P : ℝ → ℂ) (hP : Continuous P) (h : ∀ x : ℝ, P x ≠ p) (a b : ℝ)
+      (hmap : ∀ x ∈ uIcc a b, (P x).re ∈ Icc z.re w.re) :
       (∫ x in a..b, f (P x)/(P x-p)) = (∫ x in a..b, S (P x)) +
         (f p)*(∫ x in a..b, (P x-p)⁻¹) := by
     have he (x : ℝ) : f (P x)/(P x-p) = S (P x) + f p*(P x-p)⁻¹ := by
@@ -271,13 +273,15 @@ theorem rectangleBoundary_cauchy {f : ℂ → ℂ} (hf : Differentiable ℂ f) {
       ring
     simp_rw [he]
     rw [intervalIntegral.integral_add,intervalIntegral.integral_const_mul]
-    · exact (hS.continuous.comp hP).intervalIntegrable ..
+    · apply ContinuousOn.intervalIntegrable
+      exact fun x hx => ((hS (P x) (hmap x hx)).continuousAt.comp (hP.continuousAt)).continuousWithinAt
     · exact (continuous_const.mul ((hP.sub continuous_const).inv₀ (fun x => sub_ne_zero.mpr (h x)))).intervalIntegrable ..
-  have hH (a b v : ℝ) (hv : v ≠ p.im) := hline (fun x : ℝ => (x:ℂ)+v*I) (by fun_prop)
-    (fun x h => hv (by simpa only [Complex.add_im,Complex.ofReal_im,Complex.mul_I_im,Complex.ofReal_re,zero_add] using congrArg Complex.im h)) a b
-  have hV (a b v : ℝ) (hv : v ≠ p.re) := hline (fun x : ℝ => (v:ℂ)+x*I) (by fun_prop)
-    (fun x h => hv (by simpa using congrArg Complex.re h)) a b
-  have hz : rectangleBoundary S z w = 0 := Complex.integral_boundary_rect_eq_zero_of_differentiableOn S z w hS.differentiableOn
+  have hab : z.re ≤ w.re := (hzre.trans hpre).le
+  have hH (v : ℝ) (hv : v ≠ p.im) := hline (fun x : ℝ => (x:ℂ)+v*I) (by fun_prop)
+    (fun x h => hv (by simpa only [Complex.add_im,Complex.ofReal_im,Complex.mul_I_im,Complex.ofReal_re,zero_add] using congrArg Complex.im h)) z.re w.re (by simp [uIcc_of_le hab])
+  have hV (a b v : ℝ) (hv : v ≠ p.re) (hmem : v ∈ Icc z.re w.re) := hline (fun x : ℝ => (v:ℂ)+x*I) (by fun_prop)
+    (fun x h => hv (by simpa using congrArg Complex.re h)) a b (by intro x _; simpa using hmem)
+  have hz : rectangleBoundary S z w = 0 := Complex.integral_boundary_rect_eq_zero_of_differentiableOn S z w (fun u hu => (hS u (by have hh := hu.1; rwa [uIcc_of_le hab] at hh)).differentiableWithinAt)
   have hi := rectangle_cauchyKernel_eq_one hzre hpre hzim hpim
   change 1/(2*(π:ℂ)*I)*rectangleBoundary (fun u => (u-p)⁻¹) z w = 1 at hi
   have hi' : rectangleBoundary (fun u => (u-p)⁻¹) z w = 2*π*I := by
@@ -285,7 +289,14 @@ theorem rectangleBoundary_cauchy {f : ℂ → ℂ} (hf : Differentiable ℂ f) {
     rw [one_div, ← div_eq_inv_mul] at hi
     simpa only [one_mul] using (div_eq_iff hπ).mp hi
   unfold rectangleBoundary at hz hi' ⊢
-  rw [hH _ _ _ hzim.ne,hH _ _ _ hpim.ne',hV _ _ _ hpre.ne',hV _ _ _ hzre.ne]
+  rw [hH _ hzim.ne,hH _ hpim.ne',hV _ _ _ hpre.ne' ⟨hab,le_rfl⟩,hV _ _ _ hzre.ne ⟨le_rfl,hab⟩]
   linear_combination hz + (f p)*hi'
+
+set_option maxHeartbeats 600000 in
+/-- Cauchy's integral formula for an entire function on a rectangular contour. -/
+theorem rectangleBoundary_cauchy {f : ℂ → ℂ} (hf : Differentiable ℂ f) {p z w : ℂ}
+    (hzre : z.re < p.re) (hpre : p.re < w.re) (hzim : z.im < p.im) (hpim : p.im < w.im) :
+    rectangleBoundary (fun u => f u/(u-p)) z w = 2*π*I*f p :=
+  rectangleBoundary_cauchy_on_strip (fun u _ => hf.analyticAt u) hzre hpre hzim hpim
 
 end AnalyticNumberTheory.AnalyticTools.ComplexAnalysis

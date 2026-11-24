@@ -111,7 +111,7 @@ private theorem completionFactor_vertical_upper (σ : ℝ) (hσ : 0 < σ) :
     exact (div_le_iff₀ (hE t)).mp (H.trans (le_max_right ..))
 
 
-private theorem completionFactor_ratio {c : ℝ} (hc : 0 < c) :
+private theorem completionFactor_ratio {c : ℝ} (hc : -(1/2:ℝ) < c) :
     ∃ C : ℝ, 0 < C ∧ ∀ {t : ℝ}, 2 ≤ t → ∀ u v : ℝ, |u| = t →
       ‖xiCompletionFactor (((1/2+c:ℝ):ℂ)+(u+v:ℝ)*I)‖ /
         ‖xiCompletionFactor ((1/2:ℂ)+t*I)‖ ≤
@@ -149,15 +149,18 @@ private theorem completionFactor_ratio {c : ℝ} (hc : 0 < c) :
   field_simp
 
 /-- Gaussian domination uniform in the entire height interval and in both signs of the
-critical height. The right shift `c` costs the factor `T^c` for the square of zeta. -/
-theorem norm_normalized_xiGaussianKernel_sq_le {c : ℝ} (hc : 0 < c) :
+critical height. A shift `c > -1/2`, `c ≠ 0`, contributes the factor `T^c` for zeta squared. -/
+theorem norm_normalized_xiGaussianKernel_sq_le_of_nonzero {c : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0) :
     ∃ K : ℝ, 0 < K ∧ ∀ {T t : ℝ}, 2 ≤ T → t ∈ Icc T (2*T) → ∀ u v : ℝ, |u|=t →
       ‖xiGaussianKernel ((1/2:ℂ)+u*I) 2 ((c:ℂ)+v*I) /
         (2*π*xiCompletionFactor ((1/2:ℂ)+t*I)^2)‖ ≤ K*T^c*Real.exp (-v^2/2) := by
   obtain ⟨C,hC,h⟩ := completionFactor_ratio hc
   let e := 7/4+c/2
   let A := 2*e+π/2
-  let K := C^2*(2:ℝ)^c*Real.exp (c^2+A^2/2)/(2*π*c)
+  let L := max ((2:ℝ)^c) 1
+  have hL : 0 < L := lt_of_lt_of_le zero_lt_one (le_max_right ..)
+  have hca : 0 < |c| := abs_pos.mpr hc0
+  let K := C^2*L*Real.exp (c^2+A^2/2)/(2*π*|c|)
   refine ⟨K,by dsimp [K]; positivity,?_⟩
   intro T t hT ht u v hu
   have hT0 : 0 < T := by linarith
@@ -179,11 +182,15 @@ theorem norm_normalized_xiGaussianKernel_sq_le {c : ℝ} (hc : 0 < c) :
     apply hrat.trans
     rw [add_mul,Real.exp_add]
     exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hpow (by positivity)) (by positivity)
-  have hw : c ≤ ‖w‖ := by simpa [w] using Complex.re_le_norm w
+  have hw : |c| ≤ ‖w‖ := by simpa [w] using Complex.abs_re_le_norm w
   have he : (w^2).re = c^2-v^2 := by simp [w,pow_two]
-  have htP : (t^(c/2))^2 ≤ (2:ℝ)^c*T^c := by
-    rw [← Real.rpow_mul_natCast ht0.le,show c/2*(2:ℕ)=c by push_cast; ring,← Real.mul_rpow (by norm_num) hT0.le]
-    exact Real.rpow_le_rpow ht0.le ht.2 hc.le
+  have htP : (t^(c/2))^2 ≤ L*T^c := by
+    rw [← Real.rpow_mul_natCast ht0.le,show c/2*(2:ℕ)=c by push_cast; ring]
+    rcases le_total 0 c with hp | hn
+    · calc t^c ≤ (2*T)^c := Real.rpow_le_rpow ht0.le ht.2 hp
+           _ ≤ _ := by rw [Real.mul_rpow (by norm_num) hT0.le]; exact mul_le_mul_of_nonneg_right (le_max_left ..) (by positivity)
+    · exact (Real.rpow_le_rpow_of_nonpos hT0 ht.1 hn).trans (by calc T^c = 1*T^c := (one_mul _).symm
+                                                                 _ ≤ L*T^c := mul_le_mul_of_nonneg_right (le_max_right ((2:ℝ)^c) 1) (Real.rpow_nonneg hT0.le c))
   have hE : (Real.exp ((e+π/4)*|v|))^2 * Real.exp (w^2).re ≤
       Real.exp (c^2+A^2/2)*Real.exp (-v^2/2) := by
     rw [← Real.exp_nat_mul,← Real.exp_add,← Real.exp_add,Real.exp_le_exp,he]
@@ -196,15 +203,22 @@ theorem norm_normalized_xiGaussianKernel_sq_le {c : ℝ} (hc : 0 < c) :
       ((‖xiCompletionFactor (s+w)‖/‖xiCompletionFactor z‖)^2 * Real.exp (w^2).re)/(2*π*‖w‖) by ring]
   have hsq := pow_le_pow_left₀ (div_nonneg (norm_nonneg _) (norm_nonneg _)) hd 2
   rw [mul_pow,mul_pow] at hsq
-  calc _ ≤ ((C^2*(t^(c/2))^2*(Real.exp ((e+π/4)*|v|))^2)*Real.exp (w^2).re)/(2*π*c) :=
+  calc _ ≤ ((C^2*(t^(c/2))^2*(Real.exp ((e+π/4)*|v|))^2)*Real.exp (w^2).re)/(2*π*|c|) :=
             div_le_div₀ (by positivity) (mul_le_mul_of_nonneg_right hsq (by positivity)) (by positivity)
               (mul_le_mul_of_nonneg_left hw (by positivity))
        _ ≤ _ := by
            dsimp only [K]
            have H := mul_le_mul (mul_le_mul_of_nonneg_left htP (sq_nonneg C)) hE (by positivity) (by positivity)
-           calc _ ≤ (C^2*(2^c*T^c)*(Real.exp (c^2+A^2/2)*Real.exp (-v^2/2)))/(2*π*c) := by
+           calc _ ≤ (C^2*(L*T^c)*(Real.exp (c^2+A^2/2)*Real.exp (-v^2/2)))/(2*π*|c|) := by
                   apply div_le_div_of_nonneg_right _ (by positivity)
                   convert H using 1; ring
                 _ = _ := by ring
+
+/-- Uniform Gaussian bound along a positive displacement. -/
+theorem norm_normalized_xiGaussianKernel_sq_le {c : ℝ} (hc : 0 < c) :
+    ∃ K : ℝ, 0 < K ∧ ∀ {T t : ℝ}, 2 ≤ T → t ∈ Icc T (2*T) → ∀ u v : ℝ, |u|=t →
+      ‖xiGaussianKernel ((1/2:ℂ)+u*I) 2 ((c:ℂ)+v*I) /
+        (2*π*xiCompletionFactor ((1/2:ℂ)+t*I)^2)‖ ≤ K*T^c*Real.exp (-v^2/2) :=
+  norm_normalized_xiGaussianKernel_sq_le_of_nonzero (by linarith) hc.ne'
 
 end AnalyticNumberTheory.RiemannZeta

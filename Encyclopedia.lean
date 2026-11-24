@@ -5,6 +5,7 @@ import Encyclopedia.Characters
 import Encyclopedia.Primes
 import Encyclopedia.PrimeOscillation
 import Encyclopedia.ArithmeticProgressions
+import Encyclopedia.Linnik
 import Encyclopedia.BombieriVinogradov
 import Encyclopedia.PartitionAsymptotic
 import Encyclopedia.Rademacher
@@ -29,6 +30,7 @@ import Encyclopedia.Perron
 import Encyclopedia.ZetaZeros
 import Encyclopedia.ZeroDensity
 import Encyclopedia.CriticalMoments
+import Encyclopedia.WeylBounds
 import Encyclopedia.HardyZeros
 import Encyclopedia.RiemannHypothesis
 import Encyclopedia.ExceptionalZeros
@@ -71,6 +73,8 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.ZeroDensity}
 
+{include 0 Encyclopedia.WeylBounds}
+
 {include 0 Encyclopedia.CriticalMoments}
 
 {include 0 Encyclopedia.HardyZeros}
@@ -88,6 +92,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.PrimeOscillation}
 
 {include 0 Encyclopedia.ArithmeticProgressions}
+
+{include 0 Encyclopedia.Linnik}
 
 {include 0 Encyclopedia.BombieriVinogradov}
 

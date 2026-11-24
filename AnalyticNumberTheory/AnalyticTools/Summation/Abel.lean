@@ -1015,4 +1015,33 @@ theorem sum_rpow_neg_sub_main_isBigO_lt_one {α : ℝ} (hα : α < 1) :
 
 end PowerSums
 
+/-- A nonnegative decreasing real weight costs at most its initial value
+when all partial sums on an integer interval are bounded by `C`. -/
+theorem norm_sum_Ioc_antitone_weight (w : ℕ → ℝ) (z : ℕ → ℂ) (hw : Antitone w)
+    (hw0 : ∀ n, 0 ≤ w n) {m b : ℕ} (hm : m ≤ b) {C : ℝ} (hC : 0≤C)
+    (hS : ∀ k, m ≤ k → k ≤ b → ‖∑ n ∈ Finset.Ioc m k, z n‖ ≤ C) :
+    ‖∑ n ∈ Finset.Ioc m b, (w n:ℂ)*z n‖ ≤ w m*C := by
+  let S (k : ℕ) := ∑ n ∈ Finset.Ioc m k, z n
+  let W (k : ℕ) := ∑ n ∈ Finset.Ioc m k, (w n:ℂ)*z n
+  have haux (k : ℕ) (hk : m ≤ k) (hkb : k≤b) :
+      ‖W k-(w k:ℂ)*S k‖ ≤ (w m-w k)*C := by
+    induction k, hk using Nat.le_induction with
+    | base => simp [S,W]
+    | succ k hk ih =>
+      have hdiff : W (k+1)-(w (k+1):ℂ)*S (k+1) =
+          (W k-(w k:ℂ)*S k)+((w k-w (k+1):ℝ):ℂ)*S k := by
+        simp only [W,S,sum_Ioc_succ_top hk,Complex.ofReal_sub]
+        ring
+      rw [hdiff]
+      apply (norm_add_le ..).trans
+      rw [norm_mul,Complex.norm_real,Real.norm_of_nonneg (sub_nonneg.mpr (hw (Nat.le_succ k)))]
+      have hs : ‖S k‖ ≤ C := hS k hk (by omega)
+      nlinarith only [ih (by omega),mul_le_mul_of_nonneg_left hs (sub_nonneg.mpr (hw (Nat.le_succ k)))]
+  have hf : W b = (W b-(w b:ℂ)*S b)+(w b:ℂ)*S b := by ring
+  change ‖W b‖ ≤ _
+  rw [hf]
+  apply (norm_add_le ..).trans
+  rw [norm_mul,Complex.norm_real,Real.norm_of_nonneg (hw0 b)]
+  nlinarith only [haux b hm le_rfl,mul_le_mul_of_nonneg_left (hS b hm le_rfl) (hw0 b)]
+
 end AnalyticNumberTheory.AnalyticTools.Summation

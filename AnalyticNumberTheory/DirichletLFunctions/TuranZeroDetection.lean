@@ -17,20 +17,12 @@ open AnalyticNumberTheory.AnalyticTools.ComplexAnalysis
 
 namespace AnalyticNumberTheory.DirichletLFunctions
 
-/-- A high logarithmic derivative detects any zero within distance `2η` of the
-center `1+η+it`. The lower bound and order parameter are uniform in the family. -/
-theorem LFunction_turan_zero_detector :
-    ∃ C > 0, ∀ {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
-    ∀ {t η Y : ℝ}, (q:ℝ)*(|t|+2) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
-    ∀ {ρ : ℂ}, DirichletCharacter.LFunction χ ρ = 0 →
-      ‖(((1+η:ℝ):ℂ)+(t:ℂ)*I)-ρ‖ ≤ 2*η →
-    ∀ {M : ℕ}, C*(1+η*Real.log Y) ≤ M →
-      ∃ k ∈ Finset.Ioc M (2*M), (1/64:ℝ)^k ≤
-        η^k * ‖signedTaylorCoeff (logDeriv (DirichletCharacter.LFunction χ))
-          (((1+η:ℝ):ℂ)+(t:ℂ)*I) (k-1)‖ := by
-  obtain ⟨B,hB,H⟩ := norm_logDeriv_LFunction_re_gt_one_le
-  refine ⟨16*256^2*(2+B+4224),by positivity,?_⟩
-  intro q _ χ hχ t η Y hQ hη hη' hg ρ hz hd M hM
+private theorem turan_growth {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q} (hχ : χ ≠ 1)
+    {t η Y : ℝ} (hQ : (q:ℝ)*(|t|+2) ≤ Y) (hη : 0 < η) (hη' : η ≤ 1/1024)
+    (hg : 1 ≤ η*Real.log Y) :
+    let c := ((1+η:ℝ):ℂ)+(t:ℂ)*I
+    0 < 512*Y^3 ∧ Real.log (512*Y^3) ≤ 12*Real.log Y ∧
+      ∀ w ∈ sphere c (3/4), ‖DirichletCharacter.LFunction χ w / DirichletCharacter.LFunction χ c‖ ≤ 512*Y^3 := by
   let c := ((1+η:ℝ):ℂ)+(t:ℂ)*I
   have hcr : c.re = 1+η := by simp [c]
   have hci : c.im = t := by simp [c]
@@ -39,8 +31,6 @@ theorem LFunction_turan_zero_detector :
   have hY₀ : 0 < Y := by linarith
   have hlog := Real.log_nonneg (by linarith : 1 ≤ Y)
   have hc : 1 < c.re := by linarith
-  have hnorm := H χ c hc (by linarith)
-  rw [hcr,add_sub_cancel_left] at hnorm
   have hG : 0 < 512*Y^3 := by positivity
   have hlogG : Real.log (512*Y^3) ≤ 12*Real.log Y := by
     rw [Real.log_mul (by norm_num) (by positivity),show (512:ℝ) = 2^9 by norm_num,Real.log_pow,Real.log_pow]
@@ -69,6 +59,33 @@ theorem LFunction_turan_zero_detector :
       (norm_nonneg _) (by positivity)
     rw [div_eq_mul_inv,norm_mul]
     apply hmul.trans; nlinarith [pow_nonneg hY₀.le 3]
+  exact ⟨hG,hlogG,hbound⟩
+
+/-- A high logarithmic derivative detects any zero within distance `2η` of the
+center `1+η+it`. The lower bound and order parameter are uniform in the family. -/
+theorem LFunction_turan_zero_detector :
+    ∃ C > 0, ∀ {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
+    ∀ {t η Y : ℝ}, (q:ℝ)*(|t|+2) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
+    ∀ {ρ : ℂ}, DirichletCharacter.LFunction χ ρ = 0 →
+      ‖(((1+η:ℝ):ℂ)+(t:ℂ)*I)-ρ‖ ≤ 2*η →
+    ∀ {M : ℕ}, C*(1+η*Real.log Y) ≤ M →
+      ∃ k ∈ Finset.Ioc M (2*M), (1/64:ℝ)^k ≤
+        η^k * ‖signedTaylorCoeff (logDeriv (DirichletCharacter.LFunction χ))
+          (((1+η:ℝ):ℂ)+(t:ℂ)*I) (k-1)‖ := by
+  obtain ⟨B,hB,H⟩ := norm_logDeriv_LFunction_re_gt_one_le
+  refine ⟨16*256^2*(2+B+4224),by positivity,?_⟩
+  intro q _ χ hχ t η Y hQ hη hη' hg ρ hz hd M hM
+  let c := ((1+η:ℝ):ℂ)+(t:ℂ)*I
+  have hcr : c.re = 1+η := by simp [c]
+  have hci : c.im = t := by simp [c]
+  have hq : (1:ℝ) ≤ q := by exact_mod_cast NeZero.pos q
+  have hY : 2 ≤ Y := by nlinarith [abs_nonneg t,mul_nonneg (sub_nonneg.mpr hq) (abs_nonneg t)]
+  have hY₀ : 0 < Y := by linarith
+  have hlog := Real.log_nonneg (by linarith : 1 ≤ Y)
+  have hc : 1 < c.re := by linarith
+  have hnorm := H χ c hc (by linarith)
+  rw [hcr,add_sub_cancel_left] at hnorm
+  obtain ⟨hG,hlogG,hbound⟩ := turan_growth hχ hQ hη hη' hg
   apply local_logDeriv_turan_detector hη hη' hcr
     (((DirichletCharacter.differentiable_LFunction hχ).differentiableOn.analyticOnNhd isOpen_univ).mono (Set.subset_univ _))
     (fun u hu => DirichletCharacter.LFunction_ne_zero_of_one_le_re χ (.inl hχ) hu)
@@ -76,6 +93,31 @@ theorem LFunction_turan_zero_detector :
   apply le_trans _ hM
   have hηB := mul_le_mul_of_nonneg_right (by linarith : η ≤ 1) hB.le
   have hnon := mul_nonneg (by linarith : 0 ≤ 2+B) (mul_nonneg hη.le hlog)
+  have hcancel : η*(1/η) = 1 := by field_simp
+  nlinarith only [hηB,hnon,hcancel]
+
+/-- The number of zeros with multiplicity in a disk of radius `2η` is uniformly
+bounded by a constant times `1+η log Y`. -/
+theorem LFunction_turan_local_zero_count :
+    ∃ C > 0, ∀ {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
+    ∀ {t η Y : ℝ}, (q:ℝ)*(|t|+2) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
+    ∀ (S : Finset ℂ), (∀ z ∈ S, DirichletCharacter.LFunction χ z = 0 ∧
+      ‖(((1+η:ℝ):ℂ)+(t:ℂ)*I)-z‖ ≤ 2*η) →
+    (∑ z ∈ S, (analyticOrderNatAt (DirichletCharacter.LFunction χ) z:ℝ)) ≤ C*(1+η*Real.log Y) := by
+  obtain ⟨B,hB,H⟩ := norm_logDeriv_LFunction_re_gt_one_le
+  refine ⟨4*(2+B+4224),by positivity,?_⟩
+  intro q _ χ hχ t η Y hQ hη hη' hg S hS
+  let c := ((1+η:ℝ):ℂ)+(t:ℂ)*I
+  have hcr : c.re = 1+η := by simp [c]
+  have hnorm := H χ c (by linarith : 1 < c.re) (by linarith)
+  rw [hcr,add_sub_cancel_left] at hnorm
+  obtain ⟨hG,hlogG,hbound⟩ := turan_growth hχ hQ hη hη' hg
+  apply (local_logDeriv_zero_count hη (by linarith) hcr
+    (((DirichletCharacter.differentiable_LFunction hχ).differentiableOn.analyticOnNhd isOpen_univ).mono (Set.subset_univ _))
+    (fun u hu => DirichletCharacter.LFunction_ne_zero_of_one_le_re χ (.inl hχ) hu)
+    hG hbound (show 352*Real.log (512*Y^3) ≤ 4224*Real.log Y by linarith) hnorm S hS).trans
+  have hηB := mul_le_mul_of_nonneg_right (by linarith : η ≤ 1) hB.le
+  have hnon := mul_nonneg (by linarith : 0 ≤ 2+B) (by linarith : 0 ≤ η*Real.log Y)
   have hcancel : η*(1/η) = 1 := by field_simp
   nlinarith only [hηB,hnon,hcancel]
 

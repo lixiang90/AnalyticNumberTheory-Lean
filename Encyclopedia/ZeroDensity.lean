@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalEstimates
-import AnalyticNumberTheory.PrimeDistribution.DirichletZeroCountDensity
+import AnalyticNumberTheory.PrimeDistribution.LogFreeZeroDensity
 import VersoManual
 
 open Verso.Genre Manual
@@ -49,3 +49,12 @@ $$`C(1+\log Y)^{10}Y^{16(1-\sigma)}.`
 {docstring primitiveFamilyZeroCount_le}
 
 {docstring primitiveFamilyZeroCount_le_of_log_gap}
+
+{index}[无对数损失的零密度定理]使用{ref "turan-power-sums"}[Turán 幂和]与{ref "prime-hybrid-sieve"}[素数支撑的混合大筛]，可以把带重数的估计写为
+
+$$`\sum_{q\le Q}\ \sum_{\substack{\chi\bmod q\\\chi\ \mathrm{primitive,\ nonprincipal}}}N_\chi(\sigma,T)
+\le C\,[Q(T+2)]^{A(1-\sigma)}.`
+
+这里 $`Q\ge1`、$`T\ge0`、$`0\le\sigma\le1`。常数 $`C,A>0` 绝对，计数同时覆盖正负高度。这种形式在 $`\sigma` 逼近一时尤其重要，因为当 $`(1-\sigma)\log(Q(T+2))` 有界时，右侧仍然有界。
+
+{docstring primitiveFamilyZeroCount_log_free}

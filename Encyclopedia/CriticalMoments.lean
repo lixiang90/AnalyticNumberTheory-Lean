@@ -1,6 +1,7 @@
 import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
-import AnalyticNumberTheory.RiemannZeta.FourthMoment
+import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
+import AnalyticNumberTheory.RiemannZeta.FourthMomentLog
 import VersoManual
 
 open Verso.Genre Manual
@@ -43,6 +44,10 @@ file := "periodic-coefficients"
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.mean_sq_hurwitzZeta_rational_half}
 
+对任意固定的实移位 $`0<a\le1`，同样有主项 $`T\log T`。证明直接对频率 $`\log(n+a)` 应用间隔频率均值定理，并利用 $`\sum_{1\le n\le N}1/(n+a)` 与调和和的差至多为一。因此，无理移位也包括在内。
+
+{docstring mean_sq_hurwitzZeta_half}
+
 用复极化恒等式可以同时比较两个任意复周期序列 $`a,b`。把临界线上的乘积 $`L_a(s)\overline{L_b(s)}` 积分并除以 $`T\log T`，极限为 $`q^{-1}\sum_{r\bmod q}a(r)\overline{b(r)}`。因此，同一模数的两个不同特征在这个均值下正交。
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_periodicLFunctions}
@@ -66,3 +71,9 @@ $$`\int_1^T |\zeta(1/2+it)|^4\,dt\le C_\varepsilon T^{1+\varepsilon}.`
 每个多项式的积分权由高斯函数支配。使用除数多项式的均方估计，并把高度按二的幂分段求和，就得到上述四阶矩界。
 
 {docstring fourthMoment_riemannZeta_le}
+
+用留数移线提取长度 $`\lceil T\rceil` 的两个主多项式，可以把上界进一步改进到 $`O(T(\log T)^4)`。在 $`[T,2T]` 上，$`\zeta(1/2+it)^2` 与两个主多项式之和的差，其平方积分为 $`O(T(1+\log T)^3)`。主多项式的对角和涉及 $`\sum_{n\le T}d(n)^2/n`，这说明第四次对数幂从哪里出现。
+
+{docstring zeta_sq_sub_fourthMomentMainTerms_mean_sq}
+
+{docstring fourthMoment_riemannZeta_log_isBigO}

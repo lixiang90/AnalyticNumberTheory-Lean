@@ -15,21 +15,8 @@ open Finset
 namespace AnalyticNumberTheory.DivisorProblems
 
 theorem sum_Icc_inv_sqrt_le (K : ℕ) :
-    ∑ n ∈ Icc 1 K, (Real.sqrt (n : ℝ))⁻¹ ≤ 2 * Real.sqrt K := by
-  rw [show Icc 1 K = Ioc 0 K by rw [← Icc_add_one_left_eq_Ioc, zero_add]]
-  induction K with
-  | zero => simp
-  | succ k ih =>
-    rw [sum_Ioc_succ_top (Nat.zero_le _)]
-    have hs : 0 < Real.sqrt ((k + 1 : ℕ) : ℝ) := Real.sqrt_pos.2 (by positivity)
-    have hstep : (Real.sqrt ((k + 1 : ℕ) : ℝ))⁻¹ ≤
-        2 * (Real.sqrt ((k + 1 : ℕ) : ℝ) - Real.sqrt k) := by
-      rw [← one_div, div_le_iff₀ hs]
-      have hnew := Real.sq_sqrt (by positivity : (0 : ℝ) ≤ (k + 1 : ℕ))
-      have hold := Real.sq_sqrt (Nat.cast_nonneg k : (0 : ℝ) ≤ k)
-      push_cast at *
-      nlinarith only [hnew, hold, sq_nonneg (Real.sqrt ((k : ℝ) + 1) - Real.sqrt k)]
-    linarith only [ih, hstep]
+    ∑ n ∈ Icc 1 K, (Real.sqrt (n : ℝ))⁻¹ ≤ 2 * Real.sqrt K :=
+  AnalyticNumberTheory.AnalyticTools.Summation.sum_Icc_inv_sqrt_le K
 
 theorem sum_Ioc_inv_mul_sqrt_le {K H : ℕ} (hK : 1 ≤ K) (hKH : K ≤ H) :
     ∑ n ∈ Ioc K H, 1 / ((n : ℝ) * Real.sqrt n) ≤ 2 / Real.sqrt K - 2 / Real.sqrt H := by

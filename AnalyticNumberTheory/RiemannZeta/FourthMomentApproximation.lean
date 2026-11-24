@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.RiemannZeta.GaussianWeightShift
+import AnalyticNumberTheory.RiemannZeta.GaussianWeightResidue
 import AnalyticNumberTheory.RiemannZeta.DivisorPolynomialMoments
 
 /-!
@@ -31,7 +31,7 @@ noncomputable def fourthMomentPiece (c : ℝ) (N : ℕ) (negative : Bool) (t : �
   let u := if negative then -t else t
   ∫ v : ℝ, G t u c v * divisorPolynomial N (((1/2+c:ℝ):ℂ)+((if negative then v-t else v+t):ℝ)*I)
 
-private theorem G_continuous {c : ℝ} (hc : 0 < c) (negative : Bool) :
+private theorem G_continuous {c : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0) (negative : Bool) :
     Continuous (fun p : ℝ × ℝ => G p.1 (if negative then -p.1 else p.1) c p.2) := by
   let u (p : ℝ × ℝ) := if negative then -p.1 else p.1
   have hu : Continuous u := by cases negative <;> first | exact continuous_fst | exact continuous_fst.neg
@@ -41,7 +41,7 @@ private theorem G_continuous {c : ℝ} (hc : 0 < c) (negative : Bool) :
   have hgA {P : ℝ × ℝ → ℂ} (hP : Continuous P) (hp : ∀ p, 0 < (P p).re) :
       Continuous (fun p => xiCompletionFactor (P p)) := continuous_iff_continuousAt.mpr fun p =>
     ContinuousAt.comp (f := P) (differentiableAt_xiCompletionFactor (hp p)).continuousAt hP.continuousAt
-  have hhw (r : ℝ) : w c r ≠ 0 := by intro hh; have H := congrArg Complex.re hh; simp [w] at H; linarith
+  have hhw (r : ℝ) : w c r ≠ 0 := by intro hh; have H := congrArg Complex.re hh; simp [w] at H; exact hc0 H
   have hden (t : ℝ) : den t ≠ 0 := by
     have h₀ : S t ≠ 0 := by intro H; have hh := congrArg Complex.re H; norm_num [S] at hh
     have h₁ : S t ≠ 1 := by intro H; have hh := congrArg Complex.re H; norm_num [S] at hh
@@ -132,7 +132,7 @@ private theorem integral_mul_term (F W : ℝ → ℂ) (b a x s : ℂ) (hx : x �
       ring
     _ = _ := by rw [integral_div, integral_const_mul]
 
-private theorem piece_eq_sum {c T t : ℝ} (hc : 0 < c) (hT : 2 ≤ T) (ht : t ∈ Icc T (2*T))
+private theorem piece_eq_sum {c T t : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0) (hT : 2 ≤ T) (ht : t ∈ Icc T (2*T))
     (N : ℕ) (neg : Bool) :
     fourthMomentPiece c N neg t = ∑ n ∈ Finset.Icc 1 N, coeff t (if neg then -t else t) c n := by
   let u := if neg then -t else t
@@ -140,9 +140,9 @@ private theorem piece_eq_sum {c T t : ℝ} (hc : 0 < c) (hT : 2 ≤ T) (ht : t �
   have ht0 : 0 < t := by linarith [ht.1]
   have hu : |u|=t := by cases neg <;> simp [u,abs_of_pos ht0]
   have hS : Continuous z := continuous_const.add (continuous_const.add (Complex.continuous_ofReal.mul continuous_const))
-  obtain ⟨K,hK,h⟩ := norm_normalized_xiGaussianKernel_sq_le hc
+  obtain ⟨K,hK,h⟩ := norm_normalized_xiGaussianKernel_sq_le_of_nonzero hc hc0
   have hGc : Continuous (G t u c) := by
-    have hh := (G_continuous hc neg).comp (continuous_const.prodMk continuous_id : Continuous (fun v : ℝ => (t,v)))
+    have hh := (G_continuous hc hc0 neg).comp (continuous_const.prodMk continuous_id : Continuous (fun v : ℝ => (t,v)))
     exact hh
   have hGi : Integrable (G t u c) := by
     apply (gaussianIntegrable.const_mul (K*T^c)).mono' hGc.aestronglyMeasurable
@@ -183,6 +183,106 @@ private theorem piece_eq_sum {c T t : ℝ} (hc : 0 < c) (hT : 2 ≤ T) (ht : t �
   exact integral_mul_term (fun v => xiGaussianKernel (S u) 2 (w c v))
     (w c) (den t) (d n) n (S u) hnc
 
+/-- The normalized Mellin kernel for the original or the reflected Dirichlet polynomial. -/
+noncomputable def fourthMomentKernel (c : ℝ) (neg : Bool) (t v : ℝ) : ℂ :=
+  G t (if neg then -t else t) c v
+
+/-- Uniform Gaussian decay, including for a contour shifted to the left of the origin. -/
+theorem norm_fourthMomentKernel_le {c : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0) :
+    ∃ K : ℝ, 0 < K ∧ ∀ {T t : ℝ}, 2 ≤ T → t ∈ Icc T (2*T) → ∀ neg : Bool, ∀ v : ℝ,
+      ‖fourthMomentKernel c neg t v‖ ≤ K*T^c*Real.exp (-(1/2:ℝ)*v^2) := by
+  obtain ⟨K,hK,h⟩ := norm_normalized_xiGaussianKernel_sq_le_of_nonzero hc hc0
+  refine ⟨K,hK,?_⟩
+  intro T t hT ht neg v
+  rw [show -(1/2:ℝ)*v^2 = -v^2/2 by ring]
+  have ht0 : 0 < t := by linarith [ht.1]
+  exact h hT ht _ v (by cases neg <;> simp [abs_of_pos ht0])
+
+private noncomputable def polynomialAt (c : ℝ) (N : ℕ) (neg : Bool) (t v : ℝ) :=
+  divisorPolynomial N (((1/2+c:ℝ):ℂ)+((if neg then v-t else v+t):ℝ)*I)
+
+private theorem kernel_polynomial_majorant {c T : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0)
+    (hT : 2 ≤ T) (N : ℕ) (neg : Bool) :
+    let H (t v : ℝ) := fourthMomentKernel c neg t v * polynomialAt c N neg t v
+    Continuous (Function.uncurry H) ∧ ∃ b : ℝ → ℝ, Integrable b ∧
+      ∀ t ∈ Icc T (2*T), ∀ v : ℝ, ‖H t v‖ ≤ b v := by
+  obtain ⟨K,hK,hb⟩ := norm_fourthMomentKernel_le hc hc0
+  obtain ⟨M,hM⟩ := divisorPolynomial_vertical_bounded N (1/2+c)
+  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM 0)
+  have hT0 : 0 ≤ T := by linarith
+  have hFc := G_continuous hc hc0 neg
+  have hPc : Continuous (Function.uncurry (polynomialAt c N neg)) := by
+    have hh := divisorPolynomial_continuous N (1/2+c)
+    cases neg <;> first | exact hh.comp (continuous_snd.add continuous_fst) | exact hh.comp (continuous_snd.sub continuous_fst)
+  refine ⟨hFc.mul hPc,fun v => K*T^c*Real.exp (-(1/2:ℝ)*v^2)*M,?_,?_⟩
+  · exact ((integrable_exp_neg_mul_sq (by norm_num : (0:ℝ)<1/2)).const_mul (K*T^c)).mul_const M
+  · intro t ht v
+    rw [norm_mul]
+    exact mul_le_mul (hb hT ht neg v) (hM _) (norm_nonneg _) (by positivity)
+
+/-- Both truncated pieces are continuous on every high dyadic interval. -/
+theorem continuousOn_fourthMomentPiece {c T : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0)
+    (hT : 2 ≤ T) (N : ℕ) (neg : Bool) : ContinuousOn (fourthMomentPiece c N neg) (Icc T (2*T)) := by
+  let H (t v : ℝ) := fourthMomentKernel c neg t v * polynomialAt c N neg t v
+  obtain ⟨hH,b,hb,h⟩ := kernel_polynomial_majorant hc hc0 hT N neg
+  apply continuousOn_of_dominated (F := H) (bound := b)
+  · intro t _
+    exact (hH.comp (continuous_const.prodMk continuous_id : Continuous (fun v : ℝ => (t,v)))).aestronglyMeasurable
+  · exact fun t ht => Eventually.of_forall (h t ht)
+  · exact hb
+  · exact Eventually.of_forall fun v =>
+      (hH.comp (continuous_id.prodMk continuous_const : Continuous (fun t : ℝ => (t,v)))).continuousOn
+
+/-- The contribution from an interval of indices is the Gaussian convolution of the
+difference of the corresponding divisor polynomials. -/
+theorem fourthMomentPiece_sub_eq_integral {c T t : ℝ} (hc : -(1/2:ℝ) < c) (hc0 : c ≠ 0)
+    (hT : 2 ≤ T) (ht : t ∈ Icc T (2*T)) (M N : ℕ) (neg : Bool) :
+    fourthMomentPiece c M neg t - fourthMomentPiece c N neg t =
+    ∫ v : ℝ, fourthMomentKernel c neg t v *
+      (divisorPolynomial M (((1/2+c:ℝ):ℂ)+((if neg then v-t else v+t):ℝ)*I) -
+       divisorPolynomial N (((1/2+c:ℝ):ℂ)+((if neg then v-t else v+t):ℝ)*I)) := by
+  have hi (n : ℕ) : Integrable (fun v => fourthMomentKernel c neg t v * polynomialAt c n neg t v) := by
+    obtain ⟨hH,b,hb,h⟩ := kernel_polynomial_majorant hc hc0 hT n neg
+    exact hb.mono' (hH.comp (continuous_const.prodMk continuous_id : Continuous (fun v : ℝ => (t,v)))).aestronglyMeasurable
+      (Eventually.of_forall (h t ht))
+  simp_rw [mul_sub]
+  exact (integral_sub (hi M) (hi N)).symm
+
+/-- Shifting a complete finite piece through zero extracts the ordinary divisor polynomial. -/
+theorem fourthMomentPiece_sub_neg {a b T t : ℝ} (ha : 0 < a) (ha' : a < 1/2)
+    (hb : 0 < b) (hT : 2 ≤ T) (ht : t ∈ Icc T (2*T)) (N : ℕ) (neg : Bool) :
+    let u := if neg then -t else t
+    fourthMomentPiece b N neg t - fourthMomentPiece (-a) N neg t =
+      (xiCompletionFactor ((1/2:ℂ)+u*I)^2 / xiCompletionFactor ((1/2:ℂ)+t*I)^2) *
+        divisorPolynomial N ((1/2:ℂ)+u*I) := by
+  let u := if neg then -t else t
+  change fourthMomentPiece b N neg t - fourthMomentPiece (-a) N neg t =
+    (xiCompletionFactor (S u)^2 / xiCompletionFactor (S t)^2) * divisorPolynomial N (S u)
+  rw [piece_eq_sum (by linarith) hb.ne' hT ht,piece_eq_sum (by linarith) (neg_ne_zero.mpr ha.ne') hT ht,
+    ← Finset.sum_sub_distrib]
+  simp only [divisorPolynomial,dirichletPoly,Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro n hn
+  have hnpos : 0 < n := (Finset.mem_Icc.mp hn).1
+  have hs : a < (S u).re := by simpa [S] using ha'
+  have hh := xiDirichletWeight_sub_neg (S u) ha hb hs 2 n hnpos
+  change LSeries.term d (S u) n * xiDirichletWeight (S u) 2 b n / den t -
+    LSeries.term d (S u) n * xiDirichletWeight (S u) 2 (-a) n / den t =
+      (xiCompletionFactor (S u)^2 / xiCompletionFactor (S t)^2) * _
+  rw [← sub_div,← mul_sub,hh,LSeries.term_of_ne_zero hnpos.ne',Complex.cpow_neg]
+  simp only [d,den,div_eq_mul_inv,mul_inv_rev]
+  field_simp [Complex.ofReal_ne_zero.mpr Real.pi_ne_zero]
+
+/-- A finite piece is independent of its positive displacement. -/
+theorem fourthMomentPiece_eq_of_pos {a b T t : ℝ} (ha : 0 < a) (hb : 0 < b)
+    (hT : 2 ≤ T) (ht : t ∈ Icc T (2*T)) (N : ℕ) (neg : Bool) :
+    fourthMomentPiece a N neg t = fourthMomentPiece b N neg t := by
+  rw [piece_eq_sum (by linarith) ha.ne' hT ht,piece_eq_sum (by linarith) hb.ne' hT ht]
+  apply Finset.sum_congr rfl
+  intro n hn
+  rw [coeff,xiDirichletWeight_eq_of_pos _ (by simp [S]) 2 n (Finset.mem_Icc.mp hn).1 ha hb]
+  rfl
+
 /-- On every high dyadic interval, polynomials of length `⌈T^(1+η)⌉` approximate
 `ζ(1/2+it)^2` with a bounded error, after Gaussian smoothing in both directions. -/
 theorem norm_zeta_sq_sub_fourthMomentPieces_le {η : ℝ} (hη : 0 < η) :
@@ -211,7 +311,7 @@ theorem norm_zeta_sq_sub_fourthMomentPieces_le {η : ℝ} (hη : 0 < η) :
     rfl
   have ht0 : 0 < t := by linarith [ht.1]
   have hp (neg : Bool) : fourthMomentPiece η N neg t = ∑ n ∈ A, coeff t (if neg then -t else t) c n := by
-    rw [piece_eq_sum hη hT ht]
+    rw [piece_eq_sum (by linarith) hη.ne' hT ht]
     apply Finset.sum_congr rfl
     intro n hn
     rw [coeff,xiDirichletWeight_eq_of_pos _ (by simp [S]) 2 n (Finset.mem_Icc.mp hn).1 hη (by linarith : 0 < c)]
@@ -245,38 +345,13 @@ theorem fourthMomentPiece_mean_sq {η : ℝ} (hη : 0 < η) :
   refine ⟨D*K^2,by positivity,?_⟩
   intro T N hT hN neg
   let F (t v : ℝ) := G t (if neg then -t else t) η v
-  let P (t v : ℝ) := divisorPolynomial N (((1/2+η:ℝ):ℂ)+((if neg then v-t else v+t):ℝ)*I)
   have hF (t : ℝ) (ht : t ∈ Set.Ioc T (2*T)) (v : ℝ) : ‖F t v‖ ≤ K*T^η*Real.exp (-(1/2:ℝ)*v^2) := by
     have ht0 : 0 < t := by linarith [ht.1]
     have hh := hb hT ⟨ht.1.le,ht.2⟩ (if neg then -t else t) v (by cases neg <;> simp [abs_of_pos ht0])
     change ‖G t (if neg then -t else t) η v‖ ≤ _ at hh
     rw [show -(1/2:ℝ)*v^2 = -v^2/2 by ring]
     exact hh
-  refine ⟨?_,hm (by linarith) hK.le hN neg F hF⟩
-  have hFc : Continuous (Function.uncurry F) := G_continuous hη neg
-  have hPc : Continuous (Function.uncurry P) := by
-    have hh := divisorPolynomial_continuous N (1/2+η)
-    cases neg <;> first | exact hh.comp (continuous_snd.add continuous_fst) | exact hh.comp (continuous_snd.sub continuous_fst)
-  have hmeas : StronglyMeasurable (fourthMomentPiece η N neg) := by
-    have hFcP : Continuous (Function.uncurry (fun t v => F t v*P t v)) := hFc.mul hPc
-    exact hFcP.stronglyMeasurable.integral_prod_right
-  obtain ⟨M,hM⟩ := divisorPolynomial_vertical_bounded N (1/2+η)
-  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM 0)
-  have hT0 : 0 < T := by linarith
-  have hg : Integrable (fun v : ℝ => K*T^η*Real.exp (-(1/2:ℝ)*v^2)*M) :=
-    ((integrable_exp_neg_mul_sq (by norm_num : (0:ℝ)<1/2)).const_mul (K*T^η)).mul_const M
-  have hmax (t : ℝ) (ht : t ∈ Set.Ioc T (2*T)) :
-      ‖fourthMomentPiece η N neg t‖ ≤ ∫ v : ℝ, K*T^η*Real.exp (-(1/2:ℝ)*v^2)*M := by
-    apply norm_integral_le_of_norm_le hg
-    filter_upwards with v
-    change ‖F t v * P t v‖ ≤ _
-    rw [norm_mul]
-    exact mul_le_mul (hF t ht v) (hM _) (norm_nonneg _) (by positivity)
-  rw [intervalIntegrable_iff_integrableOn_Ioc_of_le (by linarith : T ≤ 2*T)]
-  apply Measure.integrableOn_of_bounded (by simp) (hmeas.norm.pow 2).aestronglyMeasurable
-  filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
-  change ‖‖fourthMomentPiece η N neg t‖^2‖ ≤ _
-  rw [Real.norm_of_nonneg (sq_nonneg _)]
-  exact pow_le_pow_left₀ (norm_nonneg _) (hmax t ht) 2
+  exact ⟨((continuousOn_fourthMomentPiece (by linarith) hη.ne' hT N neg).norm.pow 2).intervalIntegrable_of_Icc (by linarith),
+    hm (by linarith) hK.le hN neg F hF⟩
 
 end AnalyticNumberTheory.RiemannZeta

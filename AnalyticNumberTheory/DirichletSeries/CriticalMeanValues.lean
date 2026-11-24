@@ -211,20 +211,25 @@ private theorem transfer_normalized_mass {κ : ℝ} (hκ : 0 ≤ κ) {f g : ℝ 
   exact Real.sq_sqrt (div_nonneg (mass_nonneg h.1 _) (mul_nonneg (by linarith [h.1]) (by linarith [h.2.1])))
 
 
-/-- A bounded-coefficient Dirichlet polynomial determines the critical
-second moment when its diagonal is `κ H_N + O(1)` and a linear-length
-approximation has bounded normalized mean square error. -/
-theorem criticalMeanSquare_of_approx {F : ℝ → ℂ} (hF : Continuous F) (a : ℕ → ℂ)
-    (ha : ∀ n, ‖a n‖ ≤ 1) {κ : ℝ} (hκ : 0 ≤ κ)
-    (hdiag : ∃ B : ℝ, ∀ M, |harmonicMass a M-κ*(harmonic M:ℝ)| ≤ B)
+/-- Transfer a diagonal mean-square asymptotic from a family of continuous
+polynomials to a continuous function. The three estimates express the
+short-polynomial mean value, the tail energy, and the approximation at
+a cutoff comparable to the height. -/
+theorem criticalMeanSquare_of_family {F : ℝ → ℂ} (hF : Continuous F)
+    (P : ℕ → ℝ → ℂ) (hc : ∀ n, Continuous (P n)) (d : ℕ → ℝ) {K κ : ℝ}
+    (hK : 0 ≤ K) (hκ : 0 ≤ κ) (hdiag : ∃ B : ℝ, ∀ n, |d n-κ*(harmonic n:ℝ)| ≤ B)
+    (hpoly : ∀ {T : ℝ}, 1 ≤ T → ∀ n : ℕ,
+      |(∫ t in (1:ℝ)..T, ‖P n t‖^2)-(T-1)*d n| ≤ K*n*d n)
+    (htailBound : ∀ {T : ℝ}, 1≤T → ∀ {M N : ℕ}, 0<M → M≤N →
+      (∫ t in (1:ℝ)..T, ‖(P N-P M) t‖^2) ≤ (T+K*N)*(N/M))
     (M : ℝ → ℕ) (hM : ∃ D > 0, ∀ᶠ T : ℝ in atTop, ⌊T⌋₊+1 ≤ M T ∧ (M T:ℝ) ≤ D*T)
     (happrox : ∃ C : ℝ, ∀ᶠ T : ℝ in atTop,
-      (∫ t in (1:ℝ)..T, ‖F t-criticalLinePolynomial a (M T) t‖^2)/T ≤ C) :
+      (∫ t in (1:ℝ)..T, ‖F t-P (M T) t‖^2)/T ≤ C) :
     Tendsto (fun T : ℝ => (∫ t in (1:ℝ)..T, ‖F t‖^2)/(T*Real.log T)) atTop (𝓝 κ) := by
   obtain ⟨B,hB⟩ := hdiag
   obtain ⟨D,hD,hcut⟩ := hM
   obtain ⟨C,hC⟩ := happrox
-  have hH : Tendsto (fun T : ℝ => harmonicMass a (shortLength T)/Real.log T) atTop (𝓝 κ) := by
+  have hH : Tendsto (fun T : ℝ => d (shortLength T)/Real.log T) atTop (𝓝 κ) := by
     apply (show Tendsto (fun T : ℝ => κ*((harmonic (shortLength T):ℝ)/Real.log T)) atTop (𝓝 κ) by
       simpa using tendsto_short_harmonic.const_mul κ).congr_dist
     apply squeeze_zero' (Eventually.of_forall fun _ => dist_nonneg) _
@@ -232,28 +237,28 @@ theorem criticalMeanSquare_of_approx {F : ℝ → ℂ} (hF : Continuous F) (a : 
     filter_upwards [eventually_lengths] with T h
     rw [dist_comm,Real.dist_eq,← mul_div_assoc,← sub_div,abs_div,abs_of_pos (by linarith [h.2.1] : 0 < Real.log T)]
     exact div_le_div_of_nonneg_right (hB _) (by linarith [h.2.1])
-  have hmain : Tendsto (fun T : ℝ => mass T (criticalLinePolynomial a (shortLength T))/(T*Real.log T))
+  have hmain : Tendsto (fun T : ℝ => mass T (P (shortLength T))/(T*Real.log T))
       atTop (𝓝 κ) := by
-    have hA : Tendsto (fun T : ℝ => (1-T⁻¹)*(harmonicMass a (shortLength T)/Real.log T)) atTop (𝓝 κ) := by
+    have hA : Tendsto (fun T : ℝ => (1-T⁻¹)*(d (shortLength T)/Real.log T)) atTop (𝓝 κ) := by
       simpa using ((tendsto_const_nhds (x := (1:ℝ))).sub (tendsto_inv_atTop_zero (𝕜 := ℝ))).mul hH
     apply hA.congr_dist
     apply squeeze_zero' (Eventually.of_forall fun _ => dist_nonneg) _
-      (show Tendsto (fun T : ℝ => 2*π*((shortLength T:ℝ)/T)*(harmonicMass a (shortLength T)/Real.log T)) atTop (𝓝 0) by
-        simpa using (tendsto_shortLength_div.const_mul (2*π)).mul hH)
+      (show Tendsto (fun T : ℝ => K*((shortLength T:ℝ)/T)*(d (shortLength T)/Real.log T)) atTop (𝓝 0) by
+        simpa using (tendsto_shortLength_div.const_mul (K)).mul hH)
     filter_upwards [eventually_lengths] with T h
     have ht : 0 < T := by linarith [h.1]
     have hl : 0 < Real.log T := by linarith [h.2.1]
-    have hd := poly_diagonal a h.1 (shortLength T)
+    have hd := hpoly h.1 (shortLength T)
     rw [dist_comm,Real.dist_eq]
-    calc _ = |mass T (criticalLinePolynomial a (shortLength T))-(T-1)*harmonicMass a (shortLength T)|/(T*Real.log T) := by
+    calc _ = |mass T (P (shortLength T))-(T-1)*d (shortLength T)|/(T*Real.log T) := by
               rw [← abs_of_pos (mul_pos ht hl),← abs_div]
               congr 1
               rw [abs_of_pos (mul_pos ht hl)]
               field_simp
          _ ≤ _ := (div_le_div_of_nonneg_right hd (mul_nonneg ht.le hl.le)).trans_eq (by ring)
   have htail : Tendsto (fun T : ℝ =>
-      mass T (criticalLinePolynomial a (M T)-criticalLinePolynomial a (shortLength T))/(T*Real.log T)) atTop (𝓝 0) := by
-    apply squeeze_zero' _ _ (by simpa using tendsto_sqrt_log_div_log.const_mul (D*(1+2*π*D)))
+      mass T (P (M T)-P (shortLength T))/(T*Real.log T)) atTop (𝓝 0) := by
+    apply squeeze_zero' _ _ (by simpa using tendsto_sqrt_log_div_log.const_mul (D*(1+K*D)))
     · filter_upwards [eventually_lengths] with T h
       exact div_nonneg (mass_nonneg h.1 _) (mul_nonneg (by linarith [h.1]) (by linarith [h.2.1]))
     filter_upwards [eventually_lengths,hcut] with T h hcut
@@ -266,19 +271,33 @@ theorem criticalMeanSquare_of_approx {F : ℝ → ℂ} (hF : Continuous F) (a : 
     have hquot : (M T:ℝ)/shortLength T ≤ D*√(Real.log T) := by
       rw [div_le_iff₀ (by dsimp [shortLength]; positivity)]
       exact hcut.2.trans (by nlinarith only [mul_le_mul_of_nonneg_left ((div_le_iff₀ hsp).mp hmlo) hD.le])
-    have hb := tail_mass a ha hT (M := shortLength T) (Nat.succ_pos _) (hMN.trans hcut.1)
-    have hfactor : T+2*π*(M T) ≤ (1+2*π*D)*T := by nlinarith only [mul_le_mul_of_nonneg_left hcut.2 Real.pi_pos.le]
+    have hb := htailBound hT (M := shortLength T) (Nat.succ_pos _) (hMN.trans hcut.1)
+    have hfactor : T+K*(M T) ≤ (1+K*D)*T := by nlinarith only [mul_le_mul_of_nonneg_left hcut.2 hK]
     apply (div_le_div_of_nonneg_right hb (mul_nonneg ht.le hl.le)).trans
     apply (div_le_div_of_nonneg_right (mul_le_mul hfactor hquot (by positivity) (by positivity)) (mul_nonneg ht.le hl.le)).trans_eq
     field_simp
-  apply transfer_normalized_mass hκ (f := fun _ => F) (g := fun T => criticalLinePolynomial a (M T))
-      (fun _ => hF) (fun _ => continuous_criticalLinePolynomial ..)
-      (transfer_normalized_mass hκ (fun _ => continuous_criticalLinePolynomial ..) (fun _ => continuous_criticalLinePolynomial ..) hmain htail)
+  apply transfer_normalized_mass hκ (f := fun _ => F) (g := fun T => P (M T))
+      (fun _ => hF) (fun _ => hc _)
+      (transfer_normalized_mass hκ (fun _ => hc _) (fun _ => hc _) hmain htail)
   apply squeeze_zero' _ _ (tendsto_const_nhds.div_atTop Real.tendsto_log_atTop (a := C))
   · filter_upwards [eventually_lengths] with T h
     exact div_nonneg (mass_nonneg h.1 _) (mul_nonneg (by linarith [h.1]) (by linarith [h.2.1]))
   filter_upwards [eventually_lengths,hC] with T h hC
   rw [← div_div]
   exact div_le_div_of_nonneg_right hC (by linarith [h.2.1])
+
+/-- A bounded-coefficient Dirichlet polynomial determines the critical
+second moment when its diagonal is `κ H_N + O(1)` and a linear-length
+approximation has bounded normalized mean square error. -/
+theorem criticalMeanSquare_of_approx {F : ℝ → ℂ} (hF : Continuous F) (a : ℕ → ℂ)
+    (ha : ∀ n, ‖a n‖ ≤ 1) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hdiag : ∃ B : ℝ, ∀ M, |harmonicMass a M-κ*(harmonic M:ℝ)| ≤ B)
+    (M : ℝ → ℕ) (hM : ∃ D > 0, ∀ᶠ T : ℝ in atTop, ⌊T⌋₊+1 ≤ M T ∧ (M T:ℝ) ≤ D*T)
+    (happrox : ∃ C : ℝ, ∀ᶠ T : ℝ in atTop,
+      (∫ t in (1:ℝ)..T, ‖F t-criticalLinePolynomial a (M T) t‖^2)/T ≤ C) :
+    Tendsto (fun T : ℝ => (∫ t in (1:ℝ)..T, ‖F t‖^2)/(T*Real.log T)) atTop (𝓝 κ) := by
+  exact criticalMeanSquare_of_family hF (criticalLinePolynomial a) (continuous_criticalLinePolynomial a)
+    (harmonicMass a) (K:=2*π) (by positivity) hκ hdiag (fun ht n => poly_diagonal a ht n)
+    (fun {T} ht {m n} hpos hle => tail_mass a ha ht hpos hle) M hM happrox
 
 end AnalyticNumberTheory.DirichletSeries

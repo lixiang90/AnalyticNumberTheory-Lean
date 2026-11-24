@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.SieveMethods.DirichletPolynomials
 import AnalyticNumberTheory.SieveMethods.HalaszMontgomery
+import AnalyticNumberTheory.SieveMethods.SeparatedMeanValues
 import VersoManual
 
 open Verso.Genre Manual
@@ -21,3 +22,7 @@ file := "dirichlet-polynomials"
 $$`R V^2\le\left(\sum_{n=1}^N |a_n|^2\right)\bigl(N+(R-1)B\bigr).`
 
 {docstring halasz_montgomery_dirichletPoly_count_le}
+
+对任意间距至少为 $`\delta>0` 的实频率 $`x_j`，把 $`\left|\sum_j c_je^{itx_j}\right|^2` 在区间 $`[a,b]` 上积分。从中减去对角项 $`(b-a)\sum_j|c_j|^2`，差的绝对值至多为 $`2\pi\delta^{-1}\sum_j|c_j|^2`。证明在两个端点各使用一次 Hilbert 不等式。
+
+{docstring AnalyticNumberTheory.SieveMethods.separated_frequency_mean_square}

@@ -1,14 +1,14 @@
 import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
 import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
-import AnalyticNumberTheory.RiemannZeta.FourthMomentLog
+import AnalyticNumberTheory.RiemannZeta.FourthMomentAsymptotic
 import VersoManual
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open AnalyticNumberTheory.RiemannZeta
 
-#doc (Manual) "ζ 与 Dirichlet L 函数在临界线上的二阶矩" =>
+#doc (Manual) "ζ 的临界线矩与 Dirichlet L 函数的均方" =>
 %%%
 tag := "critical-second-moment"
 file := "critical-second-moment"
@@ -59,6 +59,22 @@ file := "periodic-coefficients"
 tag := "critical-fourth-moment"
 file := "fourth-moment"
 %%%
+
+{index}[Ingham 四阶矩定理]Ingham 的渐近公式给出四阶矩主项的精确系数。随着 $`T\to\infty`，
+
+$$`\int_1^T |\zeta(1/2+it)|^4\,dt\sim\frac{T(\log T)^4}{2\pi^2}.`
+
+{docstring fourthMoment_riemannZeta_equivalent}
+
+平方展开中有两个对角项，各自的系数来自同一个算术和，其中 $`d(n)` 是 $`n` 的正因子个数。
+
+$$`\sum_{n\le X}\frac{d(n)^2}{n}=\frac{(\log X)^4}{4\pi^2}+O\big((1+\log X)^3\big).`
+
+{docstring AnalyticNumberTheory.DivisorProblems.divisor_square_harmonic_error}
+
+在 $`[T,2T]` 上先把两个多项式截到 $`\lfloor\delta T\rfloor`。当 $`0<\delta\le1/(4\pi)` 时，混合项的相位导数远离零，可以逐项估计其振荡积分。均方比较给出两个对角项的主贡献。令 $`\delta` 趋于零，再对二倍区间求和，就得到从一到 $`T` 的渐近式。
+
+{docstring fourthMoment_riemannZeta_dyadic_tendsto}
 
 {index}[ζ 函数的四阶矩]对每个 $`\varepsilon>0`，存在常数 $`C_\varepsilon`，使对所有 $`T\ge1` 有
 

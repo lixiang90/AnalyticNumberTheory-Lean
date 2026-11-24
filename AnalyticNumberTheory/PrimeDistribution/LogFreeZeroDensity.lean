@@ -18,7 +18,7 @@ open AnalyticNumberTheory.DirichletLFunctions AnalyticNumberTheory.SieveMethods
 
 namespace AnalyticNumberTheory.PrimeDistribution
 
-private lemma detector_distance {σ η t : ℝ} {z : ℂ} (_hη : 0 < η)
+lemma turan_detector_distance {σ η t : ℝ} {z : ℂ} (_hη : 0 < η)
     (hg : 4*(1-σ) ≤ η) (hz : σ ≤ z.re) (hz' : z.re < 1)
     (ht : t ∈ Set.Ioc (z.im-η/2) (z.im+η/2)) :
     ‖(((1+η:ℝ):ℂ)+(t:ℂ)*I)-z‖ ≤ 2*η := by
@@ -29,7 +29,7 @@ private lemma detector_distance {σ η t : ℝ} {z : ℂ} (_hη : 0 < η)
   have hh : |t-z.im| ≤ η/2 := abs_le.mpr ⟨by linarith [ht.1],by linarith [ht.2]⟩
   linarith
 
-private lemma continuous_prime_detector {q : ℕ} (χ : DirichletCharacter ℂ q)
+lemma continuous_turan_prime_detector {q : ℕ} (χ : DirichletCharacter ℂ q)
     (X U η : ℝ) (m : ℕ) :
     Continuous (fun t => ∑ p ∈ turanPrimes X U, turanMangoldtTerm χ η t m p) := by
   apply continuous_finsetSum
@@ -74,7 +74,7 @@ theorem turan_zero_count_integral :
     apply weighted_zero_detection_integral (S χ) orders Complex.im (w χ) (D χ) hT hη (by linarith)
       (show 0≤δ by positivity) (by positivity)
       (fun z hz => (hmem z hz).2.2.2.2.2) (fun z _ => Nat.cast_nonneg _)
-      (fun m _ => continuous_prime_detector ..)
+      (fun m _ => continuous_turan_prime_detector ..)
     · intro t ht
       let Z := (S χ).filter (fun z => t ∈ Set.Ioc (z.im-η/2) (z.im+η/2))
       by_cases hn : Z.Nonempty
@@ -83,7 +83,7 @@ theorem turan_zero_count_integral :
         have hb := HK hnχ (hqY t ht) hη hη' hg Z (fun u hu => by
           obtain ⟨huz,htu⟩ := mem_filter.mp hu
           obtain ⟨_,hu',_,hσ,hu1,_⟩ := hmem u huz
-          exact ⟨hu',detector_distance hη hgap hσ hu1 htu⟩)
+          exact ⟨hu',turan_detector_distance hη hgap hσ hu1 htu⟩)
         simpa only [w,characterZeroMultiplicity,dite_eq_left (NeZero.ne χ.1)] using hb
       · change ∑ z ∈ Z, w χ z ≤ _
         rw [Finset.not_nonempty_iff_eq_empty.mp hn,sum_empty]; positivity
@@ -91,7 +91,7 @@ theorem turan_zero_count_integral :
       obtain ⟨hnχ,hL,_,hzσ,hz1,hzT⟩ := hmem z hz
       have hr := abs_le.mp hzT
       have ht' : t ∈ Set.Icc (-T-1) (T+1) := ⟨by linarith [ht.1],by linarith [ht.2]⟩
-      exact HC hnχ (hqY t ht') hη hη' hg hX hU hL (detector_distance hη hgap hzσ hz1 ht) hM hlow hhigh
+      exact HC hnχ (hqY t ht') hη hη' hg hX hU hL (turan_detector_distance hη hgap hzσ hz1 ht) hM hlow hhigh
   have hsum := sum_le_sum hone
   unfold primitiveFamilyZeroCount
   push_cast
@@ -99,13 +99,20 @@ theorem turan_zero_count_integral :
     K*(1+η*Real.log Y)*(∑ m ∈ orders, ∑ χ ∈ F, ∫ t in (-(T+1))..(T+1), ‖D χ m t‖^2)
   simpa only [←mul_sum,sum_comm (s:=F) (t:=orders)] using hsum
 
-/-- In the near-one regime choose the detector order proportional to `η log Y`
-and a fixed pair of powers of `Y` for the prime support. -/
-theorem turan_zero_count_near_one :
+/-- Optimize the detector order for any counting function reduced to the
+primitive-family prime means. -/
+theorem turan_count_of_prime_mean_integral (Z : ℕ → ℝ → ℝ → ℝ)
+    (hI : ∃ C > 0, ∃ K > 0, ∀ {Q : ℕ} {T σ η Y X U : ℝ} {M : ℕ},
+    1 ≤ Q → 0 ≤ T → (Q:ℝ)*(T+3) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
+    4*(1-σ) ≤ η → 1 ≤ X → X ≤ U → C*(1+η*Real.log Y) ≤ M →
+    1024*(η*Real.log X) ≤ M → 128*(M:ℝ) ≤ η*Real.log U →
+    ((1/128:ℝ)^(2*M+1))^2*η*Z Q σ T ≤
+      (K*(1+η*Real.log Y)) * ∑ m ∈ Icc M (2*M), ∑ χ ∈ primitiveCharacterFamily Q,
+      ∫ t in (-(T+1))..(T+1), ‖∑ p ∈ turanPrimes X U, turanMangoldtTerm χ.2 η t m p‖^2) :
     ∃ C > 0, ∃ A > 0, ∀ {Q : ℕ}, 1 ≤ Q → ∀ {T σ η Y : ℝ},
     0 ≤ T → (Q:ℝ)*(T+3) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
-    4*(1-σ) ≤ η → (primitiveFamilyZeroCount Q σ T:ℝ) ≤ C*Real.exp (A*(η*Real.log Y)) := by
-  obtain ⟨C,hC,K,hK,HI⟩ := turan_zero_count_integral
+    4*(1-σ) ≤ η → Z Q σ T ≤ C*Real.exp (A*(η*Real.log Y)) := by
+  obtain ⟨C,hC,K,hK,HI⟩ := hI
   let L := max C 16384 + 1
   let R := 2*L+1
   let B := 128*R
@@ -139,8 +146,8 @@ theorem turan_zero_count_near_one :
       _ ≤ 128*(R*a) := by gcongr
       _ = _ := by dsimp only [a]; ring
   let b := 2*M+1
-  let Z := (primitiveFamilyZeroCount Q σ T:ℝ)
-  have hive := HI (M:=M) hT hY hη hη' hg hgap
+  let count := Z Q σ T
+  have hive := HI (M:=M) hQ hT hY hη hη' hg hgap
     (Real.one_le_rpow hY1 (by norm_num : (0:ℝ)≤16)) (Real.rpow_le_rpow_of_exponent_le hY1 hB)
     ((mul_le_mul_of_nonneg_right hLC (by linarith : 0≤1+a)).trans hM0) hlow hhigh
   have hmean := sum_le_sum (s:=Icc M (2*M)) (fun m _ => turan_prime_family_mean hQ hT hY (le_refl (16:ℝ)) hB hη.le m)
@@ -148,17 +155,17 @@ theorem turan_zero_count_near_one :
   have hcard : (Icc M (2*M)).card = M+1 := by rw [Nat.card_Icc]; omega
   rw [hcard] at hmean
   have hcombined := hive.trans (mul_le_mul_of_nonneg_left hmean (by positivity))
-  change ((1/128:ℝ)^b)^2*η*Z ≤ K*(1+a)*((↑(M+1):ℝ)*(V*η^2*Real.log Y)) at hcombined
-  have hrest : ((1/128:ℝ)^b)^2 * Z ≤ K*V*((1+a)*((M:ℝ)+1)*a) := by
+  change ((1/128:ℝ)^b)^2*η*count ≤ K*(1+a)*((↑(M+1):ℝ)*(V*η^2*Real.log Y)) at hcombined
+  have hrest : ((1/128:ℝ)^b)^2 * count ≤ K*V*((1+a)*((M:ℝ)+1)*a) := by
     apply le_of_mul_le_mul_left (a:=η) (by
       calc
-        _ = ((1/128:ℝ)^b)^2*η*Z := by ring
+        _ = ((1/128:ℝ)^b)^2*η*count := by ring
         _ ≤ _ := hcombined
         _ = _ := by push_cast; dsimp only [a]; ring) hη
-  have hZ : Z ≤ K*V*(((128:ℝ)^b)^2 * ((1+a)*((M:ℝ)+1)*a)) := by
+  have hZ : count ≤ K*V*(((128:ℝ)^b)^2 * ((1+a)*((M:ℝ)+1)*a)) := by
     have hh := mul_le_mul_of_nonneg_left hrest (show 0≤((128:ℝ)^b)^2 by positivity)
     calc
-      _ = ((128:ℝ)^b)^2 * (((1/128:ℝ)^b)^2 * Z) := by norm_num [div_pow,inv_pow]
+      _ = ((128:ℝ)^b)^2 * (((1/128:ℝ)^b)^2 * count) := by norm_num [div_pow,inv_pow]
       _ ≤ _ := hh
       _ = _ := by ring
   apply hZ.trans
@@ -175,6 +182,18 @@ theorem turan_zero_count_near_one :
     _ ≤ Real.exp (128*(4*R+2)*a)*(Real.exp a*Real.exp (R*a)*Real.exp a) := by gcongr
     _ = _ := by rw [←Real.exp_add,←Real.exp_add,←Real.exp_add]; congr 1; ring
 
+
+/-- In the near-one regime choose the detector order proportional to `η log Y`
+and a fixed pair of powers of `Y` for the prime support. -/
+theorem turan_zero_count_near_one :
+    ∃ C > 0, ∃ A > 0, ∀ {Q : ℕ}, 1 ≤ Q → ∀ {T σ η Y : ℝ},
+    0 ≤ T → (Q:ℝ)*(T+3) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
+    4*(1-σ) ≤ η → (primitiveFamilyZeroCount Q σ T:ℝ) ≤ C*Real.exp (A*(η*Real.log Y)) := by
+  apply turan_count_of_prime_mean_integral (fun Q σ T => (primitiveFamilyZeroCount Q σ T:ℝ))
+  obtain ⟨C,hC,K,hK,H⟩ := turan_zero_count_integral
+  refine ⟨C,hC,K,hK,?_⟩
+  intro Q T σ η Y X U M _
+  exact H
 
 /-- **Log-free zero density.** Count the nontrivial zeros of all nonprincipal
 primitive Dirichlet characters of moduli up to `Q`, with multiplicities and

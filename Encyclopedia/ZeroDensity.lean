@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalEstimates
-import AnalyticNumberTheory.PrimeDistribution.LogFreeZeroDensity
+import AnalyticNumberTheory.PrimeDistribution.ZetaLogFreeDensity
+import AnalyticNumberTheory.PrimeDistribution.Hoheisel
 import VersoManual
 
 open Verso.Genre Manual
@@ -22,13 +23,43 @@ $$`N(\sigma,T)\ll T^{4(1-\sigma)}(\log T)^{11}.`
 
 {docstring zeta_zeroDensity_with_multiplicity}
 
+若只需要一个绝对指数，可以消去对数因子。把正、负高度的非平凡零点一并按重数计入，在 $`0\le\sigma\le1`、$`T\ge0` 上得到
+
+$$`N_{\mathrm{sym}}(\sigma,T)\le C(T+2)^{A(1-\sigma)}.`
+
+这里的 $`A,C>0` 是绝对常数。直接对 ζ 的高阶对数导数使用 Turán 幂和，处理模一主特征，再把有界高度的零点并入常数。
+
+{docstring zetaDensityCount_log_free}
+
 {index}[短区间素数]截断显式公式把 $`\psi(x+h)-\psi(x)` 与零点的贡献联系起来。对于 $`h=x^\theta` 和 $`3/4<\theta<1`，下述结论仍使用声明中的加强无零区假设。零密度估计与截断显式公式两项已由库中的定理给出。
+
+在两个端点分别截断显式公式。每个零点对差值的贡献可由 $`h x^{\Re\rho-1}` 乘以其重数控制。截断高度 $`2\le T\le x` 可自由选择，以平衡零点和与截断误差。
+
+{docstring psi_interval_zero_sum_bound}
 
 {docstring psi_shortInterval_of_superLogZeroFree}
 
 另一个无条件范围直接来自带误差项的{ref "prime-counting"}[素数定理]。存在 $`d>0`，取 $`h=x\exp(-d\sqrt{\log x})` 时，$`\psi(x+h)-\psi(x)` 与 $`\vartheta(x+h)-\vartheta(x)` 都渐近于 $`h`。
 
 {docstring chebyshev_expShortInterval}
+
+# Hoheisel 定理与幂长短区间
+%%%
+tag := "hoheisel-prime-intervals"
+file := "hoheisel"
+%%%
+
+{index}[Hoheisel 定理]存在一个固定指数 $`1/2<\theta_0<1`，使对每个固定的 $`\theta_0\le\theta<1`，当 $`x` 充分大时，
+
+$$`\pi(x+x^\theta)-\pi(x)\ge \frac{x^\theta}{8\log x}.`
+
+因此每个这样的区间 $`(x,x+x^\theta]` 都含有素数。证明先由无对数损失的零密度估计和经典无零区得到 $`\psi(x+x^\theta)-\psi(x)\ge x^\theta/2`，再估计高次素数幂的贡献，从对数权转回素数个数。
+
+{docstring hoheisel_primes_in_power_intervals}
+
+若已有无零区宽度 $`\delta(t)` 满足 $`\delta(t)\log t\to\infty`，同一方法可使零点和趋于零，从而把素数个数的下界改进为渐近式 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。这个推论允许宽度随高度非单调变化。
+
+{docstring hoheisel_prime_asymptotic_of_improving_width}
 
 # Dirichlet 特征族的零点
 %%%

@@ -90,25 +90,20 @@ theorem turan_prime_window_error :
   rw [mul_assoc,mul_comm (5*B+P)]
   exact mul_le_mul_of_nonneg_left (by linarith) hc
 
-/-- A nearby zero forces a large finite prime sum for an order between `M` and `2M`. -/
-theorem LFunction_turan_prime_detector :
-    ∃ C > 0, ∀ {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
-    ∀ {t η Y X U : ℝ}, (q:ℝ)*(|t|+2) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
-    1 ≤ X → X ≤ U → ∀ {ρ : ℂ}, DirichletCharacter.LFunction χ ρ = 0 →
-      ‖(((1+η:ℝ):ℂ)+(t:ℂ)*I)-ρ‖ ≤ 2*η →
-    ∀ {M : ℕ}, C*(1+η*Real.log Y) ≤ M → 1024*(η*Real.log X) ≤ M →
-      128*(M:ℝ) ≤ η*Real.log U →
-      ∃ m ∈ Icc M (2*M), (1/128:ℝ)^(2*M+1) ≤
-        ‖∑ n ∈ turanPrimes X U, turanMangoldtTerm χ η t m n‖ := by
-  obtain ⟨C,hC,HC⟩ := LFunction_turan_zero_detector
+/-- Pass from a single large derivative to a finite prime sum. The analytic
+source of the large derivative may be either a zeta or character zero. -/
+theorem turan_prime_detector_of_large_derivative :
+    ∃ D > 0, ∀ {q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q) {t η X U : ℝ},
+    0 < η → η ≤ 1/1024 → 1 ≤ X → X ≤ U → ∀ {M : ℕ},
+    D ≤ (M:ℝ) → 1024*(η*Real.log X) ≤ M → 128*(M:ℝ) ≤ η*Real.log U →
+    (∃ k ∈ Ioc M (2*M), (1/64:ℝ)^k ≤ η^k*‖signedTaylorCoeff
+      (logDeriv (DirichletCharacter.LFunction χ)) (((1+η:ℝ):ℂ)+(t:ℂ)*I) (k-1)‖) →
+    ∃ m ∈ Icc M (2*M), (1/128:ℝ)^(2*M+1) ≤
+      ‖∑ n ∈ turanPrimes X U, turanMangoldtTerm χ η t m n‖ := by
   obtain ⟨D,hD,HD⟩ := turan_prime_window_error
-  refine ⟨max C (128*D+1),lt_of_lt_of_le hC (le_max_left ..),?_⟩
-  intro q _ χ hχ t η Y X U hY hη hη' hg hX hU ρ hz hd M hM hlow hhigh
-  have hCM := (mul_le_mul_of_nonneg_right (le_max_left C (128*D+1)) (by linarith : 0≤1+η*Real.log Y)).trans hM
-  have hDM : 128*D ≤ M := by
-    have := (mul_le_mul (le_max_right C (128*D+1)) (by linarith : 1≤1+η*Real.log Y) zero_le_one (by positivity)).trans hM
-    linarith
-  obtain ⟨k,hk,hbig⟩ := HC hχ hY hη hη' hg hz hd hCM
+  refine ⟨128*D,by positivity,?_⟩
+  intro q _ χ t η X U hη hη' hX hU M hDM hlow hhigh hder
+  obtain ⟨k,hk,hbig⟩ := hder
   obtain ⟨hk₁,hk₂⟩ := mem_Ioc.mp hk
   let m := k-1
   have hkm : k=m+1 := by dsimp [m]; omega
@@ -139,5 +134,23 @@ theorem LFunction_turan_prime_detector :
         (∑ n ∈ turanPrimes X U, turanMangoldtTerm χ η t m n)).trans (herr.trans herror)
       rw [pow_succ] at htotal
       linarith
+
+/-- A nearby zero forces a large finite prime sum for an order between `M` and `2M`. -/
+theorem LFunction_turan_prime_detector :
+    ∃ C > 0, ∀ {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
+    ∀ {t η Y X U : ℝ}, (q:ℝ)*(|t|+2) ≤ Y → 0 < η → η ≤ 1/1024 → 1 ≤ η*Real.log Y →
+    1 ≤ X → X ≤ U → ∀ {ρ : ℂ}, DirichletCharacter.LFunction χ ρ = 0 →
+      ‖(((1+η:ℝ):ℂ)+(t:ℂ)*I)-ρ‖ ≤ 2*η →
+    ∀ {M : ℕ}, C*(1+η*Real.log Y) ≤ M → 1024*(η*Real.log X) ≤ M →
+      128*(M:ℝ) ≤ η*Real.log U →
+      ∃ m ∈ Icc M (2*M), (1/128:ℝ)^(2*M+1) ≤
+        ‖∑ n ∈ turanPrimes X U, turanMangoldtTerm χ η t m n‖ := by
+  obtain ⟨C,hC,HC⟩ := LFunction_turan_zero_detector
+  obtain ⟨D,hD,HD⟩ := turan_prime_detector_of_large_derivative
+  refine ⟨max C D,lt_of_lt_of_le hC (le_max_left ..),?_⟩
+  intro q _ χ hχ t η Y X U hY hη hη' hg hX hU ρ hz hd M hM hlow hhigh
+  have hCM := (mul_le_mul_of_nonneg_right (le_max_left C D) (by linarith : 0≤1+η*Real.log Y)).trans hM
+  have hDM := (mul_le_mul (le_max_right C D) (by linarith : 1≤1+η*Real.log Y) zero_le_one (hD.le.trans (le_max_right ..))).trans hM
+  exact HD χ hη hη' hX hU (by simpa using hDM) hlow hhigh (HC hχ hY hη hη' hg hz hd hCM)
 
 end AnalyticNumberTheory.DirichletLFunctions

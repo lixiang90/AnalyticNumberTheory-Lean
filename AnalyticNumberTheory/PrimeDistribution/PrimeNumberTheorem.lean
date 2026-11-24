@@ -7,7 +7,7 @@ import AnalyticNumberTheory.DirichletSeries.Perron
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
 import AnalyticNumberTheory.RiemannZeta.PoleAndBounds
 import AnalyticNumberTheory.PrimeDistribution.Chebyshev
-import AnalyticNumberTheory.PrimeDistribution.ArithmeticProgressions
+import AnalyticNumberTheory.PrimeDistribution.TwistedPerron
 
 /-!
 # The Prime Number Theorem
@@ -1335,83 +1335,6 @@ private lemma neg_logDeriv_LFunction_one_eq {s : ℂ} (hs : s ≠ 1) :
     exact LFunction_one_eq_riemannZeta_of_ne_one (Set.mem_compl_singleton_iff.mp hw)
   rw [hev.deriv_eq, LFunction_one_eq_riemannZeta_of_ne_one hs]
 
-private lemma sum_inv_abs_halfInteger_le (N : ℕ) (hN : 2 ≤ N) :
-    let x : ℝ := (N : ℝ) + 1 / 2
-    ∑ n ∈ Finset.Icc 1 (2 * N + 1), |x - (n : ℝ)|⁻¹ ≤ 4 * (1 + Real.log ((N : ℝ) + 1)) := by
-  intro x
-  have hsplit : Finset.Icc 1 (2 * N + 1) =
-      Finset.Icc 1 N ∪ Finset.Icc (N + 1) (2 * N + 1) := by
-    ext n; simp only [Finset.mem_Icc, Finset.mem_union]; omega
-  have hdisj : Disjoint (Finset.Icc 1 N) (Finset.Icc (N + 1) (2 * N + 1)) := by
-    rw [Finset.disjoint_left]; intro n hn1 hn2
-    simp only [Finset.mem_Icc] at hn1 hn2; omega
-  rw [hsplit, Finset.sum_union hdisj]
-  have hleft : ∑ n ∈ Finset.Icc 1 N, |x - (n : ℝ)|⁻¹ ≤ 2 * (1 + Real.log N) := by
-    have h1 : ∑ n ∈ Finset.Icc 1 N, |x - (n : ℝ)|⁻¹ ≤
-        ∑ n ∈ Finset.Icc 1 N, 2 * ((N + 1 - n : ℕ) : ℝ)⁻¹ := by
-      refine Finset.sum_le_sum fun n hn => ?_
-      have hn' := Finset.mem_Icc.mp hn
-      have hpos : (0 : ℝ) < ((N + 1 - n : ℕ) : ℝ) / 2 := by
-        have : 1 ≤ N + 1 - n := by omega
-        positivity
-      have hge : ((N + 1 - n : ℕ) : ℝ) / 2 ≤ |x - (n : ℝ)| := by
-        have hnR : (n : ℝ) ≤ N := by exact_mod_cast hn'.2
-        have hcast : ((N + 1 - n : ℕ) : ℝ) = (N : ℝ) + 1 - (n : ℝ) := by
-          have : n ≤ N + 1 := by omega
-          rw [Nat.cast_sub this]; push_cast; ring
-        rw [abs_of_pos (by dsimp [x]; linarith), hcast]
-        dsimp [x]; linarith
-      calc |x - (n : ℝ)|⁻¹ ≤ (((N + 1 - n : ℕ) : ℝ) / 2)⁻¹ :=
-            inv_anti₀ hpos hge
-        _ = 2 * ((N + 1 - n : ℕ) : ℝ)⁻¹ := by ring
-    have hbij : ∑ n ∈ Finset.Icc 1 N, ((N + 1 - n : ℕ) : ℝ)⁻¹ =
-        ∑ k ∈ Finset.Icc 1 N, (k : ℝ)⁻¹ := by
-      refine Finset.sum_bij (fun n _ => N + 1 - n) ?_ ?_ ?_ ?_
-      · intro n hn; simp only [Finset.mem_Icc] at hn ⊢; omega
-      · intro n₁ hn₁ n₂ hn₂ heq; simp only [Finset.mem_Icc] at hn₁ hn₂; omega
-      · intro k hk; simp only [Finset.mem_Icc] at hk
-        exact ⟨N + 1 - k, Finset.mem_Icc.mpr ⟨by omega, by omega⟩, by omega⟩
-      · intro n _; rfl
-    have hharm : ∑ k ∈ Finset.Icc 1 N, (k : ℝ)⁻¹ ≤ 1 + Real.log N := by
-      simpa [Nat.floor_natCast] using sum_inv_le_one_add_log (x := (N : ℝ)) (by exact_mod_cast (by omega : 1 ≤ N))
-    rw [← Finset.mul_sum, hbij] at h1
-    exact h1.trans (mul_le_mul_of_nonneg_left hharm zero_le_two)
-  have hright : ∑ n ∈ Finset.Icc (N + 1) (2 * N + 1), |x - (n : ℝ)|⁻¹ ≤
-      2 * (1 + Real.log ((N : ℝ) + 1)) := by
-    have h1 : ∑ n ∈ Finset.Icc (N + 1) (2 * N + 1), |x - (n : ℝ)|⁻¹ ≤
-        ∑ n ∈ Finset.Icc (N + 1) (2 * N + 1), 2 * ((n - N : ℕ) : ℝ)⁻¹ := by
-      refine Finset.sum_le_sum fun n hn => ?_
-      have hn' := Finset.mem_Icc.mp hn
-      have hpos : (0 : ℝ) < ((n - N : ℕ) : ℝ) / 2 := by
-        have : 1 ≤ n - N := by omega
-        positivity
-      have hge : ((n - N : ℕ) : ℝ) / 2 ≤ |x - (n : ℝ)| := by
-        have hnR : (N : ℝ) + 1 ≤ n := by exact_mod_cast hn'.1
-        have hcast : ((n - N : ℕ) : ℝ) = (n : ℝ) - (N : ℝ) := by
-          rw [Nat.cast_sub (by omega)]
-        rw [abs_of_neg (by dsimp [x]; linarith), hcast]
-        dsimp [x]; linarith
-      calc |x - (n : ℝ)|⁻¹ ≤ (((n - N : ℕ) : ℝ) / 2)⁻¹ :=
-            inv_anti₀ hpos hge
-        _ = 2 * ((n - N : ℕ) : ℝ)⁻¹ := by ring
-    have hbij : ∑ n ∈ Finset.Icc (N + 1) (2 * N + 1), ((n - N : ℕ) : ℝ)⁻¹ =
-        ∑ k ∈ Finset.Icc 1 (N + 1), (k : ℝ)⁻¹ := by
-      refine Finset.sum_bij (fun n _ => n - N) ?_ ?_ ?_ ?_
-      · intro n hn; simp only [Finset.mem_Icc] at hn ⊢; omega
-      · intro n₁ hn₁ n₂ hn₂ heq; simp only [Finset.mem_Icc] at hn₁ hn₂; omega
-      · intro k hk; simp only [Finset.mem_Icc] at hk
-        exact ⟨N + k, Finset.mem_Icc.mpr ⟨by omega, by omega⟩, by omega⟩
-      · intro n _; rfl
-    have hharm : ∑ k ∈ Finset.Icc 1 (N + 1), (k : ℝ)⁻¹ ≤ 1 + Real.log ((N : ℝ) + 1) := by
-      have h1 := sum_inv_le_one_add_log (x := ((N + 1 : ℕ) : ℝ)) (by exact_mod_cast (by omega : 1 ≤ N + 1))
-      rw [Nat.floor_natCast, Nat.cast_add, Nat.cast_one] at h1
-      exact h1
-    rw [← Finset.mul_sum, hbij] at h1
-    exact h1.trans (mul_le_mul_of_nonneg_left hharm zero_le_two)
-  have hlog_le : Real.log N ≤ Real.log ((N : ℝ) + 1) :=
-    Real.log_le_log (by exact_mod_cast (by omega : 0 < N)) (by linarith)
-  linarith
-
 private lemma perron_vonMangoldt_halfInteger_error_le {N : ℕ} (hN : 2 ≤ N)
     {c T : ℝ} (hc1 : 1 < c) (hc2 : c ≤ 2) (hT : 2 ≤ T) :
     let x : ℝ := (N : ℝ) + 1 / 2
@@ -1419,134 +1342,13 @@ private lemma perron_vonMangoldt_halfInteger_error_le {N : ℕ} (hN : 2 ≤ N)
       (4 / (Real.pi * Real.log 2)) * (x ^ c / (T * (c - 1) ^ 2)) +
         (64 / Real.pi) * (x * (Real.log (2 * x)) ^ 2 / T) := by
   intro x
-  have hx_pos : 0 < x := by positivity
-  have hc_pos : 0 < c := by linarith
-  have hT_pos : 0 < T := by linarith
-  have ha : LSeriesSummable (fun n : ℕ => (Λ n : ℂ)) (c : ℂ) :=
-    LSeriesSummable_vonMangoldt_iff.mpr (by simpa using hc1)
-  have hex := perron_truncated_explicit hx_pos hc_pos hT_pos ha
-  have hfl : ⌊x⌋₊ = N := by
-    rw [Nat.floor_eq_iff hx_pos.le]
-    exact ⟨by dsimp [x]; linarith, by dsimp [x]; linarith⟩
-  have hfl2 : ⌊2 * x⌋₊ = 2 * N + 1 := by
-    have h2x : 2 * x = ((2 * N + 1 : ℕ) : ℝ) := by dsimp [x]; push_cast; ring
-    rw [h2x, Nat.floor_natCast]
+  have h := perron_twist_halfInteger_error_le (1 : DirichletCharacter ℂ 1) hN hc1 hc2 hT
   have hpsi : (Chebyshev.psi x : ℂ) = ∑ n ∈ Finset.Icc 1 ⌊x⌋₊, (Λ n : ℂ) := by
     rw [psi_eq_sum_Icc]
-    push_cast; rfl
-  have hx_nonint : ∀ n : ℕ, (n : ℝ) ≠ x := by
-    intro n hn
-    rcases le_or_gt n N with hle | hgt
-    · have : (n : ℝ) ≤ N := by exact_mod_cast hle
-      dsimp [x] at hn; linarith
-    · have : (N + 1 : ℝ) ≤ n := by exact_mod_cast hgt
-      dsimp [x] at hn; linarith
-  have hhit0 : (∑ n ∈ Finset.Icc 1 ⌊2 * x⌋₊,
-      if (n : ℝ) = x then ‖(Λ n : ℂ)‖ * (1 / 2 + c / (Real.pi * T)) else 0) = 0 :=
-    Finset.sum_eq_zero fun n _ => ite_eq_right (hx_nonint n)
-  have htsum_bd : ∑' n : ℕ, ‖LSeries.term (fun k : ℕ => (Λ k : ℂ)) (c : ℂ) n‖ ≤ 4 / (c - 1) ^ 2 := by
-    have h1 := tsum_norm_LSeries_term_twist_le (1 : DirichletCharacter ℂ 1) hc1
-    refine (le_of_eq ?_).trans h1
-    refine tsum_congr fun n => ?_
-    rcases eq_or_ne n 0 with rfl | hn
-    · simp
-    · simp
-  have hnear_bd : (∑ n ∈ Finset.Icc 1 ⌊2 * x⌋₊,
-      if x / 2 ≤ n ∧ (n : ℝ) ≠ x then
-        ‖(Λ n : ℂ)‖ * (2 ^ c * (2 * x) / (Real.pi * T * |x - n|))
-      else 0) ≤ (64 / Real.pi) * (x * (Real.log (2 * x)) ^ 2 / T) := by
-    rw [hfl2]
-    have hlog2x_ge1 : 1 ≤ Real.log (2 * x) := by
-      have h5 : (5 : ℝ) ≤ 2 * x := by
-        have : (2 : ℝ) ≤ N := by exact_mod_cast hN
-        dsimp [x]; linarith
-      rw [Real.le_log_iff_exp_le (by linarith)]
-      exact Real.exp_one_lt_d9.le.trans (by linarith)
-    have hterm_le : ∑ n ∈ Finset.Icc 1 (2 * N + 1),
-        (if x / 2 ≤ n ∧ (n : ℝ) ≠ x then
-          ‖(Λ n : ℂ)‖ * (2 ^ c * (2 * x) / (Real.pi * T * |x - n|))
-        else 0) ≤
-        (Real.log (2 * x) * (8 * x / (Real.pi * T))) *
-          ∑ n ∈ Finset.Icc 1 (2 * N + 1), |x - (n : ℝ)|⁻¹ := by
-      rw [Finset.mul_sum]
-      refine Finset.sum_le_sum fun n hn => ?_
-      have hn_mem := Finset.mem_Icc.mp hn
-      split_ifs with hcond
-      · have hnorm_Λ : ‖(Λ n : ℂ)‖ ≤ Real.log (2 * x) := by
-          rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg]
-          have hle_log : Λ n ≤ Real.log n := ArithmeticFunction.vonMangoldt_le_log
-          have hn_pos : (0 : ℝ) < n := by exact_mod_cast hn_mem.1
-          have hn_le2x : (n : ℝ) ≤ 2 * x := by
-            have h2N : ((2 * N + 1 : ℕ) : ℝ) = 2 * x := by dsimp [x]; push_cast; ring
-            rw [← h2N]; exact_mod_cast hn_mem.2
-          exact hle_log.trans (Real.log_le_log hn_pos hn_le2x)
-        have h2c : (2 : ℝ) ^ c ≤ 4 := by
-          calc (2 : ℝ) ^ c ≤ (2 : ℝ) ^ (2 : ℝ) := Real.rpow_le_rpow_of_exponent_le one_le_two hc2
-            _ = 4 := by norm_num
-        have hmul_eq : 2 ^ c * (2 * x) / (Real.pi * T * |x - (n : ℝ)|) =
-            (2 ^ c * (2 * x) / (Real.pi * T)) * |x - (n : ℝ)|⁻¹ := by ring
-        rw [hmul_eq]
-        have hpos_x : 0 ≤ 2 * x / (Real.pi * T) := by positivity
-        have hpow_le : 2 ^ c * (2 * x) / (Real.pi * T) ≤ 8 * x / (Real.pi * T) := by
-          calc 2 ^ c * (2 * x) / (Real.pi * T)
-              ≤ 4 * (2 * x) / (Real.pi * T) := by gcongr
-            _ = 8 * x / (Real.pi * T) := by ring
-        calc ‖(Λ n : ℂ)‖ * ((2 ^ c * (2 * x) / (Real.pi * T)) * |x - (n : ℝ)|⁻¹)
-            ≤ Real.log (2 * x) * ((8 * x / (Real.pi * T)) * |x - (n : ℝ)|⁻¹) := by gcongr
-          _ = (Real.log (2 * x) * (8 * x / (Real.pi * T))) * |x - (n : ℝ)|⁻¹ := by ring
-      · positivity
-    have hsum_inv := sum_inv_abs_halfInteger_le N hN
-    have h_N1_le : (N : ℝ) + 1 ≤ 2 * x := by dsimp [x]; linarith
-    have h4_le : 4 * (1 + Real.log ((N : ℝ) + 1)) ≤ 8 * Real.log (2 * x) := by
-      have h1 : Real.log ((N : ℝ) + 1) ≤ Real.log (2 * x) :=
-        Real.log_le_log (by positivity) h_N1_le
-      linarith [hlog2x_ge1]
-    calc (∑ n ∈ Finset.Icc 1 (2 * N + 1),
-          if x / 2 ≤ n ∧ (n : ℝ) ≠ x then
-            ‖(Λ n : ℂ)‖ * (2 ^ c * (2 * x) / (Real.pi * T * |x - n|))
-          else 0)
-        ≤ (Real.log (2 * x) * (8 * x / (Real.pi * T))) *
-            ∑ n ∈ Finset.Icc 1 (2 * N + 1), |x - (n : ℝ)|⁻¹ := hterm_le
-      _ ≤ (Real.log (2 * x) * (8 * x / (Real.pi * T))) * (8 * Real.log (2 * x)) := by
-          dsimp only at hsum_inv
-          exact mul_le_mul_of_nonneg_left (hsum_inv.trans h4_le) (by positivity)
-      _ = (64 / Real.pi) * (x * (Real.log (2 * x)) ^ 2 / T) := by ring
-  have hterm1 : (x ^ c / (Real.pi * T * Real.log 2)) *
-        ∑' n : ℕ, ‖LSeries.term (fun k : ℕ => (Λ k : ℂ)) (c : ℂ) n‖ ≤
-      (4 / (Real.pi * Real.log 2)) * (x ^ c / (T * (c - 1) ^ 2)) := by
-    have hlog2_pos : 0 < Real.log 2 := Real.log_pos one_lt_two
-    calc (x ^ c / (Real.pi * T * Real.log 2)) *
-          ∑' n : ℕ, ‖LSeries.term (fun k : ℕ => (Λ k : ℂ)) (c : ℂ) n‖
-        ≤ (x ^ c / (Real.pi * T * Real.log 2)) * (4 / (c - 1) ^ 2) := by gcongr
-      _ = (4 / (Real.pi * Real.log 2)) * (x ^ c / (T * (c - 1) ^ 2)) := by
-          have hc0 : c - 1 ≠ 0 := sub_ne_zero.mpr hc1.ne'
-          field_simp [hT_pos.ne', hlog2_pos.ne', hc0]
-  rw [← hpsi] at hex
-  linarith [hex, hhit0, hnear_bd, hterm1]
-
-private lemma rpow_sqrt_log_mul_exp_neg_le {m : ℕ} {γ u : ℝ} (hγ : 0 < γ) (_hu : 1 ≤ u) :
-    (Real.sqrt (Real.log u)) ^ m * Real.exp (-2 * γ * Real.sqrt (Real.log u)) ≤
-      ((m.factorial : ℝ) / γ ^ m) * Real.exp (-γ * Real.sqrt (Real.log u)) := by
-  let y : ℝ := Real.sqrt (Real.log u)
-  have hy : 0 ≤ y := Real.sqrt_nonneg _
-  have hpow : (γ * y) ^ m / (m.factorial : ℝ) ≤ Real.exp (γ * y) := by
-    have hexp := Real.sum_le_exp_of_nonneg (mul_nonneg hγ.le hy) (m + 1)
-    have hsingle : (γ * y) ^ m / (m.factorial : ℝ) ≤
-        ∑ k ∈ Finset.range (m + 1), (γ * y) ^ k / (k.factorial : ℝ) :=
-      Finset.single_le_sum (fun k _ => div_nonneg (pow_nonneg (mul_nonneg hγ.le hy) k)
-        (Nat.cast_nonneg _)) (Finset.mem_range.mpr (Nat.lt_succ_self m))
-    exact hsingle.trans hexp
-  have hy_bd : y ^ m ≤ ((m.factorial : ℝ) / γ ^ m) * Real.exp (γ * y) := by
-    rw [mul_pow] at hpow
-    rw [div_le_iff₀ (by positivity)] at hpow
-    rw [div_mul_eq_mul_div, le_div_iff₀ (pow_pos hγ m)]
-    linarith
-  calc y ^ m * Real.exp (-2 * γ * y)
-      ≤ (((m.factorial : ℝ) / γ ^ m) * Real.exp (γ * y)) * Real.exp (-2 * γ * y) :=
-        mul_le_mul_of_nonneg_right hy_bd (Real.exp_pos _).le
-    _ = ((m.factorial : ℝ) / γ ^ m) * (Real.exp (γ * y) * Real.exp (-2 * γ * y)) := by ring
-    _ = ((m.factorial : ℝ) / γ ^ m) * Real.exp (-γ * y) := by
-        rw [← Real.exp_add]; congr 2; ring
+    push_cast
+    rfl
+  rw [hpsi]
+  simpa [psiChar, x] using h
 
 private lemma LFunctionTrivChar_one_nonzero_rect (Z : ZetaZeroFreeData)
     {T c_line : ℝ} :
@@ -1633,9 +1435,6 @@ private lemma abs_psi_sub_id_halfInteger_le_exp (Z : ZetaZeroFreeData) :
   have hcZ_pos := Z.hc_pos
   have hcZ_le := Z.hc_le
   have hCZ_pos := Z.hC_pos
-  let c_pnt : ℝ := Z.c / 16
-  have hc_pnt_pos : 0 < c_pnt := by positivity
-  have hc_pnt_le : c_pnt ≤ 1 / 128 := by dsimp [c_pnt]; linarith
   let X₀ : ℝ := Real.exp 16
   have hX₀_ge : 4 ≤ X₀ := by
     have hexp2 : (4 : ℝ) ≤ Real.exp 2 := by
@@ -1644,11 +1443,8 @@ private lemma abs_psi_sub_id_halfInteger_le_exp (Z : ZetaZeroFreeData) :
     exact hexp2.trans (Real.exp_le_exp.mpr (by norm_num))
   let C_vert_k : ℝ := 9 * Z.C + 1 / Z.c
   have hCv_pos : 0 < C_vert_k := by positivity
-  let M₁ : ℝ := (Real.sqrt 2 / Real.pi) * (C_vert_k * 8) * ((Nat.factorial 3 : ℝ) / c_pnt ^ 3)
-  let M₂ : ℝ := ((2 : ℝ) / Real.pi) * (C_vert_k * 4) * Real.exp 1 * ((Nat.factorial 2 : ℝ) / c_pnt ^ 2)
-  let M₃ : ℝ := (4 / (Real.pi * Real.log 2)) * Real.exp 1 * ((Nat.factorial 4 : ℝ) / c_pnt ^ 4)
-  let M₄ : ℝ := (64 / Real.pi) * 4 * ((Nat.factorial 4 : ℝ) / c_pnt ^ 4)
-  refine ⟨M₁ + M₂ + M₃ + M₄ + 1, by positivity, fun N hN_ge => ?_⟩
+  obtain ⟨C₁, hC₁, hscalar⟩ := perron_rectangle_error_le_exp hcZ_pos hcZ_le hCv_pos
+  refine ⟨C₁, hC₁, fun N hN_ge => ?_⟩
   intro x'
   have hx'_ge4 : 4 ≤ x' := hX₀_ge.trans hN_ge
   have hx'_pos : 0 < x' := by linarith
@@ -1750,141 +1546,6 @@ private lemma abs_psi_sub_id_halfInteger_le_exp (Z : ZetaZeroFreeData) :
           (dirichletContourIntegral (fun n : ℕ => (Λ n : ℂ)) x' c_line T - (Chebyshev.psi x' : ℂ)) := by ring
     rw [hid]
     exact norm_sub_le _ _
-  have h_xc : x' ^ c_line = Real.exp 1 * x' := by
-    dsimp [c_line]
-    rw [Real.rpow_add hx'_pos, Real.rpow_one, Real.rpow_def_of_pos hx'_pos,
-      mul_div_cancel₀ 1 (by linarith : Real.log x' ≠ 0)]
-    ring
-  have h_inv_T : T⁻¹ ≤ Real.exp (-2 * c_pnt * sL) := by
-    dsimp [T]
-    rw [← Real.exp_neg]
-    exact Real.exp_le_exp.mpr (by nlinarith only [hc_pnt_le, hsL_ge4])
-  have hB_le : B_bound ≤ 4 * C_vert_k * sL ^ 2 := by
-    have hsq : L_T ^ 2 ≤ (2 * sL) ^ 2 := pow_le_pow_left₀ (by linarith) hLT_le 2
-    calc B_bound = C_vert_k * L_T ^ 2 := rfl
-      _ ≤ C_vert_k * (2 * sL) ^ 2 := mul_le_mul_of_nonneg_left hsq hCv_pos.le
-      _ = 4 * C_vert_k * sL ^ 2 := by ring
-  have h_term1 : (Real.sqrt 2 / Real.pi) * B_bound * x' ^ σ₀ * Real.log (1 + T / σ₀) ≤
-      M₁ * x' * Real.exp (-c_pnt * sL) := by
-    have hlog_T : Real.log (1 + T / σ₀) ≤ 2 * sL := by
-      have h1 : 1 + T / σ₀ ≤ 4 * T := by
-        have hdiv : T / σ₀ ≤ 2 * T := by
-          rw [div_le_iff₀ hσ0_pos]
-          calc T = T * 1 := (mul_one T).symm
-            _ ≤ T * (2 * σ₀) := mul_le_mul_of_nonneg_left (by linarith [hσ0_ge]) hT_pos.le
-            _ = 2 * T * σ₀ := by ring
-        linarith
-      have hlog4 : Real.log 4 ≤ 2 := by
-        rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow]
-        have hlog2 : Real.log 2 ≤ 1 := by
-          rw [Real.log_le_iff_le_exp (by norm_num)]; linarith [Real.exp_one_gt_d9]
-        norm_num; linarith
-      calc Real.log (1 + T / σ₀) ≤ Real.log (4 * T) := Real.log_le_log (by positivity) h1
-        _ = Real.log 4 + Real.log T := Real.log_mul (by norm_num) hT_pos.ne'
-        _ = Real.log 4 + sL := by dsimp [T]; rw [Real.log_exp]
-        _ ≤ 2 * sL := by linarith
-    have hxσ : x' ^ σ₀ ≤ x' * Real.exp (-2 * c_pnt * sL) := by
-      rw [Real.rpow_def_of_pos hx'_pos]
-      have heq : Real.log x' * σ₀ = Real.log x' - (Z.c / L_T) * Real.log x' := by
-        dsimp [σ₀]; ring
-      rw [heq, Real.exp_sub, Real.exp_log hx'_pos, div_eq_mul_inv, ← Real.exp_neg]
-      refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_) hx'_pos.le
-      have hdiv : 2 * c_pnt * sL ≤ (Z.c / L_T) * Real.log x' := by
-        rw [hlog_eq_sq, div_mul_eq_mul_div, le_div_iff₀ (by linarith : 0 < L_T)]
-        have h8 : 2 * c_pnt * (2 * sL) ≤ Z.c * sL := by
-          calc 2 * c_pnt * (2 * sL) = (1 / 4 : ℝ) * (Z.c * sL) := by dsimp [c_pnt]; ring
-            _ ≤ 1 * (Z.c * sL) := mul_le_mul_of_nonneg_right (by norm_num)
-                (mul_nonneg hcZ_pos.le (by linarith))
-            _ = Z.c * sL := one_mul _
-        calc 2 * c_pnt * sL * L_T ≤ 2 * c_pnt * sL * (2 * sL) :=
-              mul_le_mul_of_nonneg_left hLT_le (by positivity)
-          _ = (2 * c_pnt * (2 * sL)) * sL := by ring
-          _ ≤ (Z.c * sL) * sL := mul_le_mul_of_nonneg_right h8 (by linarith)
-          _ = Z.c * sL ^ 2 := by ring
-      linarith
-    have hrpow : sL ^ 3 * Real.exp (-2 * c_pnt * sL) ≤
-        ((Nat.factorial 3 : ℝ) / c_pnt ^ 3) * Real.exp (-c_pnt * sL) :=
-      rpow_sqrt_log_mul_exp_neg_le (m := 3) hc_pnt_pos (by linarith : 1 ≤ x')
-    have hlog_T_nn : 0 ≤ Real.log (1 + T / σ₀) :=
-      Real.log_nonneg (by linarith [div_pos hT_pos hσ0_pos])
-    have hfac1 : (Real.sqrt 2 / Real.pi) * B_bound * x' ^ σ₀ ≤
-        (Real.sqrt 2 / Real.pi) * (4 * C_vert_k * sL ^ 2) * (x' * Real.exp (-2 * c_pnt * sL)) :=
-      mul_le_mul (mul_le_mul_of_nonneg_left hB_le (by positivity)) hxσ (by positivity) (by positivity)
-    calc (Real.sqrt 2 / Real.pi) * B_bound * x' ^ σ₀ * Real.log (1 + T / σ₀)
-        ≤ ((Real.sqrt 2 / Real.pi) * (4 * C_vert_k * sL ^ 2) *
-            (x' * Real.exp (-2 * c_pnt * sL))) * (2 * sL) :=
-          mul_le_mul hfac1 hlog_T hlog_T_nn (by positivity)
-      _ = (Real.sqrt 2 / Real.pi) * (C_vert_k * 8) * x' * (sL ^ 3 * Real.exp (-2 * c_pnt * sL)) := by ring
-      _ ≤ (Real.sqrt 2 / Real.pi) * (C_vert_k * 8) * x' *
-            (((Nat.factorial 3 : ℝ) / c_pnt ^ 3) * Real.exp (-c_pnt * sL)) :=
-          mul_le_mul_of_nonneg_left hrpow (by positivity)
-      _ = M₁ * x' * Real.exp (-c_pnt * sL) := by dsimp [M₁]; ring
-  have h_term2 : ((c_line - σ₀) / (Real.pi * T)) * B_bound * x' ^ c_line ≤
-      M₂ * x' * Real.exp (-c_pnt * sL) := by
-    have hc_diff : c_line - σ₀ ≤ 2 := by
-      have h1 : 1 / Real.log x' ≤ 1 := div_le_one_of_le₀ (by linarith) (by linarith)
-      have h2 : Z.c / L_T ≤ 1 := div_le_one_of_le₀ (by linarith) (by linarith)
-      dsimp [c_line, σ₀]; linarith
-    have hrpow : sL ^ 2 * Real.exp (-2 * c_pnt * sL) ≤
-        ((Nat.factorial 2 : ℝ) / c_pnt ^ 2) * Real.exp (-c_pnt * sL) :=
-      rpow_sqrt_log_mul_exp_neg_le (m := 2) hc_pnt_pos (by linarith : 1 ≤ x')
-    have h_prefix : (c_line - σ₀) / Real.pi * B_bound ≤ 2 / Real.pi * (4 * C_vert_k * sL ^ 2) :=
-      mul_le_mul (div_le_div_of_nonneg_right hc_diff Real.pi_pos.le) hB_le hB_nn (by positivity)
-    calc ((c_line - σ₀) / (Real.pi * T)) * B_bound * x' ^ c_line
-        = (c_line - σ₀) / Real.pi * B_bound * (Real.exp 1 * x') * T⁻¹ := by rw [h_xc]; ring
-      _ ≤ 2 / Real.pi * (4 * C_vert_k * sL ^ 2) * (Real.exp 1 * x') * Real.exp (-2 * c_pnt * sL) :=
-          mul_le_mul (mul_le_mul_of_nonneg_right h_prefix (by positivity)) h_inv_T (by positivity) (by positivity)
-      _ = (2 / Real.pi) * (C_vert_k * 4) * Real.exp 1 * x' * (sL ^ 2 * Real.exp (-2 * c_pnt * sL)) := by ring
-      _ ≤ (2 / Real.pi) * (C_vert_k * 4) * Real.exp 1 * x' *
-            (((Nat.factorial 2 : ℝ) / c_pnt ^ 2) * Real.exp (-c_pnt * sL)) :=
-          mul_le_mul_of_nonneg_left hrpow (by positivity)
-      _ = M₂ * x' * Real.exp (-c_pnt * sL) := by dsimp [M₂]; ring
-  have h_term3 : (4 / (Real.pi * Real.log 2)) * (x' ^ c_line / (T * (c_line - 1) ^ 2)) ≤
-      M₃ * x' * Real.exp (-c_pnt * sL) := by
-    have hc_sq : (c_line - 1) ^ 2 = (sL ^ 4)⁻¹ := by
-      dsimp [c_line]; rw [add_sub_cancel_left, one_div, hlog_eq_sq, inv_pow, ← pow_mul]
-    have hrpow : sL ^ 4 * Real.exp (-2 * c_pnt * sL) ≤
-        ((Nat.factorial 4 : ℝ) / c_pnt ^ 4) * Real.exp (-c_pnt * sL) :=
-      rpow_sqrt_log_mul_exp_neg_le (m := 4) hc_pnt_pos (by linarith : 1 ≤ x')
-    have h_eq : x' ^ c_line / (T * (c_line - 1) ^ 2) = Real.exp 1 * x' * sL ^ 4 * T⁻¹ := by
-      rw [h_xc, hc_sq, div_eq_mul_inv, mul_inv, inv_inv]
-      ring
-    have hlog2_pos : 0 < Real.log 2 := Real.log_pos one_lt_two
-    have hcoeff3 : 0 ≤ (4 / (Real.pi * Real.log 2)) * Real.exp 1 * x' := by positivity
-    calc (4 / (Real.pi * Real.log 2)) * (x' ^ c_line / (T * (c_line - 1) ^ 2))
-        = (4 / (Real.pi * Real.log 2)) * Real.exp 1 * x' * (sL ^ 4 * T⁻¹) := by rw [h_eq]; ring
-      _ ≤ (4 / (Real.pi * Real.log 2)) * Real.exp 1 * x' * (sL ^ 4 * Real.exp (-2 * c_pnt * sL)) :=
-          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left h_inv_T (by positivity)) hcoeff3
-      _ ≤ (4 / (Real.pi * Real.log 2)) * Real.exp 1 * x' *
-            (((Nat.factorial 4 : ℝ) / c_pnt ^ 4) * Real.exp (-c_pnt * sL)) :=
-          mul_le_mul_of_nonneg_left hrpow hcoeff3
-      _ = M₃ * x' * Real.exp (-c_pnt * sL) := by dsimp [M₃]; ring
-  have h_term4 : (64 / Real.pi) * (x' * (Real.log (2 * x')) ^ 2 / T) ≤
-      M₄ * x' * Real.exp (-c_pnt * sL) := by
-    have hlog2x_le : Real.log (2 * x') ≤ 2 * sL ^ 2 := by
-      have hlog2 : Real.log 2 ≤ 1 := by
-        rw [Real.log_le_iff_le_exp (by norm_num)]; linarith only [Real.exp_one_gt_d9]
-      have h1_sL : 1 ≤ sL ^ 2 := by nlinarith only [hsL_ge4]
-      rw [Real.log_mul (by norm_num) hx'_pos.ne', hlog_eq_sq]
-      linarith only [hlog2, h1_sL]
-    have hsq2x : (Real.log (2 * x')) ^ 2 ≤ 4 * sL ^ 4 := by
-      calc (Real.log (2 * x')) ^ 2 ≤ (2 * sL ^ 2) ^ 2 :=
-            pow_le_pow_left₀ (Real.log_nonneg (by linarith only [hx'_ge4])) hlog2x_le 2
-        _ = 4 * sL ^ 4 := by ring
-    have hrpow : sL ^ 4 * Real.exp (-2 * c_pnt * sL) ≤
-        ((Nat.factorial 4 : ℝ) / c_pnt ^ 4) * Real.exp (-c_pnt * sL) :=
-      rpow_sqrt_log_mul_exp_neg_le (m := 4) hc_pnt_pos (by linarith : 1 ≤ x')
-    have h_eq : x' * (Real.log (2 * x')) ^ 2 / T = x' * (Real.log (2 * x')) ^ 2 * T⁻¹ := by ring
-    calc (64 / Real.pi) * (x' * (Real.log (2 * x')) ^ 2 / T)
-        ≤ (64 / Real.pi) * (x' * (4 * sL ^ 4) * Real.exp (-2 * c_pnt * sL)) := by
-          rw [h_eq]
-          exact mul_le_mul_of_nonneg_left
-            (mul_le_mul (mul_le_mul_of_nonneg_left hsq2x hx'_pos.le) h_inv_T (by positivity) (by positivity))
-            (by positivity)
-      _ = (64 / Real.pi) * 4 * x' * (sL ^ 4 * Real.exp (-2 * c_pnt * sL)) := by ring
-      _ ≤ (64 / Real.pi) * 4 * x' * (((Nat.factorial 4 : ℝ) / c_pnt ^ 4) * Real.exp (-c_pnt * sL)) :=
-          mul_le_mul_of_nonneg_left hrpow (by positivity)
-      _ = M₄ * x' * Real.exp (-c_pnt * sL) := by dsimp [M₄]; ring
   calc |Chebyshev.psi x' - x'|
       ≤ ‖dirichletContourIntegral (fun n : ℕ => (Λ n : ℂ)) x' c_line T - (x' : ℂ)‖ +
           ‖dirichletContourIntegral (fun n : ℕ => (Λ n : ℂ)) x' c_line T - (Chebyshev.psi x' : ℂ)‖ :=
@@ -1893,13 +1554,7 @@ private lemma abs_psi_sub_id_halfInteger_le_exp (Z : ZetaZeroFreeData) :
             ((c_line - σ₀) / (Real.pi * T)) * B_bound * x' ^ c_line) +
           ((4 / (Real.pi * Real.log 2)) * (x' ^ c_line / (T * (c_line - 1) ^ 2)) +
             (64 / Real.pi) * (x' * (Real.log (2 * x')) ^ 2 / T)) := add_le_add hshift hperr
-    _ ≤ (M₁ * x' * Real.exp (-c_pnt * sL) + M₂ * x' * Real.exp (-c_pnt * sL)) +
-          (M₃ * x' * Real.exp (-c_pnt * sL) + M₄ * x' * Real.exp (-c_pnt * sL)) :=
-        add_le_add (add_le_add h_term1 h_term2) (add_le_add h_term3 h_term4)
-    _ = (M₁ + M₂ + M₃ + M₄) * (x' * Real.exp (-c_pnt * sL)) := by ring
-    _ ≤ (M₁ + M₂ + M₃ + M₄ + 1) * (x' * Real.exp (-c_pnt * sL)) :=
-        mul_le_mul_of_nonneg_right (le_add_of_nonneg_right zero_le_one) (by positivity)
-    _ = (M₁ + M₂ + M₃ + M₄ + 1) * x' * Real.exp (-c_pnt * sL) := by ring
+    _ ≤ _ := hscalar x' hN_ge
 
 /-- Unconditional **de la Vallée Poussin Prime Number Theorem** with explicit exponential
 error term for `Chebyshev.psi`:

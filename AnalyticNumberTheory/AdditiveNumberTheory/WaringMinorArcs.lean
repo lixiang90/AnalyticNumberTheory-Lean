@@ -87,6 +87,39 @@ theorem integral_norm_waringSum_le {k : ℕ} (hk : 1 ≤ k) {ε : ℝ} (hε : 0 
           apply mul_le_mul_of_nonneg_left _ hB.le
           nlinarith
 
+/-- Hua's moment controls the integral on any measurable subset of a period
+where the Weyl sum is at most `M`. -/
+theorem norm_waringIntegral_subset_le {k : ℕ} (hk : 1 ≤ k) {ε : ℝ} (hε : 0 < ε) :
+    ∃ C : ℝ, 0 < C ∧ ∀ (P r n : ℕ) {U : Set ℝ} {u M : ℝ}, MeasurableSet U →
+      U ⊆ Set.Icc u (u + 1) → 0 ≤ M → (∀ α ∈ U, ‖waringSum k P α‖ ≤ M) →
+      ‖∫ α in U, waringSum k P α ^ (r + 2 ^ k) * e (-α * n)‖ ≤
+        M ^ r * (C * (1 + (P : ℝ) ^ ((2 ^ k : ℝ) - k + ε))) := by
+  obtain ⟨C, hC, hH⟩ := integral_norm_waringSum_le hk hε
+  refine ⟨C, hC, fun P r n U u M hU hu hM hb => ?_⟩
+  let W := waringSum k P
+  have hW : Continuous W := continuous_genExpSum _ _ _
+  have hi : IntegrableOn (fun α => ‖W α‖ ^ (2 ^ k)) (Set.Icc u (u + 1)) :=
+    (hW.norm.pow (2 ^ k)).continuousOn.integrableOn_compact
+    (isCompact_Icc (a := u) (b := u + 1))
+  have hshift : (∫ α in Set.Icc u (u + 1), ‖W α‖ ^ (2 ^ k)) =
+      ∫ α in (0 : ℝ)..1, ‖W α‖ ^ (2 ^ k) :=
+    setIntegral_Icc_periodic_eq (fun α => by dsimp [W]; rw [show waringSum k P (α + 1)
+      = waringSum k P α from periodic_genExpSum _ _ _ α]) u
+  apply (norm_integral_le_integral_norm _).trans
+  simp only [norm_mul, norm_pow, norm_e, mul_one, pow_add]
+  calc _ ≤ ∫ α in U, M ^ r * ‖W α‖ ^ (2 ^ k) := by
+          apply setIntegral_mono_on _ ((hi.mono_set hu).const_mul _) hU
+          · intro α hα
+            gcongr
+            exact hb α hα
+          · exact (((hW.norm.pow r).mul (hW.norm.pow (2 ^ k))).continuousOn.integrableOn_compact
+              isCompact_Icc).mono_set hu
+       _ ≤ M ^ r * ∫ α in Set.Icc u (u + 1), ‖W α‖ ^ (2 ^ k) := by
+          rw [MeasureTheory.integral_const_mul]
+          exact mul_le_mul_of_nonneg_left (setIntegral_mono_set hi
+            (ae_of_all _ fun _ => by positivity) (Filter.Eventually.of_forall hu)) (pow_nonneg hM _)
+       _ ≤ _ := by rw [hshift]; exact mul_le_mul_of_nonneg_left (hH P) (pow_nonneg hM _)
+
 /-- Each of the `r` excess variables supplies one power of the minor-arc pointwise
 bound. The other variables contribute Hua's moment. -/
 theorem norm_waringMinorArcIntegral_le {k : ℕ} (hk : 1 ≤ k) {ε : ℝ} (hε : 0 < ε) :
@@ -94,16 +127,9 @@ theorem norm_waringMinorArcIntegral_le {k : ℕ} (hk : 1 ≤ k) {ε : ℝ} (hε 
       (∀ α ∈ minorArcs Q T, ‖waringSum k P α‖ ≤ M) →
       ‖∫ α in minorArcs Q T, waringSum k P α ^ (r + 2 ^ k) * e (-α * n)‖ ≤
         M ^ r * (C * (1 + (P : ℝ) ^ ((2 ^ k : ℝ) - k + ε))) := by
-  obtain ⟨C, hC, hH⟩ := integral_norm_waringSum_le hk hε
-  refine ⟨C, hC, fun P r n Q T M hM hb => ?_⟩
-  have hW : Continuous (waringSum k P) := continuous_genExpSum _ _ _
-  have h := norm_minorArcIntegral_mul_pow_e_neg_le_of_bound (hW.pow r) hW
-    (periodic_genExpSum _ _ _) (pow_nonneg hM r)
-    (fun α hα => by simpa [norm_pow] using pow_le_pow_left₀ (norm_nonneg _) (hb α hα) r)
-    (2 ^ k + 1) (n : ℤ)
-  simp only [Nat.add_sub_cancel, Int.cast_natCast] at h
-  simpa only [pow_add, Pi.pow_apply] using
-    h.trans (mul_le_mul_of_nonneg_left (hH P) (pow_nonneg hM r))
+  obtain ⟨C, hC, h⟩ := norm_waringIntegral_subset_le hk hε
+  refine ⟨C, hC, fun P r n Q T M hM hb => h P r n (u := -(1 / T)) (measurableSet_minorArcs Q T) ?_ hM hb⟩
+  simpa only [sub_eq_add_neg, add_comm] using minorArcs_subset_Icc Q T
 
 /-- With denominator cutoff `P^η` and precision `P^(k-η)`, Weyl's inequality
 gives a power saving over the length, uniformly in the frequency on the minor arcs. -/
@@ -151,12 +177,12 @@ theorem norm_waringSum_minorArcs_power_saving {k : ℕ} (hk : 2 ≤ k) {η : ℝ
             gcongr
             exact Real.one_le_rpow hP1 (by linarith)
 
-/-- Above Hua's moment threshold, the minor arcs are smaller by a power of `P`
-than the natural scale `P^(s-k)`. The saving is uniform in the target integer. -/
-theorem waringMinorArc_power_saving {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
+/-- The minor-arc power saving is uniform in the target and in measurable subsets of the arcs. -/
+theorem waringMinorSubset_power_saving {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
     {η : ℝ} (hη : 0 < η) (hη' : η ≤ 1 / 2) :
-    ∃ δ C : ℝ, 0 < δ ∧ 0 < C ∧ ∀ (P : ℕ), 2 ≤ P → ∀ n : ℕ,
-      ‖∫ α in minorArcs ((P : ℝ) ^ η) ((P : ℝ) ^ ((k : ℝ) - η)),
+    ∃ δ C : ℝ, 0 < δ ∧ 0 < C ∧ ∀ (P : ℕ), 2 ≤ P → ∀ (n : ℕ) {U : Set ℝ}, MeasurableSet U →
+      U ⊆ minorArcs ((P : ℝ) ^ η) ((P : ℝ) ^ ((k : ℝ) - η)) →
+      ‖∫ α in U,
         waringSum k P α ^ s * e (-α * n)‖ ≤ C * (P : ℝ) ^ ((s : ℝ) - k - δ) := by
   obtain ⟨d, A, hd, _, hA, hpoint⟩ := norm_waringSum_minorArcs_power_saving hk hη hη'
   let r := s - 2 ^ k
@@ -164,11 +190,13 @@ theorem waringMinorArc_power_saving {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
   have hr : 0 < (r : ℝ) := Nat.cast_pos.mpr (Nat.sub_pos_of_lt hs)
   let δ := (r : ℝ) * d / 2
   have hδ : 0 < δ := by dsimp [δ]; positivity
-  obtain ⟨B, hB, hmoment⟩ := norm_waringMinorArcIntegral_le (by omega : 1 ≤ k) hδ
-  refine ⟨δ, A ^ r * (2 * B), hδ, by positivity, fun P hP n => ?_⟩
+  obtain ⟨B, hB, hmoment⟩ := norm_waringIntegral_subset_le (by omega : 1 ≤ k) hδ
+  refine ⟨δ, A ^ r * (2 * B), hδ, by positivity, fun P hP n U hU hu => ?_⟩
   have hP1 : (1 : ℝ) ≤ P := by exact_mod_cast (by omega : 1 ≤ P)
   have hP0 : (0 : ℝ) < P := by linarith
-  have h := hmoment P r n (by positivity) (hpoint P hP)
+  have hsub := hu.trans (minorArcs_subset_Icc _ _)
+  rw [show 1 - 1 / (P : ℝ) ^ ((k : ℝ) - η) = -(1 / (P : ℝ) ^ ((k : ℝ) - η)) + 1 by ring] at hsub
+  have h := hmoment P r n hU hsub (by positivity) (fun α hα => hpoint P hP α (hu hα))
   rw [hrs] at h
   have hdeg : k ≤ 2 ^ k := Nat.le_of_lt (Nat.lt_two_pow_self)
   have hdegR : (k : ℝ) ≤ (2 : ℝ) ^ k := by exact_mod_cast hdeg
@@ -186,5 +214,38 @@ theorem waringMinorArc_power_saving {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
             linarith only [hrs']
           rw [← he, Real.rpow_add hP0 ((1 - d) * (r : ℝ)) ((2 : ℝ) ^ k - k + δ)]
           ring
+
+/-- Above Hua's moment threshold, the minor arcs are smaller by a power of `P`
+than the natural scale `P^(s-k)`. The saving is uniform in the target integer. -/
+theorem waringMinorArc_power_saving {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
+    {η : ℝ} (hη : 0 < η) (hη' : η ≤ 1 / 2) :
+    ∃ δ C : ℝ, 0 < δ ∧ 0 < C ∧ ∀ (P : ℕ), 2 ≤ P → ∀ n : ℕ,
+      ‖∫ α in minorArcs ((P : ℝ) ^ η) ((P : ℝ) ^ ((k : ℝ) - η)),
+        waringSum k P α ^ s * e (-α * n)‖ ≤ C * (P : ℝ) ^ ((s : ℝ) - k - δ) := by
+  obtain ⟨δ, C, hδ, hC, h⟩ := waringMinorSubset_power_saving hk hs hη hη'
+  exact ⟨δ, C, hδ, hC, fun P hP n => h P hP n (measurableSet_minorArcs _ _) Set.Subset.rfl⟩
+
+/-- Enlarging each major arc to the fixed half-width `1/T` shrinks its complement. -/
+theorem minorArcsFixed_subset_minorArcs (Q : ℝ) {T : ℝ} (hT : 0 < T) :
+    minorArcsFixed Q T ⊆ minorArcs Q T := by
+  rintro α ⟨hα, hnot⟩
+  refine ⟨hα, fun h => hnot ?_⟩
+  simp only [majorArcs, Set.mem_iUnion, exists_prop] at h
+  obtain ⟨q, hq, a, ha, h⟩ := h
+  simp only [majorArcsFixed, Set.mem_iUnion, exists_prop]
+  refine ⟨q, hq, a, ha, mem_majorArcFixed_iff.mpr ((mem_majorArc_iff.mp h).trans ?_)⟩
+  have hq1 : (1 : ℝ) ≤ q := by exact_mod_cast (mem_Icc.mp hq).1
+  exact one_div_le_one_div_of_le hT (le_mul_of_one_le_left hT.le hq1)
+
+/-- Uniform power saving for the fixed-width minor arcs above Hua's moment threshold. -/
+theorem waringMinorArcFixed_power_saving {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
+    {η : ℝ} (hη : 0 < η) (hη' : η ≤ 1 / 2) :
+    ∃ δ C : ℝ, 0 < δ ∧ 0 < C ∧ ∀ (P : ℕ), 2 ≤ P → ∀ n : ℕ,
+      ‖minorArcIntegralFixed (fun α => waringSum k P α ^ s * e (-α * n))
+        ((P : ℝ) ^ η) ((P : ℝ) ^ ((k : ℝ) - η))‖ ≤ C * (P : ℝ) ^ ((s : ℝ) - k - δ) := by
+  obtain ⟨δ, C, hδ, hC, h⟩ := waringMinorSubset_power_saving hk hs hη hη'
+  refine ⟨δ, C, hδ, hC, fun P hP n => h P hP n (measurableSet_minorArcsFixed _ _)
+    (minorArcsFixed_subset_minorArcs _ ?_)⟩
+  exact Real.rpow_pos_of_pos (by exact_mod_cast (by omega : 0 < P)) _
 
 end AnalyticNumberTheory.AdditiveNumberTheory

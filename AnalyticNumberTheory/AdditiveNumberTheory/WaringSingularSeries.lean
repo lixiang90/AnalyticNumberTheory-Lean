@@ -95,7 +95,8 @@ theorem norm_waringSingularTerm_le {k : ℕ} (hk : 1 ≤ k) :
             Real.rpow_add hq', Real.rpow_one]
           ring_nf
 
-private theorem waringSeries_majorant {k s : ℕ} (hk : 1 ≤ k) (hs : 2 * k < s) :
+/-- A single summable majorant controls all target integers. -/
+theorem waringSeries_majorant {k s : ℕ} (hk : 1 ≤ k) (hs : 2 * k < s) :
     ∃ b : ℕ → ℝ, Summable b ∧ ∀ q n, ‖waringSingularTerm k s n q‖ ≤ b q := by
   obtain ⟨C, hpos, hC⟩ := norm_waringSingularTerm_le hk
   have hk' : 0 < (k : ℝ) := by exact_mod_cast (by omega : 0 < k)
@@ -129,5 +130,12 @@ theorem tendstoUniformly_waringSingularSeries {k s : ℕ} (hk : 1 ≤ k) (hs : 2
       (waringSingularSeries k s) atTop := by
   obtain ⟨b, hb, h⟩ := waringSeries_majorant hk hs
   exact tendstoUniformly_tsum_nat hb h
+
+/-- A common bound for all finite singular-series sums, independent of the target. -/
+theorem exists_bound_waringSingularTerm_sum {k s : ℕ} (hk : 1 ≤ k) (hs : 2 * k < s) :
+    ∃ C : ℝ, ∀ (U : Finset ℕ) (n : ℕ), ‖∑ q ∈ U, waringSingularTerm k s n q‖ ≤ C := by
+  obtain ⟨b, hb, h⟩ := waringSeries_majorant hk hs
+  exact ⟨∑' q, b q, fun U n => (norm_sum_le _ _).trans
+    ((sum_le_sum (fun q _ => h q n)).trans (hb.sum_le_tsum U (fun q _ => (norm_nonneg _).trans (h q n))))⟩
 
 end AnalyticNumberTheory.AdditiveNumberTheory

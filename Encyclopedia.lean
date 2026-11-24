@@ -3,8 +3,11 @@ import Encyclopedia.DirichletSeries
 import Encyclopedia.Zeta
 import Encyclopedia.Characters
 import Encyclopedia.Primes
+import Encyclopedia.ArithmeticProgressions
 import Encyclopedia.ExponentialSums
 import Encyclopedia.Waring
+import Encyclopedia.WaringArchimedean
+import Encyclopedia.WaringLocalDensities
 import Encyclopedia.Divisors
 import Encyclopedia.Partitions
 import Encyclopedia.Sieves
@@ -49,9 +52,15 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.Primes}
 
+{include 0 Encyclopedia.ArithmeticProgressions}
+
 {include 0 Encyclopedia.ExponentialSums}
 
 {include 0 Encyclopedia.Waring}
+
+{include 0 Encyclopedia.WaringArchimedean}
+
+{include 0 Encyclopedia.WaringLocalDensities}
 
 {include 0 Encyclopedia.Goldbach}
 

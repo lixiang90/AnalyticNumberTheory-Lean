@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachAsymptotic
+import AnalyticNumberTheory.AdditiveNumberTheory.VinogradovThreePrimes
 import VersoManual
 
 open Verso.Genre Manual
@@ -37,10 +37,10 @@ file := "goldbach"
 
 {docstring abs_goldbachTernaryWeighted_sub_series_le}
 
-设 Siegel–Walfisz 估计成立，即在对数幂大小的模数范围内，素数在简化剩余类中具有一致的分布误差。取主弧分母截点为对数的适当幂，合并主弧和次弧估计，得到三元加权表示数的下述渐近公式。对任意自然数 $`A`，误差为 $`O_A(N^2/(\log N)^A)`。
+{ref "primes-in-progressions"}[Siegel–Walfisz 定理]在对数幂大小的模数范围内给出素数分布的一致误差。取主弧分母截点为对数的适当幂，合并主弧和次弧估计，得到三元加权表示数的下述渐近公式。对任意自然数 $`A`，误差为 $`O_A(N^2/(\log N)^A)`。
 
-{docstring ternaryGoldbach_asymptotic}
+{docstring goldbachTernaryWeighted_asymptotic}
 
-对奇数 $`N`，奇异级数的正下界使主项压过误差。扣掉来自真正素数幂 $`p^j`（$`j\ge 2`）以及素数二的贡献后，剩下的表示由三个奇素数组成。这条定理仍以同一个 Siegel–Walfisz 估计为前提。
+对奇数 $`N`，奇异级数的正下界使主项压过误差。扣掉来自真正素数幂 $`p^j`（$`j\ge 2`）以及素数二的贡献后，剩下的表示由三个奇素数组成。这样得到 Vinogradov 三素数定理，量词是“所有充分大的奇数”，三个素数可以重复。
 
-{docstring eventually_odd_sum_three_odd_primes_of_siegelWalfisz}
+{docstring vinogradov_three_primes}

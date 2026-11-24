@@ -2219,6 +2219,12 @@ private lemma sum_norm_twist_Icc_le {q : ℕ} (χ : DirichletCharacter ℂ q) (M
     rw [Chebyshev.psi, ← Finset.Icc_add_one_left_eq_Ioc, zero_add, Nat.floor_natCast]
   exact h1.trans (h2.symm ▸ Chebyshev.psi_le_const_mul_self (Nat.cast_nonneg M))
 
+/-- The elementary Chebyshev upper bound also holds uniformly for all character twists. -/
+theorem norm_psiChar_le_const_mul_self {x : ℝ} (hx : 0 ≤ x) {q : ℕ}
+    (χ : DirichletCharacter ℂ q) : ‖psiChar x χ‖ ≤ (Real.log 4 + 4) * x := by
+  exact (norm_sum_le _ _).trans ((sum_norm_twist_Icc_le χ ⌊x⌋₊).trans
+    (mul_le_mul_of_nonneg_left (Nat.floor_le hx) (by positivity)))
+
 /-- Explicit Perron + contour-shift bound for `‖psiChar (N + 1 / 2) χ‖` (`χ ≠ 1`) under a
 rectangular zero-free region hypothesis for `LFunction χ`. -/
 theorem norm_psiChar_le_of_rect_zeroFree {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}

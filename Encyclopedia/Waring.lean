@@ -3,6 +3,7 @@ import AnalyticNumberTheory.AdditiveNumberTheory.WaringPrimeModuli
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringVolume
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringSingularIntegral
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringMinorArcs
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringBasis
 import VersoManual
 
 open Verso.Genre Manual
@@ -68,3 +69,19 @@ file := "waring"
 对于 $`k\ge 2` 和 $`s>2^k`，可以在次弧上用 Weyl 不等式控制多出的变量，用 Hua 引理控制其余 $`2^k` 个变量的均值。由此得到与目标整数无关的界 $`O(P^{s-k-\delta})`，其中 $`\delta>0`。这里主弧分母的截点取 $`P^\eta`，且 $`0<\eta\le1/2`。
 
 {docstring waringMinorArc_power_saving}
+
+一般模数的归一化解数如何给出奇异级数的 Euler 乘积，见{ref "waring-local-densities"}[局部密度]。主弧的逐弧近似、Fourier 反演与 Gamma 因子的计算见{ref "waring-real-density"}[Waring 主弧与实密度]。
+
+选择 $`P=\lfloor n^{1/k}\rfloor+1`，则 $`n/P^k` 趋于一。主弧的截断奇异级数与实积分都对目标一致地趋于其完整值，加上次弧的幂次节省，可以在 $`k\ge2` 且 $`s>2^k` 时得到
+
+$$`R_{k,s}(n)=\mathfrak S_{k,s}(n)\frac{\Gamma(1+1/k)^s}{\Gamma(s/k)}n^{s/k-1}+o(n^{s/k-1}).`
+
+余项以 $`n^{s/k-1}` 为尺度。要从这个公式对所有充分大的目标推出正的解数，还需要奇异级数有一致正下界。
+
+{docstring waringCount_asymptotic}
+
+{index}[Hilbert–Waring 定理]当 $`k^3\le s` 且 $`2^k<s` 时，局部密度的一致下界使主项压过误差，所以每个充分大的整数都有表示。剩下的有限多个整数都可以用若干个一的 $`k` 次幂表示。把变量数增大到同一个上界，再以零补足，就得到对所有目标都有效的固定变量数。一次幂的情形直接取一个变量。
+
+{docstring eventually_waringCount_pos}
+
+{docstring hilbert_waring}

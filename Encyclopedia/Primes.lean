@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
 import AnalyticNumberTheory.PrimeDistribution.LeastPrime
+import AnalyticNumberTheory.PrimeDistribution.LeastPrimeSubexponential
 import VersoManual
 
 open Verso.Genre Manual
@@ -27,3 +28,7 @@ $$`|\psi(x)-x|\le Cx\exp(-c\sqrt{\log x}).`
 {docstring leastPrimeAP_le_iff_thetaAP_pos}
 
 {docstring leastPrimeAP_le_of_psiAP}
+
+对任意固定的 $`ε>0`，把{ref "primes-in-progressions"}[Siegel–Walfisz 定理]中的截点取作 $`x=\exp(Cq^ε)`，可以使主项压过误差。取充分大的常数 $`C`，此结论对每个正模数和每个简化剩余类都成立。
+
+{docstring leastPrimeAP_le_exp_rpow}

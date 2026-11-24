@@ -4,6 +4,8 @@ import Encyclopedia.Zeta
 import Encyclopedia.Characters
 import Encyclopedia.Primes
 import Encyclopedia.ArithmeticProgressions
+import Encyclopedia.BombieriVinogradov
+import Encyclopedia.PartitionAsymptotic
 import Encyclopedia.ExponentialSums
 import Encyclopedia.Waring
 import Encyclopedia.WaringArchimedean
@@ -15,6 +17,9 @@ import Encyclopedia.Goldbach
 import Encyclopedia.LatticePoints
 import Encyclopedia.DirichletPolynomials
 import Encyclopedia.Transforms
+import Encyclopedia.Gamma
+import Encyclopedia.ComplexBounds
+import Encyclopedia.EntireFunctions
 import Encyclopedia.Perron
 import Encyclopedia.ZetaZeros
 import Encyclopedia.LFunctions
@@ -38,6 +43,12 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.Summation}
 
+{include 0 Encyclopedia.Gamma}
+
+{include 0 Encyclopedia.ComplexBounds}
+
+{include 0 Encyclopedia.EntireFunctions}
+
 {include 0 Encyclopedia.DirichletSeries}
 
 {include 0 Encyclopedia.Perron}
@@ -53,6 +64,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.Primes}
 
 {include 0 Encyclopedia.ArithmeticProgressions}
+
+{include 0 Encyclopedia.BombieriVinogradov}
 
 {include 0 Encyclopedia.ExponentialSums}
 
@@ -71,6 +84,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.Eta}
 
 {include 0 Encyclopedia.Partitions}
+
+{include 0 Encyclopedia.PartitionAsymptotic}
 
 {include 0 Encyclopedia.Sieves}
 

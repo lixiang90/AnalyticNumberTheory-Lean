@@ -11,13 +11,13 @@ A structured, `sorry`-free Lean 4 + Mathlib (`v4.36.0`) library and interactive 
   1. `AnalyticTools/` — Integral transforms, summation formulas (Abel, Euler–Maclaurin, Poisson), Gamma & Stirling, complex function bounds (Jensen, Borel–Carathéodory, Hadamard three-circles, Phragmén–Lindelöf), finite-order entire functions & Hadamard factorization.
   2. `DirichletSeries/` — Convergence abscissae, uniqueness & Landau's theorem, arithmetic convolutions, Euler products, Perron's formula, vertical order & mean value theorems.
   3. `RiemannZeta/` — Functional equation, pole & vertical bounds, Hadamard product & zero expansion, zero counting, de la Vallée Poussin zero-free region, Riemann Hypothesis equivalences, asymptotics & moments.
-  4. `PrimeDistribution/` — Chebyshev functions, Mertens' theorems, the explicit formula, the Prime Number Theorem with error term, oscillation, the uniform Siegel–Walfisz theorem for primes in progressions, conditional short-interval estimates, a Bombieri–Vinogradov reduction and least-prime criteria.
+  4. `PrimeDistribution/` — Chebyshev functions, Mertens' theorems, the explicit formula, the Prime Number Theorem with error term, oscillation, the uniform Siegel–Walfisz theorem for primes in progressions, conditional short-interval estimates, the Bombieri–Vinogradov mean theorem and subexponential least-prime bounds.
   5. `DirichletLFunctions/` — Dirichlet characters & primitive conductors, Gauss sums, Pólya–Vinogradov character sums, functional equations, zero expansions, zero-free regions, Page & Siegel theorems.
   6. `ExponentialSums/` — Weyl differencing, van der Corput A/B processes & exponent pairs, Vaughan's identity & linear prime exponential sums, Vinogradov mean value & Hua's lemma.
   7. `AdditiveNumberTheory/` — Circle-method identities, Goldbach singular series, the weighted ternary asymptotic with arbitrary logarithmic saving and Vinogradov’s three-primes theorem. Waring topics include integral and local representation counts, discrete Fourier inversion, Chinese remainder factorization and an Euler product of local densities for the singular series for degree `k` and `s > 2k` variables. The library also proves local solubility for prime powers coprime to the degree when `s > k`, a Fourier inversion proof that the real factor at one equals `Γ(1+1/k)^s/Γ(s/k)` in that range, and the full circle-method asymptotic with error `o(n^(s/k−1))` for `s > 2^k` and `k ≥ 2`. A uniform lower bound for the singular series with sufficiently many variables yields the Hilbert–Waring theorem for every positive degree.
   8. `DivisorProblems/` — Dirichlet's hyperbola identity over semirings, average orders of arithmetic functions, Jacobi's two-square theorem, Gauss circle counts and a Fourier proof of the divisor error estimate $O(x^{1/3}\log x)$.
   9. `SieveMethods/` — Legendre's prime-counting formula, Buchstab's identity, Brun and Selberg sieves, analytic and arithmetic large sieves, Brun–Titchmarsh estimates, hybrid mean values of Dirichlet polynomials and the Halász–Montgomery large-values inequality.
-  10. `ModularAndPartitions/` — Dedekind sums & reciprocity, Dedekind $\eta$-function modular transformations, integer partitions & asymptotic bounds.
+  10. `ModularAndPartitions/` — Dedekind sums & reciprocity, Dedekind $\eta$-function modular transformations, partition generating functions, modular inversion, the saddle-point method and the Hardy–Ramanujan asymptotic.
 - `Encyclopedia/` — Human-readable Verso online encyclopedia (`VersoManual`) with KaTeX math, live typechecked docstrings, cross-references, citations, and searchable index.
 
 ## Reading the formalization
@@ -27,9 +27,10 @@ the exact integral for the number of ordered representations by nonnegative powe
 divisor article evaluates the hyperbola identity at a finite cutoff. Each displayed Lean
 declaration links the mathematical statement to the hypotheses used by the library.
 
-Coverage is still in progress. The deduction of the Hardy–Ramanujan partition asymptotic uses
-`RademacherSeriesFormula` as a hypothesis. The Bombieri–Vinogradov reduction takes a mean bound
-on primitive character sums as input. Linnik's polynomial least-prime bound also remains open in this library.
+The library proves the Hardy–Ramanujan leading term by a saddle-point argument and the
+Bombieri–Vinogradov mean estimate by Vaughan's identity and the large sieve. Coverage
+is still in progress. Important remaining results include the exact Rademacher series,
+strong zero-density estimates and Linnik's polynomial bound for the least prime.
 
 ## Building
 

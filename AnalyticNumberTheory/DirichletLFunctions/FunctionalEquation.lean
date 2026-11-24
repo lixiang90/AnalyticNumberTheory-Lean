@@ -566,6 +566,12 @@ private lemma norm_partialCharSum_le {q : ℕ} [NeZero q] {χ : DirichletCharact
     _ = ((n % q : ℕ) : ℝ) := by simp [Nat.card_Icc]
     _ ≤ (q : ℝ) := Nat.cast_le.mpr hle_q
 
+/-- A nonprincipal character has sum zero on each complete period. The remaining
+incomplete period in a partial sum contributes at most its modulus. -/
+theorem norm_sum_Icc_char_le_modulus {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}
+    (hχ : χ ≠ 1) (n : ℕ) : ‖∑ m ∈ Finset.Icc 1 n, χ m‖ ≤ q :=
+  norm_partialCharSum_le hχ n
+
 private lemma norm_partialCharSum_le_real {q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q)
     {t : ℝ} (ht : 0 ≤ t) :
     ‖partialCharSum χ ⌊t⌋₊‖ ≤ t := by

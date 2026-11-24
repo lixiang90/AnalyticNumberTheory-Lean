@@ -12,6 +12,7 @@ import Encyclopedia.WaringArchimedean
 import Encyclopedia.WaringLocalDensities
 import Encyclopedia.Divisors
 import Encyclopedia.Partitions
+import Encyclopedia.Farey
 import Encyclopedia.Sieves
 import Encyclopedia.Goldbach
 import Encyclopedia.LatticePoints
@@ -82,6 +83,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.LatticePoints}
 
 {include 0 Encyclopedia.Eta}
+
+{include 0 Encyclopedia.Farey}
 
 {include 0 Encyclopedia.Partitions}
 

@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradov
+import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradovPrimeCounting
 import VersoManual
 
 open Verso.Genre Manual
@@ -30,3 +30,19 @@ $$`\sum_{q\le Q}E(x;q)\le C\frac{x}{(\log x)^A}.`
 扣除高次素数幂的贡献后，$`\theta(x;q,a)` 同样满足这一平均值估计。
 
 {docstring bombieriVinogradov_theta}
+
+# 对截点也取上确界
+%%%
+file := "maximal-endpoints"
+tag := "maximal-endpoints"
+%%%
+
+对每个模数，可以分别在 $`0\le y\le x` 和简化剩余类上取上确界，再将所得误差相加。于是每个模数甚至可以选取不同的截点。证明将区间划成对数幂个小段，用固定截点定理控制网格点，用单调性控制相邻网格点之间的变化。
+
+{docstring bombieriVinogradov_maximal}
+
+{docstring bombieriVinogradov_maximal_theta}
+
+对素数计数函数作分部求和，主项变成 $`\mathrm{Li}(y)/\varphi(q)`，其中 $`\mathrm{Li}(y)=\int_2^y dt/\log t`。此时截点的范围是 $`2\le y\le x`。
+
+{docstring bombieriVinogradov_piAP}

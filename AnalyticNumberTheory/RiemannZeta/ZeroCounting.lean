@@ -654,7 +654,8 @@ private lemma riemannZeta_ofReal_re_neg {σ : ℝ} (h0 : 0 < σ) (h1 : σ < 1) :
   rw [Complex.sub_re, hterm_re]
   linarith
 
-private lemma xi_ne_zero_ofReal (x : ℝ) : xi (x : ℂ) ≠ 0 := by
+/-- The completed zeta function has no real zeros. -/
+theorem xi_ne_zero_ofReal (x : ℝ) : xi (x : ℂ) ≠ 0 := by
   rcases le_or_gt x 0 with hx0 | hx0
   · exact xi_ne_zero_of_re_nonpos (by simpa using hx0)
   · rcases le_or_gt 1 x with hx1 | hx1
@@ -984,7 +985,9 @@ private lemma continuousOn_list_sum_inv_sub (s : Set ℝ) (l : List ℂ) (p : �
       hp_ne t ht r List.mem_cons_self (sub_eq_zero.mp h0)).add
       (ih fun t ht r' hr' ↦ hp_ne t ht r' (List.mem_cons_of_mem _ hr'))
 
-private lemma argument_principle_rect_entire {f : ℂ → ℂ} (hf : Differentiable ℂ f)
+/-- The rectangular argument principle for an entire function, with each interior zero counted
+according to its analytic order. -/
+theorem argument_principle_rect_entire {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     {a b c d : ℝ} (hab : a < b) (hcd : c < d)
     (Z : Finset ℂ) (hZ_int : ∀ ρ ∈ Z, ρ.re ∈ Set.Ioo a b ∧ ρ.im ∈ Set.Ioo c d)
     (hZ_all : ∀ w ∈ Set.Icc a b ×ℂ Set.Icc c d, f w = 0 → w ∈ Z) :
@@ -2226,6 +2229,202 @@ private lemma list_sum_inv_im_integral_le (T : ℝ) :
     linarith [hterm_bd, ihl, show Real.pi * ((l.length : ℝ) + 1) =
       Real.pi + Real.pi * (l.length : ℝ) by ring]
 
+/-- Bound the horizontal change of argument from a disk maximum and the number
+of zeros in the smaller disk. The zeros are extracted with multiplicity before
+applying the logarithmic derivative estimate. -/
+theorem horizontalArgumentIntegral_le_of_disk_bound (f : ℂ → ℂ) (T M N : ℝ)
+    (hM : 1 ≤ M)
+    (han : AnalyticOnNhd ℂ f (Metric.closedBall ((2:ℂ)+(T:ℂ)*I) (7/4)))
+    (hz₀_ne : f ((2:ℂ)+(T:ℂ)*I) ≠ 0)
+    (hratio_bd : ∀ w ∈ Metric.closedBall ((2:ℂ)+(T:ℂ)*I) (7/4), ‖f w / f ((2:ℂ)+(T:ℂ)*I)‖ ≤ M)
+    (hcnt : (AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroCount f ((2:ℂ)+(T:ℂ)*I) (13/8) : ℝ) ≤ N)
+    (hno : ∀ w ∈ Metric.closedBall ((2:ℂ)+(T:ℂ)*I) (13/8), f w = 0 → T-w.im ≠ 0) :
+    |∫ x in (1/2:ℝ)..2, (deriv f ((x:ℂ)+(T:ℂ)*I) / f ((x:ℂ)+(T:ℂ)*I)).im| ≤
+      (3/2:ℝ) * (2*((13/8:ℝ)+3/2)/((13/8:ℝ)-3/2)^2 * (Real.log M + N * Real.log 26)) + Real.pi*N := by
+  let z₀ := (2:ℂ)+(T:ℂ)*I
+  let D := 2*((13/8:ℝ)+3/2)/((13/8:ℝ)-3/2)^2 * (Real.log M + N*Real.log 26)
+  let han_r0 : AnalyticOnNhd ℂ f (Metric.closedBall z₀ (13 / 8)) :=
+    han.mono (Metric.closedBall_subset_closedBall (by norm_num))
+  let hZ_fin := AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroSet_finite
+    (by norm_num : (0 : ℝ) ≤ (13 / 8 : ℝ)) han_r0 hz₀_ne
+  let Z : Finset ℂ := hZ_fin.toFinset
+  have hZK : (Z : Set ℂ) ⊆ Metric.closedBall z₀ (13 / 8) :=
+    fun ρ hρ ↦ (hZ_fin.mem_toFinset.mp hρ).1
+  have hKZ : ∀ ρ ∈ Metric.closedBall z₀ (13 / 8), f ρ = 0 → ρ ∈ Z :=
+    fun ρ h1 h2 ↦ hZ_fin.mem_toFinset.mpr ⟨h1, h2⟩
+  have hU_ord : ∀ ρ ∈ Z, ρ ∈ Metric.ball z₀ (7 / 4) ∧ analyticOrderAt f ρ ≠ ⊤ := by
+    intro ρ hρ
+    have hρK : ρ ∈ Metric.closedBall z₀ (13 / 8) := hZK hρ
+    have hρ_ball : ρ ∈ Metric.ball z₀ (7 / 4) :=
+      Metric.closedBall_subset_ball (by norm_num) hρK
+    have han_ball : AnalyticOnNhd ℂ f (Metric.ball z₀ (7 / 4)) :=
+      han.mono Metric.ball_subset_closedBall
+    have htop := han_ball.analyticOrderAt_ne_top_of_isPreconnected
+      (convex_ball z₀ (7 / 4)).isPreconnected (Metric.mem_ball_self (by norm_num)) hρ_ball
+      ((han_ball z₀ (Metric.mem_ball_self (by norm_num))).analyticOrderAt_eq_zero.mpr hz₀_ne |>.symm ▸
+        by simp)
+    exact ⟨hρ_ball, htop⟩
+  obtain ⟨zs, g, hzs_prop, hzs_len, hg_an, hg_ne, hprod⟩ :=
+    extract_zeros_from_finset (Metric.ball z₀ (7 / 4)) (Metric.closedBall z₀ (13 / 8)) Z hZK
+      (∑ ρ ∈ Z, analyticOrderNatAt f ρ) f
+      (han.mono Metric.ball_subset_closedBall) hKZ hU_ord rfl
+  have hzs_len_eq : zs.length =
+      AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroCount f z₀ (13 / 8) := by
+    rw [hzs_len, AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroCount_eq_sum_analyticOrderNatAt
+      (by norm_num : (0 : ℝ) ≤ (13 / 8 : ℝ)) han_r0 hz₀_ne hZ_fin.coe_toFinset]
+  let M_g : ℝ := M * 26 ^ zs.length
+  have hM_g_ge1 : 1 ≤ M_g := by
+    have : 1 ≤ (26 : ℝ) ^ zs.length := one_le_pow₀ (by norm_num)
+    dsimp only [M_g]; nlinarith [hM]
+  have hzs_dist : ∀ ρ ∈ zs, ‖ρ - z₀‖ ≤ 13 / 8 := fun ρ hρ ↦ by
+    simpa [Metric.mem_closedBall, dist_eq_norm] using (hzs_prop ρ hρ).1
+  have hg_z₀_ne : g z₀ ≠ 0 := hg_ne z₀ (Metric.mem_closedBall_self (by norm_num))
+  have hg_sphere : ∀ w ∈ Metric.sphere z₀ (27 / 16), ‖g w / g z₀‖ ≤ M_g := by
+    intro w hw
+    have hw_dist : ‖w - z₀‖ = 27 / 16 := by simpa [Metric.mem_sphere, dist_eq_norm] using hw
+    obtain ⟨hP_bd, hPw_ne⟩ := list_prod_ratio_sphere_le z₀ w hw_dist zs hzs_dist
+    have hPz₀_ne : (zs.map (fun ρ ↦ z₀ - ρ)).prod ≠ 0 := by
+      intro h0
+      have := hprod z₀
+      rw [h0, zero_mul] at this
+      exact hz₀_ne this
+    have heq : g w / g z₀ = (f w / f z₀) *
+        ((zs.map (fun ρ ↦ z₀ - ρ)).prod / (zs.map (fun ρ ↦ w - ρ)).prod) := by
+      have hw_eq := hprod w
+      have hz₀_eq := hprod z₀
+      rw [hw_eq, hz₀_eq]
+      field_simp [hg_z₀_ne, hPw_ne, hPz₀_ne]
+    rw [heq, norm_mul]
+    exact mul_le_mul (hratio_bd w (Metric.closedBall_subset_closedBall (by norm_num)
+      (Metric.sphere_subset_closedBall hw))) hP_bd (norm_nonneg _) (by positivity)
+  have hg_closed : ∀ w ∈ Metric.closedBall z₀ (27 / 16), ‖g w / g z₀‖ ≤ M_g := by
+    have hdiff : DiffContOnCl ℂ (fun w ↦ g w / g z₀) (Metric.ball z₀ (27 / 16)) := by
+      have hsub : Metric.closedBall z₀ (27 / 16) ⊆ Metric.ball z₀ (7 / 4) :=
+        Metric.closedBall_subset_ball (by norm_num)
+      exact ((hg_an.mono hsub).differentiableOn.div_const (g z₀)).diffContOnCl_ball Subset.rfl
+    intro w hw
+    exact Complex.norm_le_of_forall_mem_frontier_norm_le isBounded_ball hdiff
+      (fun x hx ↦ hg_sphere x (Metric.frontier_ball_subset_sphere hx))
+      (closure_ball z₀ (by norm_num : (27 / 16 : ℝ) ≠ 0) ▸ hw)
+  have hg_ball : ∀ w ∈ Metric.ball z₀ (13 / 8), ‖g w / g z₀‖ ≤ M_g := fun w hw ↦
+    hg_closed w ((Metric.ball_subset_closedBall.trans
+      (Metric.closedBall_subset_closedBall (by norm_num))) hw)
+  have hg_diff_r0 : DifferentiableOn ℂ g (Metric.ball z₀ (13 / 8)) :=
+    (hg_an.mono (Metric.ball_subset_ball (by norm_num))).differentiableOn
+  have hg_ne_r0 : ∀ w ∈ Metric.ball z₀ (13 / 8), g w ≠ 0 := fun w hw ↦
+    hg_ne w (Metric.ball_subset_closedBall hw)
+  have hld_g_bd : ∀ z ∈ Metric.closedBall z₀ (3 / 2), ‖deriv g z / g z‖ ≤ D := by
+    intro z hz
+    have hb := landau_logDeriv_le_of_ne_zero (by norm_num : (0 : ℝ) ≤ (3 / 2 : ℝ))
+      (by norm_num : (3 / 2 : ℝ) < (13 / 8 : ℝ)) hg_diff_r0 hg_ne_r0 hg_ball hz
+    rw [logDeriv_apply] at hb
+    have hlogMg : Real.log M_g ≤ Real.log M + N * Real.log 26 := by
+      dsimp only [M_g]
+      rw [Real.log_mul (by linarith) (by positivity), Real.log_pow, hzs_len_eq]
+      exact add_le_add_right (mul_le_mul_of_nonneg_right hcnt (Real.log_nonneg (by norm_num))) _
+    exact hb.trans (mul_le_mul_of_nonneg_left hlogMg (by norm_num))
+  have hzeta_split : ∀ x ∈ Set.Icc (1 / 2 : ℝ) 2,
+      deriv f ((x : ℂ) + (T : ℂ) * I) / f ((x : ℂ) + (T : ℂ) * I) =
+        (zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum +
+          deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I) := by
+    intro x hx
+    let w : ℂ := (x : ℂ) + (T : ℂ) * I
+    have hw_ball : w ∈ Metric.ball z₀ (13 / 8) := by
+      rw [Metric.mem_ball, dist_eq_norm]
+      have hdiff : w - z₀ = (((x - 2 : ℝ) : ℂ)) := by apply Complex.ext <;> simp [w, z₀]
+      rw [hdiff, Complex.norm_real, Real.norm_eq_abs, abs_lt]
+      constructor <;> linarith [hx.1, hx.2]
+    have hgw : g w ≠ 0 := hg_ne_r0 w hw_ball
+    have hw_ne_zs : ∀ ρ ∈ zs, w ≠ ρ := by
+      intro ρ hρ heq
+      subst heq
+      exact hno w (hzs_prop w hρ).1 (hzs_prop w hρ).2 (by simp [w])
+    obtain ⟨hPd, hPne⟩ := list_prod_logDeriv_eq w zs hw_ne_zs
+    have hfg := hPd.mul ((hg_an w (Metric.ball_subset_ball (by norm_num) hw_ball)).differentiableAt).hasDerivAt
+    have hev : f =ᶠ[𝓝 w] fun z ↦ (zs.map (fun ρ ↦ z - ρ)).prod * g z :=
+      Filter.Eventually.of_forall hprod
+    have hderiv_zeta : deriv f w =
+        ((zs.map (fun ρ ↦ w - ρ)).prod * (zs.map (fun ρ ↦ (1 : ℂ) / (w - ρ))).sum) * g w +
+          (zs.map (fun ρ ↦ w - ρ)).prod * deriv g w := by
+      rw [hev.deriv_eq]
+      exact hfg.deriv
+    rw [hderiv_zeta, hprod w]
+    change ((((zs.map (fun ρ ↦ w - ρ)).prod * (zs.map (fun ρ ↦ (1 : ℂ) / (w - ρ))).sum) * g w +
+        (zs.map (fun ρ ↦ w - ρ)).prod * deriv g w) /
+        ((zs.map (fun ρ ↦ w - ρ)).prod * g w)) =
+        (zs.map (fun ρ ↦ (1 : ℂ) / (w - ρ))).sum + deriv g w / g w
+    field_simp [hPne, hgw]
+  have hρ_im_ne : ∀ ρ ∈ zs, T - ρ.im ≠ 0 :=
+    fun ρ hρ => hno ρ (hzs_prop ρ hρ).1 (hzs_prop ρ hρ).2
+  have hint_g_bd : |∫ x in (1 / 2 : ℝ)..(2 : ℝ),
+      (deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im| ≤
+      (3 / 2 : ℝ) * (D) := by
+    have hnorm_le : ∀ x ∈ Set.uIoc (1 / 2 : ℝ) 2,
+        ‖(deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im‖ ≤
+          D := by
+      intro x hx
+      have hx' := Set.uIoc_subset_uIcc hx
+      rw [Set.uIcc_of_le (by norm_num)] at hx'
+      have hx_mem : (x : ℂ) + (T : ℂ) * I ∈ Metric.closedBall z₀ (3 / 2) := by
+        rw [Metric.mem_closedBall, dist_eq_norm]
+        have hdiff : (x : ℂ) + (T : ℂ) * I - z₀ = (((x - 2 : ℝ) : ℂ)) := by
+          apply Complex.ext <;> simp [z₀]
+        rw [hdiff, Complex.norm_real, Real.norm_eq_abs, abs_le]
+        constructor <;> linarith [hx'.1, hx'.2]
+      exact (Complex.abs_im_le_norm _).trans (hld_g_bd _ hx_mem)
+    have hbd := intervalIntegral.norm_integral_le_of_norm_le_const hnorm_le
+    rw [Real.norm_eq_abs, abs_of_pos (by norm_num : (0 : ℝ) < 2 - 1 / 2)] at hbd
+    linarith
+  have hint_zs_bd : |∫ x in (1 / 2 : ℝ)..(2 : ℝ),
+      ((zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum).im| ≤
+      Real.pi * (N) := by
+    have h1 := list_sum_inv_im_integral_le T zs hρ_im_ne
+    have h2 : (zs.length : ℝ) ≤ N := by rw [hzs_len_eq]; exact hcnt
+    exact h1.trans (mul_le_mul_of_nonneg_left h2 Real.pi_pos.le)
+  have hcont_g : ContinuousOn (fun x : ℝ ↦
+      (deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im)
+      (Set.uIcc (1 / 2 : ℝ) 2) := by
+    have hg_an_ball : AnalyticOnNhd ℂ g (Metric.ball z₀ (7 / 4)) := hg_an
+    have hdg_cont : ContinuousOn (deriv g) (Metric.ball z₀ (7 / 4)) :=
+      (hg_an_ball.deriv).continuousOn
+    have hg_cont : ContinuousOn g (Metric.ball z₀ (7 / 4)) := hg_an_ball.continuousOn
+    have hpath : Continuous fun x : ℝ ↦ (x : ℂ) + (T : ℂ) * I :=
+      Complex.continuous_ofReal.add continuous_const
+    have hmem_ball : ∀ x ∈ Set.uIcc (1 / 2 : ℝ) 2,
+        (x : ℂ) + (T : ℂ) * I ∈ Metric.ball z₀ (13 / 8) := by
+      intro x hx
+      rw [Set.uIcc_of_le (by norm_num)] at hx
+      rw [Metric.mem_ball, dist_eq_norm]
+      have hdiff : (x : ℂ) + (T : ℂ) * I - z₀ = (((x - 2 : ℝ) : ℂ)) := by
+        apply Complex.ext <;> simp [z₀]
+      rw [hdiff, Complex.norm_real, Real.norm_eq_abs, abs_lt]
+      constructor <;> linarith [hx.1, hx.2]
+    have hmem_outer : ∀ x ∈ Set.uIcc (1 / 2 : ℝ) 2,
+        (x : ℂ) + (T : ℂ) * I ∈ Metric.ball z₀ (7 / 4) := fun x hx ↦
+      Metric.ball_subset_ball (by norm_num) (hmem_ball x hx)
+    have hne_g : ∀ x ∈ Set.uIcc (1 / 2 : ℝ) 2, g ((x : ℂ) + (T : ℂ) * I) ≠ 0 := fun x hx ↦
+      hg_ne _ (Metric.ball_subset_closedBall (hmem_ball x hx))
+    exact Complex.continuous_im.comp_continuousOn
+      ((hdg_cont.comp hpath.continuousOn hmem_outer).div
+        (hg_cont.comp hpath.continuousOn hmem_outer) hne_g)
+  have hcont_zs : ContinuousOn (fun x : ℝ ↦
+      ((zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum).im)
+      (Set.uIcc (1 / 2 : ℝ) 2) :=
+    list_sum_inv_im_continuousOn T zs hρ_im_ne
+  have hint_zeta_eq :
+      ∫ x in (1 / 2 : ℝ)..(2 : ℝ),
+        (deriv f ((x : ℂ) + (T : ℂ) * I) / f ((x : ℂ) + (T : ℂ) * I)).im =
+        (∫ x in (1 / 2 : ℝ)..(2 : ℝ),
+          ((zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum).im) +
+        (∫ x in (1 / 2 : ℝ)..(2 : ℝ),
+          (deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im) := by
+    rw [← intervalIntegral.integral_add hcont_zs.intervalIntegrable hcont_g.intervalIntegrable]
+    refine intervalIntegral.integral_congr fun x hx ↦ ?_
+    rw [Set.uIcc_of_le (by norm_num)] at hx
+    rw [hzeta_split x hx, Complex.add_im]
+  rw [hint_zeta_eq]
+  exact (abs_add_le _ _).trans ((add_le_add hint_zs_bd hint_g_bd).trans_eq (add_comm _ _))
+
 /-- **Backlund–Jensen `O(log T)` bound** for `argumentSApprox T` at all `T ≥ 2` avoiding zero
 ordinates. -/
 theorem argumentSApprox_abs_le_log :
@@ -2412,131 +2611,8 @@ theorem argumentSApprox_abs_le_log :
             Real.log ((7 / 4 : ℝ) / (13 / 8)) :=
         div_le_div_of_nonneg_right hlog_M_ratio hden_j_pos.le
       _ = C_j * Real.log T := by dsimp only [C_j]; ring
-  let han_r0 : AnalyticOnNhd ℂ riemannZeta (Metric.closedBall z₀ (13 / 8)) :=
-    han.mono (Metric.closedBall_subset_closedBall (by norm_num))
-  let hZ_fin := AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroSet_finite
-    (by norm_num : (0 : ℝ) ≤ (13 / 8 : ℝ)) han_r0 hz₀_ne
-  let Z : Finset ℂ := hZ_fin.toFinset
-  have hZK : (Z : Set ℂ) ⊆ Metric.closedBall z₀ (13 / 8) :=
-    fun ρ hρ ↦ (hZ_fin.mem_toFinset.mp hρ).1
-  have hKZ : ∀ ρ ∈ Metric.closedBall z₀ (13 / 8), riemannZeta ρ = 0 → ρ ∈ Z :=
-    fun ρ h1 h2 ↦ hZ_fin.mem_toFinset.mpr ⟨h1, h2⟩
-  have hU_ord : ∀ ρ ∈ Z, ρ ∈ Metric.ball z₀ (7 / 4) ∧ analyticOrderAt riemannZeta ρ ≠ ⊤ := by
-    intro ρ hρ
-    have hρK : ρ ∈ Metric.closedBall z₀ (13 / 8) := hZK hρ
-    have hρ_ball : ρ ∈ Metric.ball z₀ (7 / 4) :=
-      Metric.closedBall_subset_ball (by norm_num) hρK
-    have han_ball : AnalyticOnNhd ℂ riemannZeta (Metric.ball z₀ (7 / 4)) :=
-      han.mono Metric.ball_subset_closedBall
-    have htop := han_ball.analyticOrderAt_ne_top_of_isPreconnected
-      (convex_ball z₀ (7 / 4)).isPreconnected (Metric.mem_ball_self (by norm_num)) hρ_ball
-      ((han_ball z₀ (Metric.mem_ball_self (by norm_num))).analyticOrderAt_eq_zero.mpr hz₀_ne |>.symm ▸
-        by simp)
-    exact ⟨hρ_ball, htop⟩
-  obtain ⟨zs, g, hzs_prop, hzs_len, hg_an, hg_ne, hprod⟩ :=
-    extract_zeros_from_finset (Metric.ball z₀ (7 / 4)) (Metric.closedBall z₀ (13 / 8)) Z hZK
-      (∑ ρ ∈ Z, analyticOrderNatAt riemannZeta ρ) riemannZeta
-      (han.mono Metric.ball_subset_closedBall) hKZ hU_ord rfl
-  have hzs_len_eq : zs.length =
-      AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroCount riemannZeta z₀ (13 / 8) := by
-    rw [hzs_len, AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.zeroCount_eq_sum_analyticOrderNatAt
-      (by norm_num : (0 : ℝ) ≤ (13 / 8 : ℝ)) han_r0 hz₀_ne hZ_fin.coe_toFinset]
-  let M_g : ℝ := M_ratio * 26 ^ zs.length
-  have hM_g_ge1 : 1 ≤ M_g := by
-    have : 1 ≤ (26 : ℝ) ^ zs.length := one_le_pow₀ (by norm_num)
-    dsimp only [M_g]; nlinarith [hM_ratio_ge1]
-  have hzs_dist : ∀ ρ ∈ zs, ‖ρ - z₀‖ ≤ 13 / 8 := fun ρ hρ ↦ by
-    simpa [Metric.mem_closedBall, dist_eq_norm] using (hzs_prop ρ hρ).1
-  have hg_z₀_ne : g z₀ ≠ 0 := hg_ne z₀ (Metric.mem_closedBall_self (by norm_num))
-  have hg_sphere : ∀ w ∈ Metric.sphere z₀ (27 / 16), ‖g w / g z₀‖ ≤ M_g := by
-    intro w hw
-    have hw_dist : ‖w - z₀‖ = 27 / 16 := by simpa [Metric.mem_sphere, dist_eq_norm] using hw
-    obtain ⟨hP_bd, hPw_ne⟩ := list_prod_ratio_sphere_le z₀ w hw_dist zs hzs_dist
-    have hPz₀_ne : (zs.map (fun ρ ↦ z₀ - ρ)).prod ≠ 0 := by
-      intro h0
-      have := hprod z₀
-      rw [h0, zero_mul] at this
-      exact hz₀_ne this
-    have heq : g w / g z₀ = (riemannZeta w / riemannZeta z₀) *
-        ((zs.map (fun ρ ↦ z₀ - ρ)).prod / (zs.map (fun ρ ↦ w - ρ)).prod) := by
-      have hw_eq := hprod w
-      have hz₀_eq := hprod z₀
-      rw [hw_eq, hz₀_eq]
-      field_simp [hg_z₀_ne, hPw_ne, hPz₀_ne]
-    rw [heq, norm_mul]
-    exact mul_le_mul (hratio_bd w (Metric.closedBall_subset_closedBall (by norm_num)
-      (Metric.sphere_subset_closedBall hw))) hP_bd (norm_nonneg _) (by positivity)
-  have hg_closed : ∀ w ∈ Metric.closedBall z₀ (27 / 16), ‖g w / g z₀‖ ≤ M_g := by
-    have hdiff : DiffContOnCl ℂ (fun w ↦ g w / g z₀) (Metric.ball z₀ (27 / 16)) := by
-      have hsub : Metric.closedBall z₀ (27 / 16) ⊆ Metric.ball z₀ (7 / 4) :=
-        Metric.closedBall_subset_ball (by norm_num)
-      exact ((hg_an.mono hsub).differentiableOn.div_const (g z₀)).diffContOnCl_ball Subset.rfl
-    intro w hw
-    exact Complex.norm_le_of_forall_mem_frontier_norm_le isBounded_ball hdiff
-      (fun x hx ↦ hg_sphere x (Metric.frontier_ball_subset_sphere hx))
-      (closure_ball z₀ (by norm_num : (27 / 16 : ℝ) ≠ 0) ▸ hw)
-  have hg_ball : ∀ w ∈ Metric.ball z₀ (13 / 8), ‖g w / g z₀‖ ≤ M_g := fun w hw ↦
-    hg_closed w ((Metric.ball_subset_closedBall.trans
-      (Metric.closedBall_subset_closedBall (by norm_num))) hw)
-  have hg_diff_r0 : DifferentiableOn ℂ g (Metric.ball z₀ (13 / 8)) :=
-    (hg_an.mono (Metric.ball_subset_ball (by norm_num))).differentiableOn
-  have hg_ne_r0 : ∀ w ∈ Metric.ball z₀ (13 / 8), g w ≠ 0 := fun w hw ↦
-    hg_ne w (Metric.ball_subset_closedBall hw)
-  have hld_g_bd : ∀ z ∈ Metric.closedBall z₀ (3 / 2), ‖deriv g z / g z‖ ≤ C_ld * Real.log T := by
-    intro z hz
-    have hb := landau_logDeriv_le_of_ne_zero (by norm_num : (0 : ℝ) ≤ (3 / 2 : ℝ))
-      (by norm_num : (3 / 2 : ℝ) < (13 / 8 : ℝ)) hg_diff_r0 hg_ne_r0 hg_ball hz
-    rw [logDeriv_apply] at hb
-    have hlogMg : Real.log M_g ≤ (Real.log K_M / Real.log 2 + 2 + C_j * Real.log 26) * Real.log T := by
-      dsimp only [M_g]
-      rw [Real.log_mul (by linarith) (by positivity), Real.log_pow, hzs_len_eq]
-      have h26_nn : 0 ≤ Real.log 26 := Real.log_nonneg (by norm_num)
-      nlinarith [hcnt_le_jensen]
-    have hcoeff : 2 * ((13 / 8 : ℝ) + 3 / 2) / ((13 / 8 : ℝ) - 3 / 2) ^ 2 * Real.log M_g ≤
-        C_ld * Real.log T := by
-      dsimp only [C_ld]
-      calc
-        2 * ((13 / 8 : ℝ) + 3 / 2) / ((13 / 8 : ℝ) - 3 / 2) ^ 2 * Real.log M_g
-            ≤ 2 * ((13 / 8 : ℝ) + 3 / 2) / ((13 / 8 : ℝ) - 3 / 2) ^ 2 *
-                ((Real.log K_M / Real.log 2 + 2 + C_j * Real.log 26) * Real.log T) :=
-          mul_le_mul_of_nonneg_left hlogMg (by norm_num)
-        _ = (2 * ((13 / 8 : ℝ) + 3 / 2) / ((13 / 8 : ℝ) - 3 / 2) ^ 2 *
-                (Real.log K_M / Real.log 2 + 2 + C_j * Real.log 26)) * Real.log T := by ring
-    exact hb.trans hcoeff
-  have hzeta_split : ∀ x ∈ Set.Icc (1 / 2 : ℝ) 2,
-      deriv riemannZeta ((x : ℂ) + (T : ℂ) * I) / riemannZeta ((x : ℂ) + (T : ℂ) * I) =
-        (zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum +
-          deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I) := by
-    intro x hx
-    let w : ℂ := (x : ℂ) + (T : ℂ) * I
-    have hw_ball : w ∈ Metric.ball z₀ (13 / 8) := by
-      rw [Metric.mem_ball, dist_eq_norm]
-      have hdiff : w - z₀ = (((x - 2 : ℝ) : ℂ)) := by apply Complex.ext <;> simp [w, z₀]
-      rw [hdiff, Complex.norm_real, Real.norm_eq_abs, abs_lt]
-      constructor <;> linarith [hx.1, hx.2]
-    have hgw : g w ≠ 0 := hg_ne_r0 w hw_ball
-    have hw_ne_zs : ∀ ρ ∈ zs, w ≠ ρ := by
-      intro ρ hρ heq
-      subst heq
-      exact riemannZeta_ne_zero_on_right_strip hT_pos hno (by linarith [hx.1]) (hzs_prop w hρ).2
-    obtain ⟨hPd, hPne⟩ := list_prod_logDeriv_eq w zs hw_ne_zs
-    have hfg := hPd.mul ((hg_an w (Metric.ball_subset_ball (by norm_num) hw_ball)).differentiableAt).hasDerivAt
-    have hev : riemannZeta =ᶠ[𝓝 w] fun z ↦ (zs.map (fun ρ ↦ z - ρ)).prod * g z :=
-      Filter.Eventually.of_forall hprod
-    have hderiv_zeta : deriv riemannZeta w =
-        ((zs.map (fun ρ ↦ w - ρ)).prod * (zs.map (fun ρ ↦ (1 : ℂ) / (w - ρ))).sum) * g w +
-          (zs.map (fun ρ ↦ w - ρ)).prod * deriv g w := by
-      rw [hev.deriv_eq]
-      exact hfg.deriv
-    rw [hderiv_zeta, hprod w]
-    change ((((zs.map (fun ρ ↦ w - ρ)).prod * (zs.map (fun ρ ↦ (1 : ℂ) / (w - ρ))).sum) * g w +
-        (zs.map (fun ρ ↦ w - ρ)).prod * deriv g w) /
-        ((zs.map (fun ρ ↦ w - ρ)).prod * g w)) =
-        (zs.map (fun ρ ↦ (1 : ℂ) / (w - ρ))).sum + deriv g w / g w
-    field_simp [hPne, hgw]
-  have hρ_im_ne : ∀ ρ ∈ zs, T - ρ.im ≠ 0 := by
-    intro ρ hρ h0
-    obtain ⟨hρK, hζ0⟩ := hzs_prop ρ hρ
+  have hno_disk : ∀ ρ ∈ Metric.closedBall z₀ (13/8), riemannZeta ρ = 0 → T-ρ.im ≠ 0 := by
+    intro ρ hρK hζ0 h0
     have hdist : ‖ρ - z₀‖ ≤ 13 / 8 := by simpa [Metric.mem_closedBall, dist_eq_norm] using hρK
     have hre_diff : |ρ.re - 2| ≤ 13 / 8 := by
       rw [← hz₀_re]; exact (Complex.abs_re_le_norm (ρ - z₀)).trans hdist
@@ -2545,78 +2621,14 @@ theorem argumentSApprox_abs_le_log :
       by_contra! hge1
       exact riemannZeta_ne_zero_of_one_le_re hge1 hζ0
     exact hno ⟨ρ, ⟨hζ0, hρ_re_pos, hρ_re_lt1⟩, by linarith⟩
-  have hint_g_bd : |∫ x in (1 / 2 : ℝ)..(2 : ℝ),
-      (deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im| ≤
-      (3 / 2 : ℝ) * (C_ld * Real.log T) := by
-    have hnorm_le : ∀ x ∈ Set.uIoc (1 / 2 : ℝ) 2,
-        ‖(deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im‖ ≤
-          C_ld * Real.log T := by
-      intro x hx
-      have hx' := Set.uIoc_subset_uIcc hx
-      rw [Set.uIcc_of_le (by norm_num)] at hx'
-      have hx_mem : (x : ℂ) + (T : ℂ) * I ∈ Metric.closedBall z₀ (3 / 2) := by
-        rw [Metric.mem_closedBall, dist_eq_norm]
-        have hdiff : (x : ℂ) + (T : ℂ) * I - z₀ = (((x - 2 : ℝ) : ℂ)) := by
-          apply Complex.ext <;> simp [z₀]
-        rw [hdiff, Complex.norm_real, Real.norm_eq_abs, abs_le]
-        constructor <;> linarith [hx'.1, hx'.2]
-      exact (Complex.abs_im_le_norm _).trans (hld_g_bd _ hx_mem)
-    have hbd := intervalIntegral.norm_integral_le_of_norm_le_const hnorm_le
-    rw [Real.norm_eq_abs, abs_of_pos (by norm_num : (0 : ℝ) < 2 - 1 / 2)] at hbd
-    linarith
-  have hint_zs_bd : |∫ x in (1 / 2 : ℝ)..(2 : ℝ),
-      ((zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum).im| ≤
-      Real.pi * (C_j * Real.log T) := by
-    have h1 := list_sum_inv_im_integral_le T zs hρ_im_ne
-    have h2 : (zs.length : ℝ) ≤ C_j * Real.log T := by rw [hzs_len_eq]; exact hcnt_le_jensen
-    exact h1.trans (mul_le_mul_of_nonneg_left h2 Real.pi_pos.le)
-  have hcont_g : ContinuousOn (fun x : ℝ ↦
-      (deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im)
-      (Set.uIcc (1 / 2 : ℝ) 2) := by
-    have hg_an_ball : AnalyticOnNhd ℂ g (Metric.ball z₀ (7 / 4)) := hg_an
-    have hdg_cont : ContinuousOn (deriv g) (Metric.ball z₀ (7 / 4)) :=
-      (hg_an_ball.deriv).continuousOn
-    have hg_cont : ContinuousOn g (Metric.ball z₀ (7 / 4)) := hg_an_ball.continuousOn
-    have hpath : Continuous fun x : ℝ ↦ (x : ℂ) + (T : ℂ) * I :=
-      Complex.continuous_ofReal.add continuous_const
-    have hmem_ball : ∀ x ∈ Set.uIcc (1 / 2 : ℝ) 2,
-        (x : ℂ) + (T : ℂ) * I ∈ Metric.ball z₀ (13 / 8) := by
-      intro x hx
-      rw [Set.uIcc_of_le (by norm_num)] at hx
-      rw [Metric.mem_ball, dist_eq_norm]
-      have hdiff : (x : ℂ) + (T : ℂ) * I - z₀ = (((x - 2 : ℝ) : ℂ)) := by
-        apply Complex.ext <;> simp [z₀]
-      rw [hdiff, Complex.norm_real, Real.norm_eq_abs, abs_lt]
-      constructor <;> linarith [hx.1, hx.2]
-    have hmem_outer : ∀ x ∈ Set.uIcc (1 / 2 : ℝ) 2,
-        (x : ℂ) + (T : ℂ) * I ∈ Metric.ball z₀ (7 / 4) := fun x hx ↦
-      Metric.ball_subset_ball (by norm_num) (hmem_ball x hx)
-    have hne_g : ∀ x ∈ Set.uIcc (1 / 2 : ℝ) 2, g ((x : ℂ) + (T : ℂ) * I) ≠ 0 := fun x hx ↦
-      hg_ne _ (Metric.ball_subset_closedBall (hmem_ball x hx))
-    exact Complex.continuous_im.comp_continuousOn
-      ((hdg_cont.comp hpath.continuousOn hmem_outer).div
-        (hg_cont.comp hpath.continuousOn hmem_outer) hne_g)
-  have hcont_zs : ContinuousOn (fun x : ℝ ↦
-      ((zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum).im)
-      (Set.uIcc (1 / 2 : ℝ) 2) :=
-    list_sum_inv_im_continuousOn T zs hρ_im_ne
-  have hint_zeta_eq :
-      ∫ x in (1 / 2 : ℝ)..(2 : ℝ),
-        (deriv riemannZeta ((x : ℂ) + (T : ℂ) * I) / riemannZeta ((x : ℂ) + (T : ℂ) * I)).im =
-        (∫ x in (1 / 2 : ℝ)..(2 : ℝ),
-          ((zs.map (fun ρ ↦ (1 : ℂ) / ((x : ℂ) + (T : ℂ) * I - ρ))).sum).im) +
-        (∫ x in (1 / 2 : ℝ)..(2 : ℝ),
-          (deriv g ((x : ℂ) + (T : ℂ) * I) / g ((x : ℂ) + (T : ℂ) * I)).im) := by
-    rw [← intervalIntegral.integral_add hcont_zs.intervalIntegrable hcont_g.intervalIntegrable]
-    refine intervalIntegral.integral_congr fun x hx ↦ ?_
-    rw [Set.uIcc_of_le (by norm_num)] at hx
-    rw [hzeta_split x hx, Complex.add_im]
   have hint_zeta_bd :
       |∫ x in (1 / 2 : ℝ)..(2 : ℝ),
         (deriv riemannZeta ((x : ℂ) + (T : ℂ) * I) / riemannZeta ((x : ℂ) + (T : ℂ) * I)).im| ≤
         (3 / 2 : ℝ) * (C_ld * Real.log T) + Real.pi * (C_j * Real.log T) := by
-    rw [hint_zeta_eq]
-    exact (abs_add_le _ _).trans (by linarith [hint_zs_bd, hint_g_bd])
+    apply (horizontalArgumentIntegral_le_of_disk_bound riemannZeta T M_ratio (C_j * Real.log T)
+      hM_ratio_ge1 han hz₀_ne hratio_bd hcnt_le_jensen hno_disk).trans
+    dsimp only [C_ld]
+    nlinarith [hlog_M_ratio]
   have harg2_bd : |(riemannZeta ((2 : ℂ) + (T : ℂ) * I)).arg| ≤
       (Real.pi / Real.log 2) * Real.log T := by
     have hpi : |(riemannZeta ((2 : ℂ) + (T : ℂ) * I)).arg| ≤ Real.pi :=

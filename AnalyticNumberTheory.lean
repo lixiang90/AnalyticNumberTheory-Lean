@@ -36,6 +36,10 @@ import AnalyticNumberTheory.PrimeDistribution.ExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
 import AnalyticNumberTheory.PrimeDistribution.Oscillation
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalsAndLinnik
+import AnalyticNumberTheory.AdditiveNumberTheory.CircleMethod
+import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
+import AnalyticNumberTheory.ModularAndPartitions.DedekindSums
+import AnalyticNumberTheory.ModularAndPartitions.Partitions
 
 /-!
 # AnalyticNumberTheory

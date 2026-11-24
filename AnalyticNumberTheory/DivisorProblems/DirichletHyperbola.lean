@@ -9,7 +9,7 @@ import Mathlib.NumberTheory.LSeries.HurwitzZetaValues
 This file develops the Dirichlet hyperbola summation method and derives the classical elementary
 asymptotic formulas for arithmetic functions:
 
-- General **Dirichlet hyperbola method identities** (`dirichlet_hyperbola_nat`,
+- General **Dirichlet hyperbola method identities** (`sum_Icc_convolution_add_rectangle`,
   `dirichlet_hyperbola`, `dirichlet_hyperbola_sqrt`, `dirichlet_hyperbola_self_sqrt`, and
   `ArithmeticFunction` variants) for arbitrary real or natural split parameters `U, V` with
   `U * V = x` and the symmetric specialization `U = V = √x`.
@@ -160,15 +160,15 @@ theorem partialSum_convolution_eq_sum {R : Type*} [Semiring R] (f g : ℕ → R)
     rw [partialSum, nat_floor_div_nat hx (Finset.mem_Icc.mp hd).1]
   · simp [partialSum, Nat.floor_of_nonpos hx.le]
 
-/-- **General discrete Dirichlet hyperbola identity** (non-commutative `Ring` version):
-for `u * v ≤ N < (u + 1) * (v + 1)`,
-`∑_{1 ≤ n ≤ N} (f ⍟ g)(n) = ∑_{d ≤ u} f(d) ∑_{m ≤ N/d} g(m) + ∑_{m ≤ v} (∑_{d ≤ N/m} f(d)) g(m) - (∑_{d ≤ u} f(d)) (∑_{m ≤ v} g(m))`. -/
-theorem sum_Icc_convolution_hyperbola_ring {R : Type*} [Ring R] (f g : ℕ → R)
+/-- The two strips below the hyperbola cover all positive lattice points with product at most
+`N`. Their overlap is the rectangle `[1,u] × [1,v]`. Counting the rectangle on the left
+gives a formula over any semiring, including natural-number weights. -/
+theorem sum_Icc_convolution_add_rectangle {R : Type*} [Semiring R] (f g : ℕ → R)
     {u v N : ℕ} (huv : u * v ≤ N) (hN : N < (u + 1) * (v + 1)) :
-    ∑ n ∈ Finset.Icc 1 N, (f ⍟ g) n =
+    (∑ n ∈ Finset.Icc 1 N, (f ⍟ g) n) +
+        (∑ d ∈ Finset.Icc 1 u, f d) * (∑ m ∈ Finset.Icc 1 v, g m) =
       (∑ d ∈ Finset.Icc 1 u, f d * ∑ m ∈ Finset.Icc 1 (N / d), g m) +
-        (∑ m ∈ Finset.Icc 1 v, (∑ d ∈ Finset.Icc 1 (N / m), f d) * g m) -
-          (∑ d ∈ Finset.Icc 1 u, f d) * (∑ m ∈ Finset.Icc 1 v, g m) := by
+        (∑ m ∈ Finset.Icc 1 v, (∑ d ∈ Finset.Icc 1 (N / m), f d) * g m) := by
   let S := (Finset.Icc 1 N ×ˢ Finset.Icc 1 N).filter (fun p => p.1 * p.2 ≤ N)
   let A := S.filter (fun p => p.1 ≤ u)
   let B := S.filter (fun p => p.2 ≤ v)
@@ -260,8 +260,17 @@ theorem sum_Icc_convolution_hyperbola_ring {R : Type*} [Ring R] (f g : ℕ → R
       ∑ p ∈ Finset.Icc 1 u ×ˢ Finset.Icc 1 v, f p.1 * g p.2 =
         (∑ d ∈ Finset.Icc 1 u, f d) * (∑ m ∈ Finset.Icc 1 v, g m) := by
     rw [Finset.sum_product, Finset.sum_mul_sum]
-  rw [hsumA, hsumB, hsumInter] at hUI
-  exact eq_sub_of_add_eq hUI
+  simpa only [hsumA, hsumB, hsumInter] using hUI
+
+/-- The discrete Dirichlet hyperbola identity over a ring. The factors in every summand
+have the same order as in the convolution, so multiplication may be noncommutative. -/
+theorem sum_Icc_convolution_hyperbola_ring {R : Type*} [Ring R] (f g : ℕ → R)
+    {u v N : ℕ} (huv : u * v ≤ N) (hN : N < (u + 1) * (v + 1)) :
+    ∑ n ∈ Finset.Icc 1 N, (f ⍟ g) n =
+      (∑ d ∈ Finset.Icc 1 u, f d * ∑ m ∈ Finset.Icc 1 (N / d), g m) +
+        (∑ m ∈ Finset.Icc 1 v, (∑ d ∈ Finset.Icc 1 (N / m), f d) * g m) -
+          (∑ d ∈ Finset.Icc 1 u, f d) * (∑ m ∈ Finset.Icc 1 v, g m) :=
+  eq_sub_of_add_eq (sum_Icc_convolution_add_rectangle f g huv hN)
 
 /-- **General discrete Dirichlet hyperbola identity** (`CommRing` version):
 for `u * v ≤ N < (u + 1) * (v + 1)`,
@@ -364,6 +373,21 @@ end PartialSumsAndHyperbola
 /-! ### Dirichlet's Divisor Theorem -/
 
 section DirichletDivisorTheorem
+
+/-- Counting lattice points with positive coordinates and product at most `N` by the two
+strips of width `Nat.sqrt N`. This natural-number formula also holds when `N = 0`. -/
+theorem sum_card_divisors_add_sqrt_sq (N : ℕ) :
+    (∑ n ∈ Finset.Icc 1 N, #n.divisors) + N.sqrt ^ 2 =
+      2 * ∑ d ∈ Finset.Icc 1 N.sqrt, N / d := by
+  have hconv (n : ℕ) :
+      ((fun _ : ℕ => (1 : ℕ)) ⍟ (fun _ : ℕ => (1 : ℕ))) n = #n.divisors := by
+    rw [LSeries.convolution_def]
+    change (∑ _p ∈ n.divisorsAntidiagonal, 1 * 1) = #n.divisors
+    rw [← Nat.map_div_right_divisors]
+    simp
+  simpa [hconv, two_mul, sq] using
+    sum_Icc_convolution_add_rectangle (fun _ : ℕ => (1 : ℕ)) (fun _ : ℕ => (1 : ℕ))
+      (Nat.sqrt_le N) (Nat.lt_succ_sqrt N)
 
 /-- The divisor-count summatory function `D(x) = ∑_{1 ≤ n ≤ x} d(n)`. -/
 def divisorSum (x : ℝ) : ℝ :=

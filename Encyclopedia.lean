@@ -1,34 +1,47 @@
-import VersoManual
-import AnalyticNumberTheory
+import Encyclopedia.Summation
+import Encyclopedia.DirichletSeries
+import Encyclopedia.Zeta
+import Encyclopedia.Characters
+import Encyclopedia.Primes
+import Encyclopedia.ExponentialSums
+import Encyclopedia.Waring
+import Encyclopedia.Divisors
+import Encyclopedia.Partitions
+import Encyclopedia.Sieves
 import Encyclopedia.References
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
 
-set_option pp.rawOnError true
-
-#doc (Manual) "解析数论百科全书 — Analytic Number Theory Encyclopedia" =>
+#doc (Manual) "解析数论百科全书" =>
 %%%
 authors := ["AnalyticNumberTheory-Lean Contributors"]
 shortTitle := "解析数论百科"
 tag := "encyclopedia-home"
 %%%
 
-本百科全书基于 Lean 4 与 Mathlib (`v4.36.0`) 构建，围绕潘承洞、潘承彪《解析数论基础》{citep panPan1999}[] 的核心理论体系展开形式化与阐述。
+本百科按数学问题组织。每个条目给出公式的适用条件、推导中的关键一步，以及可从 Lean 库直接引用的定理。选题参考潘承洞、潘承彪《解析数论基础》{citep panPan1999}[]。
 
-# 预备测试
-%%%
-tag := "smoke-test"
-file := "smoke-test"
-%%%
+从{ref "euler-products"}[Euler 乘积]出发，可以追踪素数幂如何进入{ref "prime-counting"}[素数定理]。从{ref "exponential-sums"}[指数和]出发，可以看到一个周期上的积分如何提取{ref "waring"}[幂和方程的解数]。
 
-黎曼 $`\zeta` 函数定义为 $`\zeta(s) = \sum_{n=1}^{\infty} n^{-s}`，当 $`\operatorname{Re}(s) > 1` 时绝对收敛：
+{include 0 Encyclopedia.Summation}
 
-$$`\zeta(s) = \prod_{p} \left(1 - p^{-s}\right)^{-1}`
+{include 0 Encyclopedia.DirichletSeries}
 
-在 Lean 中对应 {name}`AnalyticNumberTheory.zetaFn`：
+{include 0 Encyclopedia.Zeta}
 
-{docstring AnalyticNumberTheory.zetaFn}
+{include 0 Encyclopedia.Characters}
+
+{include 0 Encyclopedia.Primes}
+
+{include 0 Encyclopedia.ExponentialSums}
+
+{include 0 Encyclopedia.Waring}
+
+{include 0 Encyclopedia.Divisors}
+
+{include 0 Encyclopedia.Partitions}
+
+{include 0 Encyclopedia.Sieves}
 
 # 索引
 %%%

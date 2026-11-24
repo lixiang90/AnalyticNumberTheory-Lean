@@ -41,7 +41,12 @@ import AnalyticNumberTheory.ExponentialSums.VanDerCorput
 import AnalyticNumberTheory.ExponentialSums.VaughanIdentity
 import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.AdditiveNumberTheory.CircleMethod
+import AnalyticNumberTheory.AdditiveNumberTheory.Goldbach
+import AnalyticNumberTheory.AdditiveNumberTheory.Waring
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
+import AnalyticNumberTheory.DivisorProblems.GaussCircle
+import AnalyticNumberTheory.SieveMethods.CombinatorialSieve
+import AnalyticNumberTheory.SieveMethods.LargeSieve
 import AnalyticNumberTheory.ModularAndPartitions.DedekindSums
 import AnalyticNumberTheory.ModularAndPartitions.DedekindEta
 import AnalyticNumberTheory.ModularAndPartitions.Partitions
@@ -49,7 +54,7 @@ import AnalyticNumberTheory.ModularAndPartitions.Partitions
 /-!
 # AnalyticNumberTheory
 
-A thematic, completely formalized Lean 4 + Mathlib (`v4.36.0`) library for analytic number theory.
+A Lean 4 + Mathlib library for analytic number theory, organized by mathematical topic.
 -/
 
 namespace AnalyticNumberTheory

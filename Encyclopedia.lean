@@ -6,6 +6,7 @@ import Encyclopedia.Primes
 import Encyclopedia.ArithmeticProgressions
 import Encyclopedia.BombieriVinogradov
 import Encyclopedia.PartitionAsymptotic
+import Encyclopedia.Rademacher
 import Encyclopedia.ExponentialSums
 import Encyclopedia.Waring
 import Encyclopedia.WaringArchimedean
@@ -15,6 +16,7 @@ import Encyclopedia.Partitions
 import Encyclopedia.Farey
 import Encyclopedia.Sieves
 import Encyclopedia.Goldbach
+import Encyclopedia.GoldbachExceptionalSet
 import Encyclopedia.LatticePoints
 import Encyclopedia.DirichletPolynomials
 import Encyclopedia.Transforms
@@ -23,6 +25,8 @@ import Encyclopedia.ComplexBounds
 import Encyclopedia.EntireFunctions
 import Encyclopedia.Perron
 import Encyclopedia.ZetaZeros
+import Encyclopedia.ZeroDensity
+import Encyclopedia.CriticalMoments
 import Encyclopedia.LFunctions
 import Encyclopedia.Eta
 import Encyclopedia.References
@@ -58,6 +62,10 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.ZetaZeros}
 
+{include 0 Encyclopedia.ZeroDensity}
+
+{include 0 Encyclopedia.CriticalMoments}
+
 {include 0 Encyclopedia.Characters}
 
 {include 0 Encyclopedia.LFunctions}
@@ -78,6 +86,8 @@ tag := "encyclopedia-home"
 
 {include 0 Encyclopedia.Goldbach}
 
+{include 0 Encyclopedia.GoldbachExceptionalSet}
+
 {include 0 Encyclopedia.Divisors}
 
 {include 0 Encyclopedia.LatticePoints}
@@ -89,6 +99,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.Partitions}
 
 {include 0 Encyclopedia.PartitionAsymptotic}
+
+{include 0 Encyclopedia.Rademacher}
 
 {include 0 Encyclopedia.Sieves}
 

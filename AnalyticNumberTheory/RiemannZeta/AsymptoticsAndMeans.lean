@@ -2241,7 +2241,7 @@ private lemma tendsto_rpow_sub_one_div_self {γ : ℝ} (hγ : γ < 1) :
     (T + 1) ^ (γ - 1) * ((T + 1) / T) = ((T + 1) ^ (γ - 1) * (T + 1)) / T := by ring
     _ = (T + 1) ^ γ / T := by rw [hadd]
 
-private lemma continuous_dirichletPoly_one (N : ℕ) (σ : ℝ) :
+lemma continuous_dirichletPoly_one (N : ℕ) (σ : ℝ) :
     Continuous fun t : ℝ ↦ dirichletPoly (fun _ ↦ 1) N ((σ : ℂ) + (t : ℂ) * I) := by
   induction N with
   | zero =>
@@ -2282,7 +2282,7 @@ private lemma continuousOn_riemannZeta_Icc {σ a b : ℝ} (ha : 1 ≤ a) :
     (differentiableAt_riemannZeta hne1).continuousAt
   exact (hz.comp_of_eq (hlin.continuousAt (x := t)) rfl).continuousWithinAt
 
-private lemma continuous_riemannZeta_half :
+lemma continuous_riemannZeta_half :
     Continuous fun t : ℝ ↦ riemannZeta ((1 / 2 : ℂ) + (t : ℂ) * I) := by
   rw [continuous_iff_continuousAt]
   intro t
@@ -3197,6 +3197,17 @@ private lemma zeta_sub_poly_half_Icc_mean_sq_bound {K : ℝ} (hK_pos : 0 < K)
       have hdiv2 : (T + 1) / T ≤ 2 := (div_le_iff₀ hT_pos).mpr (by linarith)
       linarith
     _ = 4 + 2 * K ^ 2 := by norm_num
+
+/-- The Dirichlet approximation of length `⌊T⌋+1` on the critical line has
+bounded mean square error on `[1,T]`, with an absolute constant. -/
+theorem mean_sq_zeta_sub_long_dirichletPoly_half :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ {T : ℝ}, 1 ≤ T →
+      (∫ t in (1:ℝ)..T, ‖riemannZeta ((1/2:ℂ)+t*I) -
+        dirichletPoly (fun _ => 1) (⌊T⌋₊+1) ((1/2:ℂ)+t*I)‖^2) / T ≤ C := by
+  obtain ⟨K,hK,H⟩ := riemannZeta_approx_dirichletPoly_sub_bound zero_lt_one
+    (by linarith [Real.two_le_pi] : (1:ℝ) < 2*Real.pi)
+  refine ⟨4+2*K^2,by positivity,fun {T} hT => ?_⟩
+  simpa only [one_div,div_eq_inv_mul,mul_one] using zeta_sub_poly_half_Icc_mean_sq_bound hK H hT
 
 /-- Critical-line mean-square upper bound on `[1, T]` (`σ = 1 / 2`):
 `(1 / T) ∫ t in 1..T, ‖riemannZeta (1 / 2 + t * I)‖ ^ 2 ≤ C * Real.log (T + 2)` for `1 ≤ T`. -/

@@ -25,6 +25,6 @@ file := "absolute-convergence"
 tag := "absolute-convergence"
 %%%
 
-对固定的 $`n\ge1`，Rademacher 级数中分母为 $`k\ge2` 的项，其绝对值至多为 $`C(n)k^{-3/2}`。证明只需指数和的平凡上界 $`|A_k(n)|\le k` 与双曲函数的三阶余项。这个论证对任意实相位函数都成立。算出级数的和还需要{ref "farey-dissection"}[有理点附近各弧的积分]。
+对固定的 $`n\ge1`，Rademacher 级数中分母为 $`k\ge2` 的项，其绝对值至多为 $`C(n)k^{-3/2}`。证明只需指数和的平凡上界 $`|A_k(n)|\le k` 与双曲函数的三阶余项。这个论证对任意实相位函数都成立。{ref "rademacher-series"}[精确公式]通过各个有理点附近的弧积分确定这一级数的和。
 
 {docstring summable_norm_rademacherTerm}

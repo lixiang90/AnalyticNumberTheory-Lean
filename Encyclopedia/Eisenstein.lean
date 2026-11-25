@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.ModularAndPartitions.EisensteinConvergence
+import AnalyticNumberTheory.ModularAndPartitions.EisensteinConeIntegral
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinConeContinuation
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinIntegralWeights
 import VersoManual
@@ -17,6 +19,10 @@ file := "eisenstein-series"
 $$`G(z,s)=\sum_{(m,n)\in\mathbb Z^2\setminus\{(0,0)\}}(mz+n)^{-s}.`
 
 为了明确复幂的含义，这里取 $`-\pi\le\arg w<\pi`。特别地，当 $`n>0` 时，$`(-n)^{-s}=e^{\pi i s}n^{-s}`。这个选择影响复权时的常数项。
+
+绝对收敛恰好要求 $`\Re s>2`。必要性可只考察第一象限的一部分格点。
+
+{docstring summable_eisensteinLatticeTerm_iff}
 
 {docstring eisensteinG_eq_latticeSum}
 
@@ -82,3 +88,21 @@ $$`j^{-s}G(\gamma z,s)-G(z,s)
 {docstring eisensteinConeContinuation_residue_two}
 
 {docstring eisensteinConeContinuation_residue_one}
+
+# 锥和的 Mellin 积分
+%%%
+tag := "eisenstein-barnes-integral"
+file := "barnes-integral"
+%%%
+
+取 $`c` 为正整数，写 $`w=cz+d` 并假设 $`\Re w>0`。把锥和中的 $`k` 按模 $`c` 的余数 $`r` 分类，每一类得到周期为 $`1,w` 的 Barnes 双重 ζ 函数，起点为 $`a_r=rz+\lfloor dr/c\rfloor+1`。若 $`\mathcal C(z,s)` 表示前节的锥和，则对 $`\Re s>2` 有
+
+$$`\Gamma(s)\mathcal C(z,s)=
+ \sum_{r=0}^{c-1}\int_0^\infty
+ \frac{t^{s-1}e^{-a_rt}}{(1-e^{-wt})(1-e^{-t})}\,dt.`
+
+积分核分母中的两个因子分别来自沿两条格点方向的几何级数。
+
+{docstring eisensteinConeSum_eq_barnes}
+
+{docstring eisensteinConeSum_gamma_eq_integral}

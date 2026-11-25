@@ -20,7 +20,8 @@ private theorem log_lower_of_power {p k : ℕ} (hp : 0<p) (h : 2^k≤p^12) :
   norm_num only [Nat.cast_ofNat] at hl
   nlinarith [mul_nonneg (Nat.cast_nonneg (α:=ℝ) k) (show 0≤Real.log 2-693/1000 by linarith [Real.log_two_gt_d9])]
 
-private theorem euler_constant_gt_56 : 56/100 < Real.eulerMascheroniConstant := by
+/-- The harmonic sum through 31 gives a lower bound of 0.56 for Euler’s constant. -/
+theorem euler_constant_gt_56 : 56/100 < Real.eulerMascheroniConstant := by
   have h := Real.eulerMascheroniSeq_lt_eulerMascheroniConstant 31
   rw [Real.eulerMascheroniSeq] at h
   norm_num only [Nat.cast_ofNat,show (31:ℝ)+1=2^5 by norm_num, Real.log_pow, Nat.cast_ofNat] at h

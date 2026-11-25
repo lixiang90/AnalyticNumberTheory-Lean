@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.BrunTitchmarshStrict
 import AnalyticNumberTheory.SieveMethods.LinearSieveQuantitative
 import AnalyticNumberTheory.SieveMethods.WeightedFareySieve
 import AnalyticNumberTheory.SieveMethods.ShiftedAlmostPrimes
@@ -235,6 +236,32 @@ $$`XV(z)(f(u)-E)-R\le S(z)\le XV(z)(F(u)+E)+R,
 两侧使用同一个算术余项 $`R`，其中每个除数的系数都是一。主项中的误差随 $`y` 衰减，即使 $`z` 靠近区间的任一端点也适用。
 
 {docstring linearSieve_quantitative_bounds}
+
+# 全范围 Brun–Titchmarsh 不等式
+%%%
+tag := "brun-titchmarsh-full"
+file := "brun-titchmarsh-full"
+%%%
+
+对实数 $`x\ge0`、整数 $`q\ge1` 和区间长度 $`y>q`，记 $`\pi(x;q,a)` 为不超过 $`x` 且同余于 $`a\bmod q` 的素数个数。则
+
+$$`\pi(x+y;q,a)-\pi(x;q,a)\le \frac{2y}{\varphi(q)\log(y/q)}.`
+
+上式对任意剩余类和任意实区间端点成立，还可把不等号加强为严格小于。取 $`q=1` 就得到普通素数计数函数的区间上界。
+
+{docstring brun_titchmarsh_two}
+
+{docstring brun_titchmarsh_strict}
+
+{docstring brun_titchmarsh_primeCounting}
+
+证明中，$`1<y/q\le20000` 的部分用至多六个小素数做有限容斥。对于 $`y/q\ge16000`，把候选下标平移为没有小素因子的整数，再用{ref "large-sieve-local-gaps"}[保留分母权重的大筛]。此处需要对每个实截点成立的数值估计。记 $`D(x)=\sum_{d\le x}\mu^2(d)/\varphi(d)`，则 $`x\ge6` 时 $`D(x)\ge\log x+1.076`。用 Abel 分部求和可推出，在 $`z\ge100` 时有
+
+$$`\sum_{d\le z}\frac{\mu^2(d)}{\varphi(d)(1+d/z)}\ge\log z+0.31.`
+
+{docstring selbergDenominator_ge_log_surplus}
+
+{docstring selbergWeightedDenominator_ge_log}
 
 # 长区间上的 Brun–Titchmarsh 系数二
 %%%

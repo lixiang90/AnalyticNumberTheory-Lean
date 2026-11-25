@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.RiemannSiegelFirstCorrection
 import AnalyticNumberTheory.RiemannZeta.HurwitzFirstCorrection
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCorrection
 import AnalyticNumberTheory.RiemannZeta.HurwitzBoundedHeight
@@ -130,3 +131,12 @@ $$`x^{-s}\exp\!\left(\pi i\left(2x\lambda+\lambda^2-v^2/2-7/8\right)\right)C(v).
 {docstring hurwitzFirstCorrection}
 
 {docstring hurwitzZeta_first_correction}
+
+对于全部 $`t\ge8\pi`，取 $`x=\sqrt{t/(2\pi)}` 后同一 Hurwitz 首修正公式仍有 $`O(t^{-3/4})` 的余量。令 $`N=\lfloor x\rfloor`，并用 $`\vartheta(t)` 表示 Hardy 单位因子的辐角。转到实函数 $`Z(t)` 后，公式为
+
+$$`Z(t)=2\sum_{n=1}^{N}\frac{\cos(\vartheta(t)-t\log n)}{\sqrt n}
+       +(-1)^{N+1}x^{-1/2}C(2\{x\})+O(t^{-3/4}).`
+
+{docstring hurwitzZeta_first_correction_height}
+
+{docstring hardyZ_riemannSiegel_first_correction}

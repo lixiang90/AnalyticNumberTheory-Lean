@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.PeriodicRiemannSiegel
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicLogFreeApproximation
 import AnalyticNumberTheory.DirichletLFunctions.PrimitiveApproximateFunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicApproximateFunctionalEquation
@@ -66,3 +67,15 @@ $$`\widehat{\Phi}(n)=\sum_{r=1}^q\Phi(r)\exp(-2\pi i nr/q).`
 {docstring periodicLFunction_logFree_sharp_afe}
 
 {docstring primitiveLFunction_logFree_sharp_afe}
+
+# 临界线上的首修正项
+%%%
+tag := "dirichlet-first-correction"
+file := "first-correction"
+%%%
+
+设周期为 $`q\ge1` 的系数满足 $`|\Phi(j)|\le1`。对 $`s=1/2+it`、$`t\ge8\pi`，令 $`x=\sqrt{t/(2\pi)}`。将各个位移的{ref "hurwitz-first-correction"}[Hurwitz 首修正项]按系数相加，在长度分别为 $`\lfloor qx\rfloor` 与 $`\lfloor x\rfloor` 的正向和与对偶和之外得到一个显式修正项。余量为 $`O(\sqrt q\,t^{-3/4})`，隐常数与周期和系数无关。对原特征，对偶和的系数化为共轭特征。
+
+{docstring periodicLFunction_first_correction}
+
+{docstring primitiveLFunction_first_correction}

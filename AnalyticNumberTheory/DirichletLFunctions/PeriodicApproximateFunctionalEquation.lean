@@ -88,23 +88,27 @@ theorem periodic_dualSum {q : ℕ} (Φ : ZMod q → ℂ) (y : ℝ) (s : ℂ) :
   intro m hm
   dsimp only [hurwitzPair];ring
 
-/-- Transfer a uniform Hurwitz remainder estimate to a bounded periodic
-coefficient function by its finite Fourier transform. -/
-theorem periodicLFunction_estimate_of_hurwitz {q : ℕ} [NeZero q] (Φ : ZMod q → ℂ) (hΦ : ∀ j, ‖Φ j‖≤1)
-    {x y E : ℝ} (hx : 1≤x) {s : ℂ} (hE : ∀ a∈Set.Ioc (0:ℝ) 1,
-      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-hurwitzDirectSum a x s-hurwitzDualSum a y s‖≤E) :
-    ‖ZMod.LFunction Φ s-dirichletPoly (fun n : ℕ => Φ n) ⌊(q:ℝ)*x⌋₊ s-periodicDualSum Φ y s‖ ≤
+/-- Periodic combination of an individual shift contribution. -/
+def periodicShiftCorrection {q : ℕ} (Φ : ZMod q → ℂ) (s : ℂ) (F : ℝ → ℂ) : ℂ :=
+  (q:ℂ)^(-s)*∑ r∈range q,Φ ((r+1:ℕ):ZMod q)*F (((r+1:ℕ):ℝ)/q)
+
+/-- Transfer an explicit shift-dependent correction and its uniform error
+to a general periodic L-function. -/
+theorem periodicLFunction_corrected_estimate_of_hurwitz {q : ℕ} [NeZero q] (Φ : ZMod q → ℂ) (hΦ : ∀ j, ‖Φ j‖≤1)
+    {x y E : ℝ} (hx : 1≤x) {s : ℂ} (F : ℝ → ℂ) (hE : ∀ a∈Set.Ioc (0:ℝ) 1,
+      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-hurwitzDirectSum a x s-hurwitzDualSum a y s-F a‖≤E) :
+    ‖ZMod.LFunction Φ s-dirichletPoly (fun n : ℕ => Φ n) ⌊(q:ℝ)*x⌋₊ s-periodicDualSum Φ y s-periodicShiftCorrection Φ s F‖ ≤
       (q:ℝ)^(1-s.re)*E := by
   have hq : 0<(q:ℝ) := by exact_mod_cast NeZero.pos q
-  rw [ZMod.LFunction,sum_residues_succ,periodic_directSum Φ hx s,periodic_dualSum,
-    ←mul_sub,←mul_sub,←sum_sub_distrib,←sum_sub_distrib,norm_mul,Complex.norm_natCast_cpow_of_pos (NeZero.pos q),neg_re]
+  rw [ZMod.LFunction,sum_residues_succ,periodic_directSum Φ hx s,periodic_dualSum,periodicShiftCorrection,
+    ←mul_sub,←mul_sub,←mul_sub,←sum_sub_distrib,←sum_sub_distrib,←sum_sub_distrib,norm_mul,Complex.norm_natCast_cpow_of_pos (NeZero.pos q),neg_re]
   calc
     _ ≤ (q:ℝ)^(-s.re)*(∑ r∈range q,E) := by
       apply mul_le_mul_of_nonneg_left _ (by positivity)
       apply (norm_sum_le ..).trans
       apply sum_le_sum
       intro r hr
-      rw [←mul_sub,←mul_sub,norm_mul,ZMod.toAddCircle_natCast]
+      rw [←mul_sub,←mul_sub,←mul_sub,norm_mul,ZMod.toAddCircle_natCast]
       have ha : ((r+1:ℕ):ℝ)/q ∈ Set.Ioc (0:ℝ) 1 := by
         constructor
         · positivity
@@ -114,6 +118,16 @@ theorem periodicLFunction_estimate_of_hurwitz {q : ℕ} [NeZero q] (Φ : ZMod q 
     _ = _ := by
       rw [sum_const,card_range,nsmul_eq_mul,show 1-s.re= -s.re+1 by ring,Real.rpow_add hq,Real.rpow_one]
       ring
+
+/-- Transfer a uniform Hurwitz remainder estimate to a bounded periodic
+coefficient function by its finite Fourier transform. -/
+theorem periodicLFunction_estimate_of_hurwitz {q : ℕ} [NeZero q] (Φ : ZMod q → ℂ) (hΦ : ∀ j, ‖Φ j‖≤1)
+    {x y E : ℝ} (hx : 1≤x) {s : ℂ} (hE : ∀ a∈Set.Ioc (0:ℝ) 1,
+      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-hurwitzDirectSum a x s-hurwitzDualSum a y s‖≤E) :
+    ‖ZMod.LFunction Φ s-dirichletPoly (fun n : ℕ => Φ n) ⌊(q:ℝ)*x⌋₊ s-periodicDualSum Φ y s‖ ≤
+      (q:ℝ)^(1-s.re)*E := by
+  simpa only [periodicShiftCorrection,mul_zero,sum_const_zero,sub_zero] using
+    periodicLFunction_corrected_estimate_of_hurwitz Φ hΦ hx (fun _ => 0) (fun a ha => by simpa only [sub_zero] using hE a ha)
 
 /-- Sharp two-sided periodic approximate functional equation, uniform in q
 and in coefficient functions bounded by one. The direct cutoff is qx,

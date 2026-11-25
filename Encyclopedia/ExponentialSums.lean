@@ -7,7 +7,7 @@ import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
-import AnalyticNumberTheory.ExponentialSums.SmoothedRationalPrimeSums
+import AnalyticNumberTheory.ExponentialSums.PrimeContourDenominators
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -256,6 +256,47 @@ $$`\left|\sum_{n\le x}\Lambda(n)e(an/q)\log(x/n)\right|
 {docstring norm_logSmoothedPrimeExpSum_le_character_mean}
 
 {docstring logSmoothedPrimeExpSum_rational_contour}
+
+# 用对数平滑和恢复截断素数和
+%%%
+tag := "prime-log-desmoothing"
+file := "logarithmic-desmoothing"
+%%%
+
+写 $`S(\alpha,x)=\sum_{n\le x}\Lambda(n)e(\alpha n)`，用 $`S_1` 表示再乘 $`\log(x/n)` 后的和。设 $`1\le x<y`。两个平滑和相减，所有 $`n\le x` 的项都得到同一个因子 $`\log(y/x)`。除以它后，余项至多为 $`\psi(y)-\psi(x)`。区间 $`(x,y]` 中每项的 von Mangoldt 权重至多为 $`\log y`，其中的整数个数至多为 $`y-x+1`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.psi_sub_le_length_mul_log}
+
+{docstring norm_primeExpSum_le_logSmoothed_difference}
+
+假定 $`[x,2x]` 上的每个平滑和的模都不超过 $`M`，且 $`M\ge L=1+\log x`。取 $`H=\sqrt{xM/L}`。当 $`H<x` 时选 $`y=x+H`，于是 $`\log(y/x)\ge H/(2x)`。两种误差分别来自端点的平滑和与短区间的素数幂，均为 $`O(\sqrt{xLM})`。当 $`H\ge x` 时，Chebyshev 的初等上界已足够。对任意实频率，最终得到 $`|S(\alpha,x)|\le8\sqrt{xLM}`。
+
+{docstring norm_primeExpSum_le_of_logSmoothed_bound}
+
+# 有理频率的截断素数和
+%%%
+tag := "sharp-rational-contour"
+file := "sharp-rational-contour"
+%%%
+
+对既约分数 $`a/q`，记{ref "smoothed-rational-prime-bound"}[平滑和的两项上界]为 $`T(x,q)`，省略绝对常数。端点从 $`x` 移到 $`[x,2x]` 内的任意点，$`T` 最多增大 $`64` 倍。因而可把同一个上界代入{ref "prime-log-desmoothing"}[有限差分估计]。
+
+{docstring primeContourSmoothedScale_le_double}
+
+由 $`\sqrt{u+v}\le\sqrt u+\sqrt v`，$`\sqrt{x(1+\log x)\,T(x,q)}` 展开为两项上界。对 $`1\le q\le x`，写 $`L=1+\log x`，得到
+
+$$`\left|\sum_{n\le x}\Lambda(n)e(an/q)\right|
+\ll \frac{x}{q^{1/4}}L^3 + x^{7/8}q^{1/8}L^{5/2}.`
+
+{docstring sqrt_primeContourSmoothedScale_le}
+
+{docstring primeExpSum_rational_contour}
+
+若 $`1\le Q\le q^2` 且 $`qQ\le x`，则 $`q^{-1/2}\le Q^{-1/4}`，且 $`x^{3/4}q^{1/4}\le xQ^{-1/4}`。平滑和由此节省因子 $`Q^{-1/4}`，去掉平滑权重后的和节省 $`Q^{-1/8}`。
+
+{docstring primeContourScales_le_of_denominator_range}
+
+{docstring primeExpSums_rational_contour_balanced}
 
 # 有限 Poisson 求和与倒数相位
 %%%

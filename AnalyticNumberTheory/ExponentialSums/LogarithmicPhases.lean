@@ -16,13 +16,15 @@ namespace AnalyticNumberTheory.ExponentialSums
 /-- The real logarithmic phase before applying the additive character. -/
 noncomputable def logPhase (τ a x : ℝ) := τ*Real.log (x+a)
 
-private theorem logPhase_deriv (τ a : ℝ) {x : ℝ} (hx : 0 < x+a) :
+/-- First derivative of the shifted logarithmic phase. -/
+theorem logPhase_deriv (τ a : ℝ) {x : ℝ} (hx : 0 < x+a) :
     HasDerivAt (logPhase τ a) (τ/(x+a)) x := by
   change HasDerivAt (fun y : ℝ => τ*Real.log (y+a)) _ x
   simpa only [id_eq,div_eq_mul_inv,one_mul,mul_one] using
     (((hasDerivAt_id x).add_const a).log hx.ne').const_mul τ
 
-private theorem logPhase_second (τ a : ℝ) {x : ℝ} (hx : 0 < x+a) :
+/-- Second derivative of the shifted logarithmic phase. -/
+theorem logPhase_second (τ a : ℝ) {x : ℝ} (hx : 0 < x+a) :
     HasDerivAt (fun u => τ/(u+a)) (-τ/(x+a)^2) x := by
   convert (hasDerivAt_const x τ).div ((hasDerivAt_id x).add_const a) hx.ne' using 1 <;> first | rfl | simp
 

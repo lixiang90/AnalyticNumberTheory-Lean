@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DivisorProblems.GaussCircleCubeRoot
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
 import AnalyticNumberTheory.DivisorProblems.DivisorCubeRoot
 import VersoManual
@@ -35,3 +36,25 @@ $$`\sum_{n\le N}d(n)+u^2=2\sum_{a=1}^u\lfloor N/a\rfloor.`
 $$`\Delta(x)=O\bigl(x^{1/3}\log x\bigr).`
 
 {docstring abs_divisorError_le_cubeRoot_mul_log}
+
+# Gauss 圆问题
+%%%
+tag := "gauss-circle-error"
+file := "gauss-circle"
+%%%
+
+{index}[Gauss 圆问题]把平方半径记为 $`x`。闭圆盘内整点数 $`R(x)` 包含原点和边界点。面积给出的主项是 $`\pi x`，余项满足
+
+$$`|R(x)-\pi x|\ll x^{1/3}\qquad(x\ge2).`
+
+{docstring AnalyticNumberTheory.DivisorProblems.abs_gaussCircleError_le_cubeRoot}
+
+按坐标轴和对角线分成八个扇区后，只需沿 $`0\le u\le\sqrt{x/2}` 计算圆弧 $`v=\sqrt{x-u^2}` 下的整点。对称公式分别计入坐标轴和对角线上的格点。比较圆弧下的面积后，余项化为锯齿函数沿圆弧的和，另有一个绝对值至多为八的边界误差。
+
+{docstring AnalyticNumberTheory.DivisorProblems.gaussCircleCount_eq_octant_slices}
+
+{docstring AnalyticNumberTheory.DivisorProblems.abs_gaussCircleError_add_octant_sawtooth_le}
+
+将锯齿函数作 Fourier 逼近，再用二阶导数估计各个频率的和，得到三分之一次方界。把格点按 $`m^2+n^2` 分组，同一余项也适用于两平方表示数的求和函数。
+
+{docstring AnalyticNumberTheory.DivisorProblems.sum_repTwoSquares_sub_pi_isBigO_cubeRoot}

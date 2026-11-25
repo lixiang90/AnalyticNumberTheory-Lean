@@ -16,17 +16,17 @@ namespace AnalyticNumberTheory.DivisorProblems
 
 section GaussCircleElementary
 
-private theorem int_natAbs_sq_real (a : ℤ) : (a.natAbs : ℝ) ^ 2 = (a : ℝ) ^ 2 := by
+theorem int_natAbs_sq_real (a : ℤ) : (a.natAbs : ℝ) ^ 2 = (a : ℝ) ^ 2 := by
   rw [← Int.cast_natCast, Int.natCast_natAbs, Int.cast_abs, sq_abs]
 
-private theorem int_abs_le_of_natAbs_le {a : ℤ} {n : ℕ} (h : a.natAbs ≤ n) :
+theorem int_abs_le_of_natAbs_le {a : ℤ} {n : ℕ} (h : a.natAbs ≤ n) :
     -(n : ℤ) ≤ a ∧ a ≤ (n : ℤ) := by
   have h1 : |a| ≤ (n : ℤ) := by
     rw [← Int.natCast_natAbs]
     exact_mod_cast h
   exact abs_le.mp h1
 
-private theorem natAbs_le_of_abs_le {a : ℤ} {n : ℕ} (h : -(n : ℤ) ≤ a ∧ a ≤ (n : ℤ)) :
+theorem natAbs_le_of_abs_le {a : ℤ} {n : ℕ} (h : -(n : ℤ) ≤ a ∧ a ≤ (n : ℤ)) :
     a.natAbs ≤ n := by
   have h1 : |a| ≤ (n : ℤ) := abs_le.mpr h
   rw [← Int.natCast_natAbs] at h1
@@ -161,15 +161,16 @@ theorem gaussCircleCount_eq_one_add_sum_repTwoSquares {x : ℝ} (hx : 0 ≤ x) :
   rw [hsplit, Finset.sum_insert (by simp), repTwoSquares_zero]
   norm_num
 
-/-- Vertical slice decomposition of `gaussCircleCount x`:
-`R₂(x) = ∑ a ∈ Finset.Icc (-(⌊√x⌋₊ : ℤ)) ⌊√x⌋₊, (2 * ⌊√(x - a ^ 2)⌋₊ + 1)` for `0 ≤ x`. -/
-theorem gaussCircleCount_eq_sum_slice {x : ℝ} (hx : 0 ≤ x) :
-    let M : ℕ := ⌊Real.sqrt x⌋₊
-    gaussCircleCount x =
-      ∑ a ∈ Finset.Icc (-(M : ℤ)) (M : ℤ),
-        (2 * (⌊Real.sqrt (x - (a : ℝ) ^ 2)⌋₊ : ℝ) + 1) := by
+/-- Lattice points in the disk of squared radius `x` whose first coordinate
+has absolute value at most `M`. -/
+noncomputable def gaussCircleStrip (x : ℝ) (M : ℕ) : Finset (ℤ × ℤ) :=
+  (gaussCircleFinset x).filter (fun p => p.1.natAbs ≤ M)
+
+/-- Slice count in a vertical strip of the disk. -/
+theorem gaussCircleStrip_card_eq_sum_slice {x : ℝ} (hx : 0≤x) {M : ℕ} (hM : (M:ℝ)≤Real.sqrt x) :
+    ((gaussCircleStrip x M).card:ℝ) =
+      ∑ a ∈ Finset.Icc (-(M:ℤ)) (M:ℤ), (2*(⌊Real.sqrt (x-(a:ℝ)^2)⌋₊:ℝ)+1) := by
   classical
-  intro M
   let S (a : ℤ) : Finset (ℤ × ℤ) :=
     let N : ℤ := (⌊Real.sqrt (x - (a : ℝ) ^ 2)⌋₊ : ℤ)
     (Finset.Icc (-N) N).map ⟨fun b => (a, b), fun _ _ h => (Prod.ext_iff.mp h).2⟩
@@ -177,21 +178,16 @@ theorem gaussCircleCount_eq_sum_slice {x : ℝ} (hx : 0 ≤ x) :
     intro a ha
     have habs : a.natAbs ≤ M := natAbs_le_of_abs_le (Finset.mem_Icc.mp ha)
     have hsqrt : (a.natAbs : ℝ) ≤ Real.sqrt x :=
-      (Nat.le_floor_iff (Real.sqrt_nonneg x)).mp habs
+      (Nat.cast_le.mpr habs).trans hM
     have hsq := sq_le_sq' (by linarith [Real.sqrt_nonneg x, (Nat.cast_nonneg a.natAbs : (0 : ℝ) ≤ a.natAbs)]) hsqrt
     rw [Real.sq_sqrt hx] at hsq
     have hcast := int_natAbs_sq_real a
     linarith
-  have hpart : gaussCircleFinset x = (Finset.Icc (-(M : ℤ)) (M : ℤ)).biUnion S := by
+  have hpart : gaussCircleStrip x M = (Finset.Icc (-(M : ℤ)) (M : ℤ)).biUnion S := by
     ext p
-    rw [mem_gaussCircleFinset, Finset.mem_biUnion]
+    simp only [gaussCircleStrip,Finset.mem_filter,mem_gaussCircleFinset,Finset.mem_biUnion]
     constructor
-    · intro hp
-      have ha_sq : (p.1 : ℝ) ^ 2 ≤ x := by linarith [sq_nonneg (p.2 : ℝ)]
-      have ha_abs : p.1.natAbs ≤ M := by
-        refine Nat.le_floor (Real.le_sqrt_of_sq_le ?_)
-        have hcast := int_natAbs_sq_real p.1
-        linarith
+    · rintro ⟨hp,ha_abs⟩
       have ha_mem : p.1 ∈ Finset.Icc (-(M : ℤ)) (M : ℤ) :=
         Finset.mem_Icc.mpr (int_abs_le_of_natAbs_le ha_abs)
       refine ⟨p.1, ha_mem, ?_⟩
@@ -216,6 +212,7 @@ theorem gaussCircleCount_eq_sum_slice {x : ℝ} (hx : 0 ≤ x) :
         simpa [Real.sq_sqrt hdiff] using h
       have hcast := int_natAbs_sq_real b
       rw [← hp_eq]
+      refine ⟨?_,natAbs_le_of_abs_le (Finset.mem_Icc.mp ha)⟩
       change (a : ℝ) ^ 2 + (b : ℝ) ^ 2 ≤ x
       linarith
   have hdisj : Set.PairwiseDisjoint (↑(Finset.Icc (-(M : ℤ)) (M : ℤ)) : Set ℤ) S := by
@@ -226,7 +223,7 @@ theorem gaussCircleCount_eq_sum_slice {x : ℝ} (hx : 0 ≤ x) :
     rcases hp1 with ⟨_, _, rfl⟩
     rcases hp2 with ⟨_, _, h2⟩
     exact hne (Prod.ext_iff.mp h2).1.symm
-  rw [gaussCircleCount, hpart, Finset.card_biUnion hdisj]
+  rw [hpart, Finset.card_biUnion hdisj]
   push_cast
   refine Finset.sum_congr rfl fun a _ => ?_
   simp only [S, Finset.card_map, Int.card_Icc]
@@ -238,6 +235,25 @@ theorem gaussCircleCount_eq_sum_slice {x : ℝ} (hx : 0 ≤ x) :
   rw [hcard]
   push_cast
   ring
+
+/-- Vertical slice decomposition of `gaussCircleCount x`:
+`R₂(x) = ∑ a ∈ Finset.Icc (-(⌊√x⌋₊ : ℤ)) ⌊√x⌋₊, (2 * ⌊√(x - a ^ 2)⌋₊ + 1)` for `0 ≤ x`. -/
+theorem gaussCircleCount_eq_sum_slice {x : ℝ} (hx : 0 ≤ x) :
+    let M : ℕ := ⌊Real.sqrt x⌋₊
+    gaussCircleCount x =
+      ∑ a ∈ Finset.Icc (-(M : ℤ)) (M : ℤ),
+        (2 * (⌊Real.sqrt (x - (a : ℝ) ^ 2)⌋₊ : ℝ) + 1) := by
+  intro M
+  have he : gaussCircleFinset x = gaussCircleStrip x M := by
+    ext p
+    simp only [gaussCircleStrip, Finset.mem_filter, mem_gaussCircleFinset, iff_self_and]
+    intro hp
+    apply Nat.le_floor
+    apply Real.le_sqrt_of_sq_le
+    rw [int_natAbs_sq_real]
+    linarith [sq_nonneg (p.2:ℝ)]
+  change ((gaussCircleFinset x).card:ℝ)=_
+  rw [he]; exact gaussCircleStrip_card_eq_sum_slice hx (Nat.floor_le (Real.sqrt_nonneg _))
 
 /-- Semicircle integral evaluation: `∫ t in (0 : ℝ)..R, √(R ^ 2 - t ^ 2) = π * R ^ 2 / 4`
 for `0 ≤ R`. -/
@@ -290,7 +306,7 @@ theorem integral_sqrt_sq_sub_sq {R : ℝ} (hR : 0 ≤ R) :
   linarith
 
 /-- Symmetric `ℤ`-interval sum identity for even functions. -/
-private theorem sum_Icc_neg_self_even (M : ℕ) (g : ℝ → ℝ) (hg : ∀ t : ℝ, g (-t) = g t) :
+theorem sum_Icc_neg_self_even (M : ℕ) (g : ℝ → ℝ) (hg : ∀ t : ℝ, g (-t) = g t) :
     ∑ a ∈ Finset.Icc (-(M : ℤ)) (M : ℤ), g (a : ℝ) =
       g 0 + 2 * ∑ k ∈ Finset.Icc 1 M, g (k : ℝ) := by
   let negFn : ℕ → ℤ := fun k => -(k : ℤ)

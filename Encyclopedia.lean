@@ -29,6 +29,7 @@ import Encyclopedia.EntireFunctions
 import Encyclopedia.Perron
 import Encyclopedia.ZetaZeros
 import Encyclopedia.ZeroDensity
+import Encyclopedia.Littlewood
 import Encyclopedia.CriticalMoments
 import Encyclopedia.WeylBounds
 import Encyclopedia.HardyZeros
@@ -72,6 +73,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.ZetaZeros}
 
 {include 0 Encyclopedia.ZeroDensity}
+
+{include 0 Encyclopedia.Littlewood}
 
 {include 0 Encyclopedia.WeylBounds}
 

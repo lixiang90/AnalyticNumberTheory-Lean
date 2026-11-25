@@ -1,6 +1,6 @@
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalEstimates
 import AnalyticNumberTheory.PrimeDistribution.ZetaLogFreeDensity
-import AnalyticNumberTheory.PrimeDistribution.Hoheisel
+import AnalyticNumberTheory.PrimeDistribution.HoheiselLittlewood
 import VersoManual
 
 open Verso.Genre Manual
@@ -57,7 +57,17 @@ $$`\pi(x+x^\theta)-\pi(x)\ge \frac{x^\theta}{8\log x}.`
 
 {docstring hoheisel_primes_in_power_intervals}
 
-若已有无零区宽度 $`\delta(t)` 满足 $`\delta(t)\log t\to\infty`，同一方法可使零点和趋于零，从而把素数个数的下界改进为渐近式 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。这个推论允许宽度随高度非单调变化。
+进一步结合{ref "littlewood-zero-free"}[Littlewood 无零区]，上述计数具有无条件的精确主项。存在固定的 $`1/2<\theta_0<1`，对每个 $`\theta_0\le\theta<1` 都有
+
+$$`\pi(x+x^\theta)-\pi(x)\sim\frac{x^\theta}{\log x}.`
+
+{docstring hoheisel_prime_asymptotic}
+
+同一区间上的 von Mangoldt 权重和与素数对数权重和都渐近于区间长度 $`x^\theta`。
+
+{docstring hoheisel_chebyshev_asymptotic}
+
+证明也提供一个可复用的接口。只需无零区宽度 $`\delta(t)` 满足 $`\delta(t)\log t\to\infty`，即可压低显式公式中的零点贡献。宽度可以随高度非单调变化。
 
 {docstring hoheisel_prime_asymptotic_of_improving_width}
 

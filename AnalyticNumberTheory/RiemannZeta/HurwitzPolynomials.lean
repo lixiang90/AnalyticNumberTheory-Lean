@@ -28,7 +28,8 @@ theorem continuous_hurwitzPolynomial {a : ℝ} (ha : 0<a) (S : Finset ℕ) :
   simp_rw [critical_monomial_eq (add_pos_of_nonneg_of_pos (Nat.cast_nonneg n) ha)]
   fun_prop
 
-private theorem log_shift_gap {a : ℝ} (ha : a∈Set.Ioc (0:ℝ) 1) {p q N : ℕ}
+/-- Separation of logarithmic frequencies for a real shift of the nonnegative integers. -/
+theorem log_shift_gap {a : ℝ} (ha : a∈Set.Ioc (0:ℝ) 1) {p q N : ℕ}
     (hpq : p<q) (hq : q≤N) :
     (2*(N:ℝ))⁻¹ ≤ Real.log ((q:ℝ)+a)-Real.log ((p:ℝ)+a) := by
   have hp' := add_pos_of_nonneg_of_pos (Nat.cast_nonneg p) ha.1

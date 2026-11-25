@@ -1922,6 +1922,12 @@ private lemma sum_map_sublists_cons_aux (p : ℕ) (f : List ℕ → ℝ) :
         List.sum_cons, sum_map_sublists_cons_aux p f xs]
       ring
 
+/-- Split the sum over sublists according to whether the first entry is selected. -/
+theorem sum_sublists_cons (p : ℕ) (L : List ℕ) (f : List ℕ → ℝ) :
+    ((p::L).sublists.map f).sum=(L.sublists.map f).sum+(L.sublists.map (fun d => f (p::d))).sum := by
+  rw [List.sublists_cons]
+  exact sum_map_sublists_cons_aux p f L.sublists
+
 private lemma sum_sublists_rosserCond :
     ∀ (L : List ℕ) (C : List ℕ → Prop), L ≠ [] →
       (0 : ℝ) ≤ (L.sublists.map (fun d =>
@@ -2053,7 +2059,8 @@ private lemma primeFactors_list_prod :
       ext q
       simp [List.mem_toFinset]
 
-private lemma sum_divisors_eq_sum_sublists_of_squarefree {n : ℕ} (hn : Squarefree n)
+/-- Sum over divisors of a squarefree integer by selecting ordered sublists of its prime factors. -/
+theorem sum_divisors_eq_sum_sublists_of_squarefree {n : ℕ} (hn : Squarefree n)
     (f : List ℕ → ℝ) (g : ℕ → ℝ) (hfg : ∀ d : ℕ, d ∣ n → g d = f (descPrimeList d)) :
     ∑ d ∈ n.divisors, g d = ((descPrimeList n).sublists.map f).sum := by
   let L := descPrimeList n

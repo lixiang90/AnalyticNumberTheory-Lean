@@ -36,6 +36,30 @@ private theorem translated_detector_le {X : ℕ} {z : ℂ} (hz : 0 ≤ z.im ∧ 
   · exact Eventually.of_forall fun t => mul_nonneg (weight_nonneg ..) (hpos t)
   · exact ((continuous_weight z).mul hF).intervalIntegrable ..
 
+/-- Translate a finite family of detector integrals to a common window and
+sum their translated weights. -/
+theorem ingham_sum_translated_detectors_le {X : ℕ} {S : Finset ℂ} {V : ℝ}
+    (him : ∀ z ∈ S, 0 ≤ z.im ∧ z.im ≤ 2*X) {f g : ℝ → ℝ}
+    (hf : Continuous f) (hg : Continuous g) (hf0 : ∀ t, 0 ≤ f t) (hg0 : ∀ t, 0 ≤ g t)
+    (hdet : ∀ z ∈ S, V ≤ ∫ v in -(4*(X:ℝ))..4*X, (1/(1+|v|)^4)*(f (z.im+v)*g (z.im+v))) :
+    (S.card:ℝ)*V ≤ ∫ t in -(6*(X:ℝ))..6*X, (∑ z ∈ S,1/(1+|t-z.im|)^4)*f t*g t := by
+  let T := 6*(X:ℝ)
+  let w (t : ℝ) := ∑ z ∈ S, weight z t
+  have hfi (z : ℂ) : Continuous fun t => weight z t*(f t*g t) := (continuous_weight z).mul (hf.mul hg)
+  calc
+    (S.card:ℝ)*V = ∑ _z ∈ S, V := by simp
+    _ ≤ ∑ z ∈ S, ∫ t in -T..T, weight z t*(f t*g t) := by
+      refine sum_le_sum fun z hz => (hdet z hz).trans ?_
+      exact translated_detector_le (F:=fun t => f t*g t) (him z hz) (hf.mul hg)
+        (fun t => mul_nonneg (hf0 t) (hg0 t))
+    _ = ∫ t in -T..T, ∑ z ∈ S, weight z t*(f t*g t) :=
+      (intervalIntegral.integral_finsetSum (fun z _ => (hfi z).intervalIntegrable ..)).symm
+    _ = _ := by
+      apply intervalIntegral.integral_congr
+      intro t _
+      change ∑ z ∈ S, weight z t*(f t*g t) = w t*f t*g t
+      rw [←sum_mul,mul_assoc]
+
 set_option maxHeartbeats 900000 in
 /-- A large convolution at each ordinate implies a cubic bound on their number.
 The two kernel estimates are stated explicitly so that the argument also accepts
@@ -54,21 +78,8 @@ theorem ingham_integral_large_values {X : ℕ} {S : Finset ℂ} {A B V : ℝ}
   let w (t : ℝ) := ∑ z ∈ S, weight z t
   have hw : Continuous w := continuous_finsetSum _ fun z _ => continuous_weight z
   have hw0 (t : ℝ) : 0 ≤ w t := sum_nonneg (fun z _ => weight_nonneg z t)
-  have hfi (z : ℂ) : Continuous fun t => weight z t*(f t*g t) := (continuous_weight z).mul (hf.mul hg)
-  have hd : (S.card:ℝ)*V ≤ ∫ t in -T..T, w t*f t*g t := by
-    calc
-      (S.card:ℝ)*V = ∑ _z ∈ S, V := by simp
-      _ ≤ ∑ z ∈ S, ∫ t in -T..T, weight z t*(f t*g t) := by
-        refine sum_le_sum fun z hz => (hdet z hz).trans ?_
-        exact translated_detector_le (F:=fun t => f t*g t) (him z hz) (hf.mul hg)
-          (fun t => mul_nonneg (hf0 t) (hg0 t))
-      _ = ∫ t in -T..T, ∑ z ∈ S, weight z t*(f t*g t) :=
-        (intervalIntegral.integral_finsetSum (fun z _ => (hfi z).intervalIntegrable ..)).symm
-      _ = _ := by
-        apply intervalIntegral.integral_congr
-        intro t _
-        change ∑ z ∈ S, weight z t*(f t*g t) = w t*f t*g t
-        rw [←sum_mul,mul_assoc]
+  have hd := ingham_sum_translated_detectors_le him hf hg hf0 hg0 hdet
+  change (S.card:ℝ)*V ≤ ∫ t in -T..T,w t*f t*g t at hd
   have hp := (pow_le_pow_left₀ (mul_nonneg (Nat.cast_nonneg _) hV) hd 4).trans
     (weighted_interval_fourth_second hT hw hf hg hw0)
   have hdom (F : ℝ → ℝ) (hF : Continuous F) (hF0 : ∀ t, 0 ≤ F t) :

@@ -3,6 +3,8 @@ import AnalyticNumberTheory.SieveMethods.LargeSieve
 import AnalyticNumberTheory.SieveMethods.LegendrePrimeCounting
 import AnalyticNumberTheory.SieveMethods.SelbergSieve
 import AnalyticNumberTheory.SieveMethods.PrimeHybridSieve
+import AnalyticNumberTheory.SieveMethods.LinearSieveFunctions
+import AnalyticNumberTheory.SieveMethods.RosserRemainder
 import VersoManual
 
 open Verso.Genre Manual
@@ -64,3 +66,31 @@ $$`\sum_{q\le Q}\ \sum_{\chi\bmod q}^{*}\int_{-T}^{T}
 利用系数只支撑在素数上，可把同一个特征提升到多个辅助模数。对这些模数应用大筛，会在分母得到 $`\log Y`。界与 $`S` 中最大素数无关，也包括模一的特征。
 
 {docstring prime_hybrid_large_sieve}
+
+# 线性筛函数
+%%%
+tag := "linear-sieve-functions"
+file := "linear-sieve"
+%%%
+
+{index}[线性筛函数]一维筛的上、下主项分别涉及函数 $`F(u)` 和 $`f(u)`。筛限与筛除素数上界之比以对数尺度参数 $`u` 表示。归一化取 $`1\le u\le2` 时 $`uF(u)=2e^\gamma`，$`uf(u)=0`，其中 $`\gamma` 是 Euler 常数。对 $`u>2`，二者满足
+
+$$`(uF(u))'=f(u-1),\qquad (uf(u))'=F(u-1).`
+
+右端只用到一个单位之前的值。因此从初始区间出发，每次积分就能把两函数再延拓一个单位。形式化给出在 $`[1,\infty)` 上的连续解，并证明初始值与积分递推唯一决定这个解。
+
+{docstring hasDerivAt_mul_linearSieveFunction}
+
+{docstring linearSieveFunction_unique}
+
+在 $`1\le u\le3` 上，上筛函数保持 $`F(u)=2e^\gamma/u`。下筛函数从 $`u=2` 处的零开始，在 $`2\le u\le4` 上等于 $`2e^\gamma\log(u-1)/u`。这个对数来自积分 $`\int_2^u (v-1)^{-1}\,dv`。
+
+{docstring linearSieveUpper_eq_of_le_three}
+
+{docstring linearSieveLower_eq_of_le_four}
+
+从算术筛权也能读出截断误差的符号。把筛权与乘性密度的乘积按平方自由因子求和，完整的 Möbius 展开给出 Euler 乘积。按素因子递减次序在第一个违反截断条件的前缀处分组，便得到剩余贡献的精确有限和。上筛的密度和等于 Euler 乘积加上这项非负余量，下筛的密度和等于 Euler 乘积减去相应余量。
+
+{docstring rosser_main_term_eq}
+
+{docstring betaSieve_main_terms}

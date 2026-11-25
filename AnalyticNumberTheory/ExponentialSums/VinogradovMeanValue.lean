@@ -403,10 +403,27 @@ def vinogradovSolutionCount (s k N : ℕ) : ℕ :=
     ∀ j : Fin k, ∑ i : Fin s, (xy.1 i : ℕ) ^ ((j : ℕ) + 1) =
       ∑ i : Fin s, (xy.2 i : ℕ) ^ ((j : ℕ) + 1)).card
 
-private def torusChar (k : ℕ) (m : Fin k → ℤ) (α : Fin k → ℝ) : ℂ :=
+/-- Character of the real unit torus at an integral frequency vector. -/
+def torusChar (k : ℕ) (m : Fin k → ℤ) (α : Fin k → ℝ) : ℂ :=
   ∏ j : Fin k, vmvE (α j * (m j : ℝ))
 
-private lemma torusIntegralC_char_sum_eq :
+@[simp] theorem torusChar_zero (k : ℕ) (α : Fin k → ℝ) : torusChar k 0 α = 1 := by
+  simp [torusChar,vmvE_zero]
+
+theorem torusChar_add {k : ℕ} (m n : Fin k → ℤ) (α : Fin k → ℝ) :
+    torusChar k (m+n) α = torusChar k m α * torusChar k n α := by
+  simp [torusChar,mul_add,vmvE_add,prod_mul_distrib]
+
+theorem torusChar_neg {k : ℕ} (m : Fin k → ℤ) (α : Fin k → ℝ) :
+    torusChar k (-m) α = star (torusChar k m α) := by
+  simp [torusChar,star_prod,star_vmvE]
+
+theorem continuous_torusChar {k : ℕ} (m : Fin k → ℤ) : Continuous (torusChar k m) := by
+  unfold torusChar
+  exact continuous_finsetProd _ fun i _ => continuous_vmvE.comp ((continuous_apply i).mul continuous_const)
+
+/-- Orthogonality of a finite linear combination of torus characters. -/
+theorem torusIntegralC_char_sum_eq :
     ∀ (k : ℕ) {ι : Type*} (s : Finset ι) (c : ι → ℂ) (m : ι → Fin k → ℤ),
       torusIntegralC k (fun α => ∑ i ∈ s, c i * torusChar k (m i) α) =
         ∑ i ∈ s, c i * (if ∀ j : Fin k, m i j = 0 then (1 : ℂ) else 0)
@@ -456,7 +473,8 @@ private lemma torusIntegralC_char_sum_eq :
       · have hnot : ¬ ∀ j : Fin (k + 1), m i j = 0 := fun hf => h0 (Fin.forall_fin_succ.mp hf).1
         simp [h0, hsucc, hnot]
 
-private lemma torusIntegral_re_char_sum :
+/-- The real part of a character sum commutes with integration over the torus. -/
+theorem torusIntegral_re_char_sum :
     ∀ (k : ℕ) {ι : Type*} (s : Finset ι) (c : ι → ℂ) (m : ι → Fin k → ℤ),
       torusIntegral k (fun α => (∑ i ∈ s, c i * torusChar k (m i) α).re) =
         (torusIntegralC k (fun α => ∑ i ∈ s, c i * torusChar k (m i) α)).re

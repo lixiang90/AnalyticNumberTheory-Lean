@@ -18,26 +18,27 @@ private lemma logBlock_shape {n : ℕ} (hn : n ≠ 0) :
     2^(Nat.log 2 n) ≤ n ∧ n < 2*2^(Nat.log 2 n) :=
   ⟨Nat.pow_log_le_self 2 hn, by simpa [pow_succ, Nat.mul_comm] using Nat.lt_pow_succ_log_self one_lt_two n⟩
 
-/-- Sum the dyadic bands with Ingham's exponent, uniformly up to the one-line. -/
-theorem ingham_density_of_dyadic_bound {C : ℝ} (hC : 0 < C)
+/-- Sum positive-height bands for any nonnegative density exponent. The number of bands costs one logarithm. -/
+theorem zeroDensity_of_dyadic_power_bound (e : ℝ → ℝ) (k : ℕ)
+    (he : ∀ σ ∈ Set.Icc (1/2:ℝ) 1, 0≤e σ) {C : ℝ} (hC : 0 < C)
     (hband : ∀ {X : ℕ}, 1 ≤ X → ∀ {σ : ℝ}, σ ∈ Set.Icc (1/2:ℝ) 1 → ∀ S : Finset ℂ,
       (∀ z ∈ S, riemannZeta z = 0 ∧ σ ≤ z.re ∧ z.re < 1 ∧ (X:ℝ) ≤ z.im ∧ z.im ≤ 2*X) →
-      (S.card:ℝ) ≤ C*(1+Real.log X)^10*(X:ℝ)^(inghamExponent σ)) :
+      (S.card:ℝ) ≤ C*(1+Real.log X)^k*(X:ℝ)^(e σ)) :
     ∃ D > 0, ∀ σ ∈ Set.Icc (1/2:ℝ) 1, ∀ T : ℝ, 2 ≤ T →
-      (zeroDensityN σ T:ℝ) ≤ D*T^(inghamExponent σ)*(Real.log T)^11 := by
+      (zeroDensityN σ T:ℝ) ≤ D*T^(e σ)*(Real.log T)^(k+1) := by
   let F := (zeroDensityN 0 1 : ℝ)
   let K := F+3*C
   have hF : 0 ≤ F := Nat.cast_nonneg _
   have hK : 0 < K := by dsimp only [K]; linarith
-  refine ⟨K*3^11, by positivity, ?_⟩
+  refine ⟨K*3^(k+1), by positivity, ?_⟩
   intro σ hσ T hT
-  let p := inghamExponent σ
+  let p := e σ
   let L := 1+Real.log T
   have hT0 : 0<T := by linarith
   have hL : 1 ≤ L := by dsimp [L]; linarith [Real.log_nonneg (by linarith : 1≤T)]
-  have hp : 0 ≤ p := by dsimp [p,inghamExponent]; exact div_nonneg (by linarith [hσ.2]) (by linarith [hσ.2])
+  have hp : 0 ≤ p := he σ hσ
   have hpow : 1 ≤ T^p := Real.one_le_rpow (by linarith) hp
-  have hz : (zeroDensityN σ T:ℝ) ≤ K*L^11*T^p := by
+  have hz : (zeroDensityN σ T:ℝ) ≤ K*L^(k+1)*T^p := by
     let W := zeroDensityFinset σ T
     let S := W.filter (fun z => 1 ≤ z.im)
     let V := W.filter (fun z => ¬1 ≤ z.im)
@@ -53,7 +54,7 @@ theorem ingham_density_of_dyadic_bound {C : ℝ} (hC : 0 < C)
       (Nat.lt_succ_of_le (Nat.log_mono_right (Nat.floor_mono (mem_zeroDensityFinset.mp (mem_filter.mp hz).1).2.2.2.2)))
     have hTnat : 1 ≤ ⌊T⌋₊ := (Nat.one_le_floor_iff _).mpr (by linarith)
     have hfT := Nat.floor_le hT0.le
-    have hbnd (i : ℕ) (hi : i ∈ I) : ((S.filter (fun z => idx z=i)).card:ℝ) ≤ C*L^10*T^p := by
+    have hbnd (i : ℕ) (hi : i ∈ I) : ((S.filter (fun z => idx z=i)).card:ℝ) ≤ C*L^k*T^p := by
       let X := 2^i
       have hX : 1 ≤ X := Nat.one_le_pow _ _ (by decide)
       have hXT : (X:ℝ) ≤ T := by
@@ -73,7 +74,7 @@ theorem ingham_density_of_dyadic_bound {C : ℝ} (hC : 0 < C)
         have htop : (⌊z.im⌋₊:ℝ)+1 ≤ 2*X := by exact_mod_cast (show ⌊z.im⌋₊+1 ≤ 2*X by omega)
         exact (Nat.lt_floor_add_one _).le.trans htop)
       apply h.trans
-      change C*(1+Real.log X)^10*(X:ℝ)^p ≤ C*(1+Real.log T)^10*T^p
+      change C*(1+Real.log X)^k*(X:ℝ)^p ≤ C*(1+Real.log T)^k*T^p
       have hlogX := Real.log_nonneg (by exact_mod_cast hX : 1≤(X:ℝ))
       gcongr
     have hcard : (S.card:ℝ) = ∑ i ∈ I, ((S.filter (fun z => idx z=i)).card:ℝ) := by
@@ -87,17 +88,17 @@ theorem ingham_density_of_dyadic_bound {C : ℝ} (hC : 0 < C)
       dsimp [I,L]; simp only [card_range,Nat.cast_add,Nat.cast_one]
       nlinarith only [h, mul_le_mul_of_nonneg_left h₂ (Nat.cast_nonneg (α:=ℝ) (Nat.log 2 ⌊T⌋₊)),
         Real.log_nonneg (by linarith : 1≤T)]
-    have hupp : (S.card:ℝ) ≤ 3*C*L^11*T^p := by
+    have hupp : (S.card:ℝ) ≤ 3*C*L^(k+1)*T^p := by
       rw [hcard]
       apply (sum_le_sum hbnd).trans
       simp only [sum_const,nsmul_eq_mul]
-      exact (mul_le_mul_of_nonneg_right hI (by positivity)).trans_eq (by ring)
+      exact (mul_le_mul_of_nonneg_right hI (by positivity)).trans_eq (by rw [pow_succ]; ring)
     have htotal : (W.card:ℝ) = (S.card:ℝ)+V.card := by
       exact_mod_cast (card_filter_add_card_filter_not (s:=W) (fun z => 1≤z.im)).symm
     rw [zeroDensityN_eq_card]
     change (W.card:ℝ) ≤ _
     rw [htotal]
-    have hf : F ≤ F*L^11*T^p := (le_mul_of_one_le_right hF (one_le_pow₀ hL)).trans
+    have hf : F ≤ F*L^(k+1)*T^p := (le_mul_of_one_le_right hF (one_le_pow₀ hL)).trans
       (le_mul_of_one_le_right (by positivity) hpow)
     dsimp only [K]
     linarith only [hupp,hlow.trans hf]
@@ -106,17 +107,17 @@ theorem ingham_density_of_dyadic_bound {C : ℝ} (hC : 0 < C)
   have hL' : L ≤ 3*Real.log T := by dsimp [L]; linarith
   apply hz.trans
   calc
-    _ ≤ K*(3*Real.log T)^11*T^p := by gcongr
-    _ = _ := by dsimp only [p]; ring
+    _ ≤ K*(3*Real.log T)^(k+1)*T^p := by gcongr
+    _ = _ := by dsimp only [p]; rw [mul_pow]; ring
 
 /-- The conventional count with multiplicities obeys the same power of `T`,
 with one further logarithm from the local multiplicity bound. -/
-theorem ingham_density_with_multiplicity_of_card
+theorem zeroDensity_with_multiplicity_of_power_bound (e : ℝ → ℝ) (k : ℕ)
     (hcount : ∃ D > 0, ∀ σ ∈ Set.Icc (1/2:ℝ) 1, ∀ T : ℝ, 2 ≤ T →
-      (zeroDensityN σ T:ℝ) ≤ D*T^(inghamExponent σ)*(Real.log T)^11) :
+      (zeroDensityN σ T:ℝ) ≤ D*T^(e σ)*(Real.log T)^k) :
     ∃ C > 0, ∀ σ ∈ Set.Icc (1/2:ℝ) 1, ∀ T : ℝ, 2 ≤ T →
       (∑ ρ ∈ zeroDensityFinset σ T, (zeroMultiplicity ρ:ℝ)) ≤
-        C*T^(inghamExponent σ)*(Real.log T)^12 := by
+        C*T^(e σ)*(Real.log T)^(k+1) := by
   obtain ⟨D,hD,hd⟩ := hcount
   obtain ⟨M,hM,hm⟩ := analyticOrderNatAt_xi_le_log
   refine ⟨3*D*M,by positivity,?_⟩
@@ -136,6 +137,26 @@ theorem ingham_density_with_multiplicity_of_card
   apply (sum_le_sum hone).trans
   simp only [sum_const, nsmul_eq_mul, ← zeroDensityN_eq_card]
   have h := hd σ hσ T hT
-  exact (mul_le_mul_of_nonneg_right h (by positivity : 0≤M*(3*Real.log T))).trans_eq (by ring)
+  exact (mul_le_mul_of_nonneg_right h (by positivity : 0≤M*(3*Real.log T))).trans_eq (by rw [pow_succ]; ring)
+
+/-- Sum the dyadic bands with Ingham's exponent, uniformly up to the one-line. -/
+theorem ingham_density_of_dyadic_bound {C : ℝ} (hC : 0 < C)
+    (hband : ∀ {X : ℕ}, 1 ≤ X → ∀ {σ : ℝ}, σ ∈ Set.Icc (1/2:ℝ) 1 → ∀ S : Finset ℂ,
+      (∀ z ∈ S, riemannZeta z = 0 ∧ σ ≤ z.re ∧ z.re < 1 ∧ (X:ℝ) ≤ z.im ∧ z.im ≤ 2*X) →
+      (S.card:ℝ) ≤ C*(1+Real.log X)^10*(X:ℝ)^(inghamExponent σ)) :
+    ∃ D > 0, ∀ σ ∈ Set.Icc (1/2:ℝ) 1, ∀ T : ℝ, 2 ≤ T →
+      (zeroDensityN σ T:ℝ) ≤ D*T^(inghamExponent σ)*(Real.log T)^11 :=
+  zeroDensity_of_dyadic_power_bound inghamExponent 10 (fun σ hσ =>
+    div_nonneg (by linarith [hσ.2]) (by linarith [hσ.2])) hC hband
+
+/-- The conventional count with multiplicities obeys the same power of `T`,
+with one further logarithm from the local multiplicity bound. -/
+theorem ingham_density_with_multiplicity_of_card
+    (hcount : ∃ D > 0, ∀ σ ∈ Set.Icc (1/2:ℝ) 1, ∀ T : ℝ, 2 ≤ T →
+      (zeroDensityN σ T:ℝ) ≤ D*T^(inghamExponent σ)*(Real.log T)^11) :
+    ∃ C > 0, ∀ σ ∈ Set.Icc (1/2:ℝ) 1, ∀ T : ℝ, 2 ≤ T →
+      (∑ ρ ∈ zeroDensityFinset σ T, (zeroMultiplicity ρ:ℝ)) ≤
+        C*T^(inghamExponent σ)*(Real.log T)^12 :=
+  zeroDensity_with_multiplicity_of_power_bound inghamExponent 11 hcount
 
 end AnalyticNumberTheory.PrimeDistribution

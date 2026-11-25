@@ -17,11 +17,11 @@ open AnalyticNumberTheory.DirichletSeries AnalyticNumberTheory.ExponentialSums
 namespace AnalyticNumberTheory.PrimeDistribution.Ingham
 
 /-- Detector coefficients restricted to the dyadic block beginning at `2^i`. -/
-private def blockCoeff (a : ℕ → ℂ) (X U i n : ℕ) : ℂ :=
+def blockCoeff (a : ℕ → ℂ) (X U i n : ℕ) : ℂ :=
   if X < n ∧ n ≤ U ∧ Nat.log 2 n = i then a n else 0
 
 /-- Indices of dyadic blocks which meet the detector support. -/
-private def blocks (X U : ℕ) : Finset ℕ :=
+def blocks (X U : ℕ) : Finset ℕ :=
   (range (Nat.log 2 U+1)).filter fun i => X < 2*(2^i) ∧ 2^i ≤ U
 
 private lemma logBlock_shape {n : ℕ} (hn : n ≠ 0) :
@@ -29,7 +29,7 @@ private lemma logBlock_shape {n : ℕ} (hn : n ≠ 0) :
   ⟨Nat.pow_log_le_self 2 hn, by simpa [pow_succ, Nat.mul_comm] using Nat.lt_pow_succ_log_self one_lt_two n⟩
 
 /-- Partition the detector tail by the integer part of its base-two logarithm. -/
-private lemma tail_by_blocks (a : ℕ → ℂ) (X U : ℕ) (s : ℂ) :
+lemma tail_by_blocks (a : ℕ → ℂ) (X U : ℕ) (s : ℂ) :
     ∑ n ∈ Ioc X U, a n*(n:ℂ)^(-s) =
       ∑ i ∈ blocks X U, dirichletPoly (blockCoeff a X U i) (2*2^i) s := by
   have hmap (n : ℕ) (hn : n ∈ Ioc X U) : Nat.log 2 n ∈ blocks X U := by
@@ -51,7 +51,7 @@ private lemma tail_by_blocks (a : ℕ → ℂ) (X U : ℕ) (s : ℂ) :
   · tauto
 
 /-- The divisor-square mean bounds a block at the left edge of a strip. -/
-private lemma block_energy {a : ℕ → ℂ} (ha : ∀ n, ‖a n‖ ≤ (n.divisors.card:ℝ)) {X U i : ℕ} {σ : ℝ} (hσ : 0 ≤ σ) :
+lemma block_energy {a : ℕ → ℂ} (ha : ∀ n, ‖a n‖ ≤ (n.divisors.card:ℝ)) {X U i : ℕ} {σ : ℝ} (hσ : 0 ≤ σ) :
     dirichletPolyEnergy (blockCoeff a X U i) (2*2^i) σ ≤
       (2*(2^i:ℕ) : ℝ) * (1+Real.log (2*(2^i:ℕ):ℝ))^3 * ((2^i:ℕ):ℝ)^(-2*σ) := by
   let M := 2^i
@@ -72,7 +72,7 @@ private lemma block_energy {a : ℕ → ℂ} (ha : ∀ n, ‖a n‖ ≤ (n.divis
   rw [max_eq_left (by omega)] at h
   exact_mod_cast h
 
-private lemma block_count {X U : ℕ} (hU : 1 ≤ U) :
+lemma block_count {X U : ℕ} (hU : 1 ≤ U) :
     ((blocks X U).card:ℝ) ≤ 2*(1+Real.log U) := by
   have hc : (blocks X U).card ≤ Nat.log 2 U + 1 :=
     (card_le_card (filter_subset ..)).trans_eq (card_range _)

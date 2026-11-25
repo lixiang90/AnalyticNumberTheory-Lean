@@ -1,7 +1,7 @@
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalEstimates
 import AnalyticNumberTheory.PrimeDistribution.ZetaLogFreeDensity
 import AnalyticNumberTheory.PrimeDistribution.HoheiselLittlewood
-import AnalyticNumberTheory.PrimeDistribution.InghamDensity
+import AnalyticNumberTheory.PrimeDistribution.HuxleyDensity
 import AnalyticNumberTheory.PrimeDistribution.ConsecutivePrimeGaps
 import VersoManual
 
@@ -66,6 +66,30 @@ $$`N(\sigma,T)\ll T^{3(1-\sigma)/(2-\sigma)}(\log T)^{11}.`
 如果再假设加强的无零区，则对每个固定的 $`2/3<\theta<1` 都有 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。这个明确的指数范围使用下述声明里的无零区假设。下节给出指数充分接近一时的无条件结论。
 
 {docstring primePi_shortInterval_two_thirds_of_superLogZeroFree}
+
+# Huxley 零密度定理
+%%%
+tag := "huxley-zeta-density"
+file := "huxley"
+%%%
+
+{index}[Huxley 零密度定理]设 $`1/2\le\sigma\le1`、$`T\ge2`。以 $`N^*(\sigma,T)` 计入 $`\sigma\le\Re\rho<1`、$`0<\Im\rho\le T` 的 ζ 零点，每个零点计其重数。Huxley 的经典估计为
+
+$$`N^*(\sigma,T)\ll T^{12(1-\sigma)/5}(\log T)^{28}.`
+
+{docstring huxley_zeroDensity_classical}
+
+高度幂次在 $`\sigma=3/4` 时和{ref "ingham-zeta-density"}[Ingham 的估计]相同，都是 $`3/5`。在 $`3/4<\sigma<1` 时 Huxley 的幂次更小。例如当 $`\sigma=9/10` 时，两者分别为 $`6/25` 与 $`3/11`。
+
+在 $`[T,2T]` 上对 $`\sigma\ge3/4` 取平滑长度 $`Y=T^{6/5}`、Möbius 多项式长度 $`X=\lfloor T^{1/2+6(1-\sigma)/5}\rfloor`。有限多项式由大值估计控制，移到临界线的积分由 ζ 的四阶矩及 Möbius 多项式的大值分布控制。将各段相加后，库中的证明对不同零点给出二十二次对数幂，计入重数给出二十三次。两种形式均可直接引用。
+
+{docstring huxley_zeroDensity_distinct}
+
+{docstring huxley_zeroDensity_with_multiplicity}
+
+若进一步给定加强的无零区，则对每个固定的 $`7/12<\theta<1` 得到素数计数渐近式 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。阈值由 $`1-1/(12/5)=7/12` 给出。
+
+{docstring huxley_primePi_shortInterval_of_superLogZeroFree}
 
 # Hoheisel 定理与幂长短区间
 %%%

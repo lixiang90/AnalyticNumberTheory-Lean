@@ -3,6 +3,7 @@ import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
 import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
 import AnalyticNumberTheory.RiemannZeta.FourthMomentAsymptotic
 import AnalyticNumberTheory.RiemannZeta.HurwitzStripMeanSquare
+import AnalyticNumberTheory.DirichletLFunctions.StripMeanSquare
 import VersoManual
 
 open Verso.Genre Manual
@@ -71,6 +72,16 @@ $$`\lim_{T\to\infty}\frac1T\int_1^T|\zeta(\sigma+it,a)|^2\,dt
 {docstring mean_sq_hurwitzZeta_of_half_lt}
 
 {docstring hurwitzZeta_re_eq_square_diagonal}
+
+对任意固定周期 $`q` 和复系数 $`a(n)`，同一条直线上的均方也有极限。它等于 $`\sum_{n\ge1}|a(n)|^2 n^{-2\sigma}`。对于模 $`q` 的任意 Dirichlet 特征，系数的绝对值在与 $`q` 互素的整数处为一，在其余整数处为零，所以极限只由模数决定，具体为
+
+$$`\zeta(2\sigma)\prod_{p\mid q}(1-p^{-2\sigma}).`
+
+例如对模四的任一特征，主项系数就是 $`(1-2^{-2\sigma})\zeta(2\sigma)`，因为所有偶数项都被删去。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.mean_sq_periodicLFunction_of_half_lt}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.mean_sq_LFunction_strip_euler_factors}
 
 # ζ 函数的四阶矩
 %%%

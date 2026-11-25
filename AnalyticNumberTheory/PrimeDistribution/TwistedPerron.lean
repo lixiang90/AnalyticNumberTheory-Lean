@@ -252,11 +252,24 @@ private lemma rpow_sqrt_log_mul_exp_neg_le {m : ℕ} {γ u : ℝ} (hγ : 0 < γ)
     _ = ((m.factorial : ℝ) / γ ^ m) * Real.exp (-γ * y) := by
         rw [← Real.exp_add]; congr 2; ring
 
+/-- The explicit coefficient from the four truncated Perron errors. -/
+def perronRectangleConstant (d D : ℝ) : ℝ :=
+  let M₁ : ℝ := (Real.sqrt 2 / Real.pi) * (D * 8) * ((Nat.factorial 3 : ℝ) / (d/16) ^ 3)
+  let M₂ : ℝ := ((2 : ℝ) / Real.pi) * (D * 4) * Real.exp 1 * ((Nat.factorial 2 : ℝ) / (d/16) ^ 2)
+  let M₃ : ℝ := (4 / (Real.pi * Real.log 2)) * Real.exp 1 * ((Nat.factorial 4 : ℝ) / (d/16) ^ 4)
+  let M₄ : ℝ := (64 / Real.pi) * 4 * ((Nat.factorial 4 : ℝ) / (d/16) ^ 4)
+  M₁+M₂+M₃+M₄+1
+
+theorem perronRectangleConstant_pos {d D : ℝ} (hd : 0<d) (hD : 0<D) :
+    0<perronRectangleConstant d D := by
+  unfold perronRectangleConstant
+  positivity
+
 /-- With contour height `exp (sqrt (log x))`, the shifted contour and the two
 sharp Perron errors together admit an exponential saving in `sqrt (log x)`. -/
-theorem perron_rectangle_error_le_exp {d C_vert_k : ℝ} (hcZ_pos : 0 < d)
+theorem perron_rectangle_error_le_explicit {d C_vert_k : ℝ} (hcZ_pos : 0 < d)
     (hcZ_le : d ≤ 1 / 8) (hCv_pos : 0 < C_vert_k) :
-    ∃ C > 0, ∀ x' : ℝ, Real.exp 16 ≤ x' →
+    ∀ x' : ℝ, Real.exp 16 ≤ x' →
       let sL := Real.sqrt (Real.log x')
       let T := Real.exp sL
       let c_line := 1 + 1 / Real.log x'
@@ -267,7 +280,7 @@ theorem perron_rectangle_error_le_exp {d C_vert_k : ℝ} (hcZ_pos : 0 < d)
             ((c_line - σ₀) / (Real.pi * T)) * B_bound * x' ^ c_line) +
           ((4 / (Real.pi * Real.log 2)) * (x' ^ c_line / (T * (c_line - 1) ^ 2)) +
             (64 / Real.pi) * (x' * (Real.log (2 * x')) ^ 2 / T)) ≤
-        C * x' * Real.exp (-(d / 16) * sL) := by
+        perronRectangleConstant d C_vert_k * x' * Real.exp (-(d / 16) * sL) := by
   let c_pnt : ℝ := d / 16
   have hc_pnt_pos : 0 < c_pnt := by positivity
   have hc_pnt_le : c_pnt ≤ 1 / 128 := by dsimp [c_pnt]; linarith
@@ -281,7 +294,7 @@ theorem perron_rectangle_error_le_exp {d C_vert_k : ℝ} (hcZ_pos : 0 < d)
   let M₂ : ℝ := ((2 : ℝ) / Real.pi) * (C_vert_k * 4) * Real.exp 1 * ((Nat.factorial 2 : ℝ) / c_pnt ^ 2)
   let M₃ : ℝ := (4 / (Real.pi * Real.log 2)) * Real.exp 1 * ((Nat.factorial 4 : ℝ) / c_pnt ^ 4)
   let M₄ : ℝ := (64 / Real.pi) * 4 * ((Nat.factorial 4 : ℝ) / c_pnt ^ 4)
-  refine ⟨M₁ + M₂ + M₃ + M₄ + 1, by positivity, fun x' hN_ge => ?_⟩
+  intro x' hN_ge
   have hx'_ge4 : 4 ≤ x' := hX₀_ge.trans hN_ge
   have hx'_pos : 0 < x' := by linarith
   have hlog_ge16 : 16 ≤ Real.log x' := by
@@ -474,5 +487,24 @@ theorem perron_rectangle_error_le_exp {d C_vert_k : ℝ} (hcZ_pos : 0 < d)
     _ ≤ (M₁ + M₂ + M₃ + M₄ + 1) * (x' * Real.exp (-c_pnt * sL)) :=
         mul_le_mul_of_nonneg_right (le_add_of_nonneg_right zero_le_one) (by positivity)
     _ = (M₁ + M₂ + M₃ + M₄ + 1) * x' * Real.exp (-c_pnt * sL) := by ring
+
+/-- With contour height `exp (sqrt (log x))`, the shifted contour and the two
+sharp Perron errors together admit an exponential saving in `sqrt (log x)`. -/
+theorem perron_rectangle_error_le_exp {d C_vert_k : ℝ} (hcZ_pos : 0 < d)
+    (hcZ_le : d ≤ 1 / 8) (hCv_pos : 0 < C_vert_k) :
+    ∃ C > 0, ∀ x' : ℝ, Real.exp 16 ≤ x' →
+      let sL := Real.sqrt (Real.log x')
+      let T := Real.exp sL
+      let c_line := 1 + 1 / Real.log x'
+      let L_T := Real.log (T + 3)
+      let σ₀ := 1 - d / L_T
+      let B_bound := C_vert_k * L_T ^ 2
+      ((Real.sqrt 2 / Real.pi) * B_bound * x' ^ σ₀ * Real.log (1 + T / σ₀) +
+            ((c_line - σ₀) / (Real.pi * T)) * B_bound * x' ^ c_line) +
+          ((4 / (Real.pi * Real.log 2)) * (x' ^ c_line / (T * (c_line - 1) ^ 2)) +
+            (64 / Real.pi) * (x' * (Real.log (2 * x')) ^ 2 / T)) ≤
+        C * x' * Real.exp (-(d / 16) * sL) :=
+  ⟨_,perronRectangleConstant_pos hcZ_pos hCv_pos,
+    perron_rectangle_error_le_explicit hcZ_pos hcZ_le hCv_pos⟩
 
 end AnalyticNumberTheory.PrimeDistribution

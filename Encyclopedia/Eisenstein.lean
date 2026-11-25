@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.ModularAndPartitions.EisensteinZeroWeight
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinHankel
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinTiltedContour
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinConvergence
@@ -126,3 +127,19 @@ $$`\omega=1-i\frac{1+|\Re w|}{\Im w}.`
 {docstring eisensteinPeriod_eq_hankel}
 
 {docstring eisensteinPeriod_eq_tiltedHankel}
+
+# 权零处的围道值与 Dedekind 和
+%%%
+tag := "eisenstein-zero-weight"
+file := "zero-weight"
+%%%
+
+记 $`j=cz+d`，且 $`c>0`。在权 $`s=0` 处，将同一半径下的各个旋转 Hankel 围道积分相加，得到
+
+$$`2\pi i\left(\frac{j+j^{-1}}{12c}-s(d,c)-\frac14\right).`
+
+分式中 $`s(d,c)` 表示 Dedekind 和。这里锥求和包含正实轴上的格点。周期差在零点消失，取导数给出锥延拓的可去极限。
+
+{docstring eisensteinConeContinuation_limit_zero_dedekind}
+
+{docstring eisensteinHankel_zero}

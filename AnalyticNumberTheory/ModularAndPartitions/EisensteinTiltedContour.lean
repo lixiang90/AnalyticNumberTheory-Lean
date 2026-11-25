@@ -47,11 +47,13 @@ private theorem offset_tilt_re {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ) {ω : �
 /-- An explicit Hankel formula for every upper-half-plane point and
 every complex weight. The common ray is a function of the modular
 denominator alone. -/
-theorem eisensteinPeriod_eq_tiltedHankel (γ : SL(2,ℤ)) (z : ℍ) (hcγ : 0<γ 1 0) :
+theorem eisensteinPeriod_eq_tiltedHankel_with_radius (γ : SL(2,ℤ)) (z : ℍ) (hcγ : 0<γ 1 0) :
     let c := (γ 1 0).toNat
     let b : ℂ := (c:ℂ)*z+γ 1 1
     let ω := eisensteinRay b
-    ∃ X : ℝ, ∀ s : ℂ, eisensteinPeriod γ z s=
+    ∃ X : ℝ, (∀ j : Fin c, TiltedBarnesRadius (eisensteinBarnesOffset c (γ 1 1) z j) b ω X) ∧
+      (∀ j : Fin c, Differentiable ℂ (tiltedBarnesHankel (eisensteinBarnesOffset c (γ 1 1) z j) b ω X)) ∧
+      ∀ s : ℂ, eisensteinPeriod γ z s=
       -Complex.exp (-π*I*s)*(Complex.Gamma s)⁻¹*ω^s*
         ∑ j : Fin c,tiltedBarnesHankel (eisensteinBarnesOffset c (γ 1 1) z j) b ω X s := by
   dsimp only
@@ -99,6 +101,18 @@ theorem eisensteinPeriod_eq_tiltedHankel (γ : SL(2,ℤ)) (z : ℍ) (hcγ : 0<γ
   have f₂ : AnalyticOnNhd ℂ F univ := fun s _ => hF.analyticAt s
   have heq : eisensteinPeriod γ z=F := f₁.eq_of_eventuallyEq f₂ (z₀:=(3:ℂ))
     ((Complex.continuous_re.continuousAt.eventually_const_lt (by norm_num : 2<(3:ℂ).re)).mono fun s hs => H s hs)
-  exact ⟨X,congrFun heq⟩
+  exact ⟨X,hA,fun j => differentiable_tiltedBarnesHankel (ha j) hb (by rw [hw]; norm_num) (hA j),congrFun heq⟩
+
+
+/-- The modular transformation on a common Hankel contour. -/
+theorem eisensteinPeriod_eq_tiltedHankel (γ : SL(2,ℤ)) (z : ℍ) (hcγ : 0<γ 1 0) :
+    let c := (γ 1 0).toNat
+    let b : ℂ := (c:ℂ)*z+γ 1 1
+    let ω := eisensteinRay b
+    ∃ X : ℝ, ∀ s : ℂ, eisensteinPeriod γ z s=
+      -Complex.exp (-π*I*s)*(Complex.Gamma s)⁻¹*ω^s*
+        ∑ j : Fin c,tiltedBarnesHankel (eisensteinBarnesOffset c (γ 1 1) z j) b ω X s := by
+  obtain ⟨X,_,_,H⟩ := eisensteinPeriod_eq_tiltedHankel_with_radius γ z hcγ
+  exact ⟨X,H⟩
 
 end AnalyticNumberTheory.ModularAndPartitions

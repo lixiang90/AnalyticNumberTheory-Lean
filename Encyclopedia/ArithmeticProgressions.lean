@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.PageProgressions
 import AnalyticNumberTheory.PrimeDistribution.SiegelWalfisz
 import VersoManual
 
@@ -26,3 +27,19 @@ $$`\left|\psi(x;q,a)-\frac{x}{\varphi(q)}\right|\le Cx\exp(-c\sqrt{\log x}).`
 {docstring perron_twist_halfInteger_error_le}
 
 这一模数范围足以处理{ref "goldbach"}[三元 Goldbach 问题]的主弧：主弧分母的截点可以选为对数的固定次幂。
+
+# Page 定理与例外导子
+%%%
+tag := "page-prime-progressions"
+file := "page-exceptional-conductor"
+%%%
+
+固定模数上限 $`Q\ge2`。Page 定理允许在所有导子不超过 $`Q` 的原特征中标出至多一个例外实特征。对其余非主特征，包括由这些原特征诱导的特征，同一个常数给出随 $`Q` 和虚部高度变化的无零区域。
+
+{docstring page_zeroFree_region_primitiveCharacter}
+
+若例外特征的导子为 $`d`，所有满足 $`q\le Q` 且 $`d\nmid q` 的模数都可使用同一组部分和估计。若无例外，定理取 $`d=0`，从而覆盖所有正模数。对简化剩余类用特征正交关系求和，便得到相应的 $`\psi(k;q,r)` 估计。式中的 $`Y` 控制无零区域适用的尺度，允许 $`1\le k\le N` 共用一次选择。
+
+{docstring page_psiChar_partial}
+
+{docstring page_psiAP}

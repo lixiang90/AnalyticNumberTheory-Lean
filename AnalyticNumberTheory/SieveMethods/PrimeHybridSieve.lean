@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.FrequencyWindows
 import AnalyticNumberTheory.SieveMethods.PrimeCharacterSieve
 import AnalyticNumberTheory.SieveMethods.DirichletPolynomials
 
@@ -104,26 +105,8 @@ private theorem filter_energy_pointwise {S : Finset ℕ} {Q Z : ℕ} (hQ : 1≤Q
 
 private theorem window_integral (S : Finset ℕ) (T : ℝ) (b : ℕ → ℝ) :
     Integrable (fun u => ∑ n ∈ logWindow S T u,b n) ∧
-      (∫ u : ℝ, ∑ n ∈ logWindow S T u,b n)=∑ n ∈ S,b n := by
-  let I := fun n : ℕ => Set.Icc (T*Real.log n-1/2) (T*Real.log n+1/2)
-  have hf (n : ℕ) : Integrable ( (I n).indicator (fun _ : ℝ => b n)) :=
-    (integrable_indicator_iff measurableSet_Icc).mpr (integrableOn_const (hs:=measure_Icc_lt_top.ne))
-  have he : (fun u => ∑ n ∈ logWindow S T u,b n) =
-      fun u : ℝ => ∑ n ∈ S,(I n).indicator (fun _ => b n) u := by
-    ext u
-    rw [logWindow,sum_filter]
-    apply sum_congr rfl; intro n hn
-    rw [Set.indicator_apply]
-    congr 1
-    apply propext
-    change |u-T*Real.log n|≤1/2 ↔ _ ≤ _ ∧ _ ≤ _
-    rw [abs_le]; constructor <;> intro hh <;> constructor <;> linarith [hh.1,hh.2]
-  rw [he]
-  refine ⟨integrable_finsetSum S (fun n _ => hf n),?_⟩
-  rw [integral_finsetSum S (fun n _ => hf n)]
-  apply sum_congr rfl; intro n hn
-  rw [integral_indicator measurableSet_Icc, setIntegral_const,Real.volume_real_Icc,smul_eq_mul,max_eq_left (by linarith)]
-  ring
+      (∫ u : ℝ, ∑ n ∈ logWindow S T u,b n)=∑ n ∈ S,b n :=
+  frequencyWindow_integral S (fun n => T*Real.log n) b
 
 /-- Prime-supported hybrid large sieve with an explicit choice of the
 amplifier cutoff Z. Both the primitive principal character of level one

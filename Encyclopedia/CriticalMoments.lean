@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.CriticalSecondMomentExpansion
 import AnalyticNumberTheory.RiemannZeta.ReflectedSecondMoment
 import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
@@ -144,3 +145,19 @@ $$`\int_1^T |\zeta(1/2+it)|^4\,dt\le C_\varepsilon T^{1+\varepsilon}.`
 {docstring zeta_sq_sub_fourthMomentMainTerms_mean_sq}
 
 {docstring fourthMoment_riemannZeta_log_isBigO}
+
+# 临界线二次矩的第二主项
+%%%
+tag := "zeta-critical-second-term"
+file := "critical-second-term"
+%%%
+
+令 $`I(T)=\int_1^T|\zeta(1/2+it)|^2\,dt`。Riemann–Siegel 实余弦和的对角项给出调和数；其中的欧拉常数决定线性项的系数。对所有 $`T\ge 8\pi`，有
+
+$$`I(T)=T\log\frac{T}{2\pi}+(2\gamma-1)T+O\!\left(T^{3/4}\sqrt{\log(T+2)}\right).`
+
+此处误差为 $`o(T)`，因此能把第二主项从误差中分离出来。不同频率之间的余弦积分由振荡估计控制。
+
+{docstring riemannZeta_critical_second_moment_expansion}
+
+{docstring riemannZeta_critical_second_moment_remainder}

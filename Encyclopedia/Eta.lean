@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.ModularAndPartitions.DedekindLogTransformation
 import AnalyticNumberTheory.ModularAndPartitions.DedekindCongruences
 import AnalyticNumberTheory.ModularAndPartitions.DedekindEta
 import VersoManual
@@ -37,3 +38,21 @@ $$`s(h,k)=0\quad\Longleftrightarrow\quad h^2\equiv-1\pmod{k}.`
 {docstring dedekindSum_numerator_modEq}
 
 {docstring dedekindSum_eq_zero_iff}
+
+# 规范对数的模变换
+%%%
+tag := "dedekind-eta-logarithm"
+file := "canonical-logarithm"
+%%%
+
+用无穷远处的 Fourier 展开固定全纯分支 $`F(z)=\log\eta(z)`，使 $`F(z)-\pi iz/12` 在虚部趋于正无穷时趋于零。设行列式为一的整数矩阵的两行为 $`(a,b)`、$`(c,d)`。当 $`c>0` 时，
+
+$$`F(\gamma z)-F(z)=\tfrac12\log[-i(cz+d)]+\pi i\left(\frac{a+d}{12c}-s(d,c)\right).`
+
+这里方括号内的复数落在右半平面，可以取主值对数。对于 $`c<0` 或 $`c=0`，下面两条定理分别给出相应的分支和整数平移项。
+
+{docstring dedekindLogEta_SL2Z_of_pos}
+
+{docstring dedekindLogEta_SL2Z_of_neg}
+
+{docstring dedekindLogEta_SL2Z_of_zero}

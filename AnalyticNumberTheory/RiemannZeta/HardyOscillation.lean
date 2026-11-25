@@ -79,4 +79,36 @@ theorem norm_integral_hardyPhase_sub_log_le_const {n : ℕ} {T : ℝ} (hT : 0 < 
   apply h.trans_eq
   ring
 
+/-- Above the entry height of mode j, the phase of an earlier mode n
+has slope at least log j − log n throughout the interval. -/
+theorem abs_integral_hardyPhase_from_later_mode {n j : ℕ} (hn : 0<n) (hnj : n<j) {a b : ℝ}
+    (ha : 2*Real.pi*(j:ℝ)^2≤a) (hab : a≤b) :
+    |∫t in a..b,Real.cos (hardyPhase t-t*Real.log n)|≤4/(Real.log j-Real.log n) := by
+  have hj : 0<(j:ℝ) := Nat.cast_pos.mpr (by omega)
+  have hπ : 0<2*Real.pi := by positivity
+  have hA : 0<a := (show 0<2*Real.pi*(j:ℝ)^2 by positivity).trans_le ha
+  have hgap : 0<Real.log j-Real.log n := sub_pos.mpr (Real.log_lt_log (Nat.cast_pos.mpr hn) (by exact_mod_cast hnj))
+  let F := fun t : ℝ => hardyPhase t-t*Real.log n
+  have hi : IntervalIntegrable (fun t : ℝ => Complex.exp ((F t:ℂ)*I)) volume a b := by
+    apply ContinuousOn.intervalIntegrable
+    intro t ht
+    rw [Set.uIcc_of_le hab] at ht
+    have hc := (phase_hasDerivAt n (hA.trans_le ht.1)).continuousAt
+    apply ContinuousAt.continuousWithinAt
+    exact Complex.continuous_exp.continuousAt.comp ((Complex.continuous_ofReal.continuousAt.comp hc).mul continuousAt_const)
+  have hh := intervalIntegral.intervalIntegral_re hi
+  change (∫t in a..b,(Complex.exp ((F t:ℂ)*I)).re)=(∫t in a..b,Complex.exp ((F t:ℂ)*I)).re at hh
+  simp only [Complex.exp_ofReal_mul_I_re] at hh
+  change |∫t in a..b,Real.cos (F t)|≤_
+  rw [hh]
+  apply (Complex.abs_re_le_norm _).trans
+  apply vanDerCorput_integral_first_deriv (F':=phaseSlope n) (F'':=fun t : ℝ => 1/(2*t)) hab hgap
+    (fun t ht => phase_hasDerivAt n (hA.trans_le ht.1)) (fun t ht => phaseSlope_hasDerivAt n (hA.trans_le ht.1))
+    (continuousOn_const.div (continuousOn_const.mul continuousOn_id) (fun t ht => mul_ne_zero (by norm_num : (2:ℝ)≠0) (hA.trans_le ht.1).ne'))
+    (Or.inl (fun t ht => by positivity [hA.trans_le ht.1]))
+  intro t ht
+  have hl := Real.log_le_log (by positivity : 0<2*Real.pi*(j:ℝ)^2) (ha.trans ht.1)
+  rw [Real.log_mul hπ.ne' (by positivity),Real.log_pow] at hl
+  exact le_trans (by dsimp [phaseSlope];push_cast at hl;linarith) (le_abs_self _)
+
 end AnalyticNumberTheory.RiemannZeta

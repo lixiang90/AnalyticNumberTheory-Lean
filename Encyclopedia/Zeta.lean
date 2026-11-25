@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCoefficientRegularity
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelElementaryPhase
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelFirstCorrection
 import AnalyticNumberTheory.RiemannZeta.HurwitzFirstCorrection
@@ -116,6 +117,12 @@ $$`C(c)=\frac{\cos\bigl(\pi(c^2/2-c-1/8)\bigr)}{\cos(\pi c)}.`
 {docstring riemannSiegelCorrection_three_halves}
 
 {docstring mordellIntegral_eq_riemannSiegelCorrection}
+
+在余弦商分母为零的点消去公共零因子后，首修正系数在整个实轴上实解析。特别地，它的一阶导数在闭区间 $`[0,2]` 上有一致界。
+
+{docstring analyticAt_riemannSiegelCorrection}
+
+{docstring riemannSiegelCorrection_C1_bound}
 
 # Hurwitz ζ 函数的首修正公式
 %%%

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.PageMajorArcs
 import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPrimeTripleAsymptotic
 import AnalyticNumberTheory.AdditiveNumberTheory.VinogradovThreePrimes
 import VersoManual
@@ -64,3 +65,13 @@ $$`T(N)=\frac{\mathfrak S_3(N)N^2}{2(\log N)^3}
 {docstring goldbachTernaryOddCount_asymptotic}
 
 {docstring goldbachTernaryCount_asymptotic}
+
+# 剔除例外导子的主弧估计
+%%%
+tag := "page-goldbach-major-arcs"
+file := "page-major-arcs"
+%%%
+
+固定主弧分母上限 $`K`，从{ref "page-prime-progressions"}[Page 定理]选取一个可能例外的导子。对所有其余允许的分母，同时把 von Mangoldt 指数和近似为 $`\mu(q)/\varphi(q)` 乘上线性相位和。误差明确保留弧宽和分母，这使不同分母的贡献可以分别求和。
+
+{docstring page_primeExpSum_majorArc}

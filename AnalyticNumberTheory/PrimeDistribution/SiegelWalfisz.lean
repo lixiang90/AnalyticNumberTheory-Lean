@@ -18,19 +18,19 @@ namespace AnalyticNumberTheory.PrimeDistribution
 /-- On the rectangle of height `exp (sqrt (log x))`, a logarithmic bound for
 the logarithmic derivative gives a uniform exponentially decreasing relative
 error for a nonprincipal character at half-integer cutoffs. -/
-theorem norm_psiChar_halfInteger_le_of_logDeriv_rectangle {d D : ℝ} (hd : 0 < d) (hD : 0 < D) :
-    ∃ C > 0, ∃ γ > 0, ∀ (N q : ℕ) [NeZero q] (χ : DirichletCharacter ℂ q), χ ≠ 1 →
+theorem norm_psiChar_halfInteger_le_explicit {d D : ℝ} (hd : 0 < d) (hD : 0 < D) :
+    ∀ (N q : ℕ) [NeZero q] (χ : DirichletCharacter ℂ q), χ ≠ 1 →
       let x : ℝ := N + 1 / 2
       let y := Real.sqrt (Real.log x)
       Real.exp 16 ≤ x →
       (∀ s : ℂ, 1 - d / y ≤ s.re → s.re ≤ 2 → |s.im| ≤ Real.exp y →
         DirichletCharacter.LFunction χ s ≠ 0 ∧
           ‖logDeriv (DirichletCharacter.LFunction χ) s‖ ≤ D * Real.log x) →
-      ‖psiChar x χ‖ ≤ C * x * Real.exp (-γ * y) := by
+      ‖psiChar x χ‖ ≤ perronRectangleConstant (min d (1/8)) D * x * Real.exp (-(min d (1/8)/16) * y) := by
   let b := min d (1 / 8)
   have hb : 0 < b := lt_min hd (by norm_num)
-  obtain ⟨C, hC, herr⟩ := perron_rectangle_error_le_exp hb (min_le_right ..) hD
-  refine ⟨C, hC, b / 16, by positivity, fun N q _ χ hχ => ?_⟩
+  have herr := perron_rectangle_error_le_explicit hb (min_le_right ..) hD
+  intro N q _ χ hχ
   intro x y hx hreg
   let T := Real.exp y
   let L := Real.log (T + 3)
@@ -80,6 +80,21 @@ theorem norm_psiChar_halfInteger_le_of_logDeriv_rectangle {d D : ℝ} (hd : 0 < 
     (fun u hu => hedge u T hu.1 hu.2 (by rw [abs_of_nonneg (by linarith)]))
     (fun u hu => hedge u (-T) hu.1 hu.2 (by rw [abs_neg, abs_of_nonneg (by linarith)]))
   exact h.trans (herr x hx)
+
+/-- On the rectangle of height `exp (sqrt (log x))`, a logarithmic bound for
+the logarithmic derivative gives a uniform exponentially decreasing relative
+error for a nonprincipal character at half-integer cutoffs. -/
+theorem norm_psiChar_halfInteger_le_of_logDeriv_rectangle {d D : ℝ} (hd : 0 < d) (hD : 0 < D) :
+    ∃ C > 0, ∃ γ > 0, ∀ (N q : ℕ) [NeZero q] (χ : DirichletCharacter ℂ q), χ ≠ 1 →
+      let x : ℝ := N + 1 / 2
+      let y := Real.sqrt (Real.log x)
+      Real.exp 16 ≤ x →
+      (∀ s : ℂ, 1 - d / y ≤ s.re → s.re ≤ 2 → |s.im| ≤ Real.exp y →
+        DirichletCharacter.LFunction χ s ≠ 0 ∧
+          ‖logDeriv (DirichletCharacter.LFunction χ) s‖ ≤ D * Real.log x) →
+      ‖psiChar x χ‖ ≤ C * x * Real.exp (-γ * y) :=
+  ⟨_,perronRectangleConstant_pos (lt_min hd (by norm_num)) hD,_,
+    by positivity,norm_psiChar_halfInteger_le_explicit hd hD⟩
 
 /-- Eventual, uniform bounds at half integers suffice for the full real-variable
 character estimate. Rounding only affects the allowed logarithmic power

@@ -1255,26 +1255,18 @@ private theorem tentKernel_eq_conv_boxHalfDP (x : ℝ) :
     tentKernel x = ∫ u : ℝ, boxHalfDP u * boxHalfDP (u - x) :=
   tentKernel_eq_conv x
 
-private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 ≤ n)
+private theorem tent_integral_identity_frequencies (S : Finset ℕ) (ξ : ℕ → ℝ)
     (c : ℕ → ℂ) {T : ℝ} (hT : 0 < T) :
     ∫ τ : ℝ, fejerSincSq (τ / (2 * Real.pi * T)) *
-        ‖∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))‖ ^ 2 =
+        ‖∑ n ∈ S, c n * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))‖ ^ 2 =
       (2 * Real.pi * T) *
-        ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 := by
-  let F : ℝ → ℂ := fun τ => ∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))
-  have hcpow : ∀ (n : ℕ) (τ : ℝ), 1 ≤ n →
-      (n : ℂ) ^ (-(Complex.I * (τ : ℂ))) =
-        Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ))) := by
-    intro n τ hn
-    have hpos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hn
-    have hne : (n : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hpos.ne'
-    rw [Complex.cpow_def_of_ne_zero hne, ← Complex.ofReal_natCast, ← Complex.ofReal_log hpos.le]
-    congr 1; ring
-  have hstar_cpow : ∀ (n : ℕ) (τ : ℝ), 1 ≤ n →
-      (starRingEnd ℂ) ((n : ℂ) ^ (-(Complex.I * (τ : ℂ)))) =
-        Complex.exp (Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ)) := by
-    intro n τ hn
-    rw [hcpow n τ hn, ← Complex.exp_conj]
+        ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 := by
+  let F : ℝ → ℂ := fun τ => ∑ n ∈ S, c n * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))
+  have hstar_phase : ∀ (n : ℕ) (τ : ℝ),
+      (starRingEnd ℂ) (Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))) =
+        Complex.exp (Complex.I * (τ : ℂ) * (ξ n : ℂ)) := by
+    intro n τ
+    rw [← Complex.exp_conj]
     congr 1
     simp only [map_neg, map_mul, Complex.conj_I, Complex.conj_ofReal]
     ring
@@ -1282,33 +1274,33 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
       ((‖F τ‖ ^ 2 : ℝ) : ℂ) =
         ∑ m ∈ S, ∑ n ∈ S,
           (c m * (starRingEnd ℂ) (c n)) *
-            Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ)) := by
+            Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ)) := by
     intro τ
     dsimp [F]
     have hC :
-        ((‖∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))‖ ^ 2 : ℝ) : ℂ) =
-          (∑ m ∈ S, c m * (m : ℂ) ^ (-(Complex.I * (τ : ℂ)))) *
-            (starRingEnd ℂ) (∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))) := by
+        ((‖∑ n ∈ S, c n * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))‖ ^ 2 : ℝ) : ℂ) =
+          (∑ m ∈ S, c m * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ m : ℂ)))) *
+            (starRingEnd ℂ) (∑ n ∈ S, c n * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))) := by
       rw [← Complex.normSq_eq_norm_sq, ← Complex.mul_conj]
     rw [hC, map_sum, Finset.sum_mul]
     refine Finset.sum_congr rfl fun m hm => ?_
     rw [Finset.mul_sum]
     refine Finset.sum_congr rfl fun n hn => ?_
-    rw [map_mul, hcpow m τ (hS m hm), hstar_cpow n τ (hS n hn)]
+    rw [map_mul, hstar_phase n τ]
     have hexp :
-        Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (m : ℝ) : ℂ))) *
-            Complex.exp (Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ)) =
-          Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ)) := by
+        Complex.exp (-(Complex.I * (τ : ℂ) * (ξ m : ℂ))) *
+            Complex.exp (Complex.I * (τ : ℂ) * (ξ n : ℂ)) =
+          Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ)) := by
       rw [← Complex.exp_add]
       congr 1; push_cast; ring
     calc
-      c m * Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (m : ℝ) : ℂ))) *
-          ((starRingEnd ℂ) (c n) * Complex.exp (Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ)))
+      c m * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ m : ℂ))) *
+          ((starRingEnd ℂ) (c n) * Complex.exp (Complex.I * (τ : ℂ) * (ξ n : ℂ)))
           = (c m * (starRingEnd ℂ) (c n)) *
-              (Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (m : ℝ) : ℂ))) *
-                Complex.exp (Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ))) := by ring
+              (Complex.exp (-(Complex.I * (τ : ℂ) * (ξ m : ℂ))) *
+                Complex.exp (Complex.I * (τ : ℂ) * (ξ n : ℂ))) := by ring
       _ = (c m * (starRingEnd ℂ) (c n)) *
-            Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ)) := by
+            Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ)) := by
           rw [hexp]
   have hLHS_int :
       Integrable (fun τ : ℝ => fejerSincSq (τ / (2 * Real.pi * T)) * ‖F τ‖ ^ 2) := by
@@ -1318,9 +1310,9 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
       have h1 : ‖F τ‖ ≤ ∑ n ∈ S, ‖c n‖ := by
         dsimp [F]
         refine (norm_sum_le S _).trans (Finset.sum_le_sum fun n hn => ?_)
-        rw [norm_mul, hcpow n τ (hS n hn)]
-        have harg : -(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ)) =
-            ((-(τ * Real.log (n : ℝ)) : ℝ) : ℂ) * Complex.I := by push_cast; ring
+        rw [norm_mul]
+        have harg : -(Complex.I * (τ : ℂ) * (ξ n : ℂ)) =
+            ((-(τ * ξ n) : ℝ) : ℂ) * Complex.I := by push_cast; ring
         rw [harg, Complex.norm_exp_ofReal_mul_I, mul_one]
       exact pow_le_pow_left₀ (norm_nonneg _) h1 2
     have hdom : Integrable (fun τ : ℝ => fejerSincSq (τ / (2 * Real.pi * T)) * C₀) :=
@@ -1328,10 +1320,6 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
     have hcontF : Continuous F := by
       dsimp [F]
       refine continuous_finset_sum_dp S _ fun n hn => continuous_const.mul ?_
-      have hfn : (fun τ : ℝ => (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))) =
-          fun τ : ℝ => Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ))) :=
-        funext fun τ => hcpow n τ (hS n hn)
-      rw [hfn]
       exact Complex.continuous_exp.comp
         (((continuous_const.mul Complex.continuous_ofReal).mul continuous_const).neg)
     have hmeas : AEStronglyMeasurable
@@ -1344,19 +1332,19 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
   have hRHS_pair_int : ∀ m n : ℕ,
       Integrable (fun u : ℝ =>
         (c m * (starRingEnd ℂ) (c n)) *
-          ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ)) := by
+          ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ)) := by
     intro m n
     exact (Complex.ofRealCLM.integrable_comp (integrable_boxHalfDP_prod _ _)).const_mul _
   have hRHS_box_eq : ∀ u : ℝ,
-      ((‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) =
+      ((‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) =
         ∑ m ∈ S, ∑ n ∈ S,
           (c m * (starRingEnd ℂ) (c n)) *
-            ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ) := by
+            ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ) := by
     intro u
     rw [← Complex.normSq_eq_norm_sq, ← Complex.mul_conj]
     have hfil :
-        (∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n) =
-          ∑ n ∈ S, ((boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ) * c n := by
+        (∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n) =
+          ∑ n ∈ S, ((boxHalfDP (u - T * ξ n) : ℝ) : ℂ) * c n := by
       rw [Finset.sum_filter]
       refine Finset.sum_congr rfl fun n _ => ?_
       dsimp [boxHalfDP]
@@ -1369,34 +1357,34 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
     ring
   have hRHS_int :
       Integrable (fun u : ℝ =>
-        ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2) := by
+        ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2) := by
     have hsum_int :
         Integrable (fun u : ℝ => ∑ m ∈ S, ∑ n ∈ S,
           (c m * (starRingEnd ℂ) (c n)) *
-            ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ)) :=
+            ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ)) :=
       integrable_finset_sum_dp S _ fun m _ =>
         integrable_finset_sum_dp S _ fun n _ => hRHS_pair_int m n
     have hre := Complex.reCLM.integrable_comp hsum_int
     have hre' : (fun u : ℝ => Complex.reCLM (∑ m ∈ S, ∑ n ∈ S,
           (c m * (starRingEnd ℂ) (c n)) *
-            ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ))) =
-        fun u : ℝ => ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 := by
+            ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ))) =
+        fun u : ℝ => ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 := by
       funext u
       change (∑ m ∈ S, ∑ n ∈ S, (c m * (starRingEnd ℂ) (c n)) *
-        ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ)).re = _
+        ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ)).re = _
       rw [← hRHS_box_eq u, Complex.ofReal_re]
     rwa [hre'] at hre
   have hL1 :
       ((∫ τ : ℝ, fejerSincSq (τ / (2 * Real.pi * T)) * ‖F τ‖ ^ 2 : ℝ) : ℂ) =
         ∑ m ∈ S, ∑ n ∈ S, (c m * (starRingEnd ℂ) (c n)) *
           ∫ τ : ℝ, (fejerSincSq (τ / (2 * Real.pi * T)) : ℂ) *
-            Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ)) := by
+            Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ)) := by
     rw [← integral_ofReal_dp hLHS_int]
     have hrew :
         (∫ τ : ℝ, ((fejerSincSq (τ / (2 * Real.pi * T)) * ‖F τ‖ ^ 2 : ℝ) : ℂ)) =
           ∫ τ : ℝ, ∑ m ∈ S, ∑ n ∈ S, (c m * (starRingEnd ℂ) (c n)) *
             ((fejerSincSq (τ / (2 * Real.pi * T)) : ℂ) *
-              Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ))) := by
+              Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ))) := by
       refine MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall fun τ => ?_)
       dsimp only
       rw [Complex.ofReal_mul, hnorm_sq τ, Finset.mul_sum]
@@ -1412,19 +1400,19 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
     refine Finset.sum_congr rfl fun n _ => MeasureTheory.integral_const_mul _ _
   have hconv_id : ∀ m n : ℕ,
       ∫ τ : ℝ, (fejerSincSq (τ / (2 * Real.pi * T)) : ℂ) *
-          Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ)) =
+          Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ)) =
         ((2 * Real.pi * T : ℝ) : ℂ) *
-          ∫ u : ℝ, ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ) := by
+          ∫ u : ℝ, ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ) := by
     intro m n
-    rw [← tentKernel_scale_integral_eq T (Real.log (n : ℝ) - Real.log (m : ℝ)) hT,
+    rw [← tentKernel_scale_integral_eq T (ξ n - ξ m) hT,
       tentKernel_eq_conv_boxHalfDP]
     congr 1
     have hshift :
-        (∫ u : ℝ, boxHalfDP u * boxHalfDP (u - T * (Real.log (n : ℝ) - Real.log (m : ℝ)))) =
-          ∫ u : ℝ, boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) := by
+        (∫ u : ℝ, boxHalfDP u * boxHalfDP (u - T * (ξ n - ξ m))) =
+          ∫ u : ℝ, boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) := by
       have hsub := MeasureTheory.integral_sub_right_eq_self (μ := volume)
-        (fun u : ℝ => boxHalfDP u * boxHalfDP (u - T * (Real.log (n : ℝ) - Real.log (m : ℝ))))
-        (T * Real.log (m : ℝ))
+        (fun u : ℝ => boxHalfDP u * boxHalfDP (u - T * (ξ n - ξ m)))
+        (T * ξ m)
       rw [← hsub]
       refine MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall fun u => ?_)
       congr 2
@@ -1433,16 +1421,16 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
   have hR1 :
       (∑ m ∈ S, ∑ n ∈ S, (c m * (starRingEnd ℂ) (c n)) *
           ∫ τ : ℝ, (fejerSincSq (τ / (2 * Real.pi * T)) : ℂ) *
-            Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ))) =
+            Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ))) =
         (((2 * Real.pi * T) *
-          ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) := by
+          ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) := by
     calc
       (∑ m ∈ S, ∑ n ∈ S, (c m * (starRingEnd ℂ) (c n)) *
           ∫ τ : ℝ, (fejerSincSq (τ / (2 * Real.pi * T)) : ℂ) *
-            Complex.exp (Complex.I * (τ : ℂ) * ((Real.log (n : ℝ) - Real.log (m : ℝ) : ℝ) : ℂ)))
+            Complex.exp (Complex.I * (τ : ℂ) * ((ξ n - ξ m : ℝ) : ℂ)))
           = ((2 * Real.pi * T : ℝ) : ℂ) * ∑ m ∈ S, ∑ n ∈ S, (c m * (starRingEnd ℂ) (c n)) *
-              ∫ u : ℝ, ((boxHalfDP (u - T * Real.log (m : ℝ)) *
-                boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ) := by
+              ∫ u : ℝ, ((boxHalfDP (u - T * ξ m) *
+                boxHalfDP (u - T * ξ n) : ℝ) : ℂ) := by
             rw [Finset.mul_sum]
             refine Finset.sum_congr rfl fun m _ => ?_
             rw [Finset.mul_sum]
@@ -1451,7 +1439,7 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
             ring
       _ = ((2 * Real.pi * T : ℝ) : ℂ) * ∫ u : ℝ, ∑ m ∈ S, ∑ n ∈ S,
             (c m * (starRingEnd ℂ) (c n)) *
-              ((boxHalfDP (u - T * Real.log (m : ℝ)) * boxHalfDP (u - T * Real.log (n : ℝ)) : ℝ) : ℂ) := by
+              ((boxHalfDP (u - T * ξ m) * boxHalfDP (u - T * ξ n) : ℝ) : ℂ) := by
             congr 1
             symm
             rw [MeasureTheory.integral_finsetSum S (fun m _ =>
@@ -1460,38 +1448,25 @@ private theorem tent_integral_identity_dp (S : Finset ℕ) (hS : ∀ n ∈ S, 1 
             rw [MeasureTheory.integral_finsetSum S (fun n _ => hRHS_pair_int m n)]
             refine Finset.sum_congr rfl fun n _ => MeasureTheory.integral_const_mul _ _
       _ = ((2 * Real.pi * T : ℝ) : ℂ) *
-            ∫ u : ℝ, ((‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) := by
+            ∫ u : ℝ, ((‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) := by
             congr 1
             exact MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall fun u => (hRHS_box_eq u).symm)
       _ = (((2 * Real.pi * T) *
-            ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) := by
+            ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 : ℝ) : ℂ) := by
             rw [integral_ofReal_dp hRHS_int, Complex.ofReal_mul (2 * Real.pi * T)]
   exact Complex.ofReal_injective (hL1.trans hR1)
 
-/-- **Gallagher's Integral Mean-Value Bound for Dirichlet Polynomials**:
-for any finite set `S ⊆ [1, ∞)`, complex coefficients `c`, and `T > 0`,
-`∫ t in (-T)..T, ‖∑ n ∈ S, c n * n^(-I * t)‖^2 ≤ (π^3 / 2) * T * ∫ u : ℝ, ‖∑_{n ∈ S, |u - T log n| ≤ 1/2} c n‖^2`. -/
-theorem tent_gallagher_integral_bound (S : Finset ℕ) (hS : ∀ n ∈ S, 1 ≤ n)
+/-- Gallagher's integral bound for arbitrary real frequencies. Only pairs
+lying in a common window of width `1/T` contribute on the right. -/
+theorem tent_gallagher_frequency_bound (S : Finset ℕ) (ξ : ℕ → ℝ)
     (c : ℕ → ℂ) {T : ℝ} (hT : 0 < T) :
-    ∫ τ in (-T)..T, ‖∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))‖ ^ 2 ≤
+    ∫ τ in (-T)..T, ‖∑ n ∈ S, c n * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))‖ ^ 2 ≤
       (Real.pi ^ 3 / 2) * T *
-        ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 := by
-  let F : ℝ → ℂ := fun τ => ∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))
-  have hcpow : ∀ (n : ℕ) (τ : ℝ), 1 ≤ n →
-      (n : ℂ) ^ (-(Complex.I * (τ : ℂ))) =
-        Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ))) := by
-    intro n τ hn
-    have hpos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hn
-    have hne : (n : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hpos.ne'
-    rw [Complex.cpow_def_of_ne_zero hne, ← Complex.ofReal_natCast, ← Complex.ofReal_log hpos.le]
-    congr 1; ring
+        ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 := by
+  let F : ℝ → ℂ := fun τ => ∑ n ∈ S, c n * Complex.exp (-(Complex.I * (τ : ℂ) * (ξ n : ℂ)))
   have hcontF : Continuous F := by
     dsimp [F]
     refine continuous_finset_sum_dp S _ fun n hn => continuous_const.mul ?_
-    have hfn : (fun τ : ℝ => (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))) =
-        fun τ : ℝ => Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ))) :=
-      funext fun τ => hcpow n τ (hS n hn)
-    rw [hfn]
     exact Complex.continuous_exp.comp
       (((continuous_const.mul Complex.continuous_ofReal).mul continuous_const).neg)
   have hFejer_lb : ∀ τ ∈ Set.Icc (-T) T,
@@ -1533,9 +1508,9 @@ theorem tent_gallagher_integral_bound (S : Finset ℕ) (hS : ∀ n ∈ S, 1 ≤ 
       have h1 : ‖F τ‖ ≤ ∑ n ∈ S, ‖c n‖ := by
         dsimp [F]
         refine (norm_sum_le S _).trans (Finset.sum_le_sum fun n hn => ?_)
-        rw [norm_mul, hcpow n τ (hS n hn)]
-        have harg : -(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ)) =
-            ((-(τ * Real.log (n : ℝ)) : ℝ) : ℂ) * Complex.I := by push_cast; ring
+        rw [norm_mul]
+        have harg : -(Complex.I * (τ : ℂ) * (ξ n : ℂ)) =
+            ((-(τ * ξ n) : ℝ) : ℂ) * Complex.I := by push_cast; ring
         rw [harg, Complex.norm_exp_ofReal_mul_I, mul_one]
       exact pow_le_pow_left₀ (norm_nonneg _) h1 2
     have hdom : Integrable (fun τ : ℝ => fejerSincSq (τ / (2 * Real.pi * T)) * C₀) :=
@@ -1583,11 +1558,35 @@ theorem tent_gallagher_integral_bound (S : Finset ℕ) (hS : ∀ n ∈ S, 1 ≤ 
     _ ≤ (Real.pi / 2) ^ 2 * ∫ τ : ℝ, fejerSincSq (τ / (2 * Real.pi * T)) * ‖F τ‖ ^ 2 :=
         mul_le_mul_of_nonneg_left hset_le_univ (by positivity)
     _ = (Real.pi / 2) ^ 2 * ((2 * Real.pi * T) *
-          ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2) := by
-        rw [tent_integral_identity_dp S hS c hT]
+          ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2) := by
+        rw [tent_integral_identity_frequencies S ξ c hT]
     _ = (Real.pi ^ 3 / 2) * T *
-          ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 := by
+          ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * ξ n| ≤ 1 / 2), c n‖ ^ 2 := by
         ring
+
+/-- **Gallagher's Integral Mean-Value Bound for Dirichlet Polynomials**:
+for any finite set `S ⊆ [1, ∞)`, complex coefficients `c`, and `T > 0`,
+`∫ t in (-T)..T, ‖∑ n ∈ S, c n * n^(-I * t)‖^2 ≤ (π^3 / 2) * T * ∫ u : ℝ, ‖∑_{n ∈ S, |u - T log n| ≤ 1/2} c n‖^2`. -/
+theorem tent_gallagher_integral_bound (S : Finset ℕ) (hS : ∀ n ∈ S, 1 ≤ n)
+    (c : ℕ → ℂ) {T : ℝ} (hT : 0 < T) :
+    ∫ τ in (-T)..T, ‖∑ n ∈ S, c n * (n : ℂ) ^ (-(Complex.I * (τ : ℂ)))‖ ^ 2 ≤
+      (Real.pi ^ 3 / 2) * T *
+        ∫ u : ℝ, ‖∑ n ∈ S.filter (fun n : ℕ => |u - T * Real.log (n : ℝ)| ≤ 1 / 2), c n‖ ^ 2 := by
+  have hcpow : ∀ (n : ℕ) (τ : ℝ), 1 ≤ n →
+      (n : ℂ) ^ (-(Complex.I * (τ : ℂ))) =
+        Complex.exp (-(Complex.I * (τ : ℂ) * (Real.log (n : ℝ) : ℂ))) := by
+    intro n τ hn
+    have hpos : (0 : ℝ) < (n : ℝ) := by exact_mod_cast hn
+    have hne : (n : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hpos.ne'
+    rw [Complex.cpow_def_of_ne_zero hne, ← Complex.ofReal_natCast, ← Complex.ofReal_log hpos.le]
+    congr 1; ring
+  apply le_trans _ (tent_gallagher_frequency_bound S (fun n => Real.log n) c hT)
+  apply le_of_eq
+  apply intervalIntegral.integral_congr
+  intro τ _
+  have hsum := Finset.sum_congr (s₁:=S) (s₂:=S) rfl
+    (fun n hn => congrArg (fun z => c n*z) (hcpow n τ (hS n hn)))
+  exact congrArg (fun z : ℂ => ‖z‖^2) hsum
 
 private theorem real_exp_sub_one_le_two_mul_dp {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ 1) :
     Real.exp θ - 1 ≤ 2 * θ := by

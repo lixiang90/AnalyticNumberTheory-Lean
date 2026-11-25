@@ -2918,13 +2918,11 @@ private lemma norm_partial_char_sum_le {q : ℕ} [NeZero q] {χ : DirichletChara
     _ = ((Finset.Ioc (k0 * q) n).card : ℝ) := by simp
     _ ≤ (q : ℝ) := by exact_mod_cast hcard
 
-/-- Near `s = 1` (`1 - 1 / (2 * log (q + 2)) ≤ Re s ≤ 2`, `|Im s| ≤ 1`), `L(s, χ)` is bounded
-by `C * log (q + 2)` for every non-principal character `χ` modulo `q ≥ 2`. -/
-theorem norm_LFunction_near_one_le :
-    ∃ C : ℝ, 0 < C ∧ ∀ {q : ℕ} [NeZero q] (_hq : 2 ≤ q) {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
-      ∀ s : ℂ, 1 - 1 / (2 * Real.log (q + 2)) ≤ s.re → s.re ≤ 2 → |s.im| ≤ 1 →
-        ‖DirichletCharacter.LFunction χ s‖ ≤ C * Real.log (q + 2) := by
-  refine ⟨18, by norm_num, fun {q} _ hq {χ} hχ s hs_lo hs_hi him ↦ ?_⟩
+/-- Explicit logarithmic bound near one for a nonprincipal Dirichlet character. -/
+theorem norm_LFunction_near_one_explicit {q : ℕ} [NeZero q] (hq : 2 ≤ q)
+    {χ : DirichletCharacter ℂ q} (hχ : χ ≠ 1) (s : ℂ)
+    (hs_lo : 1 - 1 / (2 * Real.log (q + 2)) ≤ s.re) (hs_hi : s.re ≤ 2) (him : |s.im| ≤ 1) :
+    ‖DirichletCharacter.LFunction χ s‖ ≤ 18 * Real.log (q + 2) := by
   have hq2 : (2 : ℝ) ≤ q := by exact_mod_cast hq
   have hq_pos : (0 : ℝ) < q := by linarith
   have hlog_q2 : 1 ≤ Real.log (q + 2) := by
@@ -3114,14 +3112,19 @@ theorem norm_LFunction_near_one_le :
       ≤ 3 * (6 * Real.log (q + 2)) := mul_le_mul hs_norm hint_bd (norm_nonneg _) (by norm_num)
     _ = 18 * Real.log (q + 2) := by ring
 
-/-- Cauchy derivative bound on the real axis near `s = 1`:
-`‖L'(σ, χ)‖ ≤ C * (log (q + 2))²` for `σ ∈ [1 - 1 / (4 log (q + 2)), 1]`. -/
-theorem norm_deriv_LFunction_near_one_le :
+/-- A uniform logarithmic bound in a neighborhood of one. -/
+theorem norm_LFunction_near_one_le :
     ∃ C : ℝ, 0 < C ∧ ∀ {q : ℕ} [NeZero q] (_hq : 2 ≤ q) {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
-      ∀ σ : ℝ, 1 - 1 / (4 * Real.log (q + 2)) ≤ σ → σ ≤ 1 →
-        ‖deriv (DirichletCharacter.LFunction χ) (σ : ℂ)‖ ≤ C * (Real.log (q + 2)) ^ 2 := by
-  obtain ⟨C₀, hC₀, hnear⟩ := norm_LFunction_near_one_le
-  refine ⟨4 * C₀, by positivity, fun {q} _ hq {χ} hχ σ hσ_lo hσ_hi ↦ ?_⟩
+      ∀ s : ℂ, 1 - 1 / (2 * Real.log (q + 2)) ≤ s.re → s.re ≤ 2 → |s.im| ≤ 1 →
+        ‖DirichletCharacter.LFunction χ s‖ ≤ C * Real.log (q + 2) :=
+  ⟨18, by norm_num, fun {q} _ hq {χ} hχ => norm_LFunction_near_one_explicit hq hχ⟩
+
+/-- An explicit Cauchy derivative bound on the real axis near one. -/
+theorem norm_deriv_LFunction_near_one_explicit {q : ℕ} [NeZero q] (hq : 2 ≤ q)
+    {χ : DirichletCharacter ℂ q} (hχ : χ ≠ 1) (σ : ℝ)
+    (hσ_lo : 1 - 1 / (4 * Real.log (q + 2)) ≤ σ) (hσ_hi : σ ≤ 1) :
+    ‖deriv (DirichletCharacter.LFunction χ) (σ : ℂ)‖ ≤ 72 * (Real.log (q + 2)) ^ 2 := by
+  let C₀ : ℝ := 18
   have hq2 : (2 : ℝ) ≤ q := by exact_mod_cast hq
   have hlog_q2 : 1 ≤ Real.log (q + 2) := by
     have : Real.exp 1 ≤ (q : ℝ) + 2 := by
@@ -3169,7 +3172,7 @@ theorem norm_deriv_LFunction_near_one_le :
           _ ≤ ‖w - (σ : ℂ)‖ := Complex.abs_im_le_norm _
           _ = r := hw
       linarith
-    have hLw := hnear hq hχ w hw_re_lo hw_re_hi hw_im
+    have hLw := norm_LFunction_near_one_explicit hq hχ w hw_re_lo hw_re_hi hw_im
     rw [norm_smul, norm_div, norm_one, norm_pow, hw]
     exact mul_le_mul_of_nonneg_left hLw (by positivity)
   have hint_norm := circleIntegral.norm_integral_le_of_norm_le_const hr_pos.le hsphere
@@ -3192,6 +3195,14 @@ theorem norm_deriv_LFunction_near_one_le :
         dsimp only [r]
         have hne : Real.log (q + 2) ≠ 0 := by linarith
         field_simp [hne]
+    _ = 72 * (Real.log (q + 2)) ^ 2 := by norm_num [C₀]
+
+/-- Uniform Cauchy derivative bound on the real axis near one. -/
+theorem norm_deriv_LFunction_near_one_le :
+    ∃ C : ℝ, 0 < C ∧ ∀ {q : ℕ} [NeZero q] (_hq : 2 ≤ q) {χ : DirichletCharacter ℂ q}, χ ≠ 1 →
+      ∀ σ : ℝ, 1 - 1 / (4 * Real.log (q + 2)) ≤ σ → σ ≤ 1 →
+        ‖deriv (DirichletCharacter.LFunction χ) (σ : ℂ)‖ ≤ C * (Real.log (q + 2)) ^ 2 :=
+  ⟨72, by norm_num, fun {q} _ hq {χ} hχ => norm_deriv_LFunction_near_one_explicit hq hχ⟩
 
 /-- On `1 < Re s ≤ 2`, the logarithmic derivative satisfies the universal bound
 `‖logDeriv (LFunction χ) s‖ ≤ 1 / (Re s - 1) + C_zeta`. -/

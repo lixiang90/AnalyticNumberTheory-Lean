@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.EffectiveRealZero
 import AnalyticNumberTheory.DirichletLFunctions.RealZeroRepulsion
 import AnalyticNumberTheory.DirichletLFunctions.FamilyZeroRepulsion
 import VersoManual
@@ -41,3 +42,23 @@ $$`1-\beta\ \ge\ \min\!\left\{\frac1{32},\frac{\log(1/(C(1-\alpha)L))}{CL}\right
 对同一个实特征，异常实零点还排斥它的其他零点以及黎曼 ζ 函数的零点。对于非原始特征，可以先传到诱导它的原特征。统一定理按目标特征的导子给出临界带中的排斥界，并且允许给整个特征族选用同一个参数 $`L`。
 
 {docstring deuring_heilbronn_family}
+
+# 带数值常数的实零点间隔
+%%%
+tag := "effective-real-zero-gap"
+file := "effective-gap"
+%%%
+
+设 $`\chi` 是模 $`q\ge2` 的非主实特征。取 $`a(n)=\sum_{d\mid n}\chi(d)`。这些系数非负，每个正平方处至少为一。用 $`e^{-n/X}` 加权后，平方项给出显式下界。将同一和重排为 Lambert 级数，再用 Pólya–Vinogradov 不等式控制去掉极点后的递减核，可得
+
+$$`L(1,\chi)\ge\frac{1}{180\sqrt q\,\log(q+2)}.`
+
+{docstring quadratic_LFunction_one_lower_bound}
+
+在一附近，Cauchy 导数估计给出 $`|L'(\sigma,\chi)|\le72\log^2(q+2)`。由均值估计，每个实零点 $`\beta` 均满足
+
+$$`1-\beta\ge\frac{1}{12960\sqrt q\,\log^3(q+2)}.`
+
+常数对原特征和诱导特征均适用，也覆盖 Page 定理所允许的例外特征。
+
+{docstring real_zero_effective_gap}

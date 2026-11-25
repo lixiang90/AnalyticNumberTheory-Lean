@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.HorizontalLogMean
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.Jensen
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.BorelCaratheodory
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.HadamardThreeCircles
@@ -28,3 +29,19 @@ file := "complex-bounds"
 若已知内外两个同心圆上的最大模，Hadamard 三圆定理还给出中间圆上的界。正最大模的对数关于半径的对数具有凸性。
 
 {docstring hadamard_three_circles_log_convex}
+
+# 穿过零点的水平对数积分
+%%%
+tag := "horizontal-logarithmic-mean"
+file := "horizontal-logarithmic-mean"
+%%%
+
+在圆盘内分解全纯函数的零点，对数模可写成有限个 $`m_\rho\log|z-\rho|` 的和，加上无零点因子的对数模。Jensen 公式用圆周上的增长控制这些重数之和。
+
+{docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.disk_log_norm_factorization}
+
+单个核在穿过 $`\rho` 时有对数奇性，但沿有限水平线段可积。随高度移动线段，积分在穿过零点时仍连续。在实部从二分之一到二的线段上，将这一点逐个应用于圆盘中的零点，就得到全纯函数对数模积分的连续性。
+
+{docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.continuous_integral_horizontalLogKernel}
+
+{docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.continuousAt_horizontalLogMean}

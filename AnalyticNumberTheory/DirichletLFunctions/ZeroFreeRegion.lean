@@ -1185,7 +1185,8 @@ private lemma landau_LFunction_center_le {q : ℕ} [NeZero q] {ψ : DirichletCha
   rw [h4] at hlandau
   exact hlandau
 
-private lemma landau_LFunction_center_sub_zero_le {q : ℕ} [NeZero q] {ψ : DirichletCharacter ℂ q}
+/-- Landau's local logarithmic derivative estimate with one specified zero retained. -/
+lemma landau_LFunction_center_sub_zero_le {q : ℕ} [NeZero q] {ψ : DirichletCharacter ℂ q}
     (hψ : ψ ≠ 1) {η : ℝ} (hη_pos : 0 < η) (hη_le : η ≤ 1 / 4) (T : ℝ)
     {ρ : ℂ} (hρ_mem : ρ ∈ Metric.closedBall (((1 + η : ℝ) : ℂ) + (T : ℂ) * I) (1 / 4 : ℝ))
     (hρ_zero : DirichletCharacter.LFunction ψ ρ = 0) :

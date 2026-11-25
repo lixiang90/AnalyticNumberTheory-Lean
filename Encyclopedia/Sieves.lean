@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.BrunTitchmarshRealZeros
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshStrict
 import AnalyticNumberTheory.SieveMethods.LinearSieveQuantitative
 import AnalyticNumberTheory.SieveMethods.WeightedFareySieve
@@ -352,3 +353,19 @@ $$`\sum_r\frac{|S(\alpha_r)|^2}{N+C/(\pi\delta_r)}
 {docstring AnalyticNumberTheory.AnalyticTools.weighted_hilbert_inequality}
 
 {docstring weighted_hilbert_cosecant}
+
+# Brun–Titchmarsh 系数与实零点
+%%%
+tag := "brun-titchmarsh-improvement-zeros"
+file := "improved-coefficient-and-zeros"
+%%%
+
+固定 $`0<\eta<1` 和 $`0<\alpha<1`。假定对所有充分大的 $`x`，在 $`3\le q<x^\alpha` 的所有既约剩余类上都有
+$$`\pi(x;q,a)\le\frac{(2-\eta)x}{\varphi(q)\log(x/q)}.`
+这个假设比{ref "brun-titchmarsh-full"}[已证的系数二]强。取非负权 $`\Lambda(n)(1+\Re\chi(n))`，估算其部分和，再与对数导数在一个实零点附近的估计相比，可得 $`1-\beta\ge c/\log q`。同一正数 $`c` 适用于所有 $`q\ge3` 及模 $`q` 的所有实非主特征，包括由较小导子诱导的特征。
+
+{docstring BrunTitchmarshImprovement}
+
+{docstring positiveCharacterMangoldt_of_brunTitchmarsh}
+
+{docstring real_zero_gap_of_brunTitchmarsh_improvement}

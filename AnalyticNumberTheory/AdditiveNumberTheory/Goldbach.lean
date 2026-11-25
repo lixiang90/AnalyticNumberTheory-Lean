@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.QuadraticEulerFactors
 import AnalyticNumberTheory.AdditiveNumberTheory.CircleMethod
 import AnalyticNumberTheory.AnalyticTools.Gamma.InfiniteProducts
 import AnalyticNumberTheory.DirichletLFunctions.GaussSums
@@ -2096,19 +2097,44 @@ private lemma summable_abs_twinPrimeLowerFactor_sub_one :
       abs_neg, abs_of_pos hpos_term]
     exact hinv
 
-private lemma twinPrimeLowerFactor_tprod_pos :
-    0 < ∏' p : Nat.Primes, twinPrimeLowerFactor p := by
-  have hsumm : Summable fun p : Nat.Primes => ‖twinPrimeLowerFactor p - 1‖ := by
-    simpa [Real.norm_eq_abs] using summable_abs_twinPrimeLowerFactor_sub_one
-  have hmult : Multipliable twinPrimeLowerFactor :=
-    AnalyticNumberTheory.AnalyticTools.Gamma.multipliable_of_summable_norm_sub_one hsumm
-  have hne : ∏' p : Nat.Primes, twinPrimeLowerFactor p ≠ 0 :=
-    AnalyticNumberTheory.AnalyticTools.Gamma.tprod_ne_zero_of_summable_norm_sub_one hsumm
-      fun p => (twinPrimeLowerFactor_pos p).ne'
-  have hnonneg : 0 ≤ ∏' p : Nat.Primes, twinPrimeLowerFactor p := by
-    refine ge_of_tendsto hmult.hasProd (Filter.Eventually.of_forall fun S => ?_)
-    exact Finset.prod_nonneg fun p _ => (twinPrimeLowerFactor_pos p).le
-  exact lt_of_le_of_ne hnonneg hne.symm
+private lemma multipliable_twinPrimeLowerFactor : Multipliable twinPrimeLowerFactor :=
+  AnalyticNumberTheory.AnalyticTools.Gamma.multipliable_of_summable_norm_sub_one
+    (by simpa [Real.norm_eq_abs] using summable_abs_twinPrimeLowerFactor_sub_one)
+
+private lemma one_le_twinPrimeLowerFactor_tprod :
+    1 ≤ ∏' p : Nat.Primes, twinPrimeLowerFactor p := by
+  let two : Nat.Primes := ⟨2, Nat.prime_two⟩
+  let shift (p : Nat.Primes) := (p:ℕ)-1
+  refine ge_of_tendsto multipliable_twinPrimeLowerFactor.hasProd ?_
+  filter_upwards [eventually_ge_atTop ({two}:Finset Nat.Primes)] with S hS
+  have htwo : two ∈ S := hS (by simp)
+  have hp (p : Nat.Primes) (hn : p ∈ S.erase two) : (p:ℕ)≠2 := by
+    intro h
+    exact (mem_erase.mp hn).1 (Subtype.ext h)
+  have hs : ∀ n∈(S.erase two).image shift, 2≤n := by
+    intro n hn
+    obtain ⟨p,hpS,rfl⟩ := mem_image.mp hn
+    dsimp only [shift]
+    have := hp p hpS
+    have := p.2.two_le
+    omega
+  have hinj : Function.Injective shift := by
+    intro p q he
+    apply Subtype.ext
+    dsimp only [shift] at he
+    have := p.2.two_le
+    have := q.2.two_le
+    omega
+  have he := AnalyticNumberTheory.AnalyticTools.half_le_prod_one_sub_inv_sq hs
+  rw [prod_image hinj.injOn] at he
+  have hprod : ∏ p ∈ S.erase two, twinPrimeLowerFactor p =
+      ∏ p ∈ S.erase two, (1-1/((shift p:ℕ):ℝ)^2) := by
+    apply prod_congr rfl
+    intro p hpS
+    simp [twinPrimeLowerFactor,hp p hpS,shift,Nat.cast_sub p.2.one_lt.le]
+  rw [← mul_prod_erase S twinPrimeLowerFactor htwo,hprod,
+    show twinPrimeLowerFactor two=2 by simp [twinPrimeLowerFactor,two]]
+  linarith only [he]
 
 private lemma prod_le_prod_of_nonneg {ι : Type*} [DecidableEq ι] (s : Finset ι) {f g : ι → ℝ}
     (hf : ∀ i ∈ s, 0 ≤ f i) (hfg : ∀ i ∈ s, f i ≤ g i) :
@@ -2124,20 +2150,13 @@ private lemma prod_le_prod_of_nonneg {ι : Type*} [DecidableEq ι] (s : Finset �
       have hprod_nn : 0 ≤ ∏ i ∈ s, f i := Finset.prod_nonneg hf_s
       exact mul_le_mul (hfg a ha_mem) (ih hf_s fun i hi => hfg i (hs_sub hi)) hprod_nn hg_nonneg
 
-/-- **Uniform strict positivity of the ternary Goldbach singular series**:
-there exists an absolute constant `c > 0` such that `c ≤ goldbachTernarySingularSeries N`
-for every odd `N`. -/
-theorem goldbachTernarySingularSeries_pos_of_odd :
-    ∃ c : ℝ, 0 < c ∧ ∀ N : ℕ, Odd N → c ≤ goldbachTernarySingularSeries N := by
-  refine ⟨∏' p : Nat.Primes, twinPrimeLowerFactor p, twinPrimeLowerFactor_tprod_pos,
-    fun N hN_odd => ?_⟩
+/-- The ternary Goldbach singular series is at least one on odd inputs. -/
+theorem one_le_goldbachTernarySingularSeries_of_odd {N : ℕ} (hN_odd : Odd N) :
+    1 ≤ goldbachTernarySingularSeries N := by
+  apply one_le_twinPrimeLowerFactor_tprod.trans
   obtain ⟨hmult_N, heq_N⟩ := goldbachTernarySingularSeries_eq_tprod N
   rw [heq_N]
-  have hsumm_L : Summable fun p : Nat.Primes => ‖twinPrimeLowerFactor p - 1‖ := by
-    simpa [Real.norm_eq_abs] using summable_abs_twinPrimeLowerFactor_sub_one
-  have hmult_L : Multipliable twinPrimeLowerFactor :=
-    AnalyticNumberTheory.AnalyticTools.Gamma.multipliable_of_summable_norm_sub_one hsumm_L
-  refine le_of_tendsto_of_tendsto' hmult_L.hasProd hmult_N.hasProd fun S => ?_
+  refine le_of_tendsto_of_tendsto' multipliable_twinPrimeLowerFactor.hasProd hmult_N.hasProd fun S => ?_
   refine prod_le_prod_of_nonneg S (fun p _ => (twinPrimeLowerFactor_pos p).le) fun p _ => ?_
   rw [singularTermTernary_prime p.2 N]
   dsimp [twinPrimeLowerFactor]
@@ -2157,20 +2176,13 @@ theorem goldbachTernarySingularSeries_pos_of_odd :
       linarith [show (0 : ℝ) < 1 / ((p : ℝ) - 1) ^ 2 by positivity,
         show (0 : ℝ) < 1 / ((p : ℝ) - 1) ^ 3 by positivity]
 
-/-- **Uniform strict positivity of the binary Goldbach singular series**:
-there exists an absolute constant `c > 0` such that `c ≤ goldbachBinarySingularSeries N`
-for every even `N ≥ 2`. -/
-theorem goldbachBinarySingularSeries_pos_of_even :
-    ∃ c : ℝ, 0 < c ∧ ∀ N : ℕ, Even N → 2 ≤ N → c ≤ goldbachBinarySingularSeries N := by
-  refine ⟨∏' p : Nat.Primes, twinPrimeLowerFactor p, twinPrimeLowerFactor_tprod_pos,
-    fun N hN_even hN2 => ?_⟩
+/-- The binary Goldbach singular series is at least one on positive even inputs. -/
+theorem one_le_goldbachBinarySingularSeries_of_even {N : ℕ} (hN_even : Even N) (hN2 : 2≤N) :
+    1 ≤ goldbachBinarySingularSeries N := by
+  apply one_le_twinPrimeLowerFactor_tprod.trans
   obtain ⟨hmult_N, heq_N⟩ := goldbachBinarySingularSeries_eq_tprod (by omega : 1 ≤ N)
   rw [heq_N]
-  have hsumm_L : Summable fun p : Nat.Primes => ‖twinPrimeLowerFactor p - 1‖ := by
-    simpa [Real.norm_eq_abs] using summable_abs_twinPrimeLowerFactor_sub_one
-  have hmult_L : Multipliable twinPrimeLowerFactor :=
-    AnalyticNumberTheory.AnalyticTools.Gamma.multipliable_of_summable_norm_sub_one hsumm_L
-  refine le_of_tendsto_of_tendsto' hmult_L.hasProd hmult_N.hasProd fun S => ?_
+  refine le_of_tendsto_of_tendsto' multipliable_twinPrimeLowerFactor.hasProd hmult_N.hasProd fun S => ?_
   refine prod_le_prod_of_nonneg S (fun p _ => (twinPrimeLowerFactor_pos p).le) fun p _ => ?_
   rw [singularTermBinary_prime p.2 N]
   dsimp [twinPrimeLowerFactor]
@@ -2187,6 +2199,16 @@ theorem goldbachBinarySingularSeries_pos_of_even :
       linarith [show (0 : ℝ) < 1 / ((p : ℝ) - 1) by positivity,
         show (0 : ℝ) < 1 / ((p : ℝ) - 1) ^ 2 by positivity]
     · exact le_rfl
+
+/-- Uniform positivity of the ternary singular series for odd inputs. -/
+theorem goldbachTernarySingularSeries_pos_of_odd :
+    ∃ c : ℝ, 0 < c ∧ ∀ N : ℕ, Odd N → c ≤ goldbachTernarySingularSeries N :=
+  ⟨1, zero_lt_one, fun _ => one_le_goldbachTernarySingularSeries_of_odd⟩
+
+/-- Uniform positivity of the binary singular series for positive even inputs. -/
+theorem goldbachBinarySingularSeries_pos_of_even :
+    ∃ c : ℝ, 0 < c ∧ ∀ N : ℕ, Even N → 2 ≤ N → c ≤ goldbachBinarySingularSeries N :=
+  ⟨1, zero_lt_one, fun _ => one_le_goldbachBinarySingularSeries_of_even⟩
 
 end SingularSeriesAndPositivity
 

@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.DirichletLFunctions.DerivativeStrips
+import AnalyticNumberTheory.DirichletLFunctions.VinogradovStrips
 import AnalyticNumberTheory.DirichletLFunctions.WeylBound
 import VersoManual
 
@@ -40,3 +42,31 @@ $$`|L(1/2+it,\chi)|\ll \sqrt q\,|t|^{1/6}(1+\log |t|).`
 {docstring LFunction_weyl_bound}
 
 {docstring periodicLFunction_weyl_bound}
+
+# 靠近一线的 Vinogradov 阶估计
+%%%
+tag := "vinogradov-hurwitz-growth"
+file := "vinogradov-hurwitz-growth"
+%%%
+
+取 $`s=\sigma+it`、$`T=|t|\ge2` 和 $`L=\log T`。从 Hurwitz ζ 中扣掉首项以后，对一切 $`0<a\le1` 和 $`\sigma>0` 有一致估计
+
+$$`|\zeta(s,a)-a^{-s}|\le D L^{2/3}\exp\!\bigl(K\max(1-\sigma,0)^{3/2}L\bigr).`
+
+三次指数衰减列的求和给出 $`L^{2/3}`。因此在 $`\sigma\ge1-RL^{-2/3}` 的带内，指数因子能被只依赖 $`R` 的常数控制。
+
+{docstring hurwitzZeta_sub_initial_vinogradov_bound}
+
+{docstring hurwitzZeta_sub_initial_near_one}
+
+在任意模数 $`q` 下，对周期系数扣去首个完整周期，再按剩余类应用上述一致界。对所有 Dirichlet 特征，在同一带内得到 $`|L(s,\chi)|\ll_R q^{R/L^{2/3}}L^{2/3}`，其中 $`R>0`。
+
+{docstring periodicLFunction_sub_first_period_vinogradov}
+
+{docstring LFunction_vinogradov_near_one}
+
+取整数 $`k\ge2`。在 $`\sigma>0` 且 $`\sigma\ge1-k/(2^k-2)` 的带内，导数估计给出高度指数 $`1/(2^k-2)`，并带有因子 $`1+\log T`。Hurwitz 形式扣除首项，其常数对阶数和移位都一致。
+
+{docstring hurwitzZeta_sub_initial_derivative_strips}
+
+{docstring LFunction_derivative_strips}

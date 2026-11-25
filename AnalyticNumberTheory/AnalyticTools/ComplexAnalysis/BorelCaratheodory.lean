@@ -445,7 +445,7 @@ theorem landau_logDeriv_le_of_ne_zero {f : ℂ → ℂ} {z₀ z : ℂ} {r R M : 
 `Metric.closedBall z₀ r₀` (`0 < r₀ < R`) as a factorized rational polynomial `polyP` times a
 nonvanishing analytic function `g` on `Metric.closedBall z₀ r₀`, bounded on `Metric.closedBall z₀ R`
 by `M * (r₀ / (R - r₀)) ^ N`. -/
-theorem extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
+theorem extract_ball_zero_factors {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
     (hr₀ : 0 < r₀) (hr₀R : r₀ < R)
     (hf : AnalyticOnNhd ℂ f (Metric.closedBall z₀ R)) (hz₀ : f z₀ ≠ 0)
     (hf_bound : ∀ w ∈ Metric.sphere z₀ R, ‖f w / f z₀‖ ≤ M) :
@@ -455,6 +455,8 @@ theorem extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
     ∃ g : ℂ → ℂ, AnalyticOnNhd ℂ g (Metric.closedBall z₀ R) ∧
       (∀ u ∈ Metric.closedBall z₀ r₀, g u ≠ 0) ∧
       (∀ w ∈ Metric.closedBall z₀ R, ‖g w / g z₀‖ ≤ M * (r₀ / (R - r₀)) ^ N) ∧
+      (∀ z ∈ Metric.closedBall z₀ R, z ∉ D.support →
+        f z = (∏ u ∈ hD_fin.toFinset, (z-u)^D u)*g z) ∧
       (∀ z ∈ Metric.ball z₀ R, f z ≠ 0 →
         logDeriv f z - ∑ᶠ ρ, (D ρ : ℂ) / (z - ρ) = logDeriv g z) := by
   classical
@@ -612,7 +614,11 @@ theorem extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
     exact Complex.norm_le_of_forall_mem_frontier_norm_le isBounded_ball h_diff_quot
       (fun x hx ↦ hg_sphere_bound x (Metric.frontier_ball_subset_sphere hx))
       (closure_ball z₀ hR.ne' ▸ hw)
-  refine ⟨g, hg_an, hg_ne_V, hg_ball_bound, ?_⟩
+  have hfactor (z : ℂ) (hz : z ∈ U) (hn : z ∉ D.support) :
+      f z=(∏ u ∈ hD_fin.toFinset, (z-u)^D u)*g z := by
+    rw [← hP_eval, hg_eq_off z hz hn]
+    exact (mul_inv_cancel_left₀ (Function.FactorizedRational.ne_zero (Function.notMem_support.mp hn)) _).symm
+  refine ⟨g, hg_an, hg_ne_V, hg_ball_bound, hfactor, ?_⟩
   intro z hz hfz
   have hzU : z ∈ U := Metric.ball_subset_closedBall hz
   have hz_not_supp : z ∉ D.support := by
@@ -670,6 +676,22 @@ theorem extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
       exact (differentiableAt_id.sub_const ρ).zpow (Or.inl hρ_ne)
   rw [h_ld_eq, h_ld_P]
   ring
+
+/-- Extract the zeros of the smaller disk and their logarithmic derivatives. -/
+theorem extract_ball_zeros {f : ℂ → ℂ} {z₀ : ℂ} {r₀ R M : ℝ}
+    (hr₀ : 0 < r₀) (hr₀R : r₀ < R)
+    (hf : AnalyticOnNhd ℂ f (Metric.closedBall z₀ R)) (hz₀ : f z₀ ≠ 0)
+    (hf_bound : ∀ w ∈ Metric.sphere z₀ R, ‖f w / f z₀‖ ≤ M) :
+    let D := MeromorphicOn.divisor f (Metric.closedBall z₀ r₀)
+    let hD_fin := D.finiteSupport (isCompact_closedBall z₀ r₀)
+    let N : ℕ := ∑ u ∈ hD_fin.toFinset, (D u).toNat
+    ∃ g : ℂ → ℂ, AnalyticOnNhd ℂ g (Metric.closedBall z₀ R) ∧
+      (∀ u ∈ Metric.closedBall z₀ r₀, g u ≠ 0) ∧
+      (∀ w ∈ Metric.closedBall z₀ R, ‖g w / g z₀‖ ≤ M * (r₀ / (R - r₀)) ^ N) ∧
+      (∀ z ∈ Metric.ball z₀ R, f z ≠ 0 →
+        logDeriv f z - ∑ᶠ ρ, (D ρ : ℂ) / (z - ρ) = logDeriv g z) := by
+  obtain ⟨g, hg, hn, hb, _, hd⟩ := extract_ball_zero_factors hr₀ hr₀R hf hz₀ hf_bound
+  exact ⟨g, hg, hn, hb, hd⟩
 
 /-- **Landau's logarithmic-derivative lemma** at the center `z₀` (closed-ball hypothesis):
 for `f` analytic on `Metric.closedBall z₀ R` (`0 < R`) with `f z₀ ≠ 0` and

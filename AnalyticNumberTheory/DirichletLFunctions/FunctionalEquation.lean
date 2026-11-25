@@ -3045,4 +3045,49 @@ theorem norm_LFunction_one_le {q : ℕ} [NeZero q] {χ : DirichletCharacter ℂ 
 
 end ValueAtOneBound
 
+/-- On the closed right half-plane, changing the character level costs at most
+a fixed positive power of the quotient of levels, uniformly in height. -/
+theorem norm_LFunction_changeLevel_le {d q : ℕ} [NeZero d] [NeZero q] (hdq : d∣q)
+    (χ : DirichletCharacter ℂ d) {s : ℂ} (hs : 0≤s.re) (hne : χ≠1 ∨ s≠1)
+    {η : ℝ} (hη : 0<η) :
+    ‖(χ.changeLevel hdq).LFunction s‖ ≤
+      ‖χ.LFunction s‖*((2:ℝ)^⌈(2:ℝ)^(1/η)⌉₊*((q:ℝ)/d)^η) := by
+  obtain ⟨k,rfl⟩ := hdq
+  have hd := NeZero.ne d
+  have hk : k≠0 := (mul_ne_zero_iff.mp (NeZero.ne (d*k))).2
+  let F (p : ℕ) := 1-χ p*(p:ℂ)^(-s)
+  have hprod : ∏ p∈(d*k).primeFactors,F p = ∏ p∈k.primeFactors,F p := by
+    rw [Nat.primeFactors_mul hd hk]
+    symm
+    apply Finset.prod_subset Finset.subset_union_right
+    intro p hp hpk
+    have hpd := (Finset.mem_union.mp hp).resolve_right hpk
+    have hχ : χ p=0 := by
+      rw [MulChar.apply_eq_zero_iff,ZMod.isUnit_iff_coprime]
+      exact (Nat.prime_of_mem_primeFactors hpd).coprime_iff_not_dvd.not.mpr (not_not.mpr (Nat.dvd_of_mem_primeFactors hpd))
+    simp [F,hχ]
+  have hs' : s=(s.re:ℂ)+(s.im:ℂ)*I := s.re_add_im.symm
+  have hF := prod_euler_factor_norm_le k (fun p => χ p) (fun p => χ.norm_le_one _) (t:=s.im) hs
+  rw [←hs'] at hF
+  have hmul : ((d*k:ℕ):ℝ)/d=k := by push_cast;field_simp
+  rw [LFunction_changeLevel_eq _ χ hne,norm_mul,hmul]
+  apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
+  change ‖∏ p∈(d*k).primeFactors,F p‖≤_
+  rw [hprod]
+  exact hF.trans (prod_two_le_rpow hη k (Nat.pos_of_ne_zero hk))
+
+/-- Critical-line transfer from the primitive character to its extension to
+level `q`, with exponent one quarter and an absolute constant. -/
+theorem norm_LFunction_le_conductor_quarter {q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q) (t : ℝ) :
+    letI : NeZero χ.conductor := ⟨χ.conductor_ne_zero⟩
+    ‖χ.LFunction ((1/2:ℂ)+(t:ℂ)*I)‖ ≤
+      ‖χ.primitiveCharacter.LFunction ((1/2:ℂ)+(t:ℂ)*I)‖*(65536*((q:ℝ)/χ.conductor)^(1/4:ℝ)) := by
+  letI : NeZero χ.conductor := ⟨χ.conductor_ne_zero⟩
+  have H := norm_LFunction_changeLevel_le χ.conductor_dvd_level χ.primitiveCharacter
+    (s:=(1/2:ℂ)+(t:ℂ)*I) (by norm_num) (Or.inr (by intro he;have := congrArg Complex.re he;norm_num at this))
+    (by norm_num : 0<(1/4:ℝ))
+  rw [χ.changeLevel_primitiveCharacter] at H
+  norm_num at H
+  exact H
+
 end AnalyticNumberTheory.DirichletLFunctions

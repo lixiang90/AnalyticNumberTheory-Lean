@@ -30,11 +30,13 @@ private theorem linear_mul_log_le_sq_add {K : ℝ} (hK : 0 ≤ K) :
   calc K*r*Real.log (r+2) ≤ K*r*(ε*r+L) := mul_le_mul_of_nonneg_left hh (by positivity)
        _ ≤ _ := by nlinarith [mul_le_mul_of_nonneg_right hεK (sq_nonneg r), sq_nonneg (r/4-2*(K*L))]
 
-/-- A horizontally uniform integrable majorant after Gaussian damping, for each fixed center. -/
-theorem xi_pow_gaussian_strip_bound (s : ℂ) (k : ℕ) {c : ℝ} (hc : 0 < c) :
-    ∃ D : ℝ, 0 ≤ D ∧ ∀ x ∈ Icc (-c) c, ∀ t : ℝ,
-      ‖xi (s+((x:ℂ)+t*I))^k * Complex.exp (((x:ℂ)+t*I)^2)‖ ≤ D/(1+t^2) := by
-  obtain ⟨A,B,hA,hB,hxi⟩ := norm_xi_le_exp_norm_mul_log
+/-- Gaussian damping on a vertical strip for any function of growth
+bounded by `A exp(B ‖z‖ log(‖z‖+2))`. -/
+theorem gaussian_strip_bound_of_exp_norm_mul_log (f : ℂ→ℂ) {A B : ℝ} (hA : 0≤A) (hB : 0≤B)
+    (hf : ∀ z : ℂ, ‖f z‖ ≤ A*Real.exp (B*‖z‖*Real.log (‖z‖+2)))
+    (s : ℂ) (k : ℕ) {c : ℝ} (hc : 0<c) :
+    ∃ D : ℝ,0≤D ∧ ∀ x∈Icc (-c) c, ∀ t : ℝ,
+      ‖f (s+((x:ℂ)+t*I))^k*Complex.exp (((x:ℂ)+t*I)^2)‖≤D/(1+t^2) := by
   let d := ‖s‖+c
   obtain ⟨C,hC⟩ := linear_mul_log_le_sq_add (K := k*B) (by positivity)
   refine ⟨2*A^k*Real.exp (C+d^2/4+c^2), by positivity,?_⟩
@@ -56,10 +58,10 @@ theorem xi_pow_gaussian_strip_bound (s : ℂ) (k : ℕ) {c : ℝ} (hc : 0 < c) :
   have hexp : (k:ℝ)*(B*r*Real.log (r+2))+(w^2).re ≤ C+d^2/4+c^2-t^2/2 := by
     rw [hwr]
     nlinarith [hC r hr, sq_nonneg t]
-  change ‖xi (s+w)^k*Complex.exp (w^2)‖ ≤ _
+  change ‖f (s+w)^k*Complex.exp (w^2)‖ ≤ _
   rw [norm_mul,norm_pow,Complex.norm_exp]
-  have hpow := pow_le_pow_left₀ (norm_nonneg _) (hxi (s+w)) k
-  change ‖xi (s+w)‖^k ≤ (A*Real.exp (B*r*Real.log (r+2)))^k at hpow
+  have hpow := pow_le_pow_left₀ (norm_nonneg _) (hf (s+w)) k
+  change ‖f (s+w)‖^k ≤ (A*Real.exp (B*r*Real.log (r+2)))^k at hpow
   rw [mul_pow,← Real.exp_nat_mul] at hpow
   calc _ ≤ (A^k*Real.exp (k*(B*r*Real.log (r+2))))*Real.exp (w^2).re :=
             mul_le_mul_of_nonneg_right hpow (Real.exp_pos _).le
@@ -69,6 +71,13 @@ theorem xi_pow_gaussian_strip_bound (s : ℂ) (k : ℕ) {c : ℝ} (hc : 0 < c) :
             rw [Real.exp_sub,le_div_iff₀ (by positivity),mul_div_assoc',div_mul_eq_mul_div,div_le_iff₀ (Real.exp_pos _)]
             nlinarith [mul_nonneg (by positivity : 0 ≤ A^k * Real.exp (C+d^2/4+c^2))
               (show 0 ≤ 2*Real.exp (t^2/2)-(1+t^2) by linarith [Real.add_one_le_exp (t^2/2)])]
+
+/-- A horizontally uniform integrable majorant after Gaussian damping, for each fixed center. -/
+theorem xi_pow_gaussian_strip_bound (s : ℂ) (k : ℕ) {c : ℝ} (hc : 0 < c) :
+    ∃ D : ℝ, 0 ≤ D ∧ ∀ x ∈ Icc (-c) c, ∀ t : ℝ,
+      ‖xi (s+((x:ℂ)+t*I))^k * Complex.exp (((x:ℂ)+t*I)^2)‖ ≤ D/(1+t^2) := by
+  obtain ⟨A,B,hA,hB,hxi⟩ := norm_xi_le_exp_norm_mul_log
+  exact gaussian_strip_bound_of_exp_norm_mul_log xi hA.le hB.le hxi s k hc
 
 /-- A right-line integral in the smoothed functional equation of a power of zeta. -/
 noncomputable def xiGaussianIntegral (s : ℂ) (k : ℕ) (c : ℝ) : ℂ :=

@@ -62,10 +62,12 @@ theorem iterForwardDiff_mean_value {k : ℕ} (h : Fin k → ℝ) (hh : ∀ i, 0 
       rw [he₁,show G u = _ from he',show j+1+k=j+(k+1) by omega]
       ring
 
-private noncomputable def logSecondDerivative (τ a : ℝ) (k : ℕ) (x : ℝ) : ℝ :=
+/-- The derivative of order `k+2` of the shifted logarithmic phase. -/
+noncomputable def logSecondDerivative (τ a : ℝ) (k : ℕ) (x : ℝ) : ℝ :=
   (-1:ℝ)^(k+1)*τ*((k+1).factorial:ℝ)/(x+a)^(k+2)
 
-private theorem logSecondDerivative_hasDerivAt {τ a x : ℝ} (hx : 0<x+a) (k : ℕ) :
+/-- Successive derivatives of a shifted logarithm on its positive ray. -/
+theorem logSecondDerivative_hasDerivAt {τ a x : ℝ} (hx : 0<x+a) (k : ℕ) :
     HasDerivAt (logSecondDerivative τ a k) (logSecondDerivative τ a (k+1) x) x := by
   let c := (-1:ℝ)^(k+1)*τ*((k+1).factorial:ℝ)
   have hd := (hasDerivAt_const x c).div (((hasDerivAt_id x).add_const a).pow (k+2))

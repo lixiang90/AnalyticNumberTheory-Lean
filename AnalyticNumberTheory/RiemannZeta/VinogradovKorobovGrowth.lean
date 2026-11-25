@@ -25,7 +25,8 @@ def VinogradovKorobovStripGrowth : Prop :=
     16≤|z.im| → ‖riemannZeta z‖ ≤
       D*(1+Real.log |z.im|)*Real.exp (K*η^(3/2:ℝ)*Real.log |z.im|)
 
-private theorem cubic_saving {a η c L : ℝ} (ha : 0≤a) (hη : 0≤η) (hc : 0<c) (hL : 0<L) :
+/-- Maximizing the cubic cancellation exponent produces the three-halves power of the strip width. -/
+theorem vinogradov_cubic_saving {a η c L : ℝ} (ha : 0≤a) (hη : 0≤η) (hc : 0<c) (hL : 0<L) :
     η*a-c*a^3/L^2 ≤ (1/Real.sqrt c)*η^(3/2:ℝ)*L := by
   have hs : 0<Real.sqrt c := Real.sqrt_pos.mpr hc
   have heq : (1/Real.sqrt c)*η^(3/2:ℝ) = η*Real.sqrt (η/c) := by
@@ -102,7 +103,7 @@ private theorem vertical_block {c C T η : ℝ} (hc : 0<c) (hC : 0<C) {M b : ℕ
   rw [hmul]
   apply mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr _) hC.le
   exact (sub_le_sub_right (mul_le_mul_of_nonneg_right (by linarith : 1-z.re≤η) (Real.log_nonneg hMr)) _).trans
-    (cubic_saving (Real.log_nonneg hMr) hη hc (Real.log_pos (by linarith)))
+    (vinogradov_cubic_saving (Real.log_nonneg hMr) hη hc (Real.log_pos (by linarith)))
 
 /-- Partial summation, dyadic decomposition, and the sharp truncation of zeta
 transfer cubic block cancellation to the three-halves strip estimate. -/

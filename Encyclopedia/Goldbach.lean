@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPageRepresentations
 import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPageAsymptotic
 import AnalyticNumberTheory.AdditiveNumberTheory.PageMajorArcs
 import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPrimeTripleAsymptotic
@@ -98,3 +99,21 @@ $$`W(N)=\mathfrak S_3(N)\binom{N-1}{2}+O\bigl(N^2/(\log N)^{2/5}\bigr).`
 {docstring page_goldbachTernaryOddCount_asymptotic}
 
 {docstring page_goldbachTernaryCount_asymptotic}
+
+# 奇异级数与奇素数表示数的下界
+%%%
+tag := "goldbach-explicit-lower"
+file := "representation-lower-bound"
+%%%
+
+奇数上的三元奇异级数和正偶数上的二元奇异级数均至少为一。两者在二处的局部因子均为二。对奇素数 $`p`，局部因子至少为 $`1-(p-1)^{-2}`。加入其余整数指标让乘积更小，完整乘积由 $`1-n^{-2}=(n-1)(n+1)/n^2` 望远镜相消，极限为二分之一。
+
+{docstring one_le_goldbachTernarySingularSeries_of_odd}
+
+{docstring one_le_goldbachBinarySingularSeries_of_even}
+
+将这个下界代入{ref "page-ternary-asymptotic"}[Page 路线的有限估计]，再扣除高次素数幂和素数二的贡献。当奇数 $`N` 达到定理规定的对数门槛，其有序奇素数三元组至少有 $`N^2/(8\log^3 N)` 个。该门槛是加权误差系数的显式函数，而该系数中的三个 Page 参数仍按存在量化。
+
+{docstring goldbachTernaryOddCount_lower_of_weighted}
+
+{docstring page_goldbachTernaryOddCount_lower}

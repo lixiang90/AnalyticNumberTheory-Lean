@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.CharacterMomentConstants
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
 import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
 import AnalyticNumberTheory.RiemannZeta.CriticalSecondMomentError
@@ -196,3 +197,23 @@ $$`\int_1^T|\zeta(1/2+it,a)|^2\,dt
 对高度积分后，这一全特征族的二阶矩中，$`T\log(T/(2\pi))` 的系数为 $`\varphi(q)^2/q`，线性项系数由既约剩余类上的移位常数给出。误差常数允许依赖固定模数。
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.character_family_critical_second_moment}
+
+# 单个原始 Dirichlet 特征的二阶矩
+%%%
+tag := "primitive-critical-second-term"
+file := "primitive-character-second-term"
+%%%
+
+设 $`\chi` 为模 $`q` 的原始特征，允许取非实值。在高度 $`t` 处，对称截断长度为 $`\lfloor\sqrt{qt/(2\pi)}\rfloor`。把有限和乘上导子与高度决定的相位后，可以用它和它的共轭控制临界线上 $`L` 函数的模，误差为 $`O_q(t^{-1/4})`。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_critical_polynomial_error}
+
+二阶矩的首项为 $`(\varphi(q)/q)T\log(T/(2\pi))`。线性项系数由与 $`q` 互素的整数的调和和决定。对固定 $`q`，余项为 $`O_q(T^{3/4}\sqrt{\log(T+2)})`，因此该公式可以辨别每个原始特征的第二主项。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_critical_second_moment_expansion}
+
+令 $`P(q)=\sum_{p\mid q}(\log p)/(p-1)`。提取密度因子以后，单个原始特征的线性项系数为 $`2\gamma-1+\log q+2P(q)`。全特征族求和再提取 $`\varphi(q)^2/q` 后，相应系数为 $`2\gamma-1+\log q+P(q)`。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_character_second_moment}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.full_character_second_moment}

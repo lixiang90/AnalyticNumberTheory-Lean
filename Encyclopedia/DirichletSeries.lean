@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletSeries.RamachandraPolarDecay
 import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import VersoManual
@@ -35,3 +36,19 @@ file := "ramachandra-smoothing"
 设在左侧直线 $`\Re w=l` 上有函数方程 $`F(s+w)=\psi(s+w)G(1-s-w)`，其中 $`-1<l<0` 且对偶级数在该线上绝对收敛。把对偶级数截为前 $`N` 项和尾和。若 $`F` 和 $`\psi` 在各自移动的带域内全纯且沿竖直方向至多按多项式增长，分别移动积分线便得到平滑和、有限对偶和与两个余项积分之间的恒等式。两条右侧积分线可独立选取。移动时越过 $`\Gamma(w)` 在零点的极点，这解释了公式中 $`F(s)` 和有限对偶和的来源。
 
 {docstring ramachandra_smoothed_functional_equation}
+
+# 有限阶极点对平滑公式的贡献
+%%%
+tag := "ramachandra-polar-residue"
+file := "polar-remainder"
+%%%
+
+若围道越过 $`F` 在 $`q` 处的极点，设其阶数至多为 $`k+1`。在平移坐标 $`w` 中，极点位于 $`p=q-s`。将被积函数乘以 $`(w-p)^{k+1}` 后，取其在 $`p` 处的 $`k` 阶导数，再除以 $`k!`，即为{ref "ramachandra-smoothing"}[两条围道公式]中要扣除的留数。
+
+{docstring ramachandra_smoothed_functional_equation_with_pole}
+
+设 $`H=1+|\Im(q-s)|`。在定理给定的紧实部区间内，当 $`1\le X\le H^A` 时，留数对每个自然数 $`m` 均为 $`O(H^{-m})`。同一常数适用于所有对偶截断长度 $`N`。
+
+{docstring gammaSmoothingResidue_rapid_decay}
+
+{docstring ramachandra_smoothed_functional_equation_error}

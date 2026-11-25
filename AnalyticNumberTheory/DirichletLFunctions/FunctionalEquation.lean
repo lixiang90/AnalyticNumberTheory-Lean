@@ -1593,7 +1593,8 @@ private theorem riemannZeta₁_eq_second_order_integral {s : ℂ} (hs : -1 < s.r
     exact Filter.eventually_of_mem hmem heq_on_right
   exact hZ_an.eqOn_of_preconnected_of_eventuallyEq hJ_an hconn (by norm_num) hev hs
 
-private theorem norm_riemannZeta₁_strip_poly_le {s : ℂ}
+/-- Cubic height growth of pole-cleared zeta on the closed strip −1/2 ≤ Re(s) ≤ 2. -/
+theorem norm_riemannZeta₁_strip_poly_le {s : ℂ}
     (hs_lo : -(1 / 2 : ℝ) ≤ s.re) (hs_hi : s.re ≤ 2) :
     ‖riemannZeta₁ s‖ ≤ 10 * (|s.im| + 2) ^ 3 := by
   have hs_gt : -1 < s.re := by linarith

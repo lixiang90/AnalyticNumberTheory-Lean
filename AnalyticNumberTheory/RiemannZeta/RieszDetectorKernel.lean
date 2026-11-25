@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.DirichletSeries.Perron
+import AnalyticNumberTheory.DirichletSeries.RieszKernelBounds
 import AnalyticNumberTheory.RiemannZeta.PoleAndBounds
 import Mathlib.NumberTheory.ArithmeticFunction.Moebius
 
@@ -64,10 +64,6 @@ theorem riemannZeta_halfplane_linear_bound :
 
 /-- Each of the seven denominator factors has norm at least the absolute height. -/
 theorem rieszDenom_six_norm_ge (w : ℂ) :
-    |w.im|^7 ≤ ‖rieszDenom 6 w‖ := by
-  rw [rieszDenom,norm_prod]
-  calc |w.im|^7 = ∏ _j ∈ range 7,|w.im| := by simp
-       _ ≤ _ := prod_le_prod₀ (fun _ _ => abs_nonneg _) (fun j _ => by
-          simpa using Complex.abs_im_le_norm (w+(j:ℂ)))
+    |w.im|^7 ≤ ‖rieszDenom 6 w‖ := im_pow_le_rieszDenom_norm 6 w
 
 end AnalyticNumberTheory.RiemannZeta

@@ -45,7 +45,9 @@ theorem dirichletDetector_product_eq_one_add {q N : ℕ} (χ : DirichletCharacte
     simp [zetaDetectorCoeff_of_le (mem_Icc.mp hn).2, hn']
   · simp [hN]
 
-private lemma norm_moebiusCharPoly_le {q N : ℕ} (χ : DirichletCharacter ℂ q)
+/-- The twisted Möbius polynomial has size at most twice the square root of
+its length on and to the right of the critical line. -/
+lemma norm_moebiusCharPoly_le {q N : ℕ} (χ : DirichletCharacter ℂ q)
     {s : ℂ} (hs : 1/2 ≤ s.re) :
     ‖dirichletPoly (fun n => (μ n:ℂ)*χ n) N s‖ ≤ 2*Real.sqrt N := by
   apply (norm_sum_le _ _).trans

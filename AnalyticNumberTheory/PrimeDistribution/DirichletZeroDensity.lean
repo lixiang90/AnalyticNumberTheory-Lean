@@ -21,15 +21,16 @@ namespace AnalyticNumberTheory.PrimeDistribution
 
 open ZeroDetector
 
-private abbrev CharIndex := (q : ℕ) × DirichletCharacter ℂ q
+abbrev PrimitiveCharacterIndex := (q : ℕ) × DirichletCharacter ℂ q
 
-private lemma modulus_mem {p : CharIndex} {Q : ℕ} (hp : p ∈ primitiveCharacterFamily Q) :
+/-- A primitive-family index has positive modulus at most the conductor cutoff. -/
+lemma primitiveCharacterFamily_modulus {p : PrimitiveCharacterIndex} {Q : ℕ} (hp : p ∈ primitiveCharacterFamily Q) :
     1 ≤ p.1 ∧ p.1 ≤ Q := mem_Icc.mp (mem_sigma.mp hp).1
 
 private theorem family_zeroDensity_at_cutoff {Q T X : ℕ} (hQ : 1 ≤ Q) (hT : 1 ≤ T)
     (hX : (16*Q*(T+1))^4 ≤ X)
-    {σ : ℝ} (hσ : σ ∈ Set.Icc (3/4:ℝ) 1) (S : CharIndex → Finset ℂ)
-    (hS : ∀ (p : CharIndex) [NeZero p.1], p ∈ primitiveCharacterFamily Q → ∀ z ∈ S p,
+    {σ : ℝ} (hσ : σ ∈ Set.Icc (3/4:ℝ) 1) (S : PrimitiveCharacterIndex → Finset ℂ)
+    (hS : ∀ (p : PrimitiveCharacterIndex) [NeZero p.1], p ∈ primitiveCharacterFamily Q → ∀ z ∈ S p,
       p.2 ≠ 1 ∧ DirichletCharacter.LFunction p.2 z = 0 ∧
       σ ≤ z.re ∧ z.re < 1 ∧ 0 ≤ z.im ∧ z.im < T) :
     ∑ p ∈ primitiveCharacterFamily Q, ((S p).card : ℝ) ≤
@@ -41,7 +42,7 @@ private theorem family_zeroDensity_at_cutoff {Q T X : ℕ} (hQ : 1 ≤ Q) (hT : 
   let K := jensenUnitZeroDensityConst
   let D := 18*(4*Real.pi^3)*3^7*K
   let V := (X:ℝ)^(4*(1-σ))
-  let P (i : ℕ) (p : CharIndex) (z : ℂ) := dirichletPoly (fun n => blockCoeff X i n*p.2 n) (2*2^i) z
+  let P (i : ℕ) (p : PrimitiveCharacterIndex) (z : ℂ) := dirichletPoly (fun n => blockCoeff X i n*p.2 n) (2*2^i) z
   have hA : 1 ≤ 16*Q*(T+1) := Nat.mul_pos (Nat.mul_pos (by decide) hQ) (Nat.succ_pos _)
   have hX1 : 1 ≤ X := (Nat.one_le_pow _ _ hA).trans hX
   have hXr : (1:ℝ) ≤ X := by exact_mod_cast hX1
@@ -65,16 +66,16 @@ private theorem family_zeroDensity_at_cutoff {Q T X : ℕ} (hQ : 1 ≤ Q) (hT : 
       (by exact_mod_cast hX : (16*(Q:ℝ)*(T+1))^4 ≤ X) (by norm_num : (0:ℝ) ≤ 1/4)
     simpa only [←Real.rpow_natCast (16*(Q:ℝ)*(T+1)) 4, ←Real.rpow_mul (by positivity : 0 ≤ 16*(Q:ℝ)*(T+1)),
       Nat.cast_ofNat, show (4:ℝ)*(1/4) = 1 by norm_num, Real.rpow_one] using hh
-  have hre (p : CharIndex) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) : z.re ∈ Set.Icc σ (σ+1) := by
-    let : NeZero p.1 := ⟨Nat.ne_of_gt (modulus_mem hp).1⟩
+  have hre (p : PrimitiveCharacterIndex) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) : z.re ∈ Set.Icc σ (σ+1) := by
+    let : NeZero p.1 := ⟨Nat.ne_of_gt (primitiveCharacterFamily_modulus hp).1⟩
     obtain ⟨_,_,hzσ,hz₁,_⟩ := hS p hp z hz
     exact ⟨hzσ,by linarith [hσ.1]⟩
-  have him (p : CharIndex) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) : 0 ≤ z.im ∧ z.im < T := by
-    let : NeZero p.1 := ⟨Nat.ne_of_gt (modulus_mem hp).1⟩
+  have him (p : PrimitiveCharacterIndex) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) : 0 ≤ z.im ∧ z.im < T := by
+    let : NeZero p.1 := ⟨Nat.ne_of_gt (primitiveCharacterFamily_modulus hp).1⟩
     exact (hS p hp z hz).2.2.2.2
-  have hcount (p : CharIndex) (hp : p ∈ F) (j : ℕ) (hj : j < T) :
+  have hcount (p : PrimitiveCharacterIndex) (hp : p ∈ F) (j : ℕ) (hj : j < T) :
       (((S p).filter (fun z => ⌊z.im⌋₊=j)).card : ℝ) ≤ K*ℓ := by
-    let : NeZero p.1 := ⟨Nat.ne_of_gt (modulus_mem hp).1⟩
+    let : NeZero p.1 := ⟨Nat.ne_of_gt (primitiveCharacterFamily_modulus hp).1⟩
     by_cases hχ : p.2 = 1
     · have he : S p = ∅ := eq_empty_iff_forall_notMem.mpr fun z hz => (hS p hp z hz).1 hχ
       simp [he]; positivity
@@ -91,12 +92,12 @@ private theorem family_zeroDensity_at_cutoff {Q T X : ℕ} (hQ : 1 ≤ Q) (hT : 
     apply mul_le_mul_of_nonneg_left _ hK
     rw [abs_of_nonneg (Nat.cast_nonneg _)]
     have harg : (p.1:ℝ)*(j+2) ≤ X := by
-      exact_mod_cast (Nat.mul_le_mul (modulus_mem hp).2 (by omega : j+2 ≤ T+1)).trans hQT
-    have hpq : 0 < (p.1:ℝ) := by exact_mod_cast (modulus_mem hp).1
+      exact_mod_cast (Nat.mul_le_mul (primitiveCharacterFamily_modulus hp).2 (by omega : j+2 ≤ T+1)).trans hQT
+    have hpq : 0 < (p.1:ℝ) := by exact_mod_cast (primitiveCharacterFamily_modulus hp).1
     exact (Real.log_le_log (by positivity) harg).trans (by dsimp only [ℓ]; linarith)
-  have heach (p : CharIndex) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) :
+  have heach (p : PrimitiveCharacterIndex) (hp : p ∈ F) (z : ℂ) (hz : z ∈ S p) :
       (1:ℝ)/4 ≤ (J.card:ℝ)*∑ i ∈ J, ‖P i p z‖^2 := by
-    let : NeZero p.1 := ⟨Nat.ne_of_gt (modulus_mem hp).1⟩
+    let : NeZero p.1 := ⟨Nat.ne_of_gt (primitiveCharacterFamily_modulus hp).1⟩
     obtain ⟨hχ,hz₀,hzσ,hr,ht,ht₁⟩ := hS p hp z hz
     have hsr := hσ.1.trans hzσ
     have hnorm := Complex.norm_le_abs_re_add_abs_im z
@@ -104,7 +105,7 @@ private theorem family_zeroDensity_at_cutoff {Q T X : ℕ} (hQ : 1 ≤ Q) (hT : 
     have hsdiv : ‖z‖/z.re ≤ 2*(T+1) := by
       apply (div_le_iff₀ (by linarith)).mpr
       nlinarith [mul_le_mul_of_nonneg_left hsr (by positivity : 0≤2*((T:ℝ)+1))]
-    have hq : (p.1:ℝ) ≤ Q := by exact_mod_cast (modulus_mem hp).2
+    have hq : (p.1:ℝ) ≤ Q := by exact_mod_cast (primitiveCharacterFamily_modulus hp).2
     have hd := dirichletDetector_large_at_zero hχ hX1 hsr hz₀ (by
       apply le_trans _ hcut
       calc
@@ -202,25 +203,26 @@ theorem dirichlet_family_zeroDensity_upper :
       exact pow_le_pow_left₀ (by linarith [Real.log_nonneg hXr]) hlogcmp _
     _ = _ := by ring
 
-private def starIndex (p : CharIndex) : CharIndex := ⟨p.1,star p.2⟩
+/-- Conjugating a character preserves its modulus. -/
+def primitiveStarIndex (p : PrimitiveCharacterIndex) : PrimitiveCharacterIndex := ⟨p.1,star p.2⟩
 
-private lemma starIndex_involutive (p : CharIndex) : starIndex (starIndex p) = p := by
+lemma primitiveStarIndex_involutive (p : PrimitiveCharacterIndex) : primitiveStarIndex (primitiveStarIndex p) = p := by
   rcases p with ⟨q,χ⟩
   apply congrArg (Sigma.mk q)
   exact (star_char_eq_inv (star χ)).trans ((congrArg Inv.inv (star_char_eq_inv χ)).trans (inv_inv χ))
 
-private lemma starIndex_mem {Q : ℕ} {p : CharIndex} (hp : p ∈ primitiveCharacterFamily Q) :
-    starIndex p ∈ primitiveCharacterFamily Q := by
-  let : NeZero p.1 := ⟨Nat.ne_of_gt (modulus_mem hp).1⟩
+lemma primitiveStarIndex_mem {Q : ℕ} {p : PrimitiveCharacterIndex} (hp : p ∈ primitiveCharacterFamily Q) :
+    primitiveStarIndex p ∈ primitiveCharacterFamily Q := by
+  let : NeZero p.1 := ⟨Nat.ne_of_gt (primitiveCharacterFamily_modulus hp).1⟩
   obtain ⟨hq,hχ⟩ := mem_sigma.mp hp
   have hprim : (star p.2).IsPrimitive := isPrimitive_star (mem_filter.mp hχ).2
   exact mem_sigma.mpr ⟨hq, mem_filter.mpr ⟨mem_univ _,hprim⟩⟩
 
-private lemma sum_starIndex {Q : ℕ} (f : CharIndex → ℝ) :
-    ∑ p ∈ primitiveCharacterFamily Q, f (starIndex p) = ∑ p ∈ primitiveCharacterFamily Q, f p := by
-  refine sum_bij (fun p _ => starIndex p) (fun _ => starIndex_mem) ?_ ?_ (fun _ _ => rfl)
-  · intro p _ r _ h; simpa only [starIndex_involutive] using congrArg starIndex h
-  · intro p hp; exact ⟨starIndex p,starIndex_mem hp,starIndex_involutive p⟩
+private lemma sum_primitiveStarIndex {Q : ℕ} (f : PrimitiveCharacterIndex → ℝ) :
+    ∑ p ∈ primitiveCharacterFamily Q, f (primitiveStarIndex p) = ∑ p ∈ primitiveCharacterFamily Q, f p := by
+  refine sum_bij (fun p _ => primitiveStarIndex p) (fun _ => primitiveStarIndex_mem) ?_ ?_ (fun _ _ => rfl)
+  · intro p _ r _ h; simpa only [primitiveStarIndex_involutive] using congrArg primitiveStarIndex h
+  · intro p hp; exact ⟨primitiveStarIndex p,primitiveStarIndex_mem hp,primitiveStarIndex_involutive p⟩
 
 /-- A power-saving zero-density theorem for the family of all primitive
 nonprincipal characters up to modulus `Q`, with both signs of the ordinate. -/
@@ -235,9 +237,9 @@ theorem dirichlet_family_zeroDensity :
   obtain ⟨C,hC,H⟩ := dirichlet_family_zeroDensity_upper
   refine ⟨2*C,by positivity,?_⟩
   intro Q hQ T σ hT hσ S hS
-  let U (p : CharIndex) := (S p).filter fun z => 0 ≤ z.im
-  let L (p : CharIndex) := (S p).filter fun z => ¬ 0 ≤ z.im
-  let V (p : CharIndex) := (L (starIndex p)).image (starRingEnd ℂ)
+  let U (p : PrimitiveCharacterIndex) := (S p).filter fun z => 0 ≤ z.im
+  let L (p : PrimitiveCharacterIndex) := (S p).filter fun z => ¬ 0 ≤ z.im
+  let V (p : PrimitiveCharacterIndex) := (L (primitiveStarIndex p)).image (starRingEnd ℂ)
   have hU := H hQ hT hσ U (by
     intro p _ hp z hz
     obtain ⟨hs,ht⟩ := mem_filter.mp hz
@@ -247,8 +249,8 @@ theorem dirichlet_family_zeroDensity :
     intro p _ hp z hz
     obtain ⟨w,hw,rfl⟩ := mem_image.mp hz
     obtain ⟨hw',hn⟩ := mem_filter.mp hw
-    let : NeZero (starIndex p).1 := ‹NeZero p.1›
-    obtain ⟨hχ,hzero,hr,hr',hi⟩ := hS (starIndex p) (starIndex_mem hp) w hw'
+    let : NeZero (primitiveStarIndex p).1 := ‹NeZero p.1›
+    obtain ⟨hχ,hzero,hr,hr',hi⟩ := hS (primitiveStarIndex p) (primitiveStarIndex_mem hp) w hw'
     change star p.2 ≠ 1 at hχ
     have hχ' : p.2 ≠ 1 := fun e => hχ (by simp [e])
     have hc := LFunction_star_conj hχ w
@@ -257,11 +259,11 @@ theorem dirichlet_family_zeroDensity :
     rw [hzero,map_zero] at hc
     exact ⟨hχ',hc,by simpa using hr,by simpa using hr',by simp; linarith,
       by simp; linarith [(abs_le.mp hi).1]⟩)
-  have hvcard (p : CharIndex) : (V p).card = (L (starIndex p)).card :=
+  have hvcard (p : PrimitiveCharacterIndex) : (V p).card = (L (primitiveStarIndex p)).card :=
     card_image_of_injective _ (starRingEnd ℂ).injective
   simp only [hvcard] at hV
-  rw [sum_starIndex (fun p => ((L p).card:ℝ))] at hV
-  have hsplit (p : CharIndex) : ((S p).card:ℝ) = (U p).card + (L p).card := by
+  rw [sum_primitiveStarIndex (fun p => ((L p).card:ℝ))] at hV
+  have hsplit (p : PrimitiveCharacterIndex) : ((S p).card:ℝ) = (U p).card + (L p).card := by
     exact_mod_cast (card_filter_add_card_filter_not (s:=S p) (fun z => 0 ≤ z.im)).symm
   simp_rw [hsplit]
   rw [sum_add_distrib]

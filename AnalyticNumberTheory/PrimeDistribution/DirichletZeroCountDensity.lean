@@ -121,7 +121,8 @@ private theorem primitiveFamilyZeroCount_near_one :
   apply (mul_le_mul_of_nonneg_right hD (mul_nonneg hK.le (by linarith [Real.log_nonneg hY]))).trans_eq
   dsimp only [Y]; ring
 
-private lemma card_primitiveFamily_le (Q : ℕ) : (primitiveCharacterFamily Q).card ≤ Q^2 := by
+/-- At most Q squared primitive characters occur up to conductor Q. -/
+lemma card_primitiveFamily_le (Q : ℕ) : (primitiveCharacterFamily Q).card ≤ Q^2 := by
   rw [primitiveCharacterFamily,card_sigma]
   calc
     _ ≤ ∑ _q ∈ Icc 1 Q, Q := by

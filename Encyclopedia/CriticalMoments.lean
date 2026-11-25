@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyUniformMoment
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicCriticalSecondMoment
+import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyFourthMoment
 import AnalyticNumberTheory.DirichletLFunctions.CharacterMomentConstants
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
 import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
@@ -11,6 +12,7 @@ import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
 import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
 import AnalyticNumberTheory.RiemannZeta.FourthMomentAsymptotic
 import AnalyticNumberTheory.RiemannZeta.FourthMomentIngham
+import AnalyticNumberTheory.RiemannZeta.FourthMomentDiscrete
 import AnalyticNumberTheory.RiemannZeta.HurwitzStripMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.StripMeanSquare
 import VersoManual
@@ -232,6 +234,36 @@ file := "primitive-character-second-term"
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.full_character_second_moment}
 
+# 临界线附近的四阶矩与分离样本
+%%%
+tag := "near-critical-fourth-moments"
+file := "near-critical-fourth-moments"
+%%%
+
+设 $`T\ge 2`。当 $`|\sigma-1/2|\le 1/(200\log T)` 时，黎曼 ζ 函数满足
+
+$$`\int_0^T|\zeta(\sigma+it)|^4\,dt\ll T(\log T)^4.`
+
+这个估计对窄带内的实部一致。证明将 $`\int_0^T\zeta(z+it)^2\zeta(z-it)^2\,dt` 视为 $`z` 的全纯函数。取实数 $`z=\sigma` 就得到四阶矩；在临界线上输入已有均值，在稍远的两条竖线上输入多项式增长界，再用矩形上的最大模原理插值。
+
+{docstring fourthMoment_riemannZeta_narrow_strip}
+
+在带宽减半后，可绕 $`\sigma+it` 作半径 $`1/(400\log T)` 的圆。Cauchy 导数积分给出的四次方损失为半径的负四次幂，从而有
+
+$$`\int_0^T|\zeta'(\sigma+it)|^4\,dt\ll T(\log T)^8\qquad\left(|\sigma-1/2|\le\frac{1}{400\log T}\right).`
+
+{docstring fourthMoment_deriv_riemannZeta_narrow_strip}
+
+{index}[分离高度样本]设 $`\delta>0`，$`S\subset[-T,T]` 为有限集，每两个不同元素至少相距 $`\delta`。在各样本点附近取互不相交的区间，结合函数及其导数的四阶均值，可得
+
+$$`\sum_{t\in S}|\zeta(1/2+it)|^4\ll (\delta^{-1}+\log T)T(\log T)^4.`
+
+允许负高度、零和端点 $`\pm T`。常数对 $`\delta` 和 $`S` 一致；在同一条直线 $`|\sigma-1/2|\le 1/(800\log T)` 上也有相同的求和界。
+
+{docstring fourthMoment_riemannZeta_separated}
+
+{docstring fourthMoment_riemannZeta_separated_narrow_strip}
+
 # 周期 L 函数和单个非原始特征的二阶矩
 %%%
 tag := "periodic-critical-second-term"
@@ -254,6 +286,37 @@ $$`\int_1^T |L(1/2+it,\Phi)|^2\,dt
 对任意模 $`q` 的单个特征 $`\chi`，有 $`A=\varphi(q)/q`。对偶权 $`\widehat\chi(k)` 由频率 $`-k` 处的 Gauss 和除以 $`\sqrt q` 给出。将它代入 $`H` 就得到单个非原始特征的显式线性项。
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.individual_character_second_moment}
+
+# 固定模数特征族的临界线第四矩
+%%%
+tag := "character-family-critical-fourth"
+file := "character-family-critical-fourth"
+%%%
+
+{index}[Dirichlet 特征族的第四矩]设 $`q\ge1`、$`T\ge1`，记 $`J_T(F)=\int_{-T}^T |F(1/2+it)|^4\,dt`。对固定模数的原始特征求和，得到对模数和高度都一致的界
+
+$$`\sum_{\chi\bmod q}^{*} J_T(L(\,\cdot\,,\chi))
+ \ll \varphi(q)\,T\bigl(1+\log(qT)\bigr)^4.`
+
+在每段高度上，平滑函数方程把问题归结为长度约 $`\sqrt{q(1+|t|)}` 的特征多项式及衰减的尾和。多项式平方的系数按乘积 $`mn` 合并，受除数函数控制。模 $`q` 的特征正交性把均方拆成同余类内的和，类内频率的间距使右端保留因子 $`\varphi(q)`。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_family_critical_fourth_moment}
+
+设 $`\chi^*` 是诱导 $`\chi` 的原始特征，导子为 $`d`。对模 $`q` 的全部特征，$`\sum_\chi J_T(L(\,\cdot\,,\chi^*))` 和 $`\sum_\chi J_T(L(\,\cdot\,,\chi))` 都至多为 $`CqT(1+\log(qT))^4`。后一个估计要计入有限个 Euler 因子，因为
+
+$$`L(s,\chi)=L(s,\chi^*)\prod_{p\mid q,\ p\nmid d}(1-\chi^*(p)p^{-s}).`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.full_character_critical_fourth_moments}
+
+当 $`\Re s\ge1/4` 时，各因子模的四次方至多为 $`(1+p^{-1/4})^4`。按导子分组后，即使把素数范围扩大到 $`p\mid q/d`，带权除数和仍有绝对上界
+
+$$`\sum_{d\mid q}\varphi(d)\prod_{p\mid q/d}(1+p^{-1/4})^4\ll q.`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.conductor_euler_fourth_weight_le}
+
+对 $`1\le d\le Q` 的所有原始特征再求和，得到 $`Q^2T(1+\log(QT))^4` 阶的上界。积分区间仍为 $`[-T,T]`，可直接用于同时含有正、负虚部的均值估计。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_conductors_critical_fourth_moment}
 
 # 对移位、模数和高度一致的二阶矩
 %%%

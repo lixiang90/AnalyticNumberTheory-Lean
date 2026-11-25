@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.DirichletSeries.Perron
+import AnalyticNumberTheory.DirichletSeries.RieszKernelBounds
 
 /-!
 # The Riesz kernel on a critical-line shift
@@ -19,21 +19,8 @@ theorem riesz_six_critical_kernel_le {ρ w : ℂ} (hρ : 1 ≤ ρ.im)
   let q := 1+|w.im|
   have hq : 1 ≤ q := by dsimp [q]; linarith [abs_nonneg w.im]
   have hq0 : 0 < q := by linarith
-  have htail : (q/3)^6 ≤ ∏ j ∈ range 6, ‖w+((j+1:ℕ):ℂ)‖ := by
-    calc (q/3)^6 = ∏ _j ∈ range 6, q/3 := by simp [div_pow]
-         _ ≤ _ := by
-           apply prod_le_prod₀ (fun _ _ => by positivity)
-           intro j _
-           have h₁ := Complex.re_le_norm (w+((j+1:ℕ):ℂ))
-           have h₂ := Complex.abs_im_le_norm (w+((j+1:ℕ):ℂ))
-           simp only [Nat.cast_add,Nat.cast_one,add_re,natCast_re,one_re,add_im,natCast_im,one_im,add_zero] at h₁ h₂ ⊢
-           dsimp [q]
-           linarith [Nat.cast_nonneg (α:=ℝ) j]
-  have hden : d*(q/3)^6 ≤ ‖rieszDenom 6 w‖ := by
-    rw [rieszDenom,norm_prod,prod_range_succ']
-    simp only [Nat.cast_zero,add_zero]
-    rw [mul_comm]
-    exact mul_le_mul htail hdw hd.le (by positivity)
+  have hden := rieszDenom_norm_lower 6 hw hd.le hdw
+  change d*(q/3)^6≤‖rieszDenom 6 w‖ at hden
   have hden0 : 0<‖rieszDenom 6 w‖ := (mul_pos hd (by positivity)).trans_le hden
   have hρ' : 1≤‖ρ-1‖ := by
     have hh := Complex.im_le_norm (ρ-1)

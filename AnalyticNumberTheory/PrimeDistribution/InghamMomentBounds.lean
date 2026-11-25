@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.FamilyIntegralMoments
 import AnalyticNumberTheory.RiemannZeta.FourthMomentLog
 import AnalyticNumberTheory.PrimeDistribution.ZetaZeroDetector
 import AnalyticNumberTheory.SieveMethods.DirichletPolynomials
@@ -19,39 +20,13 @@ open AnalyticNumberTheory.RiemannZeta
 
 namespace AnalyticNumberTheory.PrimeDistribution
 
-private theorem weighted_interval_cauchy {a b : ℝ} (hab : a ≤ b) {w f g : ℝ → ℝ}
-    (hw : Continuous w) (hf : Continuous f) (hg : Continuous g) (hw0 : ∀ t, 0 ≤ w t) :
-    (∫ t in a..b, w t*f t*g t)^2 ≤
-      (∫ t in a..b, w t*(f t)^2)*(∫ t in a..b, w t*(g t)^2) := by
-  let A := ∫ t in a..b, w t*(f t)^2
-  let B := ∫ t in a..b, w t*f t*g t
-  let C := ∫ t in a..b, w t*(g t)^2
-  have h (u : ℝ) : 0 ≤ A*(u*u)+(2*B)*u+C := by
-    have hn : 0 ≤ ∫ t in a..b, w t*(u*f t+g t)^2 :=
-      intervalIntegral.integral_nonneg hab (fun t _ => mul_nonneg (hw0 t) (sq_nonneg _))
-    have he (t : ℝ) : w t*(u*f t+g t)^2 =
-        (u*u)*(w t*(f t)^2) + (2*u)*(w t*f t*g t) + w t*(g t)^2 := by ring
-    simp_rw [he] at hn
-    have h₁ : Continuous fun t => (u*u)*(w t*(f t)^2) := continuous_const.mul (hw.mul (hf.pow 2))
-    have h₂ : Continuous fun t => (2*u)*(w t*f t*g t) := continuous_const.mul ((hw.mul hf).mul hg)
-    have h₃ : Continuous fun t => w t*(g t)^2 := hw.mul (hg.pow 2)
-    rw [intervalIntegral.integral_add (f:=fun t => (u*u)*(w t*(f t)^2) + (2*u)*(w t*f t*g t)) (g:=fun t => w t*(g t)^2) ((h₁.add h₂).intervalIntegrable ..) (h₃.intervalIntegrable ..),
-      intervalIntegral.integral_add (h₁.intervalIntegrable ..) (h₂.intervalIntegrable ..),
-      intervalIntegral.integral_const_mul,intervalIntegral.integral_const_mul] at hn
-    change 0 ≤ (u*u)*A + (2*u)*B + C at hn
-    linarith only [hn]
-  have hd := discrim_le_zero h
-  unfold discrim at hd
-  change B^2 ≤ A*C
-  nlinarith only [hd]
-
 /-- Weighted Hölder with exponents 4, 2, 4, in a form without fractional powers. -/
 theorem weighted_interval_fourth_second {a b : ℝ} (hab : a ≤ b) {w f g : ℝ → ℝ}
     (hw : Continuous w) (hf : Continuous f) (hg : Continuous g) (hw0 : ∀ t, 0 ≤ w t) :
     (∫ t in a..b, w t*f t*g t)^4 ≤ (∫ t in a..b, w t) *
       (∫ t in a..b, w t*(f t)^4)*(∫ t in a..b, w t*(g t)^2)^2 := by
-  have h₁ := weighted_interval_cauchy hab hw hf hg hw0
-  have h₂ := weighted_interval_cauchy hab hw (continuous_const (y:=(1:ℝ))) (hf.pow 2) hw0
+  have h₁ := AnalyticTools.weighted_interval_cauchy hab hw hf hg hw0
+  have h₂ := AnalyticTools.weighted_interval_cauchy hab hw (continuous_const (y:=(1:ℝ))) (hf.pow 2) hw0
   simp only [mul_one,one_pow,Pi.pow_apply,← pow_mul] at h₂
   have h₃ := pow_le_pow_left₀ (sq_nonneg _) h₁ 2
   rw [mul_pow, ←pow_mul] at h₃

@@ -88,18 +88,18 @@ theorem completedLGaussianIntegral_div_eq {q : ℕ} [NeZero q] (χ : DirichletCh
   rw [he]; ring
 
 /-- Crossing zero extracts the polynomial multiplied by `2π`. -/
-theorem characterGaussianMean_polynomial_shift {q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q)
-    (N : ℕ) (t : ℝ) :
+theorem characterGaussianMean_polynomial_shift_to {q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q)
+    (N : ℕ) (t : ℝ) {c : ℝ} (hc : 0<c) (hc' : c≤1) :
     let P := dirichletPoly (fun n : ℕ => χ n) N
     let s := (1/2:ℂ)+t*I
-    characterGaussianMean χ t (3/4) P-characterGaussianMean χ t (-(1/4)) P=2*π*P s := by
+    characterGaussianMean χ t c P-characterGaussianMean χ t (-(1/4)) P=2*π*P s := by
   let P := dirichletPoly (fun n : ℕ => χ n) N
   let s := (1/2:ℂ)+t*I
   let F (w : ℂ) := χ.gammaFactor (s+w)*P (s+w)*conductorWeight q w*Complex.exp (w^2)
   have hp (w : ℂ) (hw : -(1/4:ℝ)≤w.re) : 0<(s+w).re := by simp [s]; linarith
   have hG (w : ℂ) (hw : -(1/4:ℝ)≤w.re) : 0<(s+w+(parityExp χ:ℂ)).re := by
     exact (hp w hw).trans_le (by simp only [Complex.add_re,Complex.natCast_re]; linarith [Nat.cast_nonneg (α:=ℝ) (parityExp χ)])
-  have hdiff : ∀ w : ℂ,w.re∈Icc (-(1/4:ℝ)) (3/4) → AnalyticAt ℂ F w := by
+  have hdiff : ∀ w : ℂ,w.re∈Icc (-(1/4:ℝ)) c → AnalyticAt ℂ F w := by
     intro w hw
     have hfG : AnalyticAt ℂ (fun z => χ.gammaFactor (s+z)) w := by
       simp_rw [gammaFactor_eq_Gammaℝ]
@@ -108,18 +108,18 @@ theorem characterGaussianMean_polynomial_shift {q : ℕ} [NeZero q] (χ : Dirich
       exact ((H.analyticOnNhd hU) _ (hG w hw.1)).comp (by fun_prop)
     have hP : AnalyticAt ℂ (fun z => P (s+z)) w := ((differentiable_dirichletPoly _ _).analyticAt (s+w)).comp (by fun_prop)
     exact ((hfG.mul hP).mul (differentiable_conductorWeight.analyticAt w)).mul (by fun_prop)
-  obtain ⟨G,hG₀,HG⟩ := norm_Gamma_positive_strip_weight (a:=1/8) (b:=9/8) (by norm_num) (by norm_num) 0
-  let Q := (q:ℝ)^(3/8:ℝ)
+  obtain ⟨G,hG₀,HG⟩ := norm_Gamma_positive_strip_weight (a:=1/8) (b:=5/4) (by norm_num) (by norm_num) 0
+  let Q := (q:ℝ)^(1/2:ℝ)
   have hq : (1:ℝ)≤q := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne q)
-  have hbound (x : ℝ) (hx : x∈Icc (-(1/4:ℝ)) (3/4)) (v : ℝ) :
+  have hbound (x : ℝ) (hx : x∈Icc (-(1/4:ℝ)) c) (v : ℝ) :
       ‖F ((x:ℂ)+v*I)‖≤G*N*Q*Real.exp 1/(1+v^2) := by
     let w := (x:ℂ)+v*I
     let u := s+w+(parityExp χ:ℂ)
     have hre : u.re=1/2+x+parityExp χ := by simp [s,w,u]
     have hpar : parityExp χ≤1 := by unfold parityExp; split <;> omega
-    have hu : (u/2).re∈Icc (1/8:ℝ) (9/8) := by
+    have hu : (u/2).re∈Icc (1/8:ℝ) (5/4) := by
       rw [Complex.div_ofNat_re,hre]
-      constructor <;> linarith only [hx.1,hx.2,Nat.cast_nonneg (α:=ℝ) (parityExp χ),show (parityExp χ:ℝ)≤1 by exact_mod_cast hpar]
+      constructor <;> linarith only [hx.1,hx.2,hc',Nat.cast_nonneg (α:=ℝ) (parityExp χ),show (parityExp χ:ℝ)≤1 by exact_mod_cast hpar]
     have hgam : ‖χ.gammaFactor (s+w)‖≤G := by
       rw [gammaFactor_eq_Gammaℝ]
       change ‖Complex.Gammaℝ u‖≤_
@@ -138,17 +138,17 @@ theorem characterGaussianMean_polynomial_shift {q : ℕ} [NeZero q] (χ : Dirich
            _ = _ := by simp
     have hcq : ‖conductorWeight q w‖≤Q := by
       rw [norm_conductorWeight]
-      apply Real.rpow_le_rpow_of_exponent_le hq; simp [w]; linarith [hx.2]
+      apply Real.rpow_le_rpow_of_exponent_le hq; simp [w]; linarith [hx.2,hc']
     have he : (w^2).re=x^2-v^2 := by simp [w,pow_two]
     have hGauss : Real.exp (w^2).re≤Real.exp 1/(1+v^2) := by
       rw [he,Real.exp_sub]
-      apply div_le_div₀ (Real.exp_pos 1).le (Real.exp_le_exp.mpr (by nlinarith [hx.1,hx.2,mul_nonneg (sub_nonneg.mpr hx.1) (sub_nonneg.mpr hx.2)])) (by positivity)
+      apply div_le_div₀ (Real.exp_pos 1).le (Real.exp_le_exp.mpr (by nlinarith [hx.1,hx.2,mul_nonneg (sub_nonneg.mpr hx.1) (show 0≤1-x by linarith [hx.2,hc'])])) (by positivity)
       linarith only [Real.add_one_le_exp (v^2)]
     dsimp only [F]; rw [norm_mul,norm_mul,norm_mul,Complex.norm_exp]
     apply (mul_le_mul (mul_le_mul (mul_le_mul hgam hpol (norm_nonneg _) hG₀.le)
       hcq (norm_nonneg _) (by positivity)) hGauss (Real.exp_pos _).le (by positivity)).trans_eq
     ring
-  have H := verticalCauchyIntegral_sub (F:=F) (by norm_num : -(1/4:ℝ)<0) (by norm_num : (0:ℝ)<3/4) hdiff (by positivity) hbound
+  have H := verticalCauchyIntegral_sub (F:=F) (by norm_num : -(1/4:ℝ)<0) hc hdiff (by positivity) hbound
   dsimp only; rw [characterGaussianMean_eq,characterGaussianMean_eq,←sub_div]
   change (verticalCauchyIntegral F _-verticalCauchyIntegral F _)/χ.gammaFactor s=_
   rw [H]; dsimp [F,conductorWeight]
@@ -156,5 +156,13 @@ theorem characterGaussianMean_polynomial_shift {q : ℕ} [NeZero q] (χ : Dirich
     rw [gammaFactor_eq_Gammaℝ]; apply Complex.Gammaℝ_ne_zero_of_re_pos; simp [s]; positivity
   simp; field_simp; ring
   rfl
+
+/-- Crossing zero extracts the polynomial multiplied by `2π`. -/
+theorem characterGaussianMean_polynomial_shift {q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q)
+    (N : ℕ) (t : ℝ) :
+    let P := dirichletPoly (fun n : ℕ => χ n) N
+    let s := (1/2:ℂ)+t*I
+    characterGaussianMean χ t (3/4) P-characterGaussianMean χ t (-(1/4)) P=2*π*P s :=
+  characterGaussianMean_polynomial_shift_to χ N t (by norm_num) (by norm_num)
 
 end AnalyticNumberTheory.DirichletLFunctions

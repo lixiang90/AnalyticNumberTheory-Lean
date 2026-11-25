@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.InghamZeroDetector
-import AnalyticNumberTheory.PrimeDistribution.InghamTypeI
+import AnalyticNumberTheory.PrimeDistribution.CharacterInghamTypeI
 import AnalyticNumberTheory.PrimeDistribution.InghamTypeII
 import AnalyticNumberTheory.PrimeDistribution.InghamDyadic
 import AnalyticNumberTheory.PrimeDistribution.InghamApplications
@@ -54,11 +54,11 @@ private theorem ingham_large_band :
     ∃ E > (0:ℝ), ∀ᶠ X : ℕ in atTop, ∀ {σ : ℝ}, σ ∈ Set.Icc (1/2:ℝ) 1 →
       1/Real.log X ≤ σ-1/2 → ∀ S : Finset ℂ,
       (∀ z ∈ S, riemannZeta z = 0 ∧ σ ≤ z.re ∧ z.re < 1 ∧ (X:ℝ) ≤ z.im ∧ z.im ≤ 2*X) →
-      (S.card:ℝ) ≤ E*(1+Real.log X)^10*(X:ℝ)^(inghamExponent σ) := by
+      (S.card:ℝ) ≤ E*(1+Real.log X)^6*(X:ℝ)^(inghamExponent σ) := by
   obtain ⟨A,hA,hdet⟩ := ingham_zero_detector
   obtain ⟨D,hD,hII⟩ := ingham_typeII_count
   obtain ⟨K,hK,hunit⟩ := ingham_unit_density
-  let C₁ := 64*(72*(10+4*π)*2^7*K)*2^9
+  let C₁ := 64*(2304*π^3*K)*2^5
   let C₂ := 1+D*K^3*(8*A)^4
   have hc₁ : 0 < C₁ := by dsimp [C₁]; positivity
   have hc₂ : 0 < C₂ := by dsimp [C₂]; positivity
@@ -86,7 +86,7 @@ private theorem ingham_large_band :
   have him (z : ℂ) (hz : z ∈ S₁) : 0 ≤ z.im ∧ z.im < (2*X+1:ℕ) := by
     obtain ⟨_,_,_,h₁,h₂⟩ := hS z (mem_filter.mp hz).1
     exact ⟨hX0.le.trans h₁,by push_cast; linarith⟩
-  have hI := ingham_typeI_count hYF (norm_inghamRieszCoeff hY0 X) (S:=S₁) (V:=1/8)
+  have hI := ingham_typeI_count_log_five (by omega) hYF (norm_inghamRieszCoeff hY0 X) (S:=S₁) (V:=1/8)
     ⟨by linarith [hσ.1],hσ.2⟩ (by positivity : 0≤K*L) (by norm_num) hre him
     (hunit (by omega) hσ S₁ (fun z hz => hS z (mem_filter.mp hz).1)) (fun z hz => (mem_filter.mp hz).2)
   have hlogY : 1+Real.log (⌊Y⌋₊:ℝ) ≤ 2*L := by
@@ -97,9 +97,9 @@ private theorem ingham_large_band :
   have hpY : (⌊Y⌋₊:ℝ)^(2*(1-σ)) ≤ Z :=
     (Real.rpow_le_rpow (Nat.cast_nonneg _) (Nat.floor_le hY0.le) (by linarith [hσ.2])).trans_eq
       (inghamCutoff_balance hX0 hσ.2).1
-  have hI' : (S₁.card:ℝ) ≤ C₁*L^10*Z := by
+  have hI' : (S₁.card:ℝ) ≤ C₁*L^6*Z := by
     have hp : 0 ≤ 1+Real.log (⌊Y⌋₊:ℝ) := by linarith [Real.log_nonneg (by exact_mod_cast hYF : (1:ℝ)≤⌊Y⌋₊)]
-    have hu : (S₁.card:ℝ)*(1/8:ℝ)^2 ≤ (72*(10+4*π)*2^7*(K*L))*(2*L)^9*Z := by
+    have hu : (S₁.card:ℝ)*(1/8:ℝ)^2 ≤ (2304*π^3*(K*L))*(2*L)^5*Z := by
       apply hI.trans; gcongr
     dsimp only [C₁]; linarith only [hu]
   let J (z : ℂ) := ∫ v in -(4*(X:ℝ))..4*X, (1/(1+|v|)^4)*
@@ -125,15 +125,15 @@ private theorem ingham_large_band :
   have hcard : (S.card:ℝ) = S₁.card+(S₂.card:ℝ) := by
     exact_mod_cast (card_filter_add_card_filter_not (s:=S) P).symm
   have hII'' := hII'.trans (mul_le_mul_of_nonneg_right
-    (mul_le_mul_of_nonneg_left (pow_le_pow_right₀ hL (by decide : 5≤10)) hc₂.le) hZ)
-  change (S.card:ℝ) ≤ (C₁+C₂)*L^10*Z
+    (mul_le_mul_of_nonneg_left (pow_le_pow_right₀ hL (by decide : 5≤6)) hc₂.le) hZ)
+  change (S.card:ℝ) ≤ (C₁+C₂)*L^6*Z
   linarith only [hcard,hI',hII'']
 
 /-- Uniform density estimate on a dyadic band, also for a subset of the zeros. -/
-theorem ingham_zeroDensity_band :
+theorem ingham_zeroDensity_band_log_six :
     ∃ C > (0:ℝ), ∀ {X : ℕ}, 1 ≤ X → ∀ {σ : ℝ}, σ ∈ Set.Icc (1/2:ℝ) 1 → ∀ S : Finset ℂ,
       (∀ z ∈ S, riemannZeta z = 0 ∧ σ ≤ z.re ∧ z.re < 1 ∧ (X:ℝ) ≤ z.im ∧ z.im ≤ 2*X) →
-      (S.card:ℝ) ≤ C*(1+Real.log X)^10*(X:ℝ)^(inghamExponent σ) := by
+      (S.card:ℝ) ≤ C*(1+Real.log X)^6*(X:ℝ)^(inghamExponent σ) := by
   obtain ⟨E,hE,hlarge⟩ := ingham_large_band
   obtain ⟨N,hN⟩ := eventually_atTop.mp (hlarge.and (eventually_ge_atTop 2))
   obtain ⟨D,hD,hcrude⟩ := zeroDensityN_le_mul_log
@@ -162,7 +162,7 @@ theorem ingham_zeroDensity_band :
     have hX₂ : (2:ℝ) ≤ X := by exact_mod_cast hx₂
     by_cases hg : 1/Real.log X ≤ σ-1/2
     · apply (hdet hσ hg S hS).trans
-      change E*L^10*Z ≤ C*L^10*Z
+      change E*L^6*Z ≤ C*L^6*Z
       gcongr
     · have ha := hbase (T:=2*X) le_rfl
       have hb := hcrude 0 (2*X) (by linarith)
@@ -176,14 +176,41 @@ theorem ingham_zeroDensity_band :
       have hhh := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hc (by positivity : 0≤8*D)) (by linarith : 0≤L)
       have h₁ : (S.card:ℝ) ≤ B*L*Z := by dsimp only [B]; linarith only [ha,hb,hh,hhh]
       exact h₁.trans (mul_le_mul_of_nonneg_right (mul_le_mul hBC
-        (by simpa using pow_le_pow_right₀ hL (by decide : 1≤10) : L ≤ L^10) (by linarith) (hB.le.trans hBC)) (by linarith))
+        (by simpa using pow_le_pow_right₀ hL (by decide : 1≤6) : L ≤ L^6) (by linarith) (hB.le.trans hBC)) (by linarith))
   · have hf := hbase (T:=2*(N:ℝ)) (by exact_mod_cast (show 2*X ≤ 2*N by omega))
     change (S.card:ℝ) ≤ F at hf
     apply hf.trans
-    change F ≤ C*L^10*Z
+    change F ≤ C*L^6*Z
     have hc : F ≤ C := le_max_left ..
     exact hc.trans ((le_mul_of_one_le_right (hF.trans hc) (one_le_pow₀ hL)).trans
         (le_mul_of_one_le_right (by positivity) hZ))
+
+/-- The global Ingham bound for distinct zeros, with seven logarithms. -/
+theorem ingham_zeroDensity_log_seven :
+    ∃C > (0:ℝ), ∀σ∈Set.Icc (1/2:ℝ) 1,∀T : ℝ,2≤T →
+      (zeroDensityN σ T:ℝ)≤C*T^(inghamExponent σ)*(Real.log T)^7 := by
+  obtain ⟨C,hC,H⟩ := ingham_zeroDensity_band_log_six
+  exact zeroDensity_of_dyadic_power_bound inghamExponent 6
+    (fun σ hσ => div_nonneg (by linarith [hσ.2]) (by linarith [hσ.2])) hC H
+
+/-- Ingham's density estimate with orders of vanishing and eight logarithms. -/
+theorem ingham_zeroDensity_with_multiplicity_log_eight :
+    ∃C > (0:ℝ), ∀σ∈Set.Icc (1/2:ℝ) 1,∀T : ℝ,2≤T →
+      (∑ρ∈zeroDensityFinset σ T,(zeroMultiplicity ρ:ℝ))≤C*T^(inghamExponent σ)*(Real.log T)^8 :=
+  zeroDensity_with_multiplicity_of_power_bound inghamExponent 7 ingham_zeroDensity_log_seven
+
+/-- The traditional, weaker logarithmic form of the band estimate. -/
+theorem ingham_zeroDensity_band :
+    ∃ C > (0:ℝ), ∀ {X : ℕ}, 1 ≤ X → ∀ {σ : ℝ}, σ ∈ Set.Icc (1/2:ℝ) 1 → ∀ S : Finset ℂ,
+      (∀ z ∈ S, riemannZeta z = 0 ∧ σ ≤ z.re ∧ z.re < 1 ∧ (X:ℝ) ≤ z.im ∧ z.im ≤ 2*X) →
+      (S.card:ℝ) ≤ C*(1+Real.log X)^10*(X:ℝ)^(inghamExponent σ) := by
+  obtain ⟨C,hC,H⟩ := ingham_zeroDensity_band_log_six
+  refine ⟨C,hC,?_⟩
+  intro X hX σ hσ S hS
+  have hlog := Real.log_nonneg (by exact_mod_cast hX : (1:ℝ)≤X)
+  exact (H hX hσ S hS).trans (mul_le_mul_of_nonneg_right
+    (mul_le_mul_of_nonneg_left (pow_le_pow_right₀ (by linarith : 1≤1+Real.log X) (by decide : 6≤10)) hC.le)
+      (by positivity))
 
 /-- **Ingham's zero-density theorem** with the density exponent
 `3(1−σ)/(2−σ)` and eleven powers of the logarithm for distinct zeros. -/

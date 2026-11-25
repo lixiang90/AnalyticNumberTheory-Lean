@@ -63,20 +63,24 @@ theorem LFunction_changeLevel_strip_zero_order {d q : ℕ} [NeZero d] [NeZero q]
     simp only [analyticOrderNatAt, analyticOrderAt_congr he, analyticOrderAt_mul hana (analyticAt_levelEulerProduct χ q s),
       (analyticAt_levelEulerProduct χ q s).analyticOrderAt_eq_zero.mpr hp, add_zero]
 
+/-- Change of level preserves the entire finite zero set in a closed height band. -/
+theorem criticalStripZeroFinset_changeLevel {d q : ℕ} [NeZero d] [NeZero q] (hdq : d ∣ q)
+    (χ : DirichletCharacter ℂ d) (l u : ℝ) :
+    criticalStripZeroFinset (χ.changeLevel hdq) l u = criticalStripZeroFinset χ l u := by
+  ext s
+  simp only [mem_criticalStripZeroFinset]
+  constructor
+  · rintro ⟨h0,h1,ht,ht',hz⟩
+    exact ⟨h0,h1,ht,ht',(LFunction_changeLevel_strip_zero_order hdq χ h0 h1).1.mp hz⟩
+  · rintro ⟨h0,h1,ht,ht',hz⟩
+    exact ⟨h0,h1,ht,ht',(LFunction_changeLevel_strip_zero_order hdq χ h0 h1).1.mpr hz⟩
+
 /-- Critical strip zeros of the induced character are exactly the primitive
 ones with the same multiplicities, for every height (including zero). -/
 theorem zeroCountL_changeLevel {d q : ℕ} [NeZero d] [NeZero q] (hdq : d ∣ q)
     (χ : DirichletCharacter ℂ d) (T : ℝ) : zeroCountL (χ.changeLevel hdq) T = zeroCountL χ T := by
   classical
-  have he : criticalStripZeroFinset (χ.changeLevel hdq) (-T) T = criticalStripZeroFinset χ (-T) T := by
-    ext s
-    simp only [mem_criticalStripZeroFinset]
-    constructor
-    · rintro ⟨h0,h1,ht,ht',hz⟩
-      exact ⟨h0,h1,ht,ht',(LFunction_changeLevel_strip_zero_order hdq χ h0 h1).1.mp hz⟩
-    · rintro ⟨h0,h1,ht,ht',hz⟩
-      exact ⟨h0,h1,ht,ht',(LFunction_changeLevel_strip_zero_order hdq χ h0 h1).1.mpr hz⟩
-  rw [zeroCountL, zeroCountL, he]
+  rw [zeroCountL, zeroCountL, criticalStripZeroFinset_changeLevel]
   refine Finset.sum_congr rfl fun s hs => ?_
   obtain ⟨h0,h1,_⟩ := (mem_criticalStripZeroFinset χ).mp hs
   exact (LFunction_changeLevel_strip_zero_order hdq χ h0 h1).2

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DivisorProblems.DivisorExponent
 import AnalyticNumberTheory.DivisorProblems.TruncatedVoronoi
 import AnalyticNumberTheory.DivisorProblems.GaussCircleCubeRoot
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
@@ -76,3 +77,19 @@ $$`\Delta(x)=\frac{x^{1/4}}{\pi\sqrt{2}}\sum_{n\le y}\frac{d(n)}{n^{3/4}}
 {docstring truncated_voronoi_divisor_formula_real}
 
 {docstring truncated_voronoi_classical_error}
+
+# 突破三分之一次幂的除数误差
+%%%
+tag := "divisor-exponent"
+file := "divisor-exponent"
+%%%
+
+对于 $`x\ge2`，令 $`\Delta(x)=\sum_{n\le x}d(n)-x\log x-(2\gamma-1)x`。在狄利克雷双曲线法的分块求和中，对原变量使用三阶导数估计，对{ref "poisson-reciprocal-phase"}[倒数相位变换]后的平方根相位使用五阶导数估计。平衡两种估计，得到一个绝对常数 $`C`，使得
+
+$$`|\Delta(x)|\le Cx^{27/82}(\log x)^2.`
+
+因为 $`1/3-27/82=1/246>0`，两个对数因子也能由这一幂次差吸收，从而 $`\Delta(x)/x^{1/3}\to0`。{ref "higher-derivative-tests"}[高阶导数检验]给出上述两种分块估计共同使用的工具。
+
+{docstring abs_divisorError_le_vanDerCorput_exponent}
+
+{docstring divisorError_isLittleO_cubeRoot}

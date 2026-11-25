@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.PeriodicLogFreeApproximation
 import AnalyticNumberTheory.DirichletLFunctions.PrimitiveApproximateFunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicApproximateFunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.FunctionalEquation
@@ -59,3 +60,9 @@ $$`\widehat{\Phi}(n)=\sum_{r=1}^q\Phi(r)\exp(-2\pi i nr/q).`
 当 $`\chi` 是原特征时，它的 Fourier 变换可写为 Gauss 和乘以共轭特征。由 $`\chi(-1)` 合并正、负频率，对偶侧只需计算一个多项式 $`\sum_{n\le y}\overline{\chi(n)}\,n^{s-1}`。与之相乘的因子包含 $`q^{-s}`、Gauss 和和两个频率的 Gamma 因子，适用于奇、偶两类原特征。
 
 {docstring primitiveLFunction_sharp_afe}
+
+在闭临界带 $`0\le\sigma\le1` 中，若 $`2\le x\le y`，{ref "log-free-hurwitz-approximation"}[无对数的 Hurwitz 估计]给出周期函数的统一余项 $`604q^{1-\sigma}x^{-\sigma}`。同一个误差界适用于原特征的单个共轭对偶多项式。
+
+{docstring periodicLFunction_logFree_sharp_afe}
+
+{docstring primitiveLFunction_logFree_sharp_afe}

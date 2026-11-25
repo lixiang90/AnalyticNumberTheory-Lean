@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.SieveMethods.ShiftedAlmostPrimes
+import AnalyticNumberTheory.AnalyticTools.HilbertKernelEstimates
 import AnalyticNumberTheory.SieveMethods.LinearSieve
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshConstant
 import AnalyticNumberTheory.SieveMethods.LinearSieveEulerProducts
@@ -237,3 +239,40 @@ $`G(z)-\log z\to B=\gamma+\sum_p\log p/[p(p-1)]`。这里 $`B>1.28`。取 $`z=\s
 {docstring tendsto_selbergDenominator_sub_log}
 
 {docstring tendsto_selbergIntervalWeightMass_div}
+
+# 平移素数与三个素因子
+%%%
+tag := "shifted-almost-primes"
+file := "shifted-almost-primes"
+%%%
+
+固定非零偶整数 $`h`，令 $`\Omega(n)` 表示按重数计的素因子个数，例如 $`\Omega(12)=3`。存在只依赖于 $`h` 的 $`c_h>0`，使充分大的 $`x` 满足
+
+$$`\#\{p\le x : p\ \text{为素数},\ \Omega(|p-h|)\le3\}
+     \ge c_h\frac{x}{(\log x)^2}.`
+
+取 $`h=-2` 即知有无穷多个素数 $`p` 使 $`p+2` 至多有三个素因子。证明对平移后的素数使用 {ref "rosser-linear-sieve-bounds"}[Rosser 线性筛]，再以 Kuhn 权扣除带有中等大小素因子的项。算术级数中的平均误差由 {ref "bombieri-vinogradov"}[Bombieri–Vinogradov 定理]控制。
+
+{docstring shiftedAlmostPrimes_lower}
+
+{docstring infinite_primes_shift_threeFactors}
+
+# 非等距点列的求和常数
+%%%
+tag := "individual-spacing-sums"
+file := "individual-spacings"
+%%%
+
+对有限实点列 $`x_r`，给每个点指定 $`\delta_r>0`，满足 $`\delta_r\le|x_r-x_s|` 对所有 $`s\ne r` 成立。在固定点 $`x_s` 两侧，指数核的加权和分别受单侧等距点列控制。将这些指数估计对尺度积分，就得到二次和四次核的显式常数
+
+$$`\sum_{r\ne s}\frac{\delta_r}{(x_r-x_s)^2}\le\frac{\pi^2}{3\delta_s},
+\qquad
+\sum_{r\ne s}\frac{\delta_r}{(x_r-x_s)^4}\le\frac{\pi^4}{45\delta_s^3}.`
+
+常数分别来自 $`2\zeta(2)` 与 $`2\zeta(4)`。取越来越长的等距点列并固定其中点，两式左边都趋于相应的上界。
+
+{docstring AnalyticNumberTheory.AnalyticTools.sum_separated_exponential_right}
+
+{docstring AnalyticNumberTheory.AnalyticTools.hilbert_quadratic_row}
+
+{docstring AnalyticNumberTheory.AnalyticTools.hilbert_quartic_row}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.ExponentialSums.HigherDerivativeTests
 import AnalyticNumberTheory.ExponentialSums.ReciprocalRealBlocks
 import AnalyticNumberTheory.ExponentialSums.SharpPoissonSummation
 import AnalyticNumberTheory.ExponentialSums.ReciprocalTransform
@@ -47,3 +48,18 @@ $$`\frac{1+i}{2}\, A^{1/4}v^{-3/4}e(2\sqrt{Av}).`
 $`249J(1+\sqrt{b^3/A})(1+\log(6+4A/a^2))`。半开区间保证拼接相邻区间时端点频率只出现一次。{ref "divisor-voronoi-formula"}[除数问题的截断公式]就是这一变换的应用。
 
 {docstring reciprocal_vanDerCorput_interval}
+
+# 高阶导数检验
+%%%
+tag := "higher-derivative-tests"
+file := "higher-derivatives"
+%%%
+
+设 $`k\ge2` 为整数，区间长度不超过 $`M`，且相位的连续 $`k` 阶导数处处满足 $`0<\lambda\le |f^{(k)}(t)|\le c\lambda`。取 $`\alpha=1/(2^k-2)`。van der Corput 的导数检验给出
+
+$$`\left|\sum_{a<n\le b}e(f(n))\right|
+ \ll_{k,c} M\lambda^\alpha + M^{1-2^{2-k}}\lambda^{-\alpha}.`
+
+当 $`k=2` 时，右边是 $`M\sqrt{\lambda}+1/\sqrt{\lambda}`。提高一阶时，对相位作 Weyl 差分，由中值定理可用原相位的高阶导数控制差分相位的导数，然后选取差分长度。
+
+{docstring vanDerCorput_higher_derivative}

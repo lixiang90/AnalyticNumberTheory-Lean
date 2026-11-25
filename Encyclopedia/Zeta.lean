@@ -1,3 +1,6 @@
+import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCorrection
+import AnalyticNumberTheory.RiemannZeta.HurwitzBoundedHeight
+import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCosine
 import AnalyticNumberTheory.RiemannZeta.RiemannUnbalancedApproximation
 import AnalyticNumberTheory.RiemannZeta.RiemannSharpApproximation
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
@@ -72,3 +75,41 @@ file := "log-free-approximation"
 $`O(x^{-\sigma}+|t|^{1/2-\sigma}y^{\sigma-1})`。
 
 {docstring riemannZeta_unbalanced_sharp_afe}
+
+# Hardy 函数的有限余弦和
+%%%
+tag := "hardy-riemann-siegel-cosine"
+file := "hardy-cosine"
+%%%
+
+令 $`Z(t)=e^{i\vartheta(t)}\zeta(1/2+it)`，其中 $`e^{i\vartheta(t)}` 是 $`\Gamma_{\mathbb R}(1/2+it)` 的单位相位。由于函数方程将两个对称截断和化为一对共轭，得到实数公式
+
+$$`Z(t)=2\sum_{n\le\sqrt{|t|/(2\pi)}}\frac{\cos(\vartheta(t)-t\log n)}{\sqrt n}+R(t).`
+
+在 $`|t|\ge8\pi` 上有 $`|R(t)|\le604(2\pi)^{1/4}|t|^{-1/4}`。例如取 $`t=200\pi`，和式恰好需要 $`n=1,\ldots,10`。相位的辐角可以相差整周，给出相同的余弦值。
+
+{docstring hardyZ_riemannSiegel_cosine}
+
+对于带平移的 Hurwitz ζ，固定 $`B\ge1` 和 $`\varepsilon>0`，再取满足 $`2\le x\le y`、$`2\pi xy=\max(B,|t|)` 的两个截断点。当 $`0\le\sigma\le1`、$`|1-s|\ge\varepsilon` 时，余项为 $`O_{B,\varepsilon}(x^{-\sigma})`，对 $`0<a\le1` 一致。取 $`B\ge8\pi` 即可把这样的截断延伸到高度零。
+
+{docstring hurwitzZeta_clipped_sharp_afe}
+
+# Riemann–Siegel 首修正系数
+%%%
+tag := "riemann-siegel-first-coefficient"
+file := "correction-coefficient"
+%%%
+
+令 $`c=2\{\sqrt{|t|/(2\pi)}\}`，花括号表示小数部分。Riemann–Siegel 展开中的第一个系数可用 Mordell 积分定义为连续实函数。除去分母为零的点，它有初等表达式
+
+$$`C(c)=\frac{\cos\bigl(\pi(c^2/2-c-1/8)\bigr)}{\cos(\pi c)}.`
+
+在 $`0\le c\le2` 内，余弦商有两个可去奇点。沿积分表示取极限，得到 $`C(1/2)=C(3/2)=1/2`。这为截断点的小数部分恰在这些位置时提供了同一个连续定义。
+
+{docstring riemannSiegelCorrection_eq_cos_quotient}
+
+{docstring riemannSiegelCorrection_one_half}
+
+{docstring riemannSiegelCorrection_three_halves}
+
+{docstring mordellIntegral_eq_riemannSiegelCorrection}

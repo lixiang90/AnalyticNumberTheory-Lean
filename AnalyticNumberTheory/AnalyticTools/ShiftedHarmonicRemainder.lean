@@ -87,4 +87,14 @@ theorem shifted_harmonic_floor_remainder {a x : ℝ} (ha : a∈Set.Ioc (0:ℝ) 1
   simp only [div_eq_mul_inv,one_mul] at H H' hinv hlog' hyx hxinv ⊢
   constructor <;> linarith only [hxinv,H.1,H.2,H'.1,H'.2,hinv,hlog,hlog',hyx]
 
+/-- Subtracting the pole of the digamma function gives a uniform bound
+over the entire interval of positive shifts at most one. -/
+theorem abs_realDigamma_add_inv_le {a : ℝ} (ha : a∈Set.Ioc (0:ℝ) 1) :
+    |realDigamma a+1/a| ≤ 2+|Real.eulerMascheroniConstant| := by
+  have H := shifted_harmonic_finite_error ha (N:=1) le_rfl
+  norm_num [harmonic] at H
+  rw [one_div]
+  rw [abs_le] at H ⊢
+  constructor <;> linarith only [H.1,H.2,le_abs_self Real.eulerMascheroniConstant,neg_abs_le Real.eulerMascheroniConstant]
+
 end AnalyticNumberTheory.AnalyticTools

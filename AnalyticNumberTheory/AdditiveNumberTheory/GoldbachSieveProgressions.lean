@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.AdditiveNumberTheory.Goldbach
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshFull
+import AnalyticNumberTheory.PrimeDistribution.ProgressionCountingBounds
 
 /-! # A uniform progression estimate for averaging sieve factors
 
@@ -11,27 +12,6 @@ noncomputable section
 open Finset Real
 open AnalyticNumberTheory.PrimeDistribution AnalyticNumberTheory.SieveMethods
 namespace AnalyticNumberTheory.AdditiveNumberTheory
-
-private theorem piAP_trivial {t : ℝ} (ht : 0≤t) {d : ℕ} (hd : 0<d) (a : ℕ) :
-    piAP t d a ≤ t/d+1 := by
-  let A := (Icc 1 ⌊t⌋₊).filter (fun p : ℕ => p.Prime ∧ p ≡ a [MOD d])
-  have hi : Set.InjOn (fun n : ℕ => n/d) (↑A : Set ℕ) := by
-    intro p hp q hq he
-    change p/d=q/d at he
-    have hp' : p%d=a%d := (mem_filter.mp hp).2.2
-    have hq' : q%d=a%d := (mem_filter.mp hq).2.2
-    exact (Nat.mod_add_div p d).symm.trans (by rw [hp',he,←hq',Nat.mod_add_div])
-  have hsub : A.image (fun n : ℕ => n/d)⊆range (⌊t/d⌋₊+1) := by
-    intro k hk
-    obtain ⟨n,hn,rfl⟩ := mem_image.mp hk
-    apply mem_range.mpr
-    rw [Nat.floor_div_natCast]
-    exact Nat.lt_succ_of_le (Nat.div_le_div_right (mem_Icc.mp (mem_filter.mp hn).1).2)
-  have H := card_le_card hsub
-  rw [card_image_of_injOn hi,card_range] at H
-  have H' : (A.card:ℝ)≤(⌊t/d⌋₊:ℝ)+1 := by exact_mod_cast H
-  change (A.card:ℝ)≤_
-  linarith only [H',Nat.floor_le (div_nonneg ht (Nat.cast_nonneg d))]
 
 private theorem fourth_root_fourth {r : ℝ} (hr : 0≤r) : (r^(1/4:ℝ))^4=r := by
   rw [←Real.rpow_natCast,←Real.rpow_mul hr]
@@ -99,7 +79,7 @@ theorem goldbach_progression_quarter {t : ℝ} (ht : 2≤t) {d : ℕ} (hd : 0<d)
       rw [←hv4,Real.log_pow]
       push_cast
       linarith only [Real.log_le_sub_one_of_pos hv]
-    have H := mul_le_mul_of_nonneg_right (piAP_trivial ht₀.le hd a) (mul_nonneg hr.le hv.le)
+    have H := mul_le_mul_of_nonneg_right (piAP_le_div_add_one ht₀.le hd a) (mul_nonneg hr.le hv.le)
     have hp : 0≤piAP t d a := by unfold piAP; positivity
     apply (le_div_iff₀ hlog).2
     change piAP t d a*r*log t≤_

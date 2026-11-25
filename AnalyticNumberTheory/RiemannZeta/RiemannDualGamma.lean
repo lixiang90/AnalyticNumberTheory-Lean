@@ -59,14 +59,17 @@ theorem riemannZeta_dualGamma_functional_equation {s : ℂ} (ht : s.im≠0) :
       completedRiemannZeta_one_sub,riemannDualGamma_eq_ratio ht]
   field_simp [hg]
 
-/-- Polynomial growth of the gamma multiplier in the closed strip. -/
-theorem norm_riemannDualGamma_strip_bound : ∃ C : ℝ,0<C ∧ ∀ s : ℂ,s.re∈Set.Icc (0:ℝ) 1 → 1≤|s.im| →
+/-- Polynomial growth of the reciprocal gamma multiplier, uniformly on any fixed real strip. -/
+theorem norm_riemannDualGamma_on_strip (a b : ℝ) : ∃ C : ℝ,0<C ∧ ∀ s : ℂ,s.re∈Set.Icc a b → 1≤|s.im| →
     ‖riemannDualGamma s‖≤C*|s.im|^(1/2-s.re) := by
-  obtain ⟨c,C,hc,hC,H⟩ := norm_complex_gamma_strip_bounds 0 1
-  refine ⟨2*C,by linarith,?_⟩
+  obtain ⟨c,C,hc,hC,H⟩ := norm_complex_gamma_strip_bounds (1-b) (1-a)
+  let B := (2*Real.pi)^(b-1)
+  have hbase : 1≤2*Real.pi := by linarith [Real.pi_gt_three]
+  have hB : 0<B := Real.rpow_pos_of_pos (by positivity) _
+  refine ⟨2*B*C,mul_pos (by positivity) (hc.trans_le hC),?_⟩
   intro s hσ ht
   let v := 1-s
-  have hv : v.re∈Set.Icc (0:ℝ) 1 := by change 0≤1-s.re ∧ 1-s.re≤1;constructor <;> linarith [hσ.1,hσ.2]
+  have hv : v.re∈Set.Icc (1-b) (1-a) := by change 1-b≤1-s.re ∧ 1-s.re≤1-a;constructor <;> linarith [hσ.1,hσ.2]
   have hvi : |v.im|=|s.im| := by simp [v]
   have hg := (H hv (hvi ▸ ht)).2
   rw [Complex.re_add_im,hvi] at hg
@@ -76,9 +79,9 @@ theorem norm_riemannDualGamma_strip_bound : ∃ C : ℝ,0<C ∧ ∀ s : ℂ,s.re
     apply (norm_add_le _ _).trans
     simp only [Complex.norm_exp,Complex.mul_I_re,neg_im,neg_neg]
     linarith [Real.exp_le_exp.mpr (le_abs_self z.im),Real.exp_le_exp.mpr (neg_le_abs z.im)]
-  have hcp : ‖(2*(Real.pi:ℂ))^(-v)‖≤1 := by
+  have hcp : ‖(2*(Real.pi:ℂ))^(-v)‖≤B := by
     rw [show (2*(Real.pi:ℂ))=((2*Real.pi:ℝ):ℂ) by push_cast;rfl,Complex.norm_cpow_eq_rpow_re_of_pos (by positivity),neg_re]
-    exact Real.rpow_le_one_of_one_le_of_nonpos (by linarith [Real.pi_gt_three]) (by linarith [hv.1])
+    exact Real.rpow_le_rpow_of_exponent_le hbase (by linarith [hv.1] : -v.re≤b-1)
   have hcos' := hcos (Real.pi*v/2)
   have he : |(Real.pi*v/2).im|=Real.pi/2*|s.im| := by
     have h : (Real.pi*v/2).im=Real.pi*v.im/2 := by simp [Complex.div_ofNat_im,Complex.mul_im]
@@ -92,5 +95,9 @@ theorem norm_riemannDualGamma_strip_bound : ∃ C : ℝ,0<C ∧ ∀ s : ℂ,s.re
   rw [show v.re-1/2=1/2-s.re by change 1-s.re-1/2=1/2-s.re;ring]
   rw [show -(Real.pi/2)*|s.im| = -(Real.pi/2*|s.im|) by ring,Real.exp_neg]
   field_simp
+
+/-- Polynomial growth of the gamma multiplier in the closed critical strip. -/
+theorem norm_riemannDualGamma_strip_bound : ∃ C : ℝ,0<C ∧ ∀ s : ℂ,s.re∈Set.Icc (0:ℝ) 1 → 1≤|s.im| →
+    ‖riemannDualGamma s‖≤C*|s.im|^(1/2-s.re) := norm_riemannDualGamma_on_strip 0 1
 
 end AnalyticNumberTheory.RiemannZeta

@@ -142,4 +142,34 @@ theorem hurwitzZeta_clipped_sharp_afe {B ε : ℝ} (hB : 1≤B) (hε : 0<ε) :
       _ ≤ M := by dsimp [M];linarith [le_abs_self D]
       _ ≤ _ := by nlinarith [mul_nonneg hM (sub_nonneg.mpr hxA)]
 
+/-- On any bounded part of the critical line the regular part of Hurwitz
+zeta is bounded uniformly as the shift approaches zero. -/
+theorem hurwitzZeta_sub_initial_bounded_height (B : ℝ) :
+    ∃ C : ℝ, 0<C ∧ ∀ {a t : ℝ}, a∈Ioc (0:ℝ) 1 → |t|≤B →
+      let s := (1/2:ℂ)+(t:ℂ)*I
+      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-(a:ℂ)^(-s)‖≤C := by
+  let K := max 2 B
+  have hK : 2≤K := le_max_left ..
+  refine ⟨K/(1/2)+2+(K+1)+(K+1)*(K+2),by positivity,?_⟩
+  intro a t ha ht s
+  have hr : s.re=1/2 := by simp [s]
+  have hi : s.im=t := by simp [s]
+  have hp : 1/2≤‖1-s‖ := by
+    have H := Complex.abs_re_le_norm (1-s)
+    rwa [sub_re,one_re,hr,show (1:ℝ)-1/2=1/2 by norm_num,abs_of_pos (by norm_num : 0<(1/2:ℝ))] at H
+  have H := uniform_direct_error (x:=2) ha le_rfl (s:=s) (by rw [hr];constructor <;> norm_num)
+    (by norm_num : (0:ℝ)<1/2) hp hK (hi ▸ ht.trans (le_max_right 2 B))
+  have hfloor : ⌊2-a⌋₊=1 := (Nat.floor_eq_iff (by linarith [ha.2])).mpr ⟨by norm_num;linarith [ha.2],by push_cast;linarith [ha.1]⟩
+  have hsum : hurwitzDirectSum a 2 s=(a:ℂ)^(-s)+(1+a:ℂ)^(-s) := by
+    simp [hurwitzDirectSum,hfloor,show Finset.Icc 0 1=({0,1}:Finset ℕ) by decide]
+  have hp' : 0<1+a := by linarith [ha.1]
+  have htail : ‖(1+a:ℂ)^(-s)‖≤1 := by
+    rw [show (1+a:ℂ)=((1+a:ℝ):ℂ) by push_cast;rfl,Complex.norm_cpow_eq_rpow_re_of_pos hp',neg_re,hr]
+    exact Real.rpow_le_one_of_one_le_of_nonpos (by linarith [ha.1]) (by norm_num)
+  rw [hsum] at H
+  have he : HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-(a:ℂ)^(-s)=
+      (HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-((a:ℂ)^(-s)+(1+a:ℂ)^(-s)))+(1+a:ℂ)^(-s) := by ring
+  rw [he]
+  linarith only [norm_add_le (HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-((a:ℂ)^(-s)+(1+a:ℂ)^(-s))) ((1+a:ℂ)^(-s)),H,htail]
+
 end AnalyticNumberTheory.RiemannZeta

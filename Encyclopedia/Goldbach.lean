@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPrimePairConstant
 import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPageRepresentations
 import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPageAsymptotic
 import AnalyticNumberTheory.AdditiveNumberTheory.PageMajorArcs
@@ -117,3 +118,19 @@ file := "representation-lower-bound"
 {docstring goldbachTernaryOddCount_lower_of_weighted}
 
 {docstring page_goldbachTernaryOddCount_lower}
+
+# 二元奇异级数与素数对筛常数
+%%%
+tag := "binary-prime-pair-factor"
+file := "binary-prime-pair-factor"
+%%%
+
+设 $`N` 为正偶数。对每个奇素数 $`p`，若 $`p\mid N`，同一个局部条件同时限制两个素数。和 $`p\nmid N` 的情形相比，Euler 因子增加了一个比值 $`(p-1)/(p-2)`。记孪生素数常数为 $`C_2`，则
+
+$$`\mathfrak S_2(N)=2C_2\prod_{\substack{p\mid N\\p>2}}\frac{p-1}{p-2}.`
+
+{docstring goldbachBinarySingularSeries_eq_twice_primePair}
+
+这个等式把圆法和筛法使用的归一化连在一起。{ref "prime-pair-selberg-eight"}[素数对的 Selberg 筛上界]写成二元奇异级数后，对有序 Goldbach 表示数的上界为 $`4\mathfrak S_2(N)N/\log^2N` 乘以 $`1+O(\log\log N/\log N)`。
+
+{docstring goldbachRepCount_le_four_mul_singularSeries}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.PrimePairEight
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshRealZeros
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshStrict
 import AnalyticNumberTheory.SieveMethods.LinearSieveQuantitative
@@ -369,3 +370,46 @@ $$`\pi(x;q,a)\le\frac{(2-\eta)x}{\varphi(q)\log(x/q)}.`
 {docstring positiveCharacterMangoldt_of_brunTitchmarsh}
 
 {docstring real_zero_gap_of_brunTitchmarsh_improvement}
+
+# 素数对与二素数表示的筛上界
+%%%
+tag := "prime-pair-selberg-eight"
+file := "prime-pair-upper-bound"
+%%%
+
+给定非零偶整数 $`h`，令 $`Z(x,h)` 计数满足 $`p\le x`、$`|p-h|` 也为素数的素数 $`p`。每个奇素数 $`\ell\mid h` 都改变一个局部因子。写成乘积就是
+
+$$`C_2=\prod_{\ell>2}\left(1-\frac{1}{(\ell-1)^2}\right),\qquad
+ C(h)=C_2\prod_{\substack{\ell\mid h\\\ell>2}}\frac{\ell-1}{\ell-2},`
+
+其中两处乘积都只取素数。存在绝对常数 $`K>0`，使所有 $`x\ge3` 与上述所有 $`h` 同时满足
+
+$$`Z(x,h)\le 8C(h)\frac{x}{\log^2x}\left(1+K\frac{\log\log x}{\log x}\right).`
+
+取 $`h=-2` 得到孪生素数对的上界。取 $`h=N`、$`x=N`，得到偶数 $`N\ge4` 的有序表示 $`p+q=N` 的上界。后一计数中，$`p\ne q` 的一对素数按两种顺序各计一次。
+
+{docstring primePair_eight}
+
+{docstring twinPrime_eight}
+
+{docstring goldbachRepCount_eight}
+
+系数八来自两个因子。对 $`\ell\nmid h` 的奇素数，条件 $`p\equiv h\bmod\ell` 选中 $`\ell-1` 个既约类中的一个，故 Selberg 分母在 $`\ell` 处的权为 $`1/(\ell-2)`。相应的截断和满足 $`2C(h)D_h(z)\ge\log z-L`，其中 $`L` 是绝对常数。取 $`z^2=\sqrt{x}/(\log x)^B`，则 $`1/\log z` 的主项为 $`4/\log x`。分母的二与筛限的四相乘给出八。
+
+{docstring primePairDenominator_lower}
+
+平均余项需要{ref "bombieri-vinogradov"}[Bombieri–Vinogradov 定理]的带权形式。令 $`E_q(x)` 为 $`2\le y\le x` 和既约剩余类 $`a\bmod q` 上 $`|\pi(y;q,a)-\operatorname{Li}(y)/\varphi(q)|` 的上确界。对任意固定 $`A>0`，可选 $`B\ge0`，使
+
+$$`\sum_{\substack{q\le\sqrt{x}/(\log x)^B\\q\ \text{无平方因子}}}
+   \tau(q)^2E_q(x)\ll_A \frac{x}{(\log x)^A}.`
+
+这里 $`\tau(q)` 是正约数个数。Cauchy–Schwarz 不等式将带权和归结为通常的平均误差与 $`\sum_{q\le x,\ q\text{ 无平方因子}}\tau(q)^4/\varphi(q)`，后者由 Mertens 乘积估为 $`O((\log x)^{16})`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.squarefree_weighted_bombieri_vinogradov}
+
+最后，在 $`(u,2u]` 上用 $`1/u` 控制每个倒数，并对倍增区间求和。对 $`a\ge3`，所得上界对上端点 $`b\ge a` 和偶位移 $`h\ne0` 一致，也适用于无穷尾和。
+
+$$`\sum_{\substack{a<p\le b\\p,\ |p-h|\ \text{均为素数}}}\frac1p
+   \ll \frac{C(h)}{\log a}.`
+
+{docstring primePair_reciprocal_tail}

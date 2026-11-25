@@ -19,20 +19,26 @@ def reducedReciprocalSum (q : ℕ) (x : ℝ) :=
 
 def primeDivisorLogSum (q : ℕ) := ∑p∈q.primeFactors,Real.log p/((p:ℝ)-1)
 
-private theorem erase_old {p q : ℕ} (hpq : p∣q) (x : ℝ) :
-    reducedReciprocalSum (p*q) x=reducedReciprocalSum q x := by
-  unfold reducedReciprocalSum;apply sum_congr rfl;intro n _
+/-- Sum of a real weight over the positive indices coprime to the modulus. -/
+def reducedWeightSum (w : ℕ→ℝ) (q : ℕ) (x : ℝ) :=
+  ∑ n∈Finset.Icc 1 ⌊x⌋₊, if n.Coprime q then w n else 0
+
+/-- Inserting another copy of a prime divisor does not change a reduced sum. -/
+theorem reducedWeightSum_erase_old (w : ℕ→ℝ) {p q : ℕ} (hpq : p∣q) (x : ℝ) :
+    reducedWeightSum w (p*q) x=reducedWeightSum w q x := by
+  unfold reducedWeightSum;apply sum_congr rfl;intro n _
   by_cases h : n.Coprime q
   · rw [if_pos h,if_pos (Nat.coprime_mul_iff_right.mpr ⟨Nat.Coprime.of_dvd_right hpq h,h⟩)]
   · rw [if_neg h,if_neg (fun hc => h (Nat.coprime_mul_iff_right.mp hc).2)]
 
-private theorem erase_prime {p q : ℕ} (hp : p.Prime) (hpq : ¬p∣q) (x : ℝ) :
-    reducedReciprocalSum (p*q) x=reducedReciprocalSum q x-(p:ℝ)⁻¹*reducedReciprocalSum q (x/p) := by
+/-- Removing multiples of a new prime in a weighted sum over reduced indices. -/
+theorem reducedWeightSum_erase_prime (w : ℕ→ℝ) {p q : ℕ} (hp : p.Prime) (hpq : ¬p∣q) (hw : ∀ n, w (n*p)=w p*w n) (x : ℝ) :
+    reducedWeightSum w (p*q) x=reducedWeightSum w q x-w p*reducedWeightSum w q (x/p) := by
   let I := Finset.Icc 1 ⌊x⌋₊
-  let f := fun n : ℕ => if n.Coprime q then (n:ℝ)⁻¹ else 0
+  let f := fun n : ℕ => if n.Coprime q then w n else 0
   have hcop := hp.coprime_iff_not_dvd.mpr hpq
-  have H : (∑n∈I,if p∣n then f n else 0)=(p:ℝ)⁻¹*reducedReciprocalSum q (x/p) := by
-    rw [←sum_filter,reducedReciprocalSum,mul_sum,Nat.floor_div_natCast]
+  have H : (∑n∈I,if p∣n then f n else 0)=w p*reducedWeightSum w q (x/p) := by
+    rw [←sum_filter,reducedWeightSum,mul_sum,Nat.floor_div_natCast]
     symm
     refine sum_bij (fun n _ => n*p) ?_ ?_ ?_ ?_
     · intro n hn;obtain ⟨hn,hN⟩ := Finset.mem_Icc.mp hn
@@ -43,13 +49,21 @@ private theorem erase_prime {p q : ℕ} (hp : p.Prime) (hpq : ¬p∣q) (x : ℝ)
       by_contra! h;have hv : v=0 := by omega
       simp [hv,I] at hn
     · intro n _
-      simp only [f,Nat.coprime_mul_iff_left,hcop,and_true,Nat.cast_mul,mul_inv_rev]
+      simp only [f,Nat.coprime_mul_iff_left,hcop,and_true,hw]
       split_ifs <;>simp_all
-  change (∑n∈I,if n.Coprime (p*q) then (n:ℝ)⁻¹ else 0)=(∑n∈I,f n)-_
+  change (∑n∈I,if n.Coprime (p*q) then w n else 0)=(∑n∈I,f n)-_
   rw [←H,←sum_sub_distrib];apply sum_congr rfl;intro n _
   have he : n.Coprime p ↔ ¬p∣n := Nat.coprime_comm.trans hp.coprime_iff_not_dvd
   simp only [Nat.coprime_mul_iff_right,he];dsimp only [f]
   by_cases h : p∣n <;>by_cases h₁ : n.Coprime q <;>simp [h,h₁]
+
+private theorem erase_old {p q : ℕ} (hpq : p∣q) (x : ℝ) :
+    reducedReciprocalSum (p*q) x=reducedReciprocalSum q x :=
+  reducedWeightSum_erase_old (fun n => (n:ℝ)⁻¹) hpq x
+
+private theorem erase_prime {p q : ℕ} (hp : p.Prime) (hpq : ¬p∣q) (x : ℝ) :
+    reducedReciprocalSum (p*q) x=reducedReciprocalSum q x-(p:ℝ)⁻¹*reducedReciprocalSum q (x/p) :=
+  reducedWeightSum_erase_prime (fun n => (n:ℝ)⁻¹) hp hpq (fun n => by simp [mul_comm]) x
 
 /-- Two-term asymptotic for a reduced harmonic sum with the explicit
 error q/x. No lower cutoff beyond positivity is required. -/

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyUniformMoment
 import AnalyticNumberTheory.DirichletLFunctions.CharacterMomentConstants
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
 import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
@@ -217,3 +218,35 @@ file := "primitive-character-second-term"
 {docstring AnalyticNumberTheory.DirichletLFunctions.primitive_character_second_moment}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.full_character_second_moment}
+
+# 对移位、模数和高度一致的二阶矩
+%%%
+tag := "uniform-hurwitz-character-family-moment"
+file := "uniform-hurwitz-character-family-moment"
+%%%
+
+固定 $`B\ge3`，记 $`T^*=\max(T,B)`、$`W(T)=\sqrt T\min(1,\sqrt T)`。对所有 $`0<a\le1` 和所有 $`T\ge0`，有
+
+$$`\int_0^T|\zeta(1/2+it,a)|^2\,dt
+=T\log\frac{T^*}{2\pi}+(\gamma-\psi(a)-1)T
++O_B\!\left(W(T)\bigl(a^{-1/2}+\log T^*\bigr)\right).`
+
+这里 $`\psi(a)=\Gamma'(a)/\Gamma(a)`。当 $`a` 趋近零时，Dirichlet 级数的首项 $`a^{-1/2-it}` 的平方模为 $`1/a`。在任意固定高度区间 $`0\le T\le U` 上，先从积分中减去 $`T/a`，剩余量为 $`O_U(T(a^{-1/2}+1))`。由于 $`\psi(a)+1/a` 在 $`0<a\le1` 上有界，首项的贡献恰好与线性项中的奇性相抵消。这给出 $`T\le1` 时的误差因子 $`W(T)=T`。高处的估计使用临界线上平方模与对角调和和之差的积分。
+
+{docstring hurwitz_critical_initial_moment}
+
+{docstring hurwitz_critical_diagonal_uniform}
+
+{docstring hurwitz_second_moment_uniform}
+
+对模 $`q\ge1` 的全部 Dirichlet 特征取平均，包括由较小导子诱导的特征。令 $`P(q)=\sum_{p\mid q}(\log p)/(p-1)`，可得
+
+$$`\frac1{\varphi(q)}\sum_{\chi\bmod q}\int_0^T|L(1/2+it,\chi)|^2\,dt
+=\frac{\varphi(q)}q\left[T\log\frac{qT^*}{2\pi}+(2\gamma-1+P(q))T\right]
++O_B\!\left(\frac{\varphi(q)}q W(T)\log T^*\right).`
+
+由{ref "hurwitz-critical-second-term"}[特征正交性]，左边等于 $`q^{-1}` 乘以既约剩余类 $`h` 上的 Hurwitz 二阶矩之和。取 $`a=h/q` 后，移位误差的求和由 $`\sum_{1\le h\le q,\,(h,q)=1}\sqrt{q/h}\le20\varphi(q)` 控制。因此同一个误差常数适用于所有模数。
+
+{docstring AnalyticNumberTheory.AnalyticTools.reduced_sqrt_ratio_sum_le}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.full_character_second_moment_uniform}

@@ -1508,7 +1508,8 @@ theorem logZeta_re_eq_log_norm {s : ℂ} (hs : 1 < s.re) :
     (logZeta s).re = Real.log ‖riemannZeta s‖ := by
   rw [← exp_logZeta hs, Complex.norm_exp, Real.log_exp]
 
-private noncomputable def logZetaCoeff (n : ℕ) : ℂ :=
+/-- The Dirichlet coefficient of the Euler-product logarithm of zeta. -/
+noncomputable def logZetaCoeff (n : ℕ) : ℂ :=
   ((1 : DirichletCharacter ℂ 1) n) * (ArithmeticFunction.vonMangoldt n : ℂ) / (Real.log n : ℂ)
 
 /-- Dirichlet series representation of `logZeta` on `1 < Re s`:
@@ -1530,12 +1531,11 @@ theorem logZeta_eq_LSeries {s : ℂ} (hs : 1 < s.re) :
     LSeries_congr (fun {n} _ ↦ rfl) s
   exact htsum.trans (h.trans hL)
 
-private lemma abscissaOfAbsConv_logZetaCoeff_le_one :
-    LSeries.abscissaOfAbsConv logZetaCoeff ≤ (1 : EReal) := by
-  have hle : LSeries.abscissaOfAbsConv logZetaCoeff ≤ ((0 + 1 : ℝ) : EReal) := by
-    refine LSeries.abscissaOfAbsConv_le_of_le_const_mul_rpow (x := 0) ?_
-    refine ⟨1, fun n hn ↦ ?_⟩
-    simp only [Real.rpow_zero, mul_one]
+/-- Every coefficient of the prime-power logarithmic series has norm at most one. -/
+theorem norm_logZetaCoeff_le_one (n : ℕ) : ‖logZetaCoeff n‖≤1 := by
+  rcases Nat.eq_zero_or_pos n with rfl | hn
+  · simp [logZetaCoeff]
+  ·
     dsimp only [logZetaCoeff]
     have hchar : (1 : DirichletCharacter ℂ 1) n = 1 :=
       MulChar.one_apply (isUnit_of_subsingleton (n : ZMod 1))
@@ -1552,6 +1552,12 @@ private lemma abscissaOfAbsConv_logZetaCoeff_le_one :
       rw [norm_div, Complex.norm_real, Complex.norm_real, Real.norm_of_nonneg hΛ_nn,
         Real.norm_of_nonneg hlog_pos.le]
       exact div_le_one_of_le₀ hΛ_le hlog_pos.le
+
+private lemma abscissaOfAbsConv_logZetaCoeff_le_one :
+    LSeries.abscissaOfAbsConv logZetaCoeff ≤ (1 : EReal) := by
+  have hle : LSeries.abscissaOfAbsConv logZetaCoeff ≤ ((0 + 1 : ℝ) : EReal) := by
+    refine LSeries.abscissaOfAbsConv_le_of_le_const_mul_rpow (x := 0) ⟨1, fun n _ => ?_⟩
+    simpa using norm_logZetaCoeff_le_one n
   simpa using hle
 
 /-- Complex differentiability of `logZeta`: for `1 < Re s`, `logZeta` has derivative

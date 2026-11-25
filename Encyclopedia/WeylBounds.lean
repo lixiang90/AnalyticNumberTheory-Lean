@@ -1,3 +1,6 @@
+import AnalyticNumberTheory.DirichletLFunctions.AllHeightWeyl
+import AnalyticNumberTheory.DirichletLFunctions.NarrowLogarithmicStrips
+import AnalyticNumberTheory.DirichletLFunctions.CriticalConductorBound
 import AnalyticNumberTheory.DirichletLFunctions.DerivativeStrips
 import AnalyticNumberTheory.DirichletLFunctions.VinogradovStrips
 import AnalyticNumberTheory.DirichletLFunctions.WeylBound
@@ -70,3 +73,55 @@ $$`|\zeta(s,a)-a^{-s}|\le D L^{2/3}\exp\!\bigl(K\max(1-\sigma,0)^{3/2}L\bigr).`
 {docstring hurwitzZeta_sub_initial_derivative_strips}
 
 {docstring LFunction_derivative_strips}
+
+在更宽的带内，令 $`\delta=R(\log L/L)^{2/3}`。对固定的 $`R>0` 和 $`T\ge10`，若 $`\sigma\ge1-\delta`，则 $`|L(s,\chi)|\ll_R q^\delta L^{2/3+K R^{3/2}}`，其中 $`K` 是绝对常数。
+
+{docstring LFunction_vinogradov_loglog_strip}
+
+固定 $`T=|t|\ge10`、$`L=\log T`。若带宽为 $`\delta=(\log L)^2/L`，则正则化的 Hurwitz ζ 函数满足 $`O(L^{2/3})`，Dirichlet L 函数满足 $`O(q^\delta L)`。若改取 $`\delta=R\log L/L`，在临界带内，后者满足 $`O_R(q^\delta L/\log L)`。
+
+{docstring hurwitzZeta_sub_initial_log_squared_strip}
+
+{docstring LFunction_log_over_loglog_strip}
+
+有限阶导数估计也能延伸至低高度和虚轴。令 $`T_* = 2+|t|`，将极点贡献写为 $`16T_*^{1-\sigma}/(|1-\sigma|+|t|)`，则在 $`s\ne1` 时，余下部分的界对导数阶数与实移位都一致。
+
+{docstring hurwitzZeta_sub_initial_derivative_strips_all_heights}
+
+{docstring LFunction_derivative_strips_all_heights}
+
+# 临界线上的模数与高度
+%%%
+tag := "critical-conductor-bound"
+file := "critical-conductor-bound"
+%%%
+
+{index}[联合凸性界]设 $`\chi` 是任意模 $`q\ge1` 的 Dirichlet 特征。在整条临界线上同时保留模数与高度的依赖，可得
+
+$$`|L(1/2+it,\chi)|\le C\bigl(q(1+|t|)\bigr)^{1/4}\qquad(t\in\mathbb R).`
+
+这里 $`C` 是绝对常数。特别地，中心值满足 $`|L(1/2,\chi)|\ll q^{1/4}`。另一方面，若固定模数而让高度增大，Weyl 估计给出更小的高度指数。取 $`T_*=2+|t|`，覆盖全部高度的结论为
+
+$$`|\zeta(1/2+it,a)-a^{-1/2-it}|\ll T_*^{1/6}(1+\log T_*),\qquad |L(1/2+it,\chi)|\ll q^{1/2}T_*^{1/6}(1+\log T_*).`
+
+第一式的常数对 $`0<a\le1` 一致。第二式来自按模 $`q` 的剩余类分组，并估计第一周期的有限和。
+
+{docstring norm_LFunction_critical_conductor_quarter}
+
+{docstring hurwitzZeta_sub_initial_weyl_all_heights}
+
+{docstring LFunction_weyl_all_heights}
+
+## 平滑函数方程给出的长度
+
+对本原特征，完备函数的对称函数方程把中心值写成两个 Gaussian 积分，分别含 $`\chi` 与其共轭特征。令 $`X=\sqrt{q(1+|t|)}`。把 Mellin 变量写成 $`w=c+iv`，除去中心的 Γ 因子后，权函数的模至多为 $`C_c X^c e^{-v^2/2}`。上界对特征的两种奇偶性均成立。
+
+{docstring completedL_gaussian_functional_equation}
+
+{docstring norm_characterGaussianKernel_le}
+
+在 $`c=3/4` 的线上，Dirichlet 级数截于 $`N=\lceil X\rceil` 后的尾和是 $`O(N^{-1/4})`。将前 $`N` 项的积分移到 $`c=-1/4`，原点的留数给出中心多项式，大小是 $`O(\sqrt N)`。负线上的多项式是 $`O(N^{3/4})`。这样正线尾和、留数和负线积分都至多为 $`O(\sqrt X)`，正好得到四分之一次幂。非原始特征通过本原导子处的函数和有限个 Euler 因子得到同一上界。
+
+{docstring characterGaussianMean_polynomial_shift}
+
+{docstring norm_LFunction_primitive_critical_quarter}

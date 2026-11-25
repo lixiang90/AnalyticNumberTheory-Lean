@@ -1268,7 +1268,8 @@ noncomputable def argumentSApprox (t : ℝ) : ℝ :=
 noncomputable def argumentS (T : ℝ) : ℝ :=
   Filter.limUnder (𝓝[>] T) argumentSApprox
 
-private lemma riemannZeta_two_add_mul_I_re_ge (y : ℝ) :
+/-- The zeta values on the line of real part two stay in the right half-plane. -/
+theorem riemannZeta_two_add_mul_I_re_ge (y : ℝ) :
     (1 / 4 : ℝ) ≤ (riemannZeta ((2 : ℂ) + (y : ℂ) * I)).re := by
   let s : ℂ := (2 : ℂ) + (y : ℂ) * I
   have hs : 1 < s.re := by simp [s]
@@ -2698,7 +2699,8 @@ private lemma exists_right_nhd_no_zero_ordinate (T : ℝ) :
     rw [hne] at hρS
     simp at hρS
 
-private lemma continuousAt_stirlingMain {T : ℝ} (hT : 0 < T) :
+/-- Continuity of the elementary argument and gamma terms in the zero-count formula. -/
+theorem continuousAt_stirlingMain {T : ℝ} (hT : 0 < T) :
     ContinuousAt (fun t : ℝ ↦
       (1 / Real.pi) * ((-1 / 2 : ℂ) + (t : ℂ) * I).arg +
         (1 / Real.pi) * (stirlingLogGamma ((5 / 4 : ℂ) + ((t / 2 : ℝ) : ℂ) * I)).im -
@@ -2823,10 +2825,12 @@ private lemma argumentSApprox_tendsto_argumentS {T : ℝ} (hT : 0 < T) :
   rw [hS_eq]
   exact (tendsto_const_nhds.sub htend_main).congr' (hev_eq.mono fun _ h ↦ h.symm)
 
-/-- When `T > 0` is not a zero ordinate, `argumentS T` agrees with `argumentSApprox T`. -/
-theorem argumentS_eq_argumentSApprox_of_not_isZeroOrdinate {T : ℝ} (hT : 0 < T)
+/-- A compact horizontal rectangle around any positive height avoiding zero ordinates,
+on which zeta is holomorphic and nonvanishing. -/
+theorem exists_zeta_zeroFree_horizontal_rectangle {T : ℝ} (hT : 0 < T)
     (hno : ¬ IsZeroOrdinate T) :
-    argumentS T = argumentSApprox T := by
+    ∃ δ : ℝ, 0 < δ ∧ ∀ p ∈ Set.Icc (1/2 : ℝ) 2 ×ˢ Set.Icc (T-δ) (T+δ),
+      (p.1 : ℂ) + (p.2 : ℂ) * I ≠ 1 ∧ riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I) ≠ 0 := by
   classical
   let S : Finset ℂ := (criticalStripZeros_strip_finite (T - 1) (T + 1)).toFinset
   have hδ₁ : ∃ δ₁ : ℝ, 0 < δ₁ ∧ δ₁ ≤ 1 ∧ δ₁ ≤ T ∧
@@ -2867,9 +2871,6 @@ theorem argumentS_eq_argumentSApprox_of_not_isZeroOrdinate {T : ℝ} (hT : 0 < T
   let δ₂ : ℝ := δ₁ / 2
   have hδ₂_pos : 0 < δ₂ := half_pos hδ₁_pos
   let K_box : Set (ℝ × ℝ) := Set.Icc (1 / 2 : ℝ) 2 ×ˢ Set.Icc (T - δ₂) (T + δ₂)
-  let F : ℝ × ℝ → ℝ := fun p ↦
-    (deriv riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I) /
-      riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)).im
   have hbox_prop : ∀ p ∈ K_box, (p.1 : ℂ) + (p.2 : ℂ) * I ≠ 1 ∧
       riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I) ≠ 0 := by
     intro p hp
@@ -2884,22 +2885,45 @@ theorem argumentS_eq_argumentSApprox_of_not_isZeroOrdinate {T : ℝ} (hT : 0 < T
       hδ₁_no p.2 ⟨by dsimp only [δ₂] at hp2; linarith [hp2.1],
         by dsimp only [δ₂] at hp2; linarith [hp2.2]⟩
     exact ⟨hp_ne1, riemannZeta_ne_zero_on_right_strip hp2_pos hp2_no (by linarith [hp1.1])⟩
+  exact ⟨δ₂, hδ₂_pos, hbox_prop⟩
+
+/-- Continuity of the imaginary part of the logarithmic derivative on a region
+of the coordinate plane avoiding the pole and all zeros. -/
+theorem continuousOn_im_zeta_logDeriv {K_box : Set (ℝ × ℝ)}
+    (hbox_prop : ∀ p ∈ K_box, (p.1 : ℂ) + (p.2 : ℂ) * I ≠ 1 ∧
+      riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I) ≠ 0) :
+    ContinuousOn (fun p : ℝ × ℝ ↦ (deriv riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I) /
+      riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)).im) K_box := by
   have hz_diff : DifferentiableOn ℂ riemannZeta {w : ℂ | w ≠ 1} := fun w hw ↦
     (differentiableAt_riemannZeta hw).differentiableWithinAt
   have hdz_cont : ContinuousOn (deriv riemannZeta) {w : ℂ | w ≠ 1} :=
     ((hz_diff.analyticOnNhd isOpen_ne).deriv).continuousOn
-  have hF_cont : ContinuousOn F K_box := by
-    have hmap : Continuous fun p : ℝ × ℝ ↦ (p.1 : ℂ) + (p.2 : ℂ) * I :=
-      (Complex.continuous_ofReal.comp continuous_fst).add
-        ((Complex.continuous_ofReal.comp continuous_snd).mul continuous_const)
-    have hnum_cont : ContinuousOn (fun p : ℝ × ℝ ↦
-        deriv riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)) K_box :=
-      hdz_cont.comp hmap.continuousOn fun p hp ↦ (hbox_prop p hp).1
-    have hden_cont : ContinuousOn (fun p : ℝ × ℝ ↦
-        riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)) K_box :=
-      hz_diff.continuousOn.comp hmap.continuousOn fun p hp ↦ (hbox_prop p hp).1
-    exact Complex.continuous_im.comp_continuousOn
-      (hnum_cont.div hden_cont fun p hp ↦ (hbox_prop p hp).2)
+  have hmap : Continuous fun p : ℝ × ℝ ↦ (p.1 : ℂ) + (p.2 : ℂ) * I :=
+    (Complex.continuous_ofReal.comp continuous_fst).add
+      ((Complex.continuous_ofReal.comp continuous_snd).mul continuous_const)
+  have hnum_cont : ContinuousOn (fun p : ℝ × ℝ ↦
+      deriv riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)) K_box :=
+    hdz_cont.comp hmap.continuousOn fun p hp ↦ (hbox_prop p hp).1
+  have hden_cont : ContinuousOn (fun p : ℝ × ℝ ↦
+      riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)) K_box :=
+    hz_diff.continuousOn.comp hmap.continuousOn fun p hp ↦ (hbox_prop p hp).1
+  exact Complex.continuous_im.comp_continuousOn
+    (hnum_cont.div hden_cont fun p hp ↦ (hbox_prop p hp).2)
+/-- When `T > 0` is not a zero ordinate, `argumentS T` agrees with `argumentSApprox T`. -/
+theorem argumentS_eq_argumentSApprox_of_not_isZeroOrdinate {T : ℝ} (hT : 0 < T)
+    (hno : ¬ IsZeroOrdinate T) :
+    argumentS T = argumentSApprox T := by
+  classical
+  obtain ⟨δ₂, hδ₂_pos, hbox_prop⟩ := exists_zeta_zeroFree_horizontal_rectangle hT hno
+  let K_box : Set (ℝ × ℝ) := Set.Icc (1/2 : ℝ) 2 ×ˢ Set.Icc (T-δ₂) (T+δ₂)
+  let F : ℝ × ℝ → ℝ := fun p ↦
+    (deriv riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I) /
+      riemannZeta ((p.1 : ℂ) + (p.2 : ℂ) * I)).im
+  have hz_diff : DifferentiableOn ℂ riemannZeta {w : ℂ | w ≠ 1} := fun w hw ↦
+    (differentiableAt_riemannZeta hw).differentiableWithinAt
+  have hdz_cont : ContinuousOn (deriv riemannZeta) {w : ℂ | w ≠ 1} :=
+    ((hz_diff.analyticOnNhd isOpen_ne).deriv).continuousOn
+  have hF_cont : ContinuousOn F K_box := continuousOn_im_zeta_logDeriv hbox_prop
   have hK_box_cpt : IsCompact K_box := isCompact_Icc.prod isCompact_Icc
   obtain ⟨M, hM_bd⟩ := hK_box_cpt.exists_bound_of_continuousOn hF_cont
   have htend_int : Tendsto (fun t : ℝ ↦ ∫ x in (1 / 2 : ℝ)..(2 : ℝ), F (x, t))

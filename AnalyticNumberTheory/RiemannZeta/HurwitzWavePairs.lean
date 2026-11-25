@@ -142,4 +142,85 @@ theorem hurwitz_wave_pair_bound {a : ℝ} (ha : a∈Ioc (0:ℝ) 1) (i j : Bool×
     apply (mul_le_mul_of_nonneg_left he₁ (by positivity : 0≤(a⁻¹*(Real.sqrt (k:ℝ))⁻¹)*(a⁻¹*(Real.sqrt (l:ℝ))⁻¹))).trans_eq
     ring
 
+/-- Every frequency lies strictly above its cell's left endpoint. -/
+theorem hurwitzWaveFrequency_mem {a : ℝ} (ha : a∈Ioc (0:ℝ) 1) (i : Bool×ℕ) :
+    hurwitzWaveFrequency a i∈Ioc (i.2:ℝ) ((i.2:ℝ)+1) := by
+  obtain ⟨h,h',_⟩ := freq_range ha i
+  exact ⟨by linarith [ha.1],h'⟩
+
+private theorem frequency_ne_of_cell_ne {a : ℝ} (ha : a∈Ioc (0:ℝ) 1) {i j : Bool×ℕ}
+    (h : i.2≠j.2) : hurwitzWaveFrequency a i≠hurwitzWaveFrequency a j := by
+  have h₁ := hurwitzWaveFrequency_mem ha i
+  have h₂ := hurwitzWaveFrequency_mem ha j
+  rcases lt_or_gt_of_ne h with h|h
+  · exact ne_of_lt (h₁.2.trans_lt ((show (i.2:ℝ)+1≤j.2 by exact_mod_cast h).trans_lt h₂.1))
+  · exact Ne.symm (ne_of_lt (h₂.2.trans_lt ((show (j.2:ℝ)+1≤ i.2 by exact_mod_cast h).trans_lt h₁.1)))
+
+/-- Off-diagonal integral in distinct frequency cells before replacing the
+true separation by a bound in terms of the cell indices. -/
+theorem hurwitz_wave_pair_log_bound {a : ℝ} (ha : a∈Ioc (0:ℝ) 1) (i j : Bool×ℕ)
+    (hne : i.2≠j.2) {u v : ℝ} (hu : 0<u) (huv : u≤v)
+    (hiu : hurwitzWaveEntry a i≤u) (hju : hurwitzWaveEntry a j≤u) :
+    let r := hurwitzWaveFrequency a i
+    let s := hurwitzWaveFrequency a j
+    ‖∫t in u..v,hurwitzWave a i t*conj (hurwitzWave a j t)‖≤
+      ((Real.sqrt r)⁻¹*(Real.sqrt s)⁻¹)*(4/|Real.log s-Real.log r|) := by
+  intro r s;rw [integral_pair_factor]
+  apply mul_le_mul_of_nonneg_left _ (by positivity)
+  have H := phase_difference_bound i j (hurwitzWaveFrequency_pos ha.1 _) (hurwitzWaveFrequency_pos ha.1 _)
+    hu huv hiu hju (fun he => hne (congrArg Prod.snd he)) (fun h => frequency_ne_of_cell_ne ha h)
+  simpa only [if_neg hne] using H
+
+/-- A stationary endpoint or a pair of neighboring cells costs at most a
+square-root of height, uniformly even if the two frequencies coalesce. -/
+theorem hurwitz_wave_pair_sqrt_bound {a : ℝ} (ha : a∈Ioc (0:ℝ) 1) (i j : Bool×ℕ)
+    (hij : i≠j) {u v : ℝ} (hu : 0<u) (huv : u≤v)
+    (hiu : hurwitzWaveEntry a i≤u) (hju : hurwitzWaveEntry a j≤u) :
+    let r := hurwitzWaveFrequency a i
+    let s := hurwitzWaveFrequency a j
+    ‖∫t in u..v,hurwitzWave a i t*conj (hurwitzWave a j t)‖≤
+      ((Real.sqrt r)⁻¹*(Real.sqrt s)⁻¹)*(8*Real.sqrt v) := by
+  intro r s;rw [integral_pair_factor]
+  apply mul_le_mul_of_nonneg_left _ (by positivity)
+  have hlinear {p q : ℝ} (hp : 0<p) (hpq : p+1≤q) (hq : 2*Real.pi*q^2≤u) :
+      4/|Real.log q-Real.log p| ≤ 8*Real.sqrt v := by
+    have hq' : 0<q := by linarith
+    have H := Real.log_le_sub_one_of_pos (div_pos hp hq')
+    rw [Real.log_div hp.ne' hq'.ne'] at H
+    have hl : 1/q≤Real.log q-Real.log p := by
+      have : p/q+1/q≤1 := by rw [←add_div,div_le_one hq'];exact hpq
+      linarith
+    have hs : q≤Real.sqrt v := Real.le_sqrt_of_sq_le (by
+      nlinarith only [hq,huv,mul_le_mul_of_nonneg_right
+        (show 1≤2*Real.pi by linarith [Real.pi_gt_three]) (sq_nonneg q)])
+    calc 4/|Real.log q-Real.log p| ≤ 4/(1/q) := div_le_div_of_nonneg_left
+            (by norm_num) (by positivity) (hl.trans (le_abs_self _))
+         _ = 4*q := by simp
+         _ ≤ _ := by linarith [Real.sqrt_nonneg v]
+  by_cases hab : i.1=j.1
+  · have hne : i.2≠j.2 := fun h => hij (Prod.ext hab h)
+    have H := phase_difference_bound i j (hurwitzWaveFrequency_pos ha.1 _) (hurwitzWaveFrequency_pos ha.1 _)
+      hu huv hiu hju hij (fun h => frequency_ne_of_cell_ne ha h)
+    rw [if_neg hne] at H
+    apply H.trans
+    rcases lt_or_gt_of_ne hne with h|h
+    · apply hlinear (hurwitzWaveFrequency_pos ha.1 i) _ hju
+      unfold hurwitzWaveFrequency;rw [hab]
+      linarith only [show (i.2:ℝ)+1≤j.2 by exact_mod_cast h]
+    · rw [abs_sub_comm];apply hlinear (hurwitzWaveFrequency_pos ha.1 j) _ hiu
+      unfold hurwitzWaveFrequency;rw [hab]
+      linarith only [show (j.2:ℝ)+1≤ i.2 by exact_mod_cast h]
+  · obtain ⟨b,m⟩ := i;obtain ⟨c,n⟩ := j
+    cases b <;>cases c <;>simp only at hab
+    · contradiction
+    · have he : (fun t => hurwitzWavePhase a (false,m) t-hurwitzWavePhase a (true,n) t)=
+          shiftedHardyPhase r s (2*Real.pi*s*a) := by
+        funext t;dsimp [hurwitzWavePhase,r,s,shiftedHardyPhase];ring
+      rw [he];exact norm_integral_shiftedHardyPhase_le_sqrt _ _ _ hu huv
+    · have he : (fun t => hurwitzWavePhase a (true,m) t-hurwitzWavePhase a (false,n) t)=
+          (fun t => -shiftedHardyPhase r s (2*Real.pi*r*a) t) := by
+        funext t;dsimp [hurwitzWavePhase,r,s,shiftedHardyPhase];ring
+      rw [he,norm_integral_neg_phase];exact norm_integral_shiftedHardyPhase_le_sqrt _ _ _ hu huv
+    · contradiction
+
 end AnalyticNumberTheory.RiemannZeta

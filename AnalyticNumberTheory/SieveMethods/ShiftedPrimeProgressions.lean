@@ -43,14 +43,16 @@ theorem primeShift_dvd_iff {h : ℤ} {p d : ℕ} (hp : h.natAbs<p) (hd : d≠0) 
   rw [←Int.natCast_dvd_natCast,primeShift_cast hp,←Int.modEq_iff_dvd,←Int.natCast_modEq_iff,natMod_cast h hd]
   exact ⟨fun he => he.symm.trans (Int.mod_modEq ..).symm,fun he => (he.trans (Int.mod_modEq ..)).symm⟩
 
-private theorem natMod_coprime {h : ℤ} {d : ℕ} (hd : d≠0) (hc : d.Coprime h.natAbs) :
+/-- The representative of the integral shift modulo a coprime modulus is reduced. -/
+theorem shiftedPrime_residue_coprime {h : ℤ} {d : ℕ} (hd : d≠0) (hc : d.Coprime h.natAbs) :
     (h.natMod d).Coprime d := by
   have hh := Int.gcd_emod h (d:ℤ)
   rw [←natMod_cast h hd] at hh
   change ((h.natMod d:ℤ).natAbs).gcd ((d:ℤ).natAbs)=h.natAbs.gcd ((d:ℤ).natAbs) at hh
   simpa [Nat.Coprime,hc.symm.gcd_eq_one] using hh
 
-private theorem class_count (x : ℝ) (d a : ℕ) :
+/-- The prime-counting function in a residue class as a filtered prime finset. -/
+theorem piAP_eq_primeFinset_card (x : ℝ) (d a : ℕ) :
     piAP x d a=(((primeFinset x).filter (fun p => p≡a [MOD d])).card:ℝ) := by
   unfold piAP primeCountingAP primeFinset
   rw [Nat.primesLE_eq_filter_Icc_one,Finset.filter_filter]
@@ -72,7 +74,7 @@ private theorem multiple_count {h : ℤ} {x : ℝ} {d : ℕ} (hd : d≠0) :
 
 private theorem abs_multiple_count_sub_piAP {h : ℤ} {x : ℝ} {d : ℕ} (hd : d≠0) :
     |((sieveMultiple (shiftedPrimeSequence h x) d).card:ℝ)-piAP x d (h.natMod d)|≤h.natAbs+1 := by
-  rw [multiple_count hd,class_count]
+  rw [multiple_count hd,piAP_eq_primeFinset_card]
   let A := (shiftedPrimeInputs h x).filter (fun p => p≡h.natMod d [MOD d])
   let B := (primeFinset x).filter (fun p => p≡h.natMod d [MOD d])
   have hsub : A⊆B := fun p hp => mem_filter.mpr ⟨(mem_filter.mp (mem_filter.mp hp).1).1,(mem_filter.mp hp).2⟩
@@ -129,7 +131,7 @@ theorem shiftedPrime_rem_le {h : ℤ} (hh : Even h.natAbs) {x : ℝ} (hx : 2≤x
       maximalPiAPError x d+(h.natAbs+1) := by
   let s := shiftedPrimeSieveData (shiftedPrimeSequence h x) (logIntegral x) h.natAbs hh
   have h₁ := abs_multiple_count_sub_piAP (h:=h) (x:=x) hd
-  have h₂ := piAPError_le_maximal hx hd (natMod_coprime hd hc)
+  have h₂ := piAPError_le_maximal hx hd (shiftedPrime_residue_coprime hd hc)
   change |((sieveMultiple (shiftedPrimeSequence h x) d).card:ℝ)-s.density d*logIntegral x|≤_
   rw [show s.density d=1/(d.totient:ℝ) from shiftedPrime_density _ _ hh hd hc,one_div,inv_mul_eq_div]
   exact (abs_sub_le _ (piAP x d (h.natMod d)) _).trans ((add_le_add h₁ h₂).trans_eq (by ring))

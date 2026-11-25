@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.AnalyticTools.CumulativeLaplace
+import AnalyticNumberTheory.AnalyticTools.LaplaceJordanInversion
 import VersoManual
 
 open Verso.Genre Manual
@@ -74,3 +74,35 @@ $$`\lim_{T\to\infty}\frac{1}{2\pi}\int_{-T}^{T}
 {docstring laplaceTransform_cumulative}
 
 {docstring laplace_cumulative_inversion}
+
+# 局部有界变差函数的反演
+%%%
+tag := "laplace-jordan-inversion"
+file := "laplace-jordan-inversion"
+%%%
+
+{index}[有界变差函数的反演]设 $`F(s)=\int_0^\infty e^{-su}f(u)\,du`，其中 $`f` 为实值函数。选定实数 $`\sigma`，使 $`\int_0^\infty e^{-\sigma u}|f(u)|\,du<\infty`。在 $`x>0` 处，若存在 $`0\le a<x<b` 使 $`f` 在 $`[a,b]` 上有界变差，则
+$$`\lim_{T\to\infty}\frac1{2\pi}\int_{-T}^{T}e^{(\sigma+it)x}F(\sigma+it)\,dt
+=\frac{f(x-)+f(x+)}2.`
+
+{docstring laplace_jordan_inversion}
+
+当 $`x=0` 时，只需 $`f` 在某个 $`[0,b]` 上有界变差，反演值是 $`f(0+)/2`。这是单边变换的端点效应：从负半轴取过来的极限是零。对任何 $`x<0`，只要加权积分收敛，截断积分的极限都是零。例如 $`f=\mathbf1_{(0,1)}` 在两个端点的反演值同为 $`1/2`，在区间内部的反演值为一。
+
+{docstring laplace_jordan_inversion_zero}
+
+{docstring laplace_jordan_inversion_neg}
+
+为什么只须考察 $`x` 附近的变差？在有限高度 $`T`，将 $`g(u)=e^{-\sigma u}f(u)` 从正半轴用零延拓，Bromwich 积分便等于 $`e^{\sigma x}` 乘以 $`g` 的逆 Fourier 积分，频率范围为 $`|\xi|\le T/(2\pi)`。
+
+{docstring truncatedBromwich_eq_fourier}
+
+{index}[Riemann 局部化原理]两个可积函数若在 $`x` 的邻域相等，其截断逆 Fourier 积分之差趋向于零。把差函数移到原点附近，再除以位移变量，所得函数仍可积。它的 Fourier 变换在正负无穷处都趋向零，这给出了局部化所需的消去。
+
+{docstring truncatedFourierInverse_localization}
+
+在含有 $`x` 的小区间上，用 Jordan 分解把 $`f` 写成两个单调函数的差。可把这两个函数都向左延拓为零、向右延拓为常数。单调函数对应的 Stieltjes 测度在跳跃点给出半个原子质量；取差就恢复了 $`f` 的左右极限平均值。
+
+{docstring exists_monotone_extensions_of_boundedVariation}
+
+{docstring laplace_monotone_inversion}

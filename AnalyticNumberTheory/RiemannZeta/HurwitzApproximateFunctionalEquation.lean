@@ -67,11 +67,15 @@ private theorem dual_sum_in_window (a y : ℝ) (s : ℂ) :
   rw [←sum_filter,hurwitzDualSum]
   congr 1; ext m; simp; omega
 
-/-- Positive-height form with a numerical constant, uniform in the real shift. -/
-theorem hurwitzZeta_sharp_afe_pos {a x y : ℝ} (ha : a∈Ioc (0:ℝ) 1) (hx : 2≤x) (hy : 2≤y)
-    {s : ℂ} (hσ : 0<s.re) (hσ' : s.re<1) (hxy : s.im=2*Real.pi*x*y) :
+/-- Reduction to the finite Fourier window. Its two contributions are the
+oscillatory heads and tails and the signed Euler–Maclaurin boundary terms. -/
+theorem hurwitzZeta_sharp_afe_of_window {a x y : ℝ} (ha : a∈Ioc (0:ℝ) 1) (hx : 2≤x) (hy : 2≤y)
+    {s : ℂ} (hσ : 0<s.re) (hσ' : s.re<1) (hxy : s.im=2*Real.pi*x*y) {E B₀ : ℝ}
+    (hG : ‖∑ m∈range (2*(⌊y⌋₊+1)),hurwitzPair a m (fun ω => if m<⌊y⌋₊ then
+      hurwitzTail s ω x-hurwitzDualMode s ω else hurwitzTail s ω x)‖ ≤ E)
+    (hB : ‖∑ m∈range (2*(⌊y⌋₊+1)),hurwitzPair a m (fun ω => hurwitzMode s ω x/hurwitzFrequency ω)‖≤B₀) :
     ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-hurwitzDirectSum a x s-hurwitzDualSum a y s‖ ≤
-      256*(1+1/(1-s.re))*(x^(-s.re)*(1+Real.log (y+2))+x^(1-s.re)/Real.sqrt s.im) := by
+      100*x^(-s.re)+x^(-s.re)+x^(-s.re)+E+B₀ := by
   let Y := ⌊y⌋₊
   let L := 2*(Y+1)
   let Z := HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s
@@ -87,8 +91,6 @@ theorem hurwitzZeta_sharp_afe_pos {a x y : ℝ} (ha : a∈Ioc (0:ℝ) 1) (hx : 2
   have hπ : 1≤2*Real.pi := by linarith [Real.pi_gt_three]
   have hxt : x≤s.im := by rw [hxy]; nlinarith [mul_nonneg (sub_nonneg.mpr hπ) (mul_nonneg hx'.le hy'.le),mul_nonneg hx'.le (show 0≤y-1 by linarith)]
   have ht : 1≤s.im := by linarith
-  have hs : 0<1-s.re := by linarith
-  have hY : 2≤Y := (Nat.le_floor_iff hy'.le).mpr (by exact_mod_cast hy)
   have hYL : y≤(L:ℝ) := by dsimp [L,Y]; push_cast; linarith [Nat.lt_floor_add_one y]
   have hdiag : ∑ m∈range L,F m=(∑ m∈range L,G m)+U-∑ m∈range L,B m := by
     rw [show U=∑ m∈range L,(if m<Y then hurwitzPair a m (hurwitzDualMode s) else 0) from
@@ -104,8 +106,6 @@ theorem hurwitzZeta_sharp_afe_pos {a x y : ℝ} (ha : a∈Ioc (0:ℝ) 1) (hx : 2
     apply htail.trans
     rw [div_le_iff₀ (hy'.trans_le hYL)]
     nlinarith [mul_nonneg (sub_nonneg.mpr hYL) (Real.rpow_nonneg hx'.le (-s.re))]
-  have hB := frequency_boundary a x hx' s L
-  have hG := hurwitz_frequency_window (a:=a) hx' hy hσ hσ' ht hxy
   have hP : ‖P‖≤x^(-s.re) := by
     dsimp [P]; rw [norm_div,Complex.norm_cpow_eq_rpow_re_of_pos hx']
     have hden : x≤‖1-s‖ := hxt.trans (by simpa [abs_of_nonneg (by linarith : 0≤s.im)] using Complex.abs_im_le_norm (1-s))
@@ -114,13 +114,25 @@ theorem hurwitzZeta_sharp_afe_pos {a x y : ℝ} (ha : a∈Ioc (0:ℝ) 1) (hx : 2
   have hW : ‖W‖≤x^(-s.re) := by
     dsimp [W]; rw [norm_mul,Complex.norm_real,Real.norm_eq_abs,Complex.norm_cpow_eq_rpow_re_of_pos hx',neg_re]
     exact (mul_le_mul_of_nonneg_right (show |sawtooth (x-a)|≤1 by linarith [sawtooth_abs_le (x-a)]) (by positivity)).trans_eq (one_mul _)
-  have hcomb : ‖Z-D-U‖≤100*x^(-s.re)+x^(-s.re)+x^(-s.re)+
-      (16/(1-s.re)*x^(-s.re)*(1+Real.log (Y+1:ℕ))+2*(48+16/(1-s.re))*x^(1-s.re)/Real.sqrt s.im)+
-      2*x^(-s.re)*(1+Real.log L) := by
-    have he : Z-D-U=((((Z-D+P-W)-(∑ m∈range L,F m))-P)+W+(∑ m∈range L,G m))-(∑ m∈range L,B m) := by rw [hdiag]; abel
-    rw [he]
-    exact (norm_sub_le ..).trans (add_le_add ((norm_add_le ..).trans (add_le_add ((norm_add_le ..).trans
-      (add_le_add ((norm_sub_le ..).trans (add_le_add htail' hP)) hW)) hG)) hB)
+  change ‖Z-D-U‖≤_
+  have he : Z-D-U=((((Z-D+P-W)-(∑ m∈range L,F m))-P)+W+(∑ m∈range L,G m))-(∑ m∈range L,B m) := by rw [hdiag]; abel
+  rw [he]
+  exact (norm_sub_le ..).trans (add_le_add ((norm_add_le ..).trans (add_le_add ((norm_add_le ..).trans
+    (add_le_add ((norm_sub_le ..).trans (add_le_add htail' hP)) hW)) hG)) hB)
+
+/-- Positive-height form with a numerical constant, uniform in the real shift. -/
+theorem hurwitzZeta_sharp_afe_pos {a x y : ℝ} (ha : a∈Ioc (0:ℝ) 1) (hx : 2≤x) (hy : 2≤y)
+    {s : ℂ} (hσ : 0<s.re) (hσ' : s.re<1) (hxy : s.im=2*Real.pi*x*y) :
+    ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-hurwitzDirectSum a x s-hurwitzDualSum a y s‖ ≤
+      256*(1+1/(1-s.re))*(x^(-s.re)*(1+Real.log (y+2))+x^(1-s.re)/Real.sqrt s.im) := by
+  let Y := ⌊y⌋₊
+  let L := 2*(Y+1)
+  have hx' : 0<x := by linarith
+  have hy' : 0<y := by linarith
+  have ht : 1≤s.im := by rw [hxy];nlinarith [Real.pi_gt_three,mul_nonneg (show 0≤x-1 by linarith) (show 0≤y-1 by linarith),mul_nonneg (show 0≤2*Real.pi-1 by linarith [Real.pi_gt_three]) (mul_nonneg hx'.le hy'.le)]
+  have hs : 0<1-s.re := by linarith
+  have hcomb := hurwitzZeta_sharp_afe_of_window ha hx hy hσ hσ' hxy
+    (hurwitz_frequency_window (a:=a) hx' hy hσ hσ' ht hxy) (frequency_boundary a x hx' s L)
   have hlog : 0≤Real.log (y+2) := Real.log_nonneg (by linarith)
   have hYl : Real.log (Y+1:ℕ) ≤ Real.log (y+2) := by
     apply Real.log_le_log (by positivity); push_cast; linarith [Nat.floor_le hy'.le (a:=y)]

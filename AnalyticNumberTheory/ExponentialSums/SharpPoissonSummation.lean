@@ -66,7 +66,8 @@ private theorem kernel_remove_cutoff {A B a b : ℤ} (hAB : A<B) (hab : a<b)
   exact (norm_sub_le _ _).trans ((add_le_add (norm_add_le _ _) le_rfl).trans
     ((add_le_add (add_le_add hb₁ hb₂) hb₃).trans_eq (by dsimp [L]; ring)))
 
-private theorem sum_integral_phase_eq {a b : ℝ} (hab : a≤b) {A B : ℤ} {f : ℝ→ℝ}
+/-- Summing the dual integrals first combines all frequencies into a Dirichlet kernel. -/
+theorem sum_integral_phase_eq {a b : ℝ} (hab : a≤b) {A B : ℤ} {f : ℝ→ℝ}
     (hf : ContinuousOn f (Icc a b)) {χ : ℝ→ℂ} (hc : ContinuousOn χ (Icc a b)) :
     (∑ n ∈ Finset.Ioc A B, ∫ t in a..b,χ t*e (f t-(n:ℝ)*t)) =
       ∫ t in a..b,(χ t*e (f t))*intervalDirichletKernel A B t := by

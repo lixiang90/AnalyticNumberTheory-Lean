@@ -28,6 +28,26 @@ private theorem saddle_term_normalization {r v : ℝ} (hr : 0<r) (hv : 0<v) :
       Real.rpow_neg hv.le,←Real.sqrt_eq_rpow,mul_comm]
   unfold reciprocalSaddleTerm; rw [hs,hpow,Complex.ofReal_mul,mul_assoc (2:ℝ)]; ring
 
+/-- The modulus of an endpoint contribution is at most the reciprocal
+square root of the local curvature scale. -/
+theorem norm_reciprocalSaddleTerm_at_slope_le {A t : ℝ} (hA : 0<A) (ht : 0<t) :
+    ‖reciprocalSaddleTerm A (A/t^2)‖ ≤ Real.sqrt (t^3/A) := by
+  let v := A/t^2
+  have hv : 0<v := by dsimp [v]; positivity
+  have he : v*t^2=A := div_mul_cancel₀ _ (pow_ne_zero _ ht.ne')
+  have H := saddle_term_normalization ht hv
+  rw [he] at H
+  change ‖reciprocalSaddleTerm A v‖≤_
+  rw [H,norm_mul,norm_mul,norm_mul,norm_e,one_mul,Complex.norm_real,Complex.norm_real,
+    Real.norm_of_nonneg (Real.sqrt_nonneg _),Real.norm_of_nonneg (by positivity : 0≤(Real.sqrt v)⁻¹)]
+  have hc : ‖(1+Complex.I)/2‖≤1 := by
+    rw [norm_div]; norm_num
+    have h := norm_add_le (1:ℂ) Complex.I
+    simp only [norm_one,Complex.norm_I] at h; linarith
+  apply (mul_le_of_le_one_right (by positivity) hc).trans_eq
+  rw [←div_eq_mul_inv,←Real.sqrt_div ht.le]
+  congr 1; dsimp [v]; field_simp
+
 private theorem saddle_endpoint_error {r v t : ℝ} (hr : 0<r) (hv : 0<v)
     (ht : 0<t) (hrt : r≤2*t) :
     (Real.sqrt r*(Real.sqrt v)⁻¹) * (3/(1+Real.sqrt v*|reciprocalSaddleCoordinate r t|)) ≤

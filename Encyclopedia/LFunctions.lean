@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.PrimitiveApproximateFunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicApproximateFunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.FunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.ZeroCounting
@@ -54,3 +55,7 @@ $$`\widehat{\Phi}(n)=\sum_{r=1}^q\Phi(r)\exp(-2\pi i nr/q).`
 {docstring periodicLFunction_sharp_afe}
 
 {docstring dirichletLFunction_sharp_afe}
+
+当 $`\chi` 是原特征时，它的 Fourier 变换可写为 Gauss 和乘以共轭特征。由 $`\chi(-1)` 合并正、负频率，对偶侧只需计算一个多项式 $`\sum_{n\le y}\overline{\chi(n)}\,n^{s-1}`。与之相乘的因子包含 $`q^{-s}`、Gauss 和和两个频率的 Gamma 因子，适用于奇、偶两类原特征。
+
+{docstring primitiveLFunction_sharp_afe}

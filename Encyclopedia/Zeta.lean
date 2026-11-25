@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.RiemannUnbalancedApproximation
 import AnalyticNumberTheory.RiemannZeta.RiemannSharpApproximation
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
 import AnalyticNumberTheory.RiemannZeta.SmoothedDirichletSums
@@ -52,3 +53,22 @@ $$`|R|\le256\left(1+\frac1{1-\sigma}\right)
 取 $`a=1`，所有平移因子都等于一，正、负频率合成同一个 Gamma 因子，乘以 $`\sum_{n\le y}n^{s-1}`。例如，临界线上取 $`x=y=\sqrt{|t|/(2\pi)}`，两个有限和等长，误差为 $`O(|t|^{-1/4}\log |t|)`。对有理平移按同余类求和，就得到{ref "sharp-periodic-equation"}[周期系数的对应公式]。
 
 {docstring riemannZeta_sharp_afe}
+
+# 临界带上的无对数误差
+%%%
+tag := "log-free-hurwitz-approximation"
+file := "log-free-approximation"
+%%%
+
+在{ref "sharp-hurwitz-equation"}[两个截断和的公式]中，若 $`2\le x\le y`，可将余项压到 $`604 x^{-\sigma}`。这个常数对 $`0<a\le1`、正负两种高度以及闭带 $`0\le\sigma\le1` 一致。改进来自保留驻点附近成对频率的符号，借助正弦和的抵消来估计原先产生对数的边界项。
+
+{docstring hurwitzZeta_logFree_sharp_afe}
+
+对于普通 ζ 函数，取 $`x=y=\sqrt{|t|/(2\pi)}`。当 $`|t|\ge8\pi` 时，临界线上的两个 Dirichlet 多项式都包含 $`\lfloor x\rfloor` 项，余项至多为 $`604(2\pi)^{1/4}|t|^{-1/4}`。
+
+{docstring riemannSiegel_sharp_error}
+
+普通 ζ 的函数方程还允许交换两侧截断点。对于 $`x,y\ge2`、$`2\pi xy=|t|` 的任意组合，统一余项为
+$`O(x^{-\sigma}+|t|^{1/2-\sigma}y^{\sigma-1})`。
+
+{docstring riemannZeta_unbalanced_sharp_afe}

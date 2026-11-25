@@ -33,7 +33,7 @@ private theorem window_subset {P : Finset ℕ} {w t z : ℝ} (ht : t≤z) :
   intro p hp; obtain ⟨hP,hw,hpt⟩ := mem_filter.mp hp
   exact mem_filter.mpr ⟨hP,hw,hpt.trans_le ht⟩
 
-private theorem window_before {P : Finset ℕ} {w z : ℝ} {p : ℕ} (hp : p∈sievePrimeWindow P w z) :
+theorem sievePrimeWindow_before {P : Finset ℕ} {w z : ℝ} {p : ℕ} (hp : p∈sievePrimeWindow P w z) :
     sievePrimeWindow P w p=(sievePrimeWindow P w z).filter (fun q => q<p) := by
   ext q; have hpz := (mem_filter.mp hp).2.2
   simp only [sievePrimeWindow,mem_filter,Nat.cast_lt]
@@ -144,7 +144,7 @@ theorem linearSieve_tree_comparison (P : Finset ℕ) (g : ℕ → ℝ) {w Z D : 
       exact (mul_le_mul_of_nonneg_left (hi p hp) hgp).trans_eq (by ring)
     have hprod : (∏p∈S,(1+g p))=1+∑p∈S,g p*V p := by
       rw [prod_one_add_ordered S g]; congr 1
-      apply sum_congr rfl; intro p hp; dsimp only [V]; rw [window_before hp]
+      apply sum_congr rfl; intro p hp; dsimp only [V]; rw [sievePrimeWindow_before hp]
     change |(G b Y-∑p∈T,g p*H p)-W z*linearSieveProfile b (Y/log z)|≤E*∏p∈S,(1+g p)
     rw [hprod]; simp_rw [mul_sub] at hsum; rw [sum_sub_distrib] at hsum
     rw [abs_le] at he hsum ⊢

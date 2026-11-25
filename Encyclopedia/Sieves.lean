@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.SieveMethods.LinearSieve
+import AnalyticNumberTheory.SieveMethods.BrunTitchmarshConstant
 import AnalyticNumberTheory.SieveMethods.LinearSieveEulerProducts
 import AnalyticNumberTheory.SieveMethods.LinearSievePrimeContraction
 import AnalyticNumberTheory.SieveMethods.LinearSieveMonotonicity
@@ -193,3 +195,45 @@ $$`\pi(x+y;q,a)-\pi(x;q,a)\le z+\frac{y}{qG}+
 这里 $`z` 包含筛选时需要单独计入的小素数。保留 $`G,H` 的有限和，可以直接代入指定的筛限计算。
 
 {docstring selberg_sieve_ap_upper_bound_refined}
+
+# Rosser 线性筛的上下界
+%%%
+tag := "rosser-linear-sieve-bounds"
+file := "rosser-linear-sieve"
+%%%
+
+令 $`P(z)` 为待筛素数中小于 $`z` 者的乘积，$`V(z)=\prod_{p\mid P(z)}(1-g(p))`。在总规模为 $`X` 的序列中，记 $`S(z)` 为与 $`P(z)` 互素的项数，$`r_d` 为 $`d` 的倍数的实际计数与预期计数之差。假设局部密度与一保持固定距离，且所有子区间满足{ref "linear-sieve-products"}[一维对数和条件]，其中的常数固定。
+
+对任意 $`\varepsilon>0`，存在只依赖于这些常数和 $`\varepsilon` 的筛限。当 $`z` 超过此筛限时，对全部 $`u\ge1` 有
+
+$$`XV(z)(f(u)-\varepsilon)-R\ \le\ S(z)\ \le\
+ XV(z)(F(u)+\varepsilon)+R,\qquad R=\sum_{\substack{d\mid P(z)\\d<z^u}}|r_d|.`
+
+同一个 $`z` 下界对所有合乎条件的序列都适用。特别地，取固定 $`2<u\le4`，主项中的下筛函数为 $`2e^\gamma\log(u-1)/u>0`，因此在算术余项足够小时能得到正的筛余数目。
+
+{docstring linearSieve_sifted_bounds}
+
+# 长区间上的 Brun–Titchmarsh 系数二
+%%%
+tag := "brun-titchmarsh-two"
+file := "brun-titchmarsh"
+%%%
+
+给定 $`q\ge1`、$`x\ge0`，令 $`u=y/q`。存在一个与 $`x,q,a` 都无关的绝对常数 $`U>1`，使得当 $`u\ge U` 时，
+
+$$`\pi(x+y;q,a)-\pi(x;q,a)\le\frac{2y}{\varphi(q)\log(y/q)}.`
+
+这里的 $`U` 是存在性结论。这个版本把系数取到二，同时保留区间起点与模数上的一致性。
+
+{docstring brun_titchmarsh_two_eventually}
+
+为消去筛权对模数的依赖，把数列写成 $`qk+a`，先分出不超过筛限的小素数。对模 $`q` 的平移取平均，至少有一个平移保留 $`\varphi(q)/q` 比例的候选下标。用中国剩余定理可令保留的下标同时避开其余所有小素因子。
+
+{docstring selberg_progression_to_rough}
+
+对于{ref "selberg-progression-weights"}[Selberg 权的两个有限和]，在 $`q=1` 时有 $`H(z)/z\to15/\pi^2`，以及
+$`G(z)-\log z\to B=\gamma+\sum_p\log p/[p(p-1)]`。这里 $`B>1.28`。取 $`z=\sqrt{u}/2`，不等式 $`(15/\pi^2)^2<4(B-\log2)` 给出严格余量，足以吸收计数误差。这个均值论证采用 Selberg 的平移方法。[Granville 与 Soundararajan，《Multiplicative number theory》，第 1.4.3 节](https://dms.umontreal.ca/~andrew/PDF/Book.To1.4.pdf#page=44)
+
+{docstring tendsto_selbergDenominator_sub_log}
+
+{docstring tendsto_selbergIntervalWeightMass_div}

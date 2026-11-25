@@ -4900,7 +4900,8 @@ private theorem squarefree_prod_primes_set {S : Finset ℕ} (hS : ∀ p ∈ S, p
         hp_not ((((Nat.dvd_prime hqp).mp hdvd).resolve_left hp.ne_one) ▸ hq))
     exact Nat.squarefree_mul hcop |>.mpr ⟨hp.squarefree, hS'⟩
 
-private theorem totient_squarefree_eq_prod {s : ℕ} (hs_pos : 0 < s) (hsq : Squarefree s) :
+/-- On a squarefree integer the totient factors as a product of p−1. -/
+theorem totient_squarefree_eq_prod {s : ℕ} (hs_pos : 0 < s) (hsq : Squarefree s) :
     s.totient = ∏ p ∈ s.primeFactors, (p - 1) := by
   have hprod := Nat.totient_mul_prod_primeFactors s
   have hsf : ∏ p ∈ s.primeFactors, p = s := Nat.prod_primeFactors_of_squarefree hsq
@@ -5500,6 +5501,43 @@ private theorem card_Ioc_filter_modEq_bounds {x y : ℝ} (hx : 0 ≤ x) (hy : 0 
     · linarith
     · positivity
 
+/-- The increment of the prime count in a progression as a half-open interval cardinality. -/
+theorem piAP_sub_eq_card_interval {x y : ℝ} (q a : ℕ) (hy : 0≤y) :
+      piAP (x + y) q a - piAP x q a =
+        (((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) := by
+  rw [piAP, piAP, primeCountingAP, primeCountingAP]
+  have hsub : (Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) ⊆
+      (Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) := by
+    intro p hp
+    have hp' := Finset.mem_filter.mp hp
+    have hp_icc := Finset.mem_Icc.mp hp'.1
+    have hfl : ⌊x⌋₊ ≤ ⌊x + y⌋₊ := Nat.floor_mono (by linarith)
+    exact Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hp_icc.1, hp_icc.2.trans hfl⟩, hp'.2⟩
+  have hsdiff :
+      ((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])) \
+        ((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])) =
+        (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) := by
+    ext p
+    simp only [Finset.mem_sdiff, Finset.mem_filter, Finset.mem_Icc, Finset.mem_Ioc]
+    constructor
+    · rintro ⟨⟨⟨_, hp2⟩, hpP⟩, hnot⟩
+      refine ⟨⟨?_, hp2⟩, hpP⟩
+      by_contra hle
+      exact hnot ⟨⟨hpP.1.one_lt.le, by omega⟩, hpP⟩
+    · rintro ⟨⟨hp1, hp2⟩, hpP⟩
+      exact ⟨⟨⟨hpP.1.one_lt.le, hp2⟩, hpP⟩, fun h => by omega⟩
+  have hcard_eq :
+      ((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card =
+        ((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card +
+          ((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card := by
+    rw [← hsdiff, ← Finset.card_union_of_disjoint disjoint_sdiff_self_right,
+      Finset.union_sdiff_of_subset hsub]
+  have hR : (((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) =
+      (((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) +
+        (((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) := by
+    exact_mod_cast hcard_eq
+  linarith
+
 /-- **Brun–Titchmarsh Inequality (Large-Sieve Form)**:
 for `0 ≤ x`, `1 ≤ q`, `q < y`, and `(a, q) = 1`,
 `piAP (x + y) q a - piAP x q a ≤ √(y / q) + 4 * y / (φ(q) * log (y / q))`. -/
@@ -5522,39 +5560,8 @@ theorem brun_titchmarsh_large_sieve {x y : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hq :
       _ = y / (q : ℝ) := Real.sq_sqrt (by positivity)
   have hpi_diff :
       piAP (x + y) q a - piAP x q a =
-        (((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) := by
-    rw [piAP, piAP, primeCountingAP, primeCountingAP]
-    have hsub : (Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) ⊆
-        (Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) := by
-      intro p hp
-      have hp' := Finset.mem_filter.mp hp
-      have hp_icc := Finset.mem_Icc.mp hp'.1
-      have hfl : ⌊x⌋₊ ≤ ⌊x + y⌋₊ := Nat.floor_mono (by linarith)
-      exact Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hp_icc.1, hp_icc.2.trans hfl⟩, hp'.2⟩
-    have hsdiff :
-        ((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])) \
-          ((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])) =
-          (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) := by
-      ext p
-      simp only [Finset.mem_sdiff, Finset.mem_filter, Finset.mem_Icc, Finset.mem_Ioc]
-      constructor
-      · rintro ⟨⟨⟨_, hp2⟩, hpP⟩, hnot⟩
-        refine ⟨⟨?_, hp2⟩, hpP⟩
-        by_contra hle
-        exact hnot ⟨⟨hpP.1.one_lt.le, by omega⟩, hpP⟩
-      · rintro ⟨⟨hp1, hp2⟩, hpP⟩
-        exact ⟨⟨⟨hpP.1.one_lt.le, hp2⟩, hpP⟩, fun h => by omega⟩
-    have hcard_eq :
-        ((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card =
-          ((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card +
-            ((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card := by
-      rw [← hsdiff, ← Finset.card_union_of_disjoint disjoint_sdiff_self_right,
-        Finset.union_sdiff_of_subset hsub]
-    have hR : (((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) =
-        (((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) +
-          (((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) := by
-      exact_mod_cast hcard_eq
-    linarith
+        (((Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) :=
+    piAP_sub_eq_card_interval q a (by positivity)
   let P_all := (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])
   let P_sm := P_all.filter (fun p => p ≤ Q)
   let P_lg := P_all.filter (fun p => Q < p)
@@ -5930,11 +5937,13 @@ private theorem selbergWeightMass_identity (S : Finset ℕ) (hS : ∀ n∈S, Squ
     exact ⟨fun h => ⟨h.2,(hS n hn).ne_zero⟩,fun h => ⟨hdiv n hn d h.1,h.1⟩⟩
   rw [← Finset.sum_filter,hf,← Finset.sum_mul,div_eq_mul_inv]
 
-/-- Selberg bound retaining the first absolute moment of the optimal weights in the remainder. -/
-theorem selberg_sieve_ap_upper_bound_refined {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hy : 0 < y)
-    (hq : 1 ≤ q) (_ha : Nat.Coprime a q) (hz : 1 ≤ z) :
-    piAP (x + y) q a - piAP x q a ≤
-      z + (y / (q : ℝ)) /
+/-- Selberg bound for any subset of a progression without small divisors. -/
+theorem selberg_sieve_rough_ap_bound {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hy : 0 < y)
+    (hq : 1 ≤ q) (_ha : Nat.Coprime a q) (hz : 1 ≤ z) (A : Finset ℕ)
+    (hA : A ⊆ (Finset.Ioc ⌊x⌋₊ ⌊x+y⌋₊).filter (fun n => n ≡ a [MOD q]))
+    (hrough : ∀ n∈A, ∀ d : ℕ, 1<d → (d:ℝ)≤z → ¬d∣n) :
+    (A.card : ℝ) ≤
+      (y / (q : ℝ)) /
         (∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q),
           (s.totient : ℝ)⁻¹) +
       min (z^2) ((selbergWeightMass ((Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q)) /
@@ -6255,82 +6264,23 @@ theorem selberg_sieve_ap_upper_bound_refined {x y z : ℝ} {q a : ℕ} (hx : 0 �
       _ ≤ ((d : ℝ) / (d.totient : ℝ)) * (∑ k ∈ K_d, (k.totient : ℝ)⁻¹) / G := by gcongr
       _ ≤ G / G := by gcongr
       _ = 1 := div_self hG_pos.ne'
-  let P_all : Finset ℕ := (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])
-  let P_sm : Finset ℕ := P_all.filter (fun p => (p : ℝ) ≤ z)
-  let P_lg : Finset ℕ := P_all.filter (fun p => z < (p : ℝ))
   let N_ap : Finset ℕ := (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun n => n ≡ a [MOD q])
-  have hpi_diff : piAP (x + y) q a - piAP x q a = (P_all.card : ℝ) := by
-    rw [piAP, piAP, primeCountingAP, primeCountingAP]
-    have hsub : (Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) ⊆
-        (Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q]) := by
-      intro p hp
-      have hp' := Finset.mem_filter.mp hp
-      have hp_icc := Finset.mem_Icc.mp hp'.1
-      have hfl : ⌊x⌋₊ ≤ ⌊x + y⌋₊ := Nat.floor_mono (by linarith)
-      exact Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hp_icc.1, hp_icc.2.trans hfl⟩, hp'.2⟩
-    have hsdiff :
-        ((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])) \
-          ((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])) = P_all := by
-      ext p
-      simp only [P_all, Finset.mem_sdiff, Finset.mem_filter, Finset.mem_Icc, Finset.mem_Ioc]
-      constructor
-      · rintro ⟨⟨⟨_, hp2⟩, hpP⟩, hnot⟩
-        refine ⟨⟨?_, hp2⟩, hpP⟩
-        by_contra hle
-        exact hnot ⟨⟨hpP.1.one_lt.le, by omega⟩, hpP⟩
-      · rintro ⟨⟨hp1, hp2⟩, hpP⟩
-        exact ⟨⟨⟨hpP.1.one_lt.le, hp2⟩, hpP⟩, fun h => by omega⟩
-    have hcard_eq :
-        ((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card =
-          ((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card +
-            P_all.card := by
-      rw [← hsdiff, ← Finset.card_union_of_disjoint disjoint_sdiff_self_right,
-        Finset.union_sdiff_of_subset hsub]
-    have hR : (((Finset.Icc 1 ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) =
-        (((Finset.Icc 1 ⌊x⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])).card : ℝ) +
-          (P_all.card : ℝ) := by
-      exact_mod_cast hcard_eq
-    linarith
-  have hP_sm_le : (P_sm.card : ℝ) ≤ z := by
-    have hsub : P_sm ⊆ Finset.Icc 1 ⌊z⌋₊ := by
-      intro p hp
-      have hp' := Finset.mem_filter.mp hp
-      have hp'' := Finset.mem_filter.mp hp'.1
-      exact Finset.mem_Icc.mpr ⟨hp''.2.1.one_lt.le, Nat.le_floor hp'.2⟩
-    have hle : P_sm.card ≤ ⌊z⌋₊ := by
-      calc
-        P_sm.card ≤ (Finset.Icc 1 ⌊z⌋₊).card := Finset.card_le_card hsub
-        _ = ⌊z⌋₊ := by simp
-    exact (by exact_mod_cast hle : (P_sm.card : ℝ) ≤ (⌊z⌋₊ : ℝ)).trans (Nat.floor_le (by linarith))
-  have hP_lg_le_quad : (P_lg.card : ℝ) ≤
-      ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 := by
-    have hsub : P_lg ⊆ N_ap := by
-      intro p hp
-      have hp' := Finset.mem_filter.mp (Finset.mem_filter.mp hp).1
-      exact Finset.mem_filter.mpr ⟨hp'.1, hp'.2.2⟩
-    have hplg_one : ∀ p ∈ P_lg, (∑ d ∈ S with d ∣ p, lam d) ^ 2 = 1 := by
-      intro p hp
-      have hp' := Finset.mem_filter.mp hp
-      have hp_prime : p.Prime := (Finset.mem_filter.mp hp'.1).2.1
-      have hflt : S.filter (· ∣ p) = {1} := by
+  have hA_le_quad : (A.card : ℝ) ≤ ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 := by
+    have hone (n : ℕ) (hn : n∈A) : (∑ d∈S with d∣n,lam d)^2=1 := by
+      have hf : S.filter (· ∣ n) = {1} := by
         ext d
         simp only [Finset.mem_filter, Finset.mem_singleton]
         constructor
-        · rintro ⟨hdS, hdp⟩
-          rcases (Nat.dvd_prime hp_prime).mp hdp with rfl | hdp_eq
-          · rfl
-          · exfalso
-            have hle : (p : ℝ) ≤ z := by
-              have hd_le : p ≤ ⌊z⌋₊ := hdp_eq ▸ (Finset.mem_Icc.mp (Finset.mem_filter.mp hdS).1).2
-              exact (by exact_mod_cast hd_le : (p : ℝ) ≤ (⌊z⌋₊ : ℝ)).trans (Nat.floor_le (by linarith))
-            linarith [hp'.2]
-        · rintro rfl; exact ⟨h1S, one_dvd p⟩
-      rw [hflt, Finset.sum_singleton, hlam1, one_pow]
+        · rintro ⟨hd,hdn⟩
+          by_contra h
+          have hpos := (hS_spec d hd).1
+          have hdle := (Finset.mem_Icc.mp (Finset.mem_filter.mp hd).1).2
+          exact hrough n hn d (by omega) ((by exact_mod_cast hdle : (d:ℝ)≤⌊z⌋₊).trans (Nat.floor_le (by linarith))) hdn
+        · rintro rfl; exact ⟨h1S,one_dvd n⟩
+      rw [hf,Finset.sum_singleton,hlam1,one_pow]
     calc
-      (P_lg.card : ℝ) = ∑ p ∈ P_lg, (∑ d ∈ S with d ∣ p, lam d) ^ 2 := by
-            rw [Finset.sum_congr rfl hplg_one, Finset.sum_const, nsmul_eq_mul, mul_one]
-      _ ≤ ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 :=
-            Finset.sum_le_sum_of_subset_of_nonneg hsub (fun _ _ _ => sq_nonneg _)
+      (A.card : ℝ) = ∑ n∈A, (∑ d∈S with d∣n,lam d)^2 := by simp_rw [Finset.sum_congr rfl hone]; simp
+      _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg hA (fun _ _ _ => sq_nonneg _)
   have hquad_expand :
       ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 =
         ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 *
@@ -6454,16 +6404,8 @@ theorem selberg_sieve_ap_upper_bound_refined {x y z : ℝ} {q a : ℕ} (hx : 0 �
     refine Finset.sum_congr rfl fun d2 _ => ?_
     dsimp [R]
     ring
-  have hP_all_card : (P_all.card : ℝ) = (P_sm.card : ℝ) + (P_lg.card : ℝ) := by
-    have hcard := P_all.card_filter_add_card_filter_not (fun p : ℕ => (p : ℝ) ≤ z)
-    have hnot : P_all.filter (fun p : ℕ => ¬ (p : ℝ) ≤ z) = P_lg := by
-      ext p; simp [P_lg]
-    rw [hnot] at hcard
-    exact_mod_cast hcard.symm
-  rw [hpi_diff, hP_all_card]
-  have hcomb : (P_lg.card : ℝ) ≤ (y / (q : ℝ)) / G + min (z^2) ((selbergWeightMass S/G)^2) := by
-    calc
-      (P_lg.card : ℝ) ≤ ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 := hP_lg_le_quad
+  calc
+      (A.card : ℝ) ≤ ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 := hA_le_quad
       _ = ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 *
             ((N_ap.filter (fun n => Nat.lcm d1 d2 ∣ n)).card : ℝ) := hquad_expand
       _ = (y / (q : ℝ)) * G⁻¹ + ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 * R d1 d2 := by
@@ -6471,7 +6413,52 @@ theorem selberg_sieve_ap_upper_bound_refined {x y z : ℝ} {q a : ℕ} (hx : 0 �
       _ ≤ (y / (q : ℝ)) / G + min (z^2) ((selbergWeightMass S/G)^2) := by
             rw [← div_eq_mul_inv]
             linarith [hsum_R]
-  linarith [hP_sm_le, hcomb]
+
+/-- Selberg bound retaining the first absolute moment of the optimal weights in the remainder. -/
+theorem selberg_sieve_ap_upper_bound_refined {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hy : 0 < y)
+    (hq : 1 ≤ q) (_ha : Nat.Coprime a q) (hz : 1 ≤ z) :
+    piAP (x + y) q a - piAP x q a ≤
+      z + (y / (q : ℝ)) /
+        (∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q),
+          (s.totient : ℝ)⁻¹) +
+      min (z^2) ((selbergWeightMass ((Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q)) /
+        (∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q), (s.totient:ℝ)⁻¹))^2) := by
+  let P_all : Finset ℕ := (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun p => p.Prime ∧ p ≡ a [MOD q])
+  let P_sm : Finset ℕ := P_all.filter (fun p => (p : ℝ) ≤ z)
+  let P_lg : Finset ℕ := P_all.filter (fun p => z < (p : ℝ))
+  let N_ap : Finset ℕ := (Finset.Ioc ⌊x⌋₊ ⌊x + y⌋₊).filter (fun n => n ≡ a [MOD q])
+  have hpi_diff : piAP (x + y) q a - piAP x q a = (P_all.card : ℝ) :=
+    piAP_sub_eq_card_interval q a hy.le
+  have hP_sm_le : (P_sm.card : ℝ) ≤ z := by
+    have hsub : P_sm ⊆ Finset.Icc 1 ⌊z⌋₊ := by
+      intro p hp
+      have hp' := Finset.mem_filter.mp hp
+      have hp'' := Finset.mem_filter.mp hp'.1
+      exact Finset.mem_Icc.mpr ⟨hp''.2.1.one_lt.le, Nat.le_floor hp'.2⟩
+    have hle : P_sm.card ≤ ⌊z⌋₊ := by
+      calc
+        P_sm.card ≤ (Finset.Icc 1 ⌊z⌋₊).card := Finset.card_le_card hsub
+        _ = ⌊z⌋₊ := by simp
+    exact (by exact_mod_cast hle : (P_sm.card : ℝ) ≤ (⌊z⌋₊ : ℝ)).trans (Nat.floor_le (by linarith))
+  have hP_all_card : (P_all.card : ℝ) = (P_sm.card : ℝ) + (P_lg.card : ℝ) := by
+    have hcard := P_all.card_filter_add_card_filter_not (fun p : ℕ => (p : ℝ) ≤ z)
+    have hnot : P_all.filter (fun p : ℕ => ¬ (p : ℝ) ≤ z) = P_lg := by
+      ext p; simp [P_lg]
+    rw [hnot] at hcard
+    exact_mod_cast hcard.symm
+  rw [hpi_diff, hP_all_card]
+  have hsub : P_lg ⊆ N_ap := by
+    intro n hn
+    have h := Finset.mem_filter.mp (Finset.mem_filter.mp hn).1
+    exact Finset.mem_filter.mpr ⟨h.1,h.2.2⟩
+  have hr (n : ℕ) (hn : n∈P_lg) (d : ℕ) (hd : 1<d) (hz' : (d:ℝ)≤z) : ¬d∣n := by
+    obtain ⟨h,hz''⟩ := Finset.mem_filter.mp hn
+    have hp := (Finset.mem_filter.mp h).2.1
+    intro hdn
+    rcases (Nat.dvd_prime hp).mp hdn with h₁|h₂
+    · omega
+    · subst d; linarith
+  linarith [selberg_sieve_rough_ap_bound hx hy hq _ha hz P_lg hsub hr]
 
 /-- **Selberg's `Λ²` Upper-Bound Sieve for Primes in Arithmetic Progressions**:
 for `0 ≤ x`, `0 < y`, `1 ≤ q`, `Nat.Coprime a q`, and any sieve level `z ≥ 1`,

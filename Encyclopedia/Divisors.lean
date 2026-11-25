@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DivisorProblems.TruncatedVoronoi
 import AnalyticNumberTheory.DivisorProblems.GaussCircleCubeRoot
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
 import AnalyticNumberTheory.DivisorProblems.DivisorCubeRoot
@@ -58,3 +59,20 @@ $$`|R(x)-\pi x|\ll x^{1/3}\qquad(x\ge2).`
 将锯齿函数作 Fourier 逼近，再用二阶导数估计各个频率的和，得到三分之一次方界。把格点按 $`m^2+n^2` 分组，同一余项也适用于两平方表示数的求和函数。
 
 {docstring AnalyticNumberTheory.DivisorProblems.sum_repTwoSquares_sub_pi_isBigO_cubeRoot}
+
+# 除数误差的 Voronoï 截断公式
+%%%
+tag := "divisor-voronoi-formula"
+file := "voronoi-formula"
+%%%
+
+{index}[Voronoï 截断公式]设 $`\Delta(x)=\sum_{n\le x}d(n)-x\log x-(2\gamma-1)x`。双曲线求和把误差写成锯齿函数之和。对锯齿函数作随位置变化的 Fourier 截断，再用{ref "poisson-reciprocal-phase"}[倒数相位变换]，相同乘积的因子对合成系数 $`d(n)`，驻相因子则产生相移 $`-\pi/4`。对任意实数 $`1\le y\le x` 有
+
+$$`\Delta(x)=\frac{x^{1/4}}{\pi\sqrt{2}}\sum_{n\le y}\frac{d(n)}{n^{3/4}}
+ \cos\!\left(4\pi\sqrt{nx}-\frac{\pi}{4}\right)+R(x,y).`
+
+对每个 $`\varepsilon>0`，一致余项为 $`R(x,y)=O_\varepsilon(x^\varepsilon(x^{1/4}+\sqrt{x/y}))`。例如取 $`y=\sqrt{x}`，两项同为 $`x^{1/4}`。另一种常用形式将余项写为 $`O_\varepsilon(x^{1/6+\varepsilon}y^{1/6}+x^{1/2+\varepsilon}y^{-1/2})`。
+
+{docstring truncated_voronoi_divisor_formula_real}
+
+{docstring truncated_voronoi_classical_error}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.ExponentialSums.ReciprocalRealBlocks
 import AnalyticNumberTheory.ExponentialSums.SharpPoissonSummation
 import AnalyticNumberTheory.ExponentialSums.ReciprocalTransform
 import AnalyticNumberTheory.ExponentialSums.LinearAndWeyl
@@ -41,3 +42,8 @@ $$`\frac{1+i}{2}\, A^{1/4}v^{-3/4}e(2\sqrt{Av}).`
 {docstring AnalyticNumberTheory.AnalyticTools.tendsto_integral_fresnel_half}
 
 {docstring reciprocal_transform_integral}
+
+把有限 Poisson 求和与驻相估计合用，就得到倒数相位的离散变换。整数 $`a<n\le b` 对应半开频率区间 $`A/b^2<m\le A/a^2`。当 $`1\le a\le b\le2^J a` 时，余项至多为
+$`249J(1+\sqrt{b^3/A})(1+\log(6+4A/a^2))`。半开区间保证拼接相邻区间时端点频率只出现一次。{ref "divisor-voronoi-formula"}[除数问题的截断公式]就是这一变换的应用。
+
+{docstring reciprocal_vanDerCorput_interval}

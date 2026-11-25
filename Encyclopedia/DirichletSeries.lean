@@ -3,6 +3,7 @@ import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.FrequencyUniqueness
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
+import AnalyticNumberTheory.DirichletSeries.FrequencyMeanValues
 import VersoManual
 
 open Verso.Genre Manual
@@ -101,6 +102,46 @@ $$`a_n=\lim_{t\to+\infty}e^{t\lambda_n}
 {docstring DirichletFrequency.ConvergesAt.real_remainder}
 
 {docstring DirichletFrequency.eq_of_sum_eq_on_seq}
+
+# 竖直线上的系数反演与二次均值
+%%%
+tag := "general-dirichlet-vertical-means"
+file := "vertical-means"
+%%%
+
+固定一条绝对收敛线 $`\Re s=\sigma`，令 $`s=\sigma+it`。第 $`n` 项的高度因子是 $`e^{-i\lambda_n t}`。若要读出频率 $`u` 的系数，可先乘以 $`e^{us}`，再取从 $`-T` 到 $`T` 的积分平均。此时各项的频率变为 $`u-\lambda_n`。
+
+{docstring DirichletFrequency.AbsConvergesAt.vertical_expansion}
+
+一个频率 $`r` 的平均值为 $`\sin(rT)/(rT)`，在 $`r=0` 处取值为 $`1`。这个核的绝对值至多为 $`1`。当 $`T\to\infty` 时，每个非零频率的平均趋于零，绝对可和性允许逐项取极限。
+
+{docstring AnalyticNumberTheory.AnalyticTools.symmetricMean_exp}
+
+{docstring AnalyticNumberTheory.AnalyticTools.tendsto_symmetricMean_expansion}
+
+因此当 $`u=\lambda_k` 时，
+
+$$`a_k=\lim_{T\to\infty}\frac{1}{2T}\int_{-T}^{T}
+ F(\sigma+it)e^{\lambda_k(\sigma+it)}\,dt.`
+
+当 $`u` 不在指数列中时，极限为零。这里固定的是一条{ref "dirichlet-frequency-density"}[绝对收敛线]，即使恰好在绝对收敛半平面的边界，只要该线上的级数绝对收敛，公式仍然成立。
+
+{docstring DirichletFrequency.tendsto_vertical_frequency_mean}
+
+{docstring DirichletFrequency.tendsto_vertical_coefficient}
+
+对具有相同频率的两个级数，把 $`F_a(\sigma+it)` 乘以 $`\overline{F_b(\tau+it)}`。展开后配对 $`(n,m)` 的振荡频率是 $`\lambda_m-\lambda_n`，所以均值只保留 $`n=m` 的项。两条绝对收敛线可以独立选择。
+
+{docstring DirichletFrequency.tendsto_vertical_mixed_mean}
+
+取同一级数和同一条线，便得到
+
+$$`\lim_{T\to\infty}\frac{1}{2T}\int_{-T}^{T}|F(\sigma+it)|^2\,dt
+ =\sum_{n\ge0}|a_n|^2e^{-2\sigma\lambda_n}.`
+
+例如 $`F(s)=2+3e^{-\sqrt{2}s}` 的二次均值是 $`4+9e^{-2\sqrt{2}\sigma}`。交叉项在对称平均中趋于零。
+
+{docstring DirichletFrequency.tendsto_vertical_mean_square}
 
 # 指数平滑与 Ramachandra 公式
 %%%

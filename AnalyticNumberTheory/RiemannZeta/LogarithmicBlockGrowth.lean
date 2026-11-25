@@ -25,7 +25,8 @@ def LogarithmicBlockCancellation : Prop :=
     1≤M → b≤2*M → |τ|≤(M:ℝ)^J → (M:ℝ)≤|τ|^2 →
     ‖∑ n∈Ioc M b,e (logPhase τ 0 n)‖ ≤ C*(M:ℝ)^(1-κ)
 
-private theorem vertical_log_term {n : ℕ} (hn : 1≤n) (σ t : ℝ) :
+/-- The vertical phase of a Dirichlet monomial in additive-character notation. -/
+theorem vertical_log_term {n : ℕ} (hn : 1≤n) (σ t : ℝ) :
     (n:ℂ)^(-((σ:ℂ)+(t:ℂ)*I)) = (((max (n:ℝ) 1)^(-σ):ℝ):ℂ)*e (logPhase (-t/(2*π)) 0 n) := by
   have hnr : (1:ℝ)≤n := by exact_mod_cast hn
   have hn' := zero_lt_one.trans_le hnr

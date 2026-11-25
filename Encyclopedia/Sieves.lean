@@ -4,7 +4,7 @@ import AnalyticNumberTheory.SieveMethods.LegendrePrimeCounting
 import AnalyticNumberTheory.SieveMethods.SelbergSieve
 import AnalyticNumberTheory.SieveMethods.PrimeHybridSieve
 import AnalyticNumberTheory.SieveMethods.LinearSieveFunctions
-import AnalyticNumberTheory.SieveMethods.RosserRemainder
+import AnalyticNumberTheory.SieveMethods.RosserSiftedCount
 import VersoManual
 
 open Verso.Genre Manual
@@ -94,3 +94,20 @@ $$`(uF(u))'=f(u-1),\qquad (uf(u))'=F(u-1).`
 {docstring rosser_main_term_eq}
 
 {docstring betaSieve_main_terms}
+
+随着参数 $`u` 增大，可以统一压低两种余量。设 $`V(z)=\prod_{p\le z}(1-g(p))`，乘积取在指定的筛素数上，并假设任意窗口 $`[w,z']` 上的局部积满足筛维数条件，常数为 $`A,\kappa`。取 $`y=z^u` 和 $`\beta=1+u/3`。对所有充分大的 $`u`，上、下筛的首次截断余量均至多为
+
+$$`2A\,V(z)\exp\!\left(-\tfrac12 u\log u\right).`
+
+下述定理对任意给定的有限递减素数表成立。门槛 $`u_0` 只依赖筛维数条件中的 $`A,\kappa`。
+
+{docstring rosser_fundamental_lemma}
+
+对实际筛余计数 $`S`，设 $`X` 为原序列的总量模型，$`r_d` 为被 $`d` 整除的项数与其模型值之差。将两侧筛权的界代入，可得
+
+$$`|S-XV(z)|\le 2A X V(z)e^{-u\log u/2}
++\sum_{\substack{d\mid P(z)\\ d<z^u}} |r_d|.`
+
+第一项只取决于筛密度，第二项保留了原序列在截断范围内的算术误差。
+
+{docstring siftedCount_fundamental_lemma}

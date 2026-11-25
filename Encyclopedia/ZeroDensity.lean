@@ -1,7 +1,7 @@
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalEstimates
 import AnalyticNumberTheory.PrimeDistribution.ZetaLogFreeDensity
 import AnalyticNumberTheory.PrimeDistribution.HoheiselLittlewood
-import AnalyticNumberTheory.PrimeDistribution.HuxleyDensity
+import AnalyticNumberTheory.PrimeDistribution.HuxleyPrimeIntervals
 import AnalyticNumberTheory.PrimeDistribution.ConsecutivePrimeGaps
 import VersoManual
 
@@ -90,6 +90,14 @@ $$`N^*(\sigma,T)\ll T^{12(1-\sigma)/5}(\log T)^{28}.`
 若进一步给定加强的无零区，则对每个固定的 $`7/12<\theta<1` 得到素数计数渐近式 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。阈值由 $`1-1/(12/5)=7/12` 给出。
 
 {docstring huxley_primePi_shortInterval_of_superLogZeroFree}
+
+对接近临界指数的区间也有定量推论。假设 ζ 满足 Vinogradov–Korobov 无零区，固定 $`a>1`。当 $`x` 充分大且
+
+$$`h\ge x^{7/12}\exp\!\bigl((\log x)^{2/3}(\log\log x)^{a+1/3}\bigr)`
+
+时，存在 $`c,C>0` 使 $`|\psi(x+h)-\psi(x)-h|\le Ch\exp(-c(\log\log x)^a)`。这个估计对满足下界的所有实数 $`h` 一致，包括 $`h>x`。
+
+{docstring huxley_psi_interval_of_vinogradovKorobov}
 
 # Hoheisel 定理与幂长短区间
 %%%

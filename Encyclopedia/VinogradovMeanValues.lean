@@ -1,6 +1,6 @@
 import AnalyticNumberTheory.ExponentialSums.VinogradovLowerBounds
-import AnalyticNumberTheory.ExponentialSums.VinogradovNonsingular
-import AnalyticNumberTheory.ExponentialSums.VinogradovSingular
+import AnalyticNumberTheory.ExponentialSums.VinogradovDegreeBounds
+import AnalyticNumberTheory.ExponentialSums.VinogradovBilinearSums
 import VersoManual
 
 open Verso.Genre Manual
@@ -85,3 +85,30 @@ $$`\sum_{i=1}^k x_i^j\equiv h_j\pmod {p^j}\qquad (1\le j\le k)`
 若至少一边出现的剩余类不足 $`k` 个，则先枚举剩余类，再估计每种排列对应的混合均值。下面的界保留了挑选至多 $`k-1` 个剩余类时的二项式因子。
 
 {docstring vinogradov_singular_interval_le}
+
+# 经典 Vinogradov 均值定理
+%%%
+tag := "classical-vinogradov-theorem"
+file := "classical-theorem"
+%%%
+
+{index}[Vinogradov 均值定理]令 $`k\ge2`、$`K=k(k+1)/2`。对整数 $`\tau\ge0`、$`s\ge k^2+k\tau` 和 $`N\ge1`，有
+
+$$`J_{s,k}(N)\le \bigl(8(s+1)(k+1)\bigr)^{12s\tau}
+N^{\,2s-K+K(1-1/k)^\tau}.`
+
+$`K` 是方程组各次数的和。第一个上界 $`J_{s,k}(N)\le N^{2s}` 只用了变量的取值范围。每增加 $`k` 对变量，就能做一次{ref "vinogradov-congruences"}[同余分类]，将指数与 $`2s-K` 的差再乘以 $`1-1/k`。因此 $`\tau` 同时记录了对变量数量的要求和对指数的改进。
+
+{docstring vinogradov_mean_value_classical}
+
+一次递推选取大小与 $`N^{1/k}` 可比的素数 $`p>k`。变量在模 $`p` 下占据的不同剩余类数决定采用哪一项估计。两项都把区间缩短到 $`\lfloor N/p\rfloor+1`，再对较少的变量调用归纳假设。
+
+{docstring vinogradov_prime_recursion}
+
+令 $`\tau=dk`、$`s=(d+1)k^2`。此时指数差至多为 $`Ke^{-d}`，乘法常数至多为 $`\exp(200(d+2)^3 k^4)`。这个形式在 $`k` 随指数和的频率增长时仍可使用。
+
+{docstring vinogradov_mean_value_degree_multiple}
+
+对 $`e(\sum_j\alpha_j(xy)^j)` 作双重求和，先后在 $`x` 和 $`y` 上取偶数次矩，就能用 $`J_{s,k}(N)^2` 及各坐标的一维几何和控制它。下面的形式保留两个整数求和区间的端点。
+
+{docstring vinogradovBilinearSum_interval_le}

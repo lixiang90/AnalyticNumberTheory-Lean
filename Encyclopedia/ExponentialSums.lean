@@ -4,6 +4,7 @@ import AnalyticNumberTheory.ExponentialSums.SharpPoissonSummation
 import AnalyticNumberTheory.ExponentialSums.ReciprocalTransform
 import AnalyticNumberTheory.ExponentialSums.LinearAndWeyl
 import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
+import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import VersoManual
 
 open Verso.Genre Manual
@@ -23,6 +24,44 @@ file := "exponential-sums"
 对于 $`S_k(\alpha)=\sum_{1\le n\le N}e(\alpha n^k)`，Hua 引理估计整个周期上的高次矩。以 $`k=2` 为例，对任意 $`\varepsilon>0`，四次矩为 $`O_{\varepsilon}(N^{2+\varepsilon})`。均值界允许某些 $`\alpha` 处的和很大，例如整数频率处所有项都等于一。
 
 {docstring hua_lemma}
+
+# 线性素数指数和的权重
+%%%
+tag := "linear-prime-exponential-sums"
+file := "linear-prime-sums"
+%%%
+
+写 $`e(t)=\exp(2\pi it)`。同一频率 $`\alpha` 给出三个不同的有限和
+
+$$`\Psi_\alpha(x)=\sum_{n\le x}\Lambda(n)e(\alpha n),\qquad
+   \Theta_\alpha(x)=\sum_{p\le x}(\log p)e(\alpha p),\qquad
+   P_\alpha(x)=\sum_{p\le x}e(\alpha p).`
+
+前两个和相差的项全来自高次素数幂。逐项取模就有 $`|\Psi_\alpha(x)-\Theta_\alpha(x)|\le\psi(x)-\vartheta(x)`。对 $`x>1`，每个 $`p\le x` 还满足 $`1-\log p/\log x\ge0`，这给出去掉对数权重时的点态误差。
+
+{docstring norm_primeExpSum_sub_logPrimeExpSum_le}
+
+{docstring norm_unweightedPrimeExpSum_sub_div_log_le}
+
+当 $`|\,\alpha-a/q\,|\le q^{-2}`、$`(a,q)=1` 且 $`x\ge2` 时，令
+
+$$`V(x,q)=xq^{-1/2}+x^{4/5}+\sqrt{xq}.`
+
+{index}[Vaughan 恒等式]把 von Mangoldt 加权和分解为可以分别估计的双线性和，给出 $`|\Psi_\alpha(x)|\le 10000 V(x,q)\log^4 x`。再用高次素数幂的总权重界，可得 $`|\Theta_\alpha(x)|\le 10016 V(x,q)\log^4 x`。
+
+{docstring vinogradov_prime_exp_sum_bound}
+
+{docstring logPrimeExpSum_vaughan_bound}
+
+对无权和，从 $`\lceil\sqrt x\rceil` 处分开求和。小素数的贡献至多为 $`2\sqrt x`。在剩余部分对单调权 $`1/\log p` 使用 Abel 求和，若截至 $`x` 的对数加权部分和的模都不超过 $`H`，这一部分至多为 $`4H/\log x`。这一步保留了 $`q` 的依赖，并把 $`\log^4 x` 降为 $`\log^3 x`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.norm_sum_primes_le_sqrt_add_of_log_bound}
+
+{docstring unweightedPrimeExpSum_vaughan_bound}
+
+若 $`0<Q\le x^{2/5}` 且 $`Q\le q\le x/Q`，则 $`V(x,q)\le 3x/\sqrt Q`。例如取 $`Q=x^{2/5}`，所有 $`x^{2/5}\le q\le x^{3/5}` 都给出 $`P_\alpha(x)\ll x^{4/5}\log^3 x`。
+
+{docstring prime_exp_sums_balanced_bound}
 
 # 有限 Poisson 求和与倒数相位
 %%%

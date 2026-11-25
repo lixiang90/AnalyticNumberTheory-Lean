@@ -5,6 +5,7 @@ import AnalyticNumberTheory.ExponentialSums.ReciprocalTransform
 import AnalyticNumberTheory.ExponentialSums.LinearAndWeyl
 import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
+import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
 import VersoManual
 
@@ -63,6 +64,59 @@ $$`V(x,q)=xq^{-1/2}+x^{4/5}+\sqrt{xq}.`
 若 $`0<Q\le x^{2/5}` 且 $`Q\le q\le x/Q`，则 $`V(x,q)\le 3x/\sqrt Q`。例如取 $`Q=x^{2/5}`，所有 $`x^{2/5}\le q\le x^{3/5}` 都给出 $`P_\alpha(x)\ll x^{4/5}\log^3 x`。
 
 {docstring prime_exp_sums_balanced_bound}
+
+# 从特征平均到有理频率
+%%%
+tag := "rational-prime-sums-density"
+file := "rational-prime-sums"
+%%%
+
+取 $`(a,q)=1`。在可逆剩余类上展开 $`e(an/q)`，特征 $`\chi` 的系数绝对值至多为 $`\sqrt{\operatorname{cond}(\chi)}/\varphi(q)\le\sqrt q/\varphi(q)`。不可逆剩余类上只有素数底数整除 $`q` 的素数幂有贡献，其总权重至多为 $`(\log q/\log2)\log y`。
+
+{docstring norm_primeExpSum_le_character_mean}
+
+在{ref "fixed-modulus-character-means"}[固定模数的特征平均]中乘入这个 Gauss 系数界，再用 $`q/\varphi(q)\le6(1+\log q)`。对于 $`x\ge4`、$`1\le q\le x` 和任意 $`0\le y\le x`，这给出
+
+$$`\left|\sum_{n\le y}\Lambda(n)e(an/q)\right|
+ \ll \left(\frac{x}{\sqrt q}+x^{4/5}q^{1/10}+\sqrt{xq}\right)(1+\log x)^{11}.`
+
+在这里，中间的 $`q^{1/10}` 来自零点平均中的 $`q^{3/5}` 与 Gauss 系数中的 $`q^{-1/2}`。整数分子可以为负，改变频率的符号会把整个素数和变为其复共轭。
+
+{docstring primeExpSum_rational_zero_density}
+
+# 从有理逼近到实频率
+%%%
+tag := "density-real-prime-frequencies"
+file := "prime-frequency-approximation"
+%%%
+
+给定既约分数 $`a/q`，设 $`|\alpha-a/q|\le q^{-2}`。若 $`x|\alpha-a/q|\le2`，对{ref "rational-prime-sums-density"}[有理频率的估计]作一次 Abel 求和，就能控制实频率 $`\alpha`。频率移动 $`\beta` 至多使部分和界增加因子 $`1+2\pi x|\beta|`。
+
+{docstring norm_primeExpSum_shift_of_bound}
+
+当 $`x|\alpha-a/q|>2` 时，以 $`x/q` 为分母上限重新作 Dirichlet 逼近。两个不同既约分数的间距至少是其分母乘积的倒数。由此得到第二个分数 $`b/r`，满足
+
+$$`\frac q2<r\le\frac{x}{q},\qquad x|\alpha-b/r|<2.`
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.exists_narrow_rational_approximation}
+
+将 $`r\le x/q` 代入有理频率估计，原来的中间项至多为 $`x^{4/5}(x/q)^{1/10}=x^{9/10}q^{-1/10}`。合并宽、窄两种情形，令
+
+$$`W(x,q)=\frac{x}{\sqrt q}+x^{4/5}q^{1/10}+\sqrt{xq}+\frac{x^{9/10}}{q^{1/10}}.`
+
+于是 $`x\ge4` 时，对每个 $`0\le y\le x` 都有 $`|\Psi_\alpha(y)|\ll W(x,q)(1+\log x)^{11}`。
+
+{docstring primeExpSum_zero_density}
+
+去掉高次素数幂得到素数对数加权和的同一上界，再用{ref "linear-prime-exponential-sums"}[分部求和去掉素数对数]，无权和节省一个对数因子。当 $`0<Q\le x^{1/4}` 且 $`Q\le q\le x/Q`，四项都不超过 $`x/\sqrt Q`。在这个区间，三种素数和共享分母节省 $`Q^{-1/2}`。
+
+{docstring logPrimeExpSum_zero_density}
+
+{docstring unweightedPrimeExpSum_zero_density}
+
+{docstring densityPrimeScale_le_of_denominator_range}
+
+{docstring prime_sums_zero_density_balanced}
 
 # 有理频率处的平滑素数和
 %%%

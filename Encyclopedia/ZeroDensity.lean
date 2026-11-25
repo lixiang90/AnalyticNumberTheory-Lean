@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.FixedModulusCharacterMeans
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusIngham
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusMontgomery
 import AnalyticNumberTheory.PrimeDistribution.PrimitiveFamilyIngham
@@ -289,6 +290,31 @@ $$`\sum_{\chi\bmod q} N_\chi(\sigma,T)
 {docstring modulusDensityCount_ingham_log_eight}
 
 {docstring modulusDensityCount_ingham_all_heights}
+
+# 固定模数的特征素数和平均
+%%%
+tag := "fixed-modulus-character-means"
+file := "character-prime-means"
+%%%
+
+设 $`x\ge4`、$`1\le q\le x`，写 $`\psi(y,\chi)=\sum_{n\le y}\chi(n)\Lambda(n)`。同一个模数下，每个特征可以独立选择使部分和最大的端点。对这些最大值求和，有
+
+$$`\sum_{\chi\bmod q}\sup_{0\le y\le x}|\psi(y,\chi)|
+ \ll \bigl(\sqrt{x}\,q+x^{4/5}q^{3/5}+x\bigr)(1+\log x)^{10}.`
+
+{docstring fixed_modulus_maximal_psi_mean}
+
+这三个幂次来自{ref "fixed-modulus-ingham-density"}[Ingham 的零点密度界]。令 $`H=qT`。当 $`1/2\le\sigma\le1` 时，密度指数 $`3(1-\sigma)/(2-\sigma)` 同时不超过 $`(5-4\sigma)/3` 和 $`3(1-\sigma)`。两条直线在 $`\sigma=4/5` 相交。对任一条直线 $`a+b\sigma`，乘积 $`x^\sigma H^{a+b\sigma}` 的对数是 $`\sigma` 的一次函数。因此两段区间只需考察 $`\sigma=1/2,4/5,1` 三个端点。
+
+{docstring ingham_power_weight_three_term}
+
+对零点实部的尾计数作分部求和，得到按 $`x^{\Re\rho}` 加权的零点和。取样包括上下半平面、实零点和主特征，每个零点按解析重数计入。再按 $`|\Im\rho|` 分成二倍高度区间，加入权重 $`1/(1+|\Im\rho|)`。在显式公式所用的高度 $`T=\sqrt x`，全部对数因子都可用 $`1+\log x` 控制。
+
+{docstring fixed_modulus_zero_power_sum}
+
+{docstring fixed_modulus_zero_weight_sqrt}
+
+非主特征在任意 $`y\le x` 的显式公式共用这一组零点。主特征的和用 Chebyshev 上界直接估计。将有理频率的 Gauss 系数乘到特征平均上，就得到{ref "rational-prime-sums-density"}[有理频率处的素数指数和界]。
 
 # 按原始导子求和的 Ingham 零密度界
 %%%

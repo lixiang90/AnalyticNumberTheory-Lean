@@ -11,7 +11,9 @@ independently in each degree of a logarithmic Taylor polynomial.
 open Finset Real
 namespace AnalyticNumberTheory.ExponentialSums
 
-private theorem sum_Icc_even (R : ℕ) (f : ℤ → ℝ) (hf : ∀ u, f (-u)=f u) :
+/-- The central term and twice the positive half give the sum of an even
+function on a symmetric integer interval. -/
+theorem sum_symmetric_Icc_even (R : ℕ) (f : ℤ → ℝ) (hf : ∀ u, f (-u)=f u) :
     (∑ u ∈ Icc (-(R:ℤ)) R, f u) = f 0 + 2*∑ j ∈ Icc 1 R, f (j:ℤ) := by
   induction R with
   | zero => simp
@@ -46,7 +48,7 @@ private theorem symm_linear_kernel_le (R : ℕ) (θ : ℝ) :
              calc _ = ‖∑ v ∈ Ioc (-(R:ℤ)-1) R, e ((θ*u)*v)‖ := by rw [hi]; simp only [mul_right_comm θ]
                   _ ≤ _ := norm_sum_Ioc_int_e_le_linearExpBound _ (by omega) (by dsimp [L]; omega)
        _ = _ := by
-             rw [sum_Icc_even R _ (fun u => by simp [linearExpBound_neg])]
+             rw [sum_symmetric_Icc_even R _ (fun u => by simp [linearExpBound_neg])]
              simp [L,linearExpBound,distToInt]
 
 /-- A rational approximation bounds a one-dimensional factor, including its

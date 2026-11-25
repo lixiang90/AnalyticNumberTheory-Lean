@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringLogarithmicBasis
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringSingularSeries
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringPrimeModuli
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringVolume
@@ -85,3 +86,29 @@ $$`R_{k,s}(n)=\mathfrak S_{k,s}(n)\frac{\Gamma(1+1/k)^s}{\Gamma(s/k)}n^{s/k-1}+o
 {docstring eventually_waringCount_pos}
 
 {docstring hilbert_waring}
+
+# 渐减区间与渐近基阶
+%%%
+tag := "waring-logarithmic-order"
+file := "asymptotic-order"
+%%%
+
+{index}[Waring 渐近基阶]记 $`G(k)` 为使每个充分大的整数都能写成 $`s` 个非负整数的 $`k` 次幂之和的最小 $`s`。对每个正整数 $`k`，Vinogradov 给出
+
+$$`G(k)\le16k\log k+4k+2.`
+
+{docstring waringAsymptoticOrder_le_logarithmic}
+
+对 $`k\ge3`，保留 $`4k` 个长为 $`P` 的变量，其余变量分成两组，每组 $`m=\lceil8k\log k\rceil` 个。令 $`u=1-1/k`，第 $`j` 个短变量取在 $`(L_j,2L_j]`，其中 $`L_j=\lfloor 4^{-k}P^{u^j}\rfloor`，$`0\le j<m`。相邻区间满足 $`(2L_{j+1})^k\le L_j^{k-1}`。若两个元组首次在第 $`j` 项不同，则这一项产生的幂差大于后面所有项能够抵消的量。因此一组短变量恰好给出 $`\prod_j L_j` 个不同的移位；以这些移位为频率的指数和，在一个周期上的均方也等于这个数。
+
+{docstring waring_diminishing_injective}
+
+{docstring integral_norm_sq_waringDiminishingSum}
+
+两组短变量的幂和从目标 $`N` 中扣除后，剩余目标仍处于 $`[P^k/4,P^k]`。此时{ref "waring-four-degree-local"}[奇异级数的一致正下界]和实密度公式给每个剩余目标至少 $`c_kP^{4k-k}` 的主弧贡献。对所有移位对相加，主弧得到移位个数的平方，次弧的均方估计只损失一次移位个数。再用{ref "vinogradov-polynomial-phases"}[多项式指数和的幂次节省]，总贡献严格为正。
+
+{docstring eventually_waringMajorContribution_re_ge}
+
+{docstring waringCount_pos_of_shift_set}
+
+{docstring eventually_waringCount_pos_logarithmic}

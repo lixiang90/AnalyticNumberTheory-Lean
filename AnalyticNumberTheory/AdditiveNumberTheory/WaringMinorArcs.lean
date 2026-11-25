@@ -13,7 +13,8 @@ open Finset Polynomial MeasureTheory
 
 namespace AnalyticNumberTheory.AdditiveNumberTheory
 
-private theorem waringSum_eq_one_add {k : ℕ} (hk : 1 ≤ k) (P : ℕ) (α : ℝ) :
+/-- Separate the zero base from the sum on the positive integers. -/
+theorem waringSum_eq_one_add {k : ℕ} (hk : 1 ≤ k) (P : ℕ) (α : ℝ) :
     waringSum k P α = 1 + ∑ x ∈ Icc 1 P, e (α * (x : ℝ) ^ k) := by
   have hbox : range (P + 1) = insert 0 (Icc 1 P) := by
     ext n

@@ -165,6 +165,30 @@ theorem vinogradovBilinearSum_pow_le {s k : ℕ} (hs : 0<s) (B : Finset ℤ)
 noncomputable def vinogradovLinearKernel (R : ℕ) (θ : ℝ) : ℝ :=
   ∑ u ∈ Icc (-(R:ℤ)) R, ‖∑ v ∈ Icc (-(R:ℤ)) R, e (θ * v * u)‖
 
+/-- Differences of moment vectors from an interval of length `N` lie in the
+rectangular frequency box with radii `s N^j`. -/
+theorem vinogradovDifference_mem_intervalBox {s k N : ℕ}
+    (p : (Fin s → ℤ) × (Fin s → ℤ))
+    (hp : p∈vinogradovTuples s (Icc 1 (N:ℤ)) ×ˢ vinogradovTuples s (Icc 1 (N:ℤ))) :
+    vinogradovDifference k p∈Fintype.piFinset (fun j : Fin k =>
+      Icc (-(s*N^(j.val+1):ℕ):ℤ) (s*N^(j.val+1):ℕ)) := by
+  let I := Icc 1 (N:ℤ)
+  have hm (x : Fin s → ℤ) (hx : x ∈ vinogradovTuples s I) (j : Fin k) :
+      0 ≤ vinogradovMoments k x j ∧ vinogradovMoments k x j ≤ (s*N^(j.val+1):ℕ) := by
+    have hv := Fintype.mem_piFinset.mp hx
+    have hxi (i : Fin s) := mem_Icc.mp (hv i)
+    refine ⟨sum_nonneg (fun i _ => pow_nonneg (by have := (hxi i).1; omega) _),?_⟩
+    calc _ ≤ ∑ _i : Fin s, (N:ℤ)^(j.val+1) :=
+               sum_le_sum fun i _ => pow_le_pow_left₀ (by have := (hxi i).1; omega) (hxi i).2 _
+         _ = _ := by simp
+  apply Fintype.mem_piFinset.mpr; intro j
+  have h1 := hm p.1 (mem_product.mp hp).1 j
+  have h2 := hm p.2 (mem_product.mp hp).2 j
+  apply mem_Icc.mpr
+  change -(s*N^(j.val+1):ℕ) ≤ vinogradovMoments k p.1 j-vinogradovMoments k p.2 j ∧
+    vinogradovMoments k p.1 j-vinogradovMoments k p.2 j ≤ (s*N^(j.val+1):ℕ)
+  omega
+
 /-- For the interval of length `N`, the homogeneous solution count in the
 bilinear inequality is the analytic mean value `J`, and the frequency radii
 are exactly `s N^j` for `1 ≤ j ≤ k`. -/
@@ -174,23 +198,7 @@ theorem vinogradovBilinearSum_interval_le {s k : ℕ} (hs : 0<s) (N : ℕ) (α :
         ∏ j, vinogradovLinearKernel (s*N^(j.val+1)) (α j) := by
   let I := Icc 1 (N:ℤ)
   let D (j : Fin k) := Icc (-(s*N^(j.val+1):ℕ):ℤ) (s*N^(j.val+1):ℕ)
-  have hm (x : Fin s → ℤ) (hx : x ∈ vinogradovTuples s I) (j : Fin k) :
-      0 ≤ vinogradovMoments k x j ∧ vinogradovMoments k x j ≤ (s*N^(j.val+1):ℕ) := by
-    have hv := Fintype.mem_piFinset.mp hx
-    have hxi (i : Fin s) := mem_Icc.mp (hv i)
-    refine ⟨sum_nonneg (fun i _ => pow_nonneg (by have := (hxi i).1; omega) _),?_⟩
-    calc _ ≤ ∑ _i : Fin s, (N:ℤ)^(j.val+1) :=
-               sum_le_sum fun i _ => pow_le_pow_left₀ (by have := (hxi i).1; omega) (hxi i).2 _
-         _ = _ := by simp
-  have hbox (p) (hp : p∈vinogradovTuples s I ×ˢ vinogradovTuples s I) :
-      vinogradovDifference k p∈Fintype.piFinset D := by
-    apply Fintype.mem_piFinset.mpr; intro j
-    have h1 := hm p.1 (mem_product.mp hp).1 j
-    have h2 := hm p.2 (mem_product.mp hp).2 j
-    apply mem_Icc.mpr
-    change -(s*N^(j.val+1):ℕ) ≤ vinogradovMoments k p.1 j-vinogradovMoments k p.2 j ∧
-      vinogradovMoments k p.1 j-vinogradovMoments k p.2 j ≤ (s*N^(j.val+1):ℕ)
-    omega
+  have hbox := @vinogradovDifference_mem_intervalBox s k N
   have H := vinogradovBilinearSum_pow_le hs I α D hbox
   simpa [I,D,vinogradovCountOn_interval,vinogradovJ_eq_card_solutions,Int.card_Icc,
     vinogradovLinearKernel] using H

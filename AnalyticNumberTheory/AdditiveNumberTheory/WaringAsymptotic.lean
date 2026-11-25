@@ -48,17 +48,15 @@ theorem integral_waringMajorArcModel_rescale (k s : ℕ) {P : ℝ} (hP : 0 < P) 
 private theorem majorArcsFixed_floor (A T : ℝ) : majorArcsFixed (⌊A⌋₊ : ℝ) T = majorArcsFixed A T := by
   simp [majorArcsFixed, majorArcDenoms]
 
-/-- Explicit comparison with the truncated, rescaled singular series and integral.
-The minor-arc contribution is retained for any disjoint fixed-width dissection. -/
-theorem norm_waringCount_sub_truncated_le {k s P n : ℕ} (hk : 0 < k) (hks : k ≤ s) (hP : 0 < P)
-    (hn : n < (P + 1) ^ k) {A T : ℝ} (hA : 1 ≤ A) (hAT : 2 * A ^ 2 < T) :
-    ‖(waringCount k s n : ℂ) -
+/-- Uniform major-arc comparison with the truncated singular factors for arbitrary targets. -/
+theorem norm_waringMajorArc_sub_truncated_le {k s P n : ℕ} (hks : k ≤ s) (hP : 0 < P)
+    {A T : ℝ} (hA : 1 ≤ A) (hAT : 2 * A ^ 2 < T) :
+    ‖majorArcIntegralFixed (fun α => waringSum k P α ^ s * e (-α * n)) A T -
       (P : ℂ) ^ (s - k) * ((∑ q ∈ Icc 1 ⌊A⌋₊, waringSingularTerm k s n q) *
         ∫ γ in (-((P : ℝ) ^ k / T))..((P : ℝ) ^ k / T),
           waringOscillatoryIntegral k γ ^ s * e (-γ * (n / (P : ℝ) ^ k)))‖ ≤
       A ^ 2 * ((2 / T) * (s * ((P : ℝ) + 1) ^ (s - 1) *
-        (1 + 2 * A * (1 + 2 * Real.pi * (1 / T) * (P : ℝ) ^ k)))) +
-      ‖minorArcIntegralFixed (fun α => waringSum k P α ^ s * e (-α * n)) A T‖ := by
+        (1 + 2 * A * (1 + 2 * Real.pi * (1 / T) * (P : ℝ) ^ k)))) := by
   let B := ⌊A⌋₊
   have hB : 1 ≤ B := Nat.le_floor hA
   have hBA : (B : ℝ) ≤ A := Nat.floor_le (by linarith)
@@ -74,12 +72,24 @@ theorem norm_waringCount_sub_truncated_le {k s P n : ℕ} (hk : 0 < k) (hks : k 
     simp only [Nat.add_sub_cancel, pow_add]
     field_simp
   rw [hfactor] at hm
-  rw [waringCount_eq_arcIntegralsFixed hk hn hA hAT, add_sub_right_comm]
-  apply (norm_add_le _ _).trans
-  apply add_le_add (hm.trans _) le_rfl
-  gcongr
+  exact hm.trans (by gcongr)
 
-private theorem waringArcParameters {p : ℝ} (hp : 2 < p) {k : ℕ} (hk : 2 ≤ k) :
+/-- Explicit comparison with the truncated, rescaled singular series and integral.
+The minor-arc contribution is retained for any disjoint fixed-width dissection. -/
+theorem norm_waringCount_sub_truncated_le {k s P n : ℕ} (hk : 0 < k) (hks : k ≤ s) (hP : 0 < P)
+    (hn : n < (P + 1) ^ k) {A T : ℝ} (hA : 1 ≤ A) (hAT : 2 * A ^ 2 < T) :
+    ‖(waringCount k s n : ℂ) -
+      (P : ℂ) ^ (s - k) * ((∑ q ∈ Icc 1 ⌊A⌋₊, waringSingularTerm k s n q) *
+        ∫ γ in (-((P : ℝ) ^ k / T))..((P : ℝ) ^ k / T),
+          waringOscillatoryIntegral k γ ^ s * e (-γ * (n / (P : ℝ) ^ k)))‖ ≤
+      A ^ 2 * ((2 / T) * (s * ((P : ℝ) + 1) ^ (s - 1) *
+        (1 + 2 * A * (1 + 2 * Real.pi * (1 / T) * (P : ℝ) ^ k)))) +
+      ‖minorArcIntegralFixed (fun α => waringSum k P α ^ s * e (-α * n)) A T‖ := by
+  rw [waringCount_eq_arcIntegralsFixed hk hn hA hAT, add_sub_right_comm]
+  exact (norm_add_le _ _).trans (add_le_add (norm_waringMajorArc_sub_truncated_le hks hP hA hAT) le_rfl)
+
+/-- The power cutoffs give a disjoint dissection and reciprocal frequency scale. -/
+theorem waringArcParameters {p : ℝ} (hp : 2 < p) {k : ℕ} (hk : 2 ≤ k) :
     1 ≤ p ^ (1/10 : ℝ) ∧ 2 * (p ^ (1/10 : ℝ)) ^ 2 < p ^ ((k : ℝ) - 1/10) ∧
       p ^ k / p ^ ((k : ℝ) - 1/10) = p ^ (1/10 : ℝ) := by
   have hp1 : 1 < p := by linarith
@@ -94,7 +104,8 @@ private theorem waringArcParameters {p : ℝ} (hp : 2 < p) {k : ℕ} (hk : 2 ≤
   · rw [Real.rpow_sub hp0, Real.rpow_natCast]
     field_simp
 
-private theorem waringMajorError_le {p : ℝ} (hp : 2 < p) {k s : ℕ} (hk : 2 ≤ k) (hs : 0 < s) :
+/-- The integrated major-arc approximation loses half a power below the main scale. -/
+theorem waringMajorError_le {p : ℝ} (hp : 2 < p) {k s : ℕ} (hk : 2 ≤ k) (hs : 0 < s) :
     let A := p ^ (1/10 : ℝ)
     let T := p ^ ((k : ℝ) - 1/10)
     A ^ 2 * ((2 / T) * (s * (p + 1) ^ (s - 1) *
@@ -180,24 +191,18 @@ private theorem waringSingularTerm_sum_Icc (k s n Q : ℕ) :
     omega
   simp [h, waringSingularTerm, coprimeResidues]
 
-/-- The normalized Waring count is approximated by the full singular series
-times the full singular integral, for any varying target with `n < (P+1)^k`. -/
-theorem tendsto_waringCount_sub_singularFactors {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
-    {ι : Type*} {l : Filter ι} (P n : ι → ℕ) (hP : Tendsto P l atTop)
-    (hn : ∀ᶠ i in l, n i < (P i + 1)^k) :
-    Tendsto (fun i => (waringCount k s (n i) : ℂ) / (P i : ℂ) ^ (s-k) -
-      waringSingularSeries k s (n i) * waringSingularIntegral s k (n i / (P i : ℝ)^k)) l (𝓝 0) := by
-  let A (i : ι) := (P i : ℝ) ^ (1/10 : ℝ)
-  let t (i : ι) := n i / (P i : ℝ)^k
+/-- Simultaneously removing both truncations is uniform in the frequency target
+and in the singular series parameter. -/
+theorem tendsto_waringTruncated_sub_singularFactors {k s : ℕ} (hk' : 0<k) (hs' : 2*k<s)
+    {ι : Type*} {l : Filter ι} (A t : ι → ℝ) (n : ι → ℕ) (hA : Tendsto A l atTop) :
+    Tendsto (fun i => (∑ q ∈ Icc 1 ⌊A i⌋₊, waringSingularTerm k s (n i) q) *
+      (∫ γ in (-(A i))..(A i), waringOscillatoryIntegral k γ ^ s * e (-γ * t i)) -
+      waringSingularSeries k s (n i) * waringSingularIntegral s k (t i)) l (𝓝 0) := by
+  have hks : k<s := by omega
   let S (i : ι) := ∑ q ∈ Icc 1 ⌊A i⌋₊, waringSingularTerm k s (n i) q
   let J (i : ι) := ∫ γ in (-(A i))..(A i), waringOscillatoryIntegral k γ ^ s * e (-γ * t i)
   let L := ∫ γ : ℝ, ‖waringOscillatoryIntegral k γ ^ s‖
   let tail (i : ι) := ∫ γ in (Set.Ioc (-(A i)) (A i))ᶜ, ‖waringOscillatoryIntegral k γ ^ s‖
-  have hks := (Nat.lt_two_pow_self (n := k)).trans hs
-  have hs' := (two_mul_le_two_pow hk).trans_lt hs
-  have hk' : 0 < k := by omega
-  have hp : Tendsto (fun i => (P i : ℝ)) l atTop := tendsto_natCast_atTop_atTop.comp hP
-  have hA : Tendsto A l atTop := (tendsto_rpow_atTop (by norm_num)).comp hp
   have hQ : Tendsto (fun i => ⌊A i⌋₊+1) l atTop :=
     tendsto_atTop_mono (fun _ => Nat.le_succ _) (tendsto_nat_floor_atTop.comp hA)
   have hS : Tendsto (fun i => ‖S i - waringSingularSeries k s (n i)‖) l (𝓝 0) := by
@@ -208,27 +213,47 @@ theorem tendsto_waringCount_sub_singularFactors {k s : ℕ} (hk : 2 ≤ k) (hs :
     simpa only [S, waringSingularTerm_sum_Icc, Real.dist_eq, sub_zero,
       abs_norm, dist_eq_norm, norm_norm, norm_sub_rev] using hi (n i)
   obtain ⟨B, hB⟩ := exists_bound_waringSingularTerm_sum hk' hs'
-  obtain ⟨δ, C, hδ, _, hC⟩ := waringCount_truncated_power_saving hk hs
   have htail : Tendsto tail l (𝓝 0) := (tendsto_waringSingularIntegral_tail hk' hks).comp hA
-  have hsmall := (((tendsto_rpow_neg_atTop hδ).comp hp).const_mul C).add
-    ((htail.const_mul B).add (hS.mul_const L))
+  have hsmall := (htail.const_mul B).add (hS.mul_const L)
   simp only [mul_zero, zero_mul, add_zero] at hsmall
   apply tendsto_zero_iff_norm_tendsto_zero.mpr
-  apply squeeze_zero' (Eventually.of_forall (fun _ => norm_nonneg _)) _ hsmall
-  filter_upwards [hn, hP.eventually_ge_atTop 3] with i hni hpi
-  let X : ℂ := (waringCount k s (n i) : ℂ) / (P i : ℂ)^(s-k)
+  apply squeeze_zero' (.of_forall fun _ => norm_nonneg _) _ hsmall
+  filter_upwards [hA.eventually_ge_atTop 0] with i hi
   let a := waringSingularSeries k s (n i)
   let b := waringSingularIntegral s k (t i)
-  change ‖X - a*b‖ ≤ _
-  rw [show X - a*b = (X - S i * J i) + (S i * (J i - b) + (S i - a)*b) by ring]
-  apply (norm_add_le _ _).trans (add_le_add (hC _ _ hpi hni) ((norm_add_le _ _).trans _))
+  change ‖S i * J i - a*b‖ ≤ _
+  rw [show S i * J i - a*b = S i * (J i - b) + (S i - a)*b by ring]
+  apply (norm_add_le _ _).trans
   simp only [norm_mul]
   apply add_le_add
   · have hSi : ‖S i‖ ≤ B := hB _ _
     apply mul_le_mul hSi _ (norm_nonneg _) ((norm_nonneg _).trans hSi)
     rw [norm_sub_rev]
-    exact norm_waringSingularIntegral_sub_truncation_le hk' hks (by dsimp [A]; positivity) (t i)
+    exact norm_waringSingularIntegral_sub_truncation_le hk' hks hi (t i)
   · exact mul_le_mul_of_nonneg_left (norm_waringSingularIntegral_le _ _ _) (norm_nonneg _)
+
+/-- The normalized Waring count is approximated by the full singular series
+times the full singular integral, for any varying target with `n < (P+1)^k`. -/
+theorem tendsto_waringCount_sub_singularFactors {k s : ℕ} (hk : 2 ≤ k) (hs : 2 ^ k < s)
+    {ι : Type*} {l : Filter ι} (P n : ι → ℕ) (hP : Tendsto P l atTop)
+    (hn : ∀ᶠ i in l, n i < (P i + 1)^k) :
+    Tendsto (fun i => (waringCount k s (n i) : ℂ) / (P i : ℂ) ^ (s-k) -
+      waringSingularSeries k s (n i) * waringSingularIntegral s k (n i / (P i : ℝ)^k)) l (𝓝 0) := by
+  let A (i : ι) := (P i : ℝ) ^ (1/10 : ℝ)
+  let t (i : ι) := n i / (P i : ℝ)^k
+  let M (i : ι) := (∑ q ∈ Icc 1 ⌊A i⌋₊, waringSingularTerm k s (n i) q) *
+    ∫ γ in (-(A i))..(A i), waringOscillatoryIntegral k γ ^ s * e (-γ * t i)
+  have hp : Tendsto (fun i => (P i : ℝ)) l atTop := tendsto_natCast_atTop_atTop.comp hP
+  have hA : Tendsto A l atTop := (tendsto_rpow_atTop (by norm_num)).comp hp
+  obtain ⟨δ,C,hδ,_,hC⟩ := waringCount_truncated_power_saving hk hs
+  have hmain : Tendsto (fun i => (waringCount k s (n i) : ℂ) / (P i : ℂ)^(s-k) - M i) l (𝓝 0) := by
+    apply tendsto_zero_iff_norm_tendsto_zero.mpr
+    apply squeeze_zero' (.of_forall fun _ => norm_nonneg _) _ (by
+      simpa using (((tendsto_rpow_neg_atTop hδ).comp hp).const_mul C))
+    filter_upwards [hP.eventually_ge_atTop 3,hn] with i hi hni
+    exact hC _ _ hi hni
+  have hf := tendsto_waringTruncated_sub_singularFactors (by omega : 0<k) ((two_mul_le_two_pow hk).trans_lt hs) A t n hA
+  simpa only [M,t,sub_add_sub_cancel,add_zero] using hmain.add hf
 
 /-- **Waring's asymptotic formula.** For `s > 2^k` nonnegative variables, the
 number of representations equals the singular series times

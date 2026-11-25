@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringVinogradovMinorArcs
 import AnalyticNumberTheory.ExponentialSums.VinogradovLowerBounds
 import AnalyticNumberTheory.ExponentialSums.VinogradovDegreeBounds
 import AnalyticNumberTheory.ExponentialSums.VinogradovBilinearSums
@@ -112,3 +113,22 @@ $`K` 是方程组各次数的和。第一个上界 $`J_{s,k}(N)\le N^{2s}` 只�
 对 $`e(\sum_j\alpha_j(xy)^j)` 作双重求和，先后在 $`x` 和 $`y` 上取偶数次矩，就能用 $`J_{s,k}(N)^2` 及各坐标的一维几何和控制它。下面的形式保留两个整数求和区间的端点。
 
 {docstring vinogradovBilinearSum_interval_le}
+
+# 多项式相位与有理逼近
+%%%
+tag := "vinogradov-polynomial-phases"
+file := "polynomial-phases"
+%%%
+
+设 $`n\ge2`，实多项式 $`f` 的次数至多为 $`n+1`，其 $`x^{n+1}` 系数 $`\alpha` 满足 $`|\alpha-a/q|\le q^{-2}`，且 $`a,q` 互素。若 $`N^{1/4}\le q\le N^{n+1-1/4}`，则
+
+$$`\left|\sum_{1\le x\le N}e(f(x))\right|
+\ll_n N^{1-1/(400n^2\log n)}.`
+
+{docstring vinogradov_weyl_quarter_window}
+
+分母范围也可按圆法的主弧宽度调整。对 $`1/10\le\beta\le1/4`，取 $`N^\beta\le q\le N^{n+1-\beta}`，得到指数节省 $`(\beta-3/64)/(64n^2\log n)`。取 $`\beta=1/10`，对于次数 $`k\ge3` 的单项式，在 Waring 固定宽度次弧上可以统一取节省 $`1/(1600k^2\log k)`。这一估计用于{ref "waring-logarithmic-order"}[渐近基阶的对数上界]。
+
+{docstring vinogradov_weyl_denominator_window}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.waringSum_vinogradov_fixed_minorArcs}

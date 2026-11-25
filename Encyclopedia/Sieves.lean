@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.LinearSieveMonotonicity
 import AnalyticNumberTheory.SieveMethods.DickmanFunction
 import AnalyticNumberTheory.SieveMethods.CombinatorialSieve
 import AnalyticNumberTheory.SieveMethods.LargeSieve
@@ -130,3 +131,25 @@ $$`F(u)-f(u)=\frac{2e^\gamma}{u}\rho(u-1).`
 {docstring dickman_le_inv_factorial}
 
 {docstring linearSieve_gap_le_factorial}
+
+# Buchstab 函数与线性筛的归一化
+%%%
+tag := "sieve-buchstab-limit"
+file := "buchstab-limit"
+%%%
+
+{index}[Buchstab 函数]在 $`1\le u\le2` 上有 $`\omega(u)=1/u`，此后满足 $`(u\omega(u))'=\omega(u-1)`。这个递推给出大参数时的振幅界，从而证明极限存在。对延迟方程取 Laplace 变换，再求指数积分在零点的常数项，得到
+
+$$`\lim_{u\to\infty}\omega(u)=e^{-\gamma}.`
+
+{docstring log_one_add_buchstabLaplace}
+
+{docstring tendsto_buchstab}
+
+线性筛主函数满足 $`F(u)+f(u)=2e^\gamma\omega(u)`，而它们的差由 Dickman 函数给出。因此 $`F,f` 都趋于一。$`F` 在 $`[1,\infty)` 上严格递减，$`f` 在 $`[2,\infty)` 上严格递增。对每个整数 $`n\ge0`，当 $`u\ge n+1` 时，两者偏离一的绝对值都至多为 $`2e^\gamma/(u\,n!)`。
+
+{docstring tendsto_linearSieve}
+
+{docstring linearSieve_bracket_one}
+
+{docstring linearSieve_factorial_error}

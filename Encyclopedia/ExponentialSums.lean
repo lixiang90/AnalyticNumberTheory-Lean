@@ -7,6 +7,7 @@ import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
+import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
 open Verso.Genre Manual
@@ -141,6 +142,32 @@ $$`\frac1{2\pi}\int_{\mathbb R}
 从 $`x` 移到 $`y>x` 时，原有各项的权重全都增加 $`\log(y/x)`。因此 $`S_1(\alpha,y)-S_1(\alpha,x)` 的主项是 $`\log(y/x)\Psi_\alpha(x)`，近似误差只取决于短区间 $`(x,y]` 的 von Mangoldt 质量，至多为 $`\log(y/x)(\psi(y)-\psi(x))`。
 
 {docstring norm_logSmoothedPrimeExpSum_difference}
+
+# 素数权与 Möbius 权的短特征多项式
+%%%
+tag := "short-prime-polynomial-moments"
+file := "short-polynomial-moments"
+%%%
+
+设 $`s=1/2+it`，记 $`P_a(s,\chi)=\sum_{n\le N}a_n\chi(n)n^{-s}`。平方后的多项式长为 $`N^2`，其中 $`k` 的系数是所有 $`uv=k`、$`u,v\le N` 的 $`a_ua_v` 之和。把{ref "critical-pointwise-character-means"}[固定模数特征均方]用在这个平方上，即可对任意给定的高度估计四阶矩。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.critical_polynomial_fourth_energy}
+
+当 $`|a_n|\le1` 时，平方系数的模至多为 $`d(k)`。利用{ref "divisor-power-means"}[除数函数的调和二阶矩]可得
+$`\sum_{\chi\bmod q}|P_a(s,\chi)|^4\le(q+N^2)(1+\log(N^2))^4`。
+对 $`a_n=\mu(n)`，相应的二阶矩至多为 $`(q+N)(1+\log N)`。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.bounded_critical_polynomial_fourth}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.fixed_modulus_mobius_polynomial_moments}
+
+取 $`a_n=\Lambda(n)`。由 $`\sum_{u\mid k}\Lambda(u)=\log k`，平方系数 $`b_k` 至多为 $`(\log N)\log k`。再按乘积把 $`\sum b_k/k` 拆回 $`(\sum_{n\le N}\Lambda(n)/n)^2`，Mertens 第一估计便给出 $`\sum b_k^2/k\ll(1+\log N)^4`。因此二阶矩与四阶矩分别至多为 $`O((q+N)(1+\log N)^2)` 和 $`O((q+N^2)(1+\log N)^4)`，两个常数对模数和高度一致。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.norm_factorPairWeight_vonMangoldt_le}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.vonMangoldt_square_harmonic_energy}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.fixed_modulus_vonMangoldt_polynomial_moments}
 
 # 有限 Poisson 求和与倒数相位
 %%%

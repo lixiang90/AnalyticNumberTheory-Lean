@@ -1,7 +1,7 @@
 import AnalyticNumberTheory.SieveMethods.ReciprocalConductorLargeSieve
 import AnalyticNumberTheory.DirichletLFunctions.CharacterPolynomialSquares
 import AnalyticNumberTheory.RiemannZeta.DivisorPolynomialDiagonals
-import AnalyticNumberTheory.PrimeDistribution.Chebyshev
+import AnalyticNumberTheory.PrimeDistribution.MangoldtPolynomialEnergy
 
 /-! # Conductor means of short polynomials on the critical line
 
@@ -89,17 +89,6 @@ theorem mangoldt_conductor_polynomial_second {N Q R : ℕ} (hN : 1≤N) (hQ : 1�
       (2*(R:ℝ)+(N:ℝ)/Q)*(Real.log N*(Real.log N+Real.log 4+8)) := by
   apply (conductor_polynomial_second_moment (fun n => (Λ n:ℂ)) N R hQ t).trans
   apply mul_le_mul_of_nonneg_left _ (by positivity)
-  have hm := (abs_le.mp (abs_sum_vonMangoldt_div_sub_log_le (by exact_mod_cast hN : (1:ℝ)≤N))).2
-  rw [Nat.floor_natCast] at hm
-  have hlog := Real.log_nonneg (by exact_mod_cast hN : (1:ℝ)≤N)
-  calc _ ≤ ∑n∈Icc 1 N,Real.log N*(Λ n/n) := by
-             apply sum_le_sum;intro n hn
-             have hb := ArithmeticFunction.vonMangoldt_le_log (n:=n) |>.trans
-               (Real.log_le_log (by exact_mod_cast (mem_Icc.mp hn).1 : (0:ℝ)<n) (Nat.cast_le.mpr (mem_Icc.mp hn).2 : (n:ℝ)≤N))
-             have hp := ArithmeticFunction.vonMangoldt_nonneg (n:=n)
-             rw [Complex.norm_real,Real.norm_of_nonneg hp]
-             rw [sq,div_eq_mul_inv,←mul_assoc]
-             exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hb hp) (by positivity)
-       _ ≤ _ := by rw [←mul_sum];exact mul_le_mul_of_nonneg_left (by linarith only [hm]) hlog
+  simpa only [div_eq_mul_inv] using vonMangoldt_harmonic_energy hN
 
 end AnalyticNumberTheory.PrimeDistribution

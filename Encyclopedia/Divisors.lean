@@ -2,6 +2,7 @@ import AnalyticNumberTheory.DivisorProblems.DivisorExponent
 import AnalyticNumberTheory.DivisorProblems.TruncatedVoronoi
 import AnalyticNumberTheory.DivisorProblems.GaussCircleCubeRoot
 import AnalyticNumberTheory.DivisorProblems.DirichletHyperbola
+import AnalyticNumberTheory.DivisorProblems.DivisorPowerMeans
 import AnalyticNumberTheory.DivisorProblems.DivisorCubeRoot
 import VersoManual
 
@@ -38,6 +39,31 @@ $$`\sum_{n\le N}d(n)+u^2=2\sum_{a=1}^u\lfloor N/a\rfloor.`
 $$`\Delta(x)=O\bigl(x^{1/3}\log x\bigr).`
 
 {docstring abs_divisorError_le_cubeRoot_mul_log}
+
+# 除数函数的任意整数阶矩
+%%%
+tag := "divisor-power-means"
+file := "divisor-power-means"
+%%%
+
+{index}[广义除数函数]令 $`d_r(n)` 为把 $`n` 写成 $`r` 个正整数的有序乘积的方式数，允许因子等于一。逐次对除数求和便得到递推 $`d_{r+1}(n)=\sum_{u\mid n}d_r(u)`。普通除数函数是 $`d(n)=d_2(n)`。
+
+{docstring orderedDivisorCount}
+
+对每个 $`n=uv` 都有 $`d(n)\le d(u)d(v)`，因为 $`n` 的每个除数都可以拆成 $`u` 和 $`v` 的两个除数的乘积。若已知 $`d(m)^k\le d_{2^k}(m)`，就在所有 $`uv=n` 上对两个因子的界作卷积。这样的有序对恰有 $`d(n)` 个，归纳给出 $`d(n)^{k+1}\le d_{2^{k+1}}(n)`。
+
+{docstring card_divisors_pow_le_ordered}
+
+在 $`n\le N` 的双曲线区域上，每增加一个有序因子，带 $`1/n` 权的和至多多出一个调和和。对普通和，最后一个因子直接贡献 $`\lfloor N/u\rfloor\le N/u`。于是对每个整数 $`k\ge0` 和 $`N\ge1` 有
+
+$$`\sum_{n\le N}\frac{d(n)^k}{n}\le(1+\log N)^{2^k},
+\qquad \sum_{n\le N}d(n)^k\le N(1+\log N)^{2^k-1}.`
+
+{docstring sum_card_divisors_pow_div_le}
+
+{docstring sum_card_divisors_pow_le}
+
+例如取 $`k=2`，带权和至多为四次对数。这正是{ref "short-prime-polynomial-moments"}[短 Möbius 多项式四阶矩]中平方系数所需的界。
 
 # Gauss 圆问题
 %%%

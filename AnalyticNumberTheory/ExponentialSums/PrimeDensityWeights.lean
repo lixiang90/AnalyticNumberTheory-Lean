@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityApproximation
-import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
+import AnalyticNumberTheory.ExponentialSums.PrimeWeightTransfer
 
 /-! # Prime weights and balanced denominators in the zero-density method -/
 
@@ -24,22 +24,8 @@ theorem logPrimeExpSum_zero_density :
   obtain ⟨C, hC, H⟩ := primeExpSum_zero_density
   refine ⟨C+2, by positivity, ?_⟩
   intro a q α x y hq ha hα hx hy hyx
-  let V := densityPrimeScale x q
-  let L := 1 + Real.log x
-  have hs := (Real.sqrt_le_sqrt hyx).trans (sqrt_le_density_scale (by linarith) hq)
-  have hV : 0 ≤ V := (Real.sqrt_nonneg y).trans hs
-  have hL : 1 ≤ L := by dsimp only [L]; linarith [Real.log_nonneg (by linarith : 1 ≤ x)]
-  have hylog := Real.log_le_log (zero_lt_one.trans_le hy) hyx
-  have hlog : Real.log y ≤ L ^ 11 := (show Real.log y ≤ L by dsimp [L]; linarith).trans
-    (by simpa only [pow_one] using pow_le_pow_right₀ hL (by decide : 1 ≤ 11))
-  have herror := (norm_primeExpSum_sub_logPrimeExpSum_le y α).trans
-    ((le_abs_self _).trans (abs_psi_sub_theta_le_sqrt_mul_log hy))
-  have hcomp := mul_le_mul hs hlog (Real.log_nonneg hy) hV
-  have htri := norm_sub_le (primeExpSum y α) (primeExpSum y α - logPrimeExpSum y α)
-  rw [sub_sub_cancel] at htri
-  change ‖logPrimeExpSum y α‖ ≤ (C+2) * V * L^11
-  have hmain : ‖primeExpSum y α‖ ≤ C * V * L^11 := H hq ha hα hx (zero_le_one.trans hy) hyx
-  nlinarith only [htri, herror, hmain, hcomp]
+  exact norm_logPrimeExpSum_le_of_primeExpSum (k := 10) hy hyx
+    (sqrt_le_density_scale (by linarith) hq) (H hq ha hα hx (zero_le_one.trans hy) hyx)
 
 /-- Removing the prime logarithms from the zero-density bound saves one
 power of the logarithm. -/
@@ -48,29 +34,10 @@ theorem unweightedPrimeExpSum_zero_density :
       |α - (a : ℝ)/q| ≤ 1/(q : ℝ)^2 → 4 ≤ x →
       ‖unweightedPrimeExpSum x α‖ ≤ C * densityPrimeScale x q * (1 + Real.log x)^10 := by
   obtain ⟨C, hC, H⟩ := logPrimeExpSum_zero_density
-  refine ⟨2 + 8*C, by positivity, ?_⟩
+  refine ⟨2+12*C, by positivity, ?_⟩
   intro a q α x hq ha hα hx
-  let V := densityPrimeScale x q
-  let L := 1 + Real.log x
-  have h4 := Real.log_le_log (by norm_num : (0 : ℝ) < 4) hx
-  rw [show (4 : ℝ) = 2*2 by norm_num, Real.log_mul (by norm_num) (by norm_num)] at h4
-  have hlog : 1 ≤ Real.log x := by linarith [Real.log_two_gt_d9]
-  have hL : 1 ≤ L := by dsimp only [L]; linarith
-  have hs := sqrt_le_density_scale (by linarith : 0 ≤ x) hq
-  have hV : 0 ≤ V := (Real.sqrt_nonneg x).trans hs
-  have h := norm_sum_primes_le_sqrt_add_of_log_bound (by linarith : 2 ≤ x)
-    (H := C * V * L^11) (f := fun p => AdditiveNumberTheory.e (α*p))
-    (fun _ => (AdditiveNumberTheory.norm_e _).le) (fun k hk hkx => by
-      have hk₁ : (1 : ℝ) ≤ k := by exact_mod_cast (by omega : 1 ≤ k)
-      simpa only [logPrimeExpSum, Nat.floor_natCast] using H hq ha hα hx hk₁ hkx)
-  have hsmall : Real.sqrt x ≤ V * L^10 := hs.trans (le_mul_of_one_le_right hV (one_le_pow₀ hL))
-  have hlarge : 4 * (C * V * L^11) / Real.log x ≤ 8 * C * V * L^10 := by
-    apply (div_le_iff₀ (zero_lt_one.trans_le hlog)).mpr
-    have hr : L ≤ 2*Real.log x := by dsimp only [L]; linarith
-    nlinarith only [mul_le_mul_of_nonneg_left hr (by positivity : 0 ≤ 4*C*V*L^10)]
-  change ‖unweightedPrimeExpSum x α‖ ≤ 2*Real.sqrt x + 4*(C*V*L^11)/Real.log x at h
-  change ‖unweightedPrimeExpSum x α‖ ≤ (2+8*C)*V*L^10
-  nlinarith only [h, hsmall, hlarge]
+  exact norm_unweightedPrimeExpSum_le_of_logPrimeExpSum (k := 10) (by linarith) hC.le
+    (sqrt_le_density_scale (by linarith) hq) (fun y hy => H hq ha hα hx hy.1 hy.2)
 
 /-- The three weight conventions on the balanced range of the zero-density
 method, with a common absolute constant. -/

@@ -7,7 +7,7 @@ import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
-import AnalyticNumberTheory.ExponentialSums.PrimeContourDenominators
+import AnalyticNumberTheory.ExponentialSums.PrimeContourWeights
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -62,6 +62,12 @@ $$`V(x,q)=xq^{-1/2}+x^{4/5}+\sqrt{xq}.`
 {docstring AnalyticNumberTheory.PrimeDistribution.norm_sum_primes_le_sqrt_add_of_log_bound}
 
 {docstring unweightedPrimeExpSum_vaughan_bound}
+
+更一般地，设 $`V\ge\sqrt x`，$`L=1+\log x`，$`k` 为非负整数。剔除高次素数幂时，$`CVL^{k+1}` 变为 $`(C+2)VL^{k+1}`。若所有中间截点的素数对数加权和都满足 $`CVL^{k+1}` 的上界，则 $`x\ge2` 时，无权和至多为 $`(2+12C)VL^k`。
+
+{docstring norm_logPrimeExpSum_le_of_primeExpSum}
+
+{docstring norm_unweightedPrimeExpSum_le_of_logPrimeExpSum}
 
 若 $`0<Q\le x^{2/5}` 且 $`Q\le q\le x/Q`，则 $`V(x,q)\le 3x/\sqrt Q`。例如取 $`Q=x^{2/5}`，所有 $`x^{2/5}\le q\le x^{3/5}` 都给出 $`P_\alpha(x)\ll x^{4/5}\log^3 x`。
 
@@ -297,6 +303,34 @@ $$`\left|\sum_{n\le x}\Lambda(n)e(an/q)\right|
 {docstring primeContourScales_le_of_denominator_range}
 
 {docstring primeExpSums_rational_contour_balanced}
+
+# 双直线法在实频率处的素数和
+%%%
+tag := "real-prime-contour"
+file := "real-prime-contour"
+%%%
+
+设 $`a/q` 为既约分数，$`|\alpha-a/q|\le q^{-2}`。为了从{ref "sharp-rational-contour"}[有理频率界]转移到 $`\alpha`，先对每个中间端点 $`0\le t\le x` 取同一个上界。若 $`t<q`，用 $`t\le x^{7/8}q^{1/8}` 就能吸收初等估计。
+
+{docstring primeExpSum_rational_contour_uniform}
+
+当 $`x|\alpha-a/q|\le2` 时，分部求和转移相位的因子至多为 $`1+4\pi`。否则利用{ref "density-real-prime-frequencies"}[Farey 分数之间的间距]，取一个距离 $`\alpha` 小于 $`2/x` 的新分数 $`b/r`，其中 $`q/2<r\le x/q`。前一条件控制 $`x/r^{1/4}`，后一条件给出 $`x^{7/8}r^{1/8}\le x/q^{1/8}`。
+
+{docstring primeContour_scale_of_refinement}
+
+因此，令 $`W=x/q^{1/8}+x^{7/8}q^{1/8}` 和 $`L=1+\log x`，可得
+
+$$`|\Psi_\alpha(y)|\ll WL^3\qquad(0\le y\le x,\ x\ge1).`
+
+{docstring primeExpSum_contour}
+
+对数加权素数和也满足 $`O(WL^3)`，无权素数和满足 $`O(WL^2)`。对每个 $`Q>0` 和 $`Q\le q\le x/Q`，两项各自至多为 $`x/Q^{1/8}`，三个和因此共享这个分母节省。证明中的绝对常数对分子、分母和实频率一致。
+
+{docstring logPrimeExpSum_contour}
+
+{docstring unweightedPrimeExpSum_contour}
+
+{docstring prime_sums_contour_balanced}
 
 # 有限 Poisson 求和与倒数相位
 %%%

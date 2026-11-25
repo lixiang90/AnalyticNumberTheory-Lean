@@ -7,7 +7,7 @@ import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
-import AnalyticNumberTheory.ExponentialSums.PrimeContourTailMean
+import AnalyticNumberTheory.ExponentialSums.SmoothedRationalPrimeSums
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -204,6 +204,58 @@ $$`\sum_{n\le x}\Lambda(n)\chi(n)\log(x/n)
 {docstring vonMangoldt_tail_polynomial_energy}
 
 {docstring primeContourTail_integral_mean}
+
+# 平滑素数特征和的固定模数平均
+%%%
+tag := "smoothed-prime-character-mean"
+file := "smoothed-character-mean"
+%%%
+
+设 $`2\le q\le x`，写 $`L=1+\log x`。在{ref "prime-two-contours"}[双直线分解]中取相等的整数截断 $`A`。临界线上的短多项式长度依次为 $`A,A,A^2`。若 $`A^2\le x`，记 $`R=\sqrt q+A`，则三个多项式在特征群上的平方和开根后分别至多为 $`4RL,RL,RL^2`。这些界在每个实高度上成立。
+
+{docstring primeContour_short_scale}
+
+在临界线上对每个乘积使用 Cauchy 不等式，再把 $`L(s,\chi)` 和 $`L'(s,\chi)` 的{ref "critical-pointwise-character-means"}[特征均方]关于 $`dt/|s|^2` 积分，得到左侧积分的绝对值之和。右侧积分则使用尾段的剩余类估计。两侧的上界分别为
+
+$$`C\sqrt x\sqrt q\,(\sqrt q+A)L^3,\qquad
+2x(q/A+L)L^3.`
+
+{docstring primeContourRegular_integral_mean}
+
+{docstring primeContourTail_balanced}
+
+取 $`Y=(xq)^{1/4}` 和 $`A=\lfloor Y\rfloor`。由 $`Y/2\le A\le Y` 和 $`\sqrt q\le Y`，两侧依赖截断的项都至多为常数倍的 $`(xq)^{3/4}L^3`。因此平滑特征和 $`\psi_1(x,\chi)=\sum_{n\le x}\chi(n)\Lambda(n)\log(x/n)` 满足
+
+$$`\sum_{\chi\bmod q,\ \chi\ne\chi_0}|\psi_1(x,\chi)|
+\ll xL^4+(xq)^{3/4}L^3.`
+
+{docstring exists_primeContour_cutoff}
+
+{docstring logSmoothedPsiChar_nonprincipal_mean}
+
+# 平滑素数指数和的有理频率界
+%%%
+tag := "smoothed-rational-prime-bound"
+file := "smoothed-rational-bound"
+%%%
+
+把 Chebyshev 的初等估计 $`|\psi(t,\chi)|\le(\log 4+4)t` 从 $`1` 到 $`x` 关于 $`dt/t` 积分，即得 $`|\psi_1(x,\chi)|\le(\log 4+4)(x-1)`。将此界用于主特征后，{ref "smoothed-prime-character-mean"}[固定模数平均]也适用于整个特征群。模数为一时只有主特征。
+
+{docstring norm_logSmoothedPsiChar_le}
+
+{docstring logSmoothedPsiChar_mean}
+
+在{ref "logarithmic-prime-character-sums"}[有理频率的特征展开]中，每个既约分子对应的 Gauss 系数绝对值至多为 $`\sqrt q/\varphi(q)`。结合 $`q/\varphi(q)\le6(1+\log q)`，对每个 $`1\le q\le x`、每个与 $`q` 互素的整数 $`a`，得到
+
+$$`\left|\sum_{n\le x}\Lambda(n)e(an/q)\log(x/n)\right|
+\ll \frac{x}{\sqrt q}(1+\log x)^5
++x^{3/4}q^{1/4}(1+\log x)^4.`
+
+第一项随分母增大而减小，第二项随分母增大而增加。两个端点 $`q=1`、$`q=x` 均包含在估计中。
+
+{docstring norm_logSmoothedPrimeExpSum_le_character_mean}
+
+{docstring logSmoothedPrimeExpSum_rational_contour}
 
 # 有限 Poisson 求和与倒数相位
 %%%

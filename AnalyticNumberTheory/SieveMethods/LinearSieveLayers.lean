@@ -90,7 +90,7 @@ theorem linearSieve_first_layer {P : Finset ℕ} {g : ℕ → ℝ} {w z Y η : �
 
 /-- A bound at a lower generation propagates through any number of pairs
 of primes. The initial generation can itself have arbitrary depth. -/
-theorem linearSieve_lower_layers {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ}
+theorem linearSieve_lower_layers_sharp {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ}
     (G : Bool → ℝ → ℝ → ℝ) (k : ℕ) (hw : 1<w) (hC : 0≤C)
     (hη : 0≤η) (hη' : η≤1/10000)
     (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w Z η)
@@ -98,14 +98,14 @@ theorem linearSieve_lower_layers {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : 
       linearSieveLayer P g w G k false Y z≤C*linearSieveExpWeight P g Y z) :
     ∀ m : ℕ, ∀ z∈Set.Icc w Z, ∀ Y, 0<Y → 2≤Y/log z →
       linearSieveLayer P g w G (2*m+k) false Y z≤
-        ((19/20:ℝ)^m*C)*linearSieveExpWeight P g Y z := by
+        ((74/100:ℝ)^m*C)*linearSieveExpWeight P g Y z := by
   intro m; induction m with
   | zero => simpa using hbase
   | succ m ih =>
     intro z hz Y hY hu
     let S := sievePrimeWindow P w z
     let T := fun p : ℕ => (sievePrimeWindow P w p).filter (linearSieveAdmits true (Y-log p))
-    let D := (19/20:ℝ)^m*C
+    let D := (74/100:ℝ)^m*C
     let E := linearSieveExpWeight P g
     have hD : 0≤D := by dsimp [D]; positivity
     have hpstep (p : ℕ) (hp : p∈S) := linearSieve_branch_parameter (b:=false) hw hY hp hu (Or.inl rfl)
@@ -125,9 +125,9 @@ theorem linearSieve_lower_layers {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : 
          _ = D*(∑p∈S,g p*∑q∈T p,g q*E (Y-log p-log q) q) := by
             rw [mul_sum]; apply sum_congr rfl; intro p _
             rw [mul_left_comm D]; congr 1; rw [mul_sum]; apply sum_congr rfl; intro q _; ring
-         _ ≤ D*((19/20)*sieveEulerBelow P g z*exp (-(Y/log z))) := by
+         _ ≤ D*((74/100)*sieveEulerBelow P g z*exp (-(Y/log z))) := by
             apply mul_le_mul_of_nonneg_left _ hD
-            simpa only [E,linearSieveExpWeight,mul_assoc] using linearSieve_prime_pair_contraction hw hz.1 hY hu hη hη' hg (H.restrict hz.2)
+            simpa only [E,linearSieveExpWeight,mul_assoc] using linearSieve_prime_pair_contraction_sharp hw hz.1 hY hu hη hη' hg (H.restrict hz.2)
          _ = _ := by dsimp [D,linearSieveExpWeight]; rw [pow_succ]; ring
 
 
@@ -155,23 +155,23 @@ private theorem next_layer {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ} {
        _ = _ := by ring
 
 /-- At either sign and arbitrary depth n, a terminal exponential error is
-bounded by a uniform constant times (19/20) to the power floor(n/2). -/
-theorem linearSieve_layer_decay {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ}
+bounded by a uniform constant times (74/100) to the power floor(n/2). -/
+theorem linearSieve_layer_decay_sharp {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ}
     (G : Bool → ℝ → ℝ → ℝ) (hw : 1<w) (hC : 0≤C) (hη : 0≤η) (hη' : η≤1/10000)
     (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w Z η)
     (hbase : ∀ b, ∀ z∈Set.Icc w Z, ∀ Y, 0<Y → (if b then (1:ℝ) else 2)≤Y/log z →
       G b Y z≤C*linearSieveExpWeight P g Y z) (n : ℕ) (b : Bool) {z Y : ℝ}
     (hz : z∈Set.Icc w Z) (hY : 0<Y) (hu : (if b then (1:ℝ) else 2)≤Y/log z) :
     linearSieveLayer P g w G n b Y z≤
-      (32*C*(19/20:ℝ)^(n/2))*linearSieveExpWeight P g Y z := by
-  let δ : ℝ := 19/20
+      (32*C*(74/100:ℝ)^(n/2))*linearSieveExpWeight P g Y z := by
+  let δ : ℝ := 74/100
   have hd : 0<δ := by norm_num [δ]
   have e0 : 0≤linearSieveExpWeight P g Y z :=
     mul_nonneg (sieveEulerBelow_pos P (fun p hp => (hg p hp).2) z).le (exp_pos _).le
   have evenL (m : ℕ) : LayerBound P g w Z G (2*m) false (δ^m*C) := by
-    simpa [LayerBound] using linearSieve_lower_layers G 0 hw hC hη hη' hg H (hbase false) m
+    simpa [LayerBound] using linearSieve_lower_layers_sharp G 0 hw hC hη hη' hg H (hbase false) m
   have oddL (m : ℕ) : LayerBound P g w Z G (2*m+1) false (δ^m*(4*C)) := by
-    apply linearSieve_lower_layers G 1 hw (by positivity) hη hη' hg H _ m
+    apply linearSieve_lower_layers_sharp G 1 hw (by positivity) hη hη' hg H _ m
     exact next_layer false hw hC hη hη' hg H (hbase true)
   have oddU (m : ℕ) : LayerBound P g w Z G (2*m+1) true (4*(δ^m*C)) :=
     next_layer true hw (by positivity) hη hη' hg H (evenL m)
@@ -194,7 +194,7 @@ theorem linearSieve_layer_decay {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : �
         have h := evenU m z hz Y hY hu; rw [hh] at h
         apply h.trans; apply mul_le_mul_of_nonneg_right _ e0
         rw [pow_succ]; dsimp only [δ]
-        nlinarith only [mul_nonneg (pow_nonneg (show (0:ℝ)≤19/20 by norm_num) m) hC]
+        nlinarith only [mul_nonneg (pow_nonneg (show (0:ℝ)≤74/100 by norm_num) m) hC]
   · have hn : 2*(n/2)+1=n := by omega
     cases b
     · have h := oddL (n/2) z hz Y hY hu; rw [hn] at h
@@ -204,5 +204,31 @@ theorem linearSieve_layer_decay {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : �
       apply h.trans; apply mul_le_mul_of_nonneg_right _ e0
       linarith only [mul_nonneg (pow_nonneg hd.le (n/2)) hC]
 
+
+theorem linearSieve_lower_layers {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ}
+    (G : Bool → ℝ → ℝ → ℝ) (k : ℕ) (hw : 1<w) (hC : 0≤C)
+    (hη : 0≤η) (hη' : η≤1/10000)
+    (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w Z η)
+    (hbase : ∀ z∈Set.Icc w Z, ∀ Y, 0<Y → 2≤Y/log z →
+      linearSieveLayer P g w G k false Y z≤C*linearSieveExpWeight P g Y z) :
+    ∀ m : ℕ, ∀ z∈Set.Icc w Z, ∀ Y, 0<Y → 2≤Y/log z →
+      linearSieveLayer P g w G (2*m+k) false Y z≤
+        ((19/20:ℝ)^m*C)*linearSieveExpWeight P g Y z := by
+  intro m z hz Y hY hu
+  apply (linearSieve_lower_layers_sharp G k hw hC hη hη' hg H hbase m z hz Y hY hu).trans
+  have hV : 0≤linearSieveExpWeight P g Y z := mul_nonneg (sieveEulerBelow_pos P (fun p hp => (hg p hp).2) z).le (exp_pos _).le
+  exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by norm_num) (by norm_num : (74/100:ℝ)≤19/20) m) hC) hV
+
+theorem linearSieve_layer_decay {P : Finset ℕ} {g : ℕ → ℝ} {w Z η C : ℝ}
+    (G : Bool → ℝ → ℝ → ℝ) (hw : 1<w) (hC : 0≤C) (hη : 0≤η) (hη' : η≤1/10000)
+    (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w Z η)
+    (hbase : ∀ b, ∀ z∈Set.Icc w Z, ∀ Y, 0<Y → (if b then (1:ℝ) else 2)≤Y/log z →
+      G b Y z≤C*linearSieveExpWeight P g Y z) (n : ℕ) (b : Bool) {z Y : ℝ}
+    (hz : z∈Set.Icc w Z) (hY : 0<Y) (hu : (if b then (1:ℝ) else 2)≤Y/log z) :
+    linearSieveLayer P g w G n b Y z≤
+      (32*C*(19/20:ℝ)^(n/2))*linearSieveExpWeight P g Y z := by
+  apply (linearSieve_layer_decay_sharp G hw hC hη hη' hg H hbase n b hz hY hu).trans
+  have hV : 0≤linearSieveExpWeight P g Y z := mul_nonneg (sieveEulerBelow_pos P (fun p hp => (hg p hp).2) z).le (exp_pos _).le
+  exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by norm_num) (by norm_num : (74/100:ℝ)≤19/20) (n/2)) (by positivity)) hV
 
 end AnalyticNumberTheory.SieveMethods

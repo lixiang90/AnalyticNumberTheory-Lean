@@ -67,7 +67,7 @@ private theorem sieve_prime_pair_kernel {P : Finset ℕ} {g : ℕ → ℝ} {w z 
     (hw : 1<w) (hwz : w≤z) (hY : 0<Y) (hu : 2≤Y/log z) (hη : 0≤η)
     (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w z η) :
     exp 1*(∑p∈sievePrimeWindow P w z,g p*sieveEulerBelow P g p*linearSievePairKernel (Y/log p))≤
-      sieveEulerBelow P g z*exp (-(Y/log z))*(9/10+2*exp 1^2*η) := by
+      sieveEulerBelow P g z*exp (-(Y/log z))*(73/100+2*exp 1^2*η) := by
   let u := Y/log z
   let r := Y/log w
   let W := sieveEulerBelow P g
@@ -103,11 +103,11 @@ private theorem sieve_prime_pair_kernel {P : Finset ℕ} {g : ℕ → ℝ} {w z 
   have hmaj := add_le_add (mul_le_mul_of_nonneg_left hi (div_nonneg hze.le hup.le))
     (mul_le_mul_of_nonneg_left (kernel_bound hu) (by positivity : 0≤2*(η*W z)))
   apply (mul_le_mul_of_nonneg_left ((sub_le_iff_le_add'.mp (abs_le.mp hq).2).trans hmaj) (exp_pos 1).le).trans
-  change _ ≤ W z*exp (-u)*(9/10+2*exp 1^2*η)
+  change _ ≤ W z*exp (-u)*(73/100+2*exp 1^2*η)
   change exp 1*(W z/u*(∫t in Set.Ioi u,linearSievePairKernel t)+2*(η*W z)*(exp 1*exp (-u)))≤_
   calc _ = W z/u*(exp 1*(∫t in Set.Ioi u,linearSievePairKernel t))+2*η*W z*exp 1^2*exp (-u) := by ring
-       _ ≤ W z/u*(9/10*u*exp (-u))+2*η*W z*exp 1^2*exp (-u) :=
-         add_le_add_left (mul_le_mul_of_nonneg_left (linearSieve_pair_integral (u:=u) hu) (div_nonneg hze.le hup.le)) _
+       _ ≤ W z/u*(73/100*u*exp (-u))+2*η*W z*exp 1^2*exp (-u) :=
+         add_le_add_left (mul_le_mul_of_nonneg_left (linearSieve_pair_integral_sharp (u:=u) hu) (div_nonneg hze.le hup.le)) _
        _ = _ := by field_simp [hup.ne'] <;> ring
 
 
@@ -210,13 +210,13 @@ private theorem shifted_clipped_prime {P : Finset ℕ} {g : ℕ → ℝ} {w b Y 
 
 /-- Uniform contraction of the two successive prime choices allowed from a
 lower node. The estimate includes every strictly decreasing admissible pair. -/
-theorem linearSieve_prime_pair_contraction {P : Finset ℕ} {g : ℕ → ℝ} {w z Y η : ℝ}
+theorem linearSieve_prime_pair_contraction_sharp {P : Finset ℕ} {g : ℕ → ℝ} {w z Y η : ℝ}
     (hw : 1<w) (hwz : w≤z) (hY : 0<Y) (hu : 2≤Y/log z) (hη : 0≤η) (hη' : η≤1/10000)
     (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w z η) :
     (∑p∈sievePrimeWindow P w z,g p*
       ∑q∈(sievePrimeWindow P w p).filter (linearSieveAdmits true (Y-log p)),
         g q*sieveEulerBelow P g q*exp (-((Y-log p-log q)/log q)))≤
-      (19/20:ℝ)*sieveEulerBelow P g z*exp (-(Y/log z)) := by
+      (74/100:ℝ)*sieveEulerBelow P g z*exp (-(Y/log z)) := by
   let S := sievePrimeWindow P w z
   let W := sieveEulerBelow P g
   let u := Y/log z
@@ -244,17 +244,29 @@ theorem linearSieve_prime_pair_contraction {P : Finset ℕ} {g : ℕ → ℝ} {w
          _ = _ := by
             dsimp only [A,B]; rw [←mul_assoc (1+η),mul_sum,mul_sum,←sum_add_distrib]
             apply sum_congr rfl; intro p _; ring
-  change exp 1*A≤W z*exp (-u)*(9/10+2*exp 1^2*η) at hpair
+  change exp 1*A≤W z*exp (-u)*(73/100+2*exp 1^2*η) at hpair
   change B≤W z*exp (-u)*(1/u+2*η) at hsingle
   apply hiter.trans
   apply (add_le_add (mul_le_mul_of_nonneg_left hpair (by positivity)) (mul_le_mul_of_nonneg_left hsingle (by positivity))).trans
   have hup : 0<u := div_pos hY (Real.log_pos (hw.trans_le hwz))
   have hinv : 1/u≤1 := (div_le_iff₀ hup).mpr (by change 2≤u at hu; linarith)
-  have hsmall : (1+η)*(9/10+2*exp 1^2*η)+(8*η*exp 1^2)*(1/u+2*η)≤19/20 := by
-    calc _ ≤ (1+1/10000:ℝ)*(9/10+2*9*(1/10000))+(8*(1/10000)*9)*(1+2*(1/10000)) := by gcongr
+  have hsmall : (1+η)*(73/100+2*exp 1^2*η)+(8*η*exp 1^2)*(1/u+2*η)≤74/100 := by
+    calc _ ≤ (1+1/10000:ℝ)*(73/100+2*9*(1/10000))+(8*(1/10000)*9)*(1+2*(1/10000)) := by gcongr
          _ ≤ _ := by norm_num
-  change _≤19/20*W z*exp (-u)
+  change _≤74/100*W z*exp (-u)
   convert mul_le_mul_of_nonneg_left hsmall (mul_nonneg hW (exp_pos (-u)).le) using 1 <;> ring
 
+
+/-- Two successive prime choices contract the weighted remainder by a factor at most 19/20. -/
+theorem linearSieve_prime_pair_contraction {P : Finset ℕ} {g : ℕ → ℝ} {w z Y η : ℝ}
+    (hw : 1<w) (hwz : w≤z) (hY : 0<Y) (hu : 2≤Y/log z) (hη : 0≤η) (hη' : η≤1/10000)
+    (hg : ∀p∈P,0≤g p ∧ g p<1) (H : SieveEulerApprox P g w z η) :
+    (∑p∈sievePrimeWindow P w z,g p*
+      ∑q∈(sievePrimeWindow P w p).filter (linearSieveAdmits true (Y-log p)),
+        g q*sieveEulerBelow P g q*exp (-((Y-log p-log q)/log q)))≤
+      (19/20:ℝ)*sieveEulerBelow P g z*exp (-(Y/log z)) := by
+  apply (linearSieve_prime_pair_contraction_sharp hw hwz hY hu hη hη' hg H).trans
+  have hW := (euler_pos hg z).le
+  exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (by norm_num) hW) (exp_pos _).le
 
 end AnalyticNumberTheory.SieveMethods

@@ -2578,6 +2578,37 @@ private theorem sin_shift_ratio (a b_star : ℂ) (m n : ℤ) (s : ℝ) (hs : s �
     _ = ((-1 : ℂ) ^ (m - n)) ^ 2 * (a * b_star) := by rw [hsgn]; ring
     _ = a * b_star := by rw [hsq, one_mul]
 
+/-- Cesàro periodization of the alternating reciprocal kernel, using symmetric integer translates. -/
+noncomputable def periodizedHilbertKernel (K : ℕ) (x : ℝ) : ℂ :=
+  ((2*K+1:ℕ):ℂ)⁻¹ * ∑m∈Finset.Icc (-(K:ℤ)) (K:ℤ),∑n∈Finset.Icc (-(K:ℤ)) (K:ℤ),
+    (-1:ℂ)^(m-n)/((x:ℂ)+((m-n:ℤ):ℂ))
+
+/-- The periodized real Hilbert kernel converges to π times the cosecant kernel. -/
+theorem tendsto_periodizedHilbertKernel {x : ℝ} (hx : ∀k : ℤ, x≠(k:ℝ)) :
+    Filter.Tendsto (fun K => periodizedHilbertKernel K x) Filter.atTop
+      (𝓝 ((Real.pi/Real.sin (Real.pi*x):ℝ):ℂ)) := by
+  apply (cesaro_tendsto_complex (tendsto_sum_neg_one_pow_div hx)).congr
+  intro K
+  unfold periodizedHilbertKernel
+  congr 1
+  exact (sum_Icc_sub_eq_cesaro (fun m => (-1:ℂ)^m/((x:ℂ)+(m:ℂ))) K).symm
+
+/-- At zero the finite periodized kernel vanishes by interchange of its two translates. -/
+theorem periodizedHilbertKernel_zero (K : ℕ) : periodizedHilbertKernel K 0=0 := by
+  let S := Finset.Icc (-(K:ℤ)) (K:ℤ)
+  let f (m n : ℤ) := (-1:ℂ)^(m-n)/((m-n:ℤ):ℂ)
+  have hf (m n : ℤ) : f n m= -f m n := by
+    dsimp only [f]
+    rw [←neg_sub m n,zpow_neg_one_pow_neg,Int.cast_neg,div_neg]
+  have H : ∑m∈S,∑n∈S,f m n = -(∑m∈S,∑n∈S,f m n) := by
+    conv_lhs => rw [Finset.sum_comm]
+    rw [←Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun n _ => ?_
+    rw [←Finset.sum_neg_distrib]
+    exact Finset.sum_congr rfl fun m _ => hf n m
+  have hz : ∑m∈S,∑n∈S,f m n=0 := by linear_combination (norm := ring_nf) H/2
+  simpa [periodizedHilbertKernel,S,f] using congrArg (((2*K+1:ℕ):ℂ)⁻¹*·) hz
+
 /-- **Hilbert's Inequality Modulo 1 (`sin (π x)` kernel)**:
 for any finite `δ`-well-spaced family `α : κ → ℝ` mod `1` (`0 < δ ≤ 1`) and `u : κ → ℂ`,
 `‖∑ r ∈ J, ∑ s ∈ J, (if r = s then 0 else u r * star (u s) / sin (π * (α r - α s)))‖ ≤ δ⁻¹ * ∑ r ∈ J, ‖u r‖ ^ 2`. -/
@@ -3098,19 +3129,7 @@ theorem hilbert_inequality_sin_pi {κ : Type*} (J : Finset κ) (α : κ → ℝ)
       simp only [ite_true]
       exact tendsto_const_nhds
     · simp only [hij, ↓reduceIte]
-      have hsub := tendsto_sum_neg_one_pow_div (hy_nonint i j hij)
-      have hces := cesaro_tendsto_complex hsub
-      have hces' : Filter.Tendsto
-          (fun K : ℕ => (((2 * K + 1 : ℕ) : ℂ))⁻¹ *
-            ∑ k1 ∈ Finset.Icc (-(K : ℤ)) (K : ℤ),
-              ∑ k2 ∈ Finset.Icc (-(K : ℤ)) (K : ℤ),
-                (-1 : ℂ) ^ (k1 - k2) / (((y i - y j : ℝ) : ℂ) + ((k1 - k2 : ℤ) : ℂ)))
-          Filter.atTop (𝓝 ((Real.pi / Real.sin (Real.pi * (y i - y j)) : ℝ) : ℂ)) := by
-        refine hces.congr fun K => ?_
-        congr 1
-        exact (sum_Icc_sub_eq_cesaro
-          (fun m => (-1 : ℂ) ^ m / (((y i - y j : ℝ) : ℂ) + (m : ℂ))) K).symm
-      exact hces'.const_mul (u' i * star (u' j))
+      exact (tendsto_periodizedHilbertKernel (hy_nonint i j hij)).const_mul (u' i * star (u' j))
   have hnorm_lim : ‖(Real.pi : ℂ) * ∑ i : Fin R, ∑ j : Fin R,
       (if i = j then (0 : ℂ) else
         u' i * star (u' j) / ((Real.sin (Real.pi * (y i - y j)) : ℝ) : ℂ))‖ ≤
@@ -3185,6 +3204,176 @@ private theorem sum_e_Ioc_formula (θ : ℝ) (M N : ℕ) (hsin : Real.sin (Real.
       push_cast; ring_nf
   rw [← hden, eq_div_iff hden_nz, mul_comm, hmul_tele]
 
+/-- A bound for the cosecant quadratic form gives a two-sided dual large-sieve
+estimate with a different error weight at every sample. -/
+theorem dual_large_sieve_of_cosecant {κ : Type*} [DecidableEq κ] (J : Finset κ) (α ρ : κ → ℝ)
+    (hsin : ∀r∈J,∀s∈J,r≠s → Real.sin (Real.pi*(α r-α s))≠0)
+    (hperiod : ∀u : κ→ℂ, ‖∑r∈J,∑s∈J,if r=s then 0 else
+      u r*star (u s)/((Real.sin (Real.pi*(α r-α s)):ℝ):ℂ)‖≤∑r∈J,ρ r*‖u r‖^2)
+    (b : κ→ℂ) (M N : ℕ) :
+    |(∑n∈Finset.Ioc M (M+N),‖∑r∈J,b r*e (α r*(n:ℝ))‖^2)-(N:ℝ)*∑r∈J,‖b r‖^2|≤
+      ∑r∈J,ρ r*‖b r‖^2 := by
+  let S := Finset.Ioc M (M+N)
+  let c : κ→ℕ→ℂ := fun r n => e (α r*(n:ℝ))
+  have hnorm_sq : ∀ n : ℕ, ((‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) =
+      ∑ r ∈ J, ∑ s ∈ J, b r * star (b s) * e ((α r - α s) * (n : ℝ)) := by
+    intro n
+    let w := ∑ r ∈ J, b r * c r n
+    have hw : ((‖w‖ ^ 2 : ℝ) : ℂ) = w * starRingEnd ℂ w := by
+      rw [Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.ofReal_pow]
+    rw [hw]
+    dsimp [w]
+    rw [map_sum, Finset.sum_mul]
+    refine Finset.sum_congr rfl fun r _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun s _ => ?_
+    dsimp [c]
+    simp only [map_mul, ← Complex.star_def, ← e_neg]
+    rw [mul_mul_mul_comm, ← e_add]
+    have harg : α r * (n : ℝ) + -(α s * (n : ℝ)) = (α r - α s) * (n : ℝ) := by ring
+    rw [harg]
+  have hsum_eq :
+      ((∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) =
+        ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ) +
+          ∑ r ∈ J, ∑ s ∈ J,
+            (if r = s then (0 : ℂ) else
+              b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) := by
+    rw [Complex.ofReal_sum]
+    simp_rw [hnorm_sq]
+    rw [Finset.sum_comm]
+    have hswap :
+        (∑ r ∈ J, ∑ n ∈ S, ∑ s ∈ J, b r * star (b s) * e ((α r - α s) * (n : ℝ))) =
+        ∑ r ∈ J, ∑ s ∈ J, b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ)) := by
+      refine Finset.sum_congr rfl fun r _ => ?_
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun s _ => ?_
+      rw [← Finset.mul_sum]
+    rw [hswap]
+    have hsplit : ∀ r s : κ,
+        b r * star (b s) * (∑ n ∈ S, e ((α r - α s) * (n : ℝ))) =
+          (if r = s then ((N : ℂ) * ((‖b r‖ ^ 2 : ℝ) : ℂ)) else 0) +
+            (if r = s then 0 else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) := by
+      intro r s
+      by_cases hrs : r = s
+      · subst hrs
+        simp only [↓reduceIte, sub_self, zero_mul, e_zero, Finset.sum_const, S, Nat.card_Ioc,
+          add_tsub_cancel_left, nsmul_eq_mul, add_zero]
+        have hbb : b r * star (b r) = ((‖b r‖ ^ 2 : ℝ) : ℂ) := by
+          rw [RCLike.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.ofReal_pow]
+        rw [hbb]
+        ring
+      · simp [hrs]
+    rw [Finset.sum_congr rfl fun r _ => Finset.sum_congr rfl fun s _ => hsplit r s]
+    rw [Finset.sum_congr rfl fun r _ => Finset.sum_add_distrib, Finset.sum_add_distrib]
+    congr 1
+    have hdiag : (∑ r ∈ J, ∑ s ∈ J, if r = s then (N : ℂ) * ((‖b r‖ ^ 2 : ℝ) : ℂ) else 0) =
+        ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ) := by
+      rw [Complex.ofReal_sum, Complex.ofReal_natCast, Finset.mul_sum]
+      refine Finset.sum_congr rfl fun r hr => ?_
+      rw [Finset.sum_eq_single r]
+      · simp
+      · intro s _ hsr; simp [Ne.symm hsr]
+      · intro hn; exact absurd hr hn
+    exact hdiag
+  have hdiag_real :
+      ((∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) -
+          ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ) =
+        ∑ r ∈ J, ∑ s ∈ J,
+          (if r = s then (0 : ℂ) else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) := by
+    rw [hsum_eq]; ring
+  let u1 : κ → ℂ := fun r => b r * e (α r * ((M : ℝ) + 1 / 2))
+  let u2 : κ → ℂ := fun r => b r * e (α r * ((M : ℝ) + (N : ℝ) + 1 / 2))
+  have hu1_norm : ∀ r, ‖u1 r‖ = ‖b r‖ := fun r => by
+    dsimp [u1]; rw [norm_mul, norm_e, mul_one]
+  have hu2_norm : ∀ r, ‖u2 r‖ = ‖b r‖ := fun r => by
+    dsimp [u2]; rw [norm_mul, norm_e, mul_one]
+  have hsin_tele : ∀ r s : κ, r ∈ J → s ∈ J → r ≠ s →
+      b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ)) =
+        (1 / (2 * Complex.I)) *
+          (u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ) -
+           u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) := by
+    intro r s hr hs hrs
+    have hsin_nz := hsin r hr s hs hrs
+    have hsum_formula : ∑ n ∈ S, e ((α r - α s) * (n : ℝ)) =
+        (e ((α r - α s) * ((M : ℝ) + (N : ℝ) + 1 / 2)) - e ((α r - α s) * ((M : ℝ) + 1 / 2))) /
+          (2 * Complex.I * ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) :=
+      sum_e_Ioc_formula (α r - α s) M N hsin_nz
+    have hu1_prod : u1 r * star (u1 s) = b r * star (b s) * e ((α r - α s) * ((M : ℝ) + 1 / 2)) := by
+      dsimp [u1]
+      simp only [map_mul, ← Complex.star_def, ← e_neg]
+      rw [mul_mul_mul_comm, ← e_add,
+        show α r * ((M : ℝ) + 1 / 2) + -(α s * ((M : ℝ) + 1 / 2)) =
+          (α r - α s) * ((M : ℝ) + 1 / 2) by ring]
+    have hu2_prod : u2 r * star (u2 s) = b r * star (b s) * e ((α r - α s) * ((M : ℝ) + (N : ℝ) + 1 / 2)) := by
+      dsimp [u2]
+      simp only [map_mul, ← Complex.star_def, ← e_neg]
+      rw [mul_mul_mul_comm, ← e_add,
+        show α r * ((M : ℝ) + (N : ℝ) + 1 / 2) + -(α s * ((M : ℝ) + (N : ℝ) + 1 / 2)) =
+          (α r - α s) * ((M : ℝ) + (N : ℝ) + 1 / 2) by ring]
+    rw [hsum_formula, hu1_prod, hu2_prod]
+    have hsinC : ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ) ≠ 0 :=
+      Complex.ofReal_ne_zero.mpr hsin_nz
+    field_simp [Complex.I_ne_zero, hsinC]
+  have hsplit_u :
+      ∑ r ∈ J, ∑ s ∈ J,
+        (if r = s then (0 : ℂ) else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) =
+      (1 / (2 * Complex.I)) *
+        ((∑ r ∈ J, ∑ s ∈ J,
+            if r = s then (0 : ℂ) else
+              u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) -
+         (∑ r ∈ J, ∑ s ∈ J,
+            if r = s then (0 : ℂ) else
+              u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ))) := by
+    have h1 :
+        ∑ r ∈ J, ∑ s ∈ J,
+          (if r = s then (0 : ℂ) else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) =
+        ∑ r ∈ J, ∑ s ∈ J,
+          ((1 / (2 * Complex.I)) *
+            ((if r = s then (0 : ℂ) else
+                u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) -
+             (if r = s then (0 : ℂ) else
+                u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)))) := by
+      refine Finset.sum_congr rfl fun r hr => Finset.sum_congr rfl fun s hs => ?_
+      by_cases hrs : r = s
+      · simp [hrs]
+      · simp only [hrs, ↓reduceIte]
+        exact hsin_tele r s hr hs hrs
+    rw [h1]
+    trans (1 / (2 * Complex.I)) * ∑ r ∈ J, ∑ s ∈ J,
+      ((if r = s then (0 : ℂ) else
+          u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) -
+       (if r = s then (0 : ℂ) else
+          u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)))
+    · rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun r _ => (Finset.mul_sum _ _ _).symm
+    · congr 1
+      simp_rw [Finset.sum_sub_distrib]
+  have hdiff_norm :
+      |∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 - (N : ℝ) * ∑ r ∈ J, ‖b r‖ ^ 2| ≤
+        ∑ r ∈ J, ρ r * ‖b r‖^2 := by
+    have hsub_eq := hdiag_real.trans hsplit_u
+    have hnorm_lhs :
+        |∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 - (N : ℝ) * ∑ r ∈ J, ‖b r‖ ^ 2| =
+          ‖((∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) -
+            ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ)‖ := by
+      rw [← Complex.ofReal_mul, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+    rw [hnorm_lhs, hsub_eq, norm_mul]
+    have hcoef : ‖(1 : ℂ) / (2 * Complex.I)‖ = 1 / 2 := by
+      rw [one_div, norm_inv, norm_mul, show ‖(2 : ℂ)‖ = 2 by norm_num, Complex.norm_I, mul_one,
+        one_div]
+    have hb1 := hperiod u1
+    have hb2 := hperiod u2
+    simp_rw [hu1_norm] at hb1
+    simp_rw [hu2_norm] at hb2
+    rw [hcoef]
+    have htri := norm_sub_le
+      (∑ r ∈ J, ∑ s ∈ J,
+        if r = s then (0 : ℂ) else u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ))
+      (∑ r ∈ J, ∑ s ∈ J,
+        if r = s then (0 : ℂ) else u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ))
+    nlinarith
+  exact hdiff_norm
+
 /-- **Analytic Large Sieve Inequality (additive `N + δ⁻¹` form, valid for all `M, N : ℕ`)**:
 for any finite `δ`-well-spaced family `α : κ → ℝ` mod `1` (`0 < δ ≤ 1`),
 `∑ r ∈ J, ‖trigPoly a M N (α r)‖ ^ 2 ≤ (N + δ⁻¹) * ∑ n ∈ Finset.Ioc M (M + N), ‖a n‖ ^ 2`. -/
@@ -3197,172 +3386,19 @@ theorem analytic_large_sieve_add_inv {κ : Type*} (J : Finset κ) (α : κ → �
   have hdual : ∀ b : κ → ℂ,
       ∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 ≤ ((N : ℝ) + δ⁻¹) * ∑ r ∈ J, ‖b r‖ ^ 2 := by
     intro b
-    have hnorm_sq : ∀ n : ℕ, ((‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) =
-        ∑ r ∈ J, ∑ s ∈ J, b r * star (b s) * e ((α r - α s) * (n : ℝ)) := by
-      intro n
-      let w := ∑ r ∈ J, b r * c r n
-      have hw : ((‖w‖ ^ 2 : ℝ) : ℂ) = w * starRingEnd ℂ w := by
-        rw [Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.ofReal_pow]
-      rw [hw]
-      dsimp [w]
-      rw [map_sum, Finset.sum_mul]
-      refine Finset.sum_congr rfl fun r _ => ?_
-      rw [Finset.mul_sum]
-      refine Finset.sum_congr rfl fun s _ => ?_
-      dsimp [c]
-      simp only [map_mul, ← Complex.star_def, ← e_neg]
-      rw [mul_mul_mul_comm, ← e_add]
-      have harg : α r * (n : ℝ) + -(α s * (n : ℝ)) = (α r - α s) * (n : ℝ) := by ring
-      rw [harg]
-    have hsum_eq :
-        ((∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) =
-          ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ) +
-            ∑ r ∈ J, ∑ s ∈ J,
-              (if r = s then (0 : ℂ) else
-                b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) := by
-      rw [Complex.ofReal_sum]
-      simp_rw [hnorm_sq]
-      rw [Finset.sum_comm]
-      have hswap :
-          (∑ r ∈ J, ∑ n ∈ S, ∑ s ∈ J, b r * star (b s) * e ((α r - α s) * (n : ℝ))) =
-          ∑ r ∈ J, ∑ s ∈ J, b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ)) := by
-        refine Finset.sum_congr rfl fun r _ => ?_
-        rw [Finset.sum_comm]
-        refine Finset.sum_congr rfl fun s _ => ?_
-        rw [← Finset.mul_sum]
-      rw [hswap]
-      have hsplit : ∀ r s : κ,
-          b r * star (b s) * (∑ n ∈ S, e ((α r - α s) * (n : ℝ))) =
-            (if r = s then ((N : ℂ) * ((‖b r‖ ^ 2 : ℝ) : ℂ)) else 0) +
-              (if r = s then 0 else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) := by
-        intro r s
-        by_cases hrs : r = s
-        · subst hrs
-          simp only [↓reduceIte, sub_self, zero_mul, e_zero, Finset.sum_const, S, Nat.card_Ioc,
-            add_tsub_cancel_left, nsmul_eq_mul, add_zero]
-          have hbb : b r * star (b r) = ((‖b r‖ ^ 2 : ℝ) : ℂ) := by
-            rw [RCLike.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.ofReal_pow]
-          rw [hbb]
-          ring
-        · simp [hrs]
-      rw [Finset.sum_congr rfl fun r _ => Finset.sum_congr rfl fun s _ => hsplit r s]
-      rw [Finset.sum_congr rfl fun r _ => Finset.sum_add_distrib, Finset.sum_add_distrib]
-      congr 1
-      have hdiag : (∑ r ∈ J, ∑ s ∈ J, if r = s then (N : ℂ) * ((‖b r‖ ^ 2 : ℝ) : ℂ) else 0) =
-          ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ) := by
-        rw [Complex.ofReal_sum, Complex.ofReal_natCast, Finset.mul_sum]
-        refine Finset.sum_congr rfl fun r hr => ?_
-        rw [Finset.sum_eq_single r]
-        · simp
-        · intro s _ hsr; simp [Ne.symm hsr]
-        · intro hn; exact absurd hr hn
-      exact hdiag
-    have hdiag_real :
-        ((∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) -
-            ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ) =
-          ∑ r ∈ J, ∑ s ∈ J,
-            (if r = s then (0 : ℂ) else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) := by
-      rw [hsum_eq]; ring
-    let u1 : κ → ℂ := fun r => b r * e (α r * ((M : ℝ) + 1 / 2))
-    let u2 : κ → ℂ := fun r => b r * e (α r * ((M : ℝ) + (N : ℝ) + 1 / 2))
-    have hu1_norm : ∀ r, ‖u1 r‖ = ‖b r‖ := fun r => by
-      dsimp [u1]; rw [norm_mul, norm_e, mul_one]
-    have hu2_norm : ∀ r, ‖u2 r‖ = ‖b r‖ := fun r => by
-      dsimp [u2]; rw [norm_mul, norm_e, mul_one]
-    have hsin_tele : ∀ r s : κ, r ∈ J → s ∈ J → r ≠ s →
-        b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ)) =
-          (1 / (2 * Complex.I)) *
-            (u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ) -
-             u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) := by
-      intro r s hr hs hrs
-      have hsp := hws.2.2 r hr s hs hrs
-      have hsin_nz : Real.sin (Real.pi * (α r - α s)) ≠ 0 := by
-        intro h0
-        rw [Real.sin_eq_zero_iff] at h0
-        obtain ⟨k, hk⟩ := h0
-        have heq : α r - α s = (k : ℝ) := mul_left_cancel₀ Real.pi_ne_zero (by linarith)
-        have hzero : distToInt (α r - α s) = 0 := by
-          rw [heq, ← zero_add (k : ℝ), distToInt_add_intCast]; simp [distToInt]
-        linarith [hws.1, hsp]
-      have hsum_formula : ∑ n ∈ S, e ((α r - α s) * (n : ℝ)) =
-          (e ((α r - α s) * ((M : ℝ) + (N : ℝ) + 1 / 2)) - e ((α r - α s) * ((M : ℝ) + 1 / 2))) /
-            (2 * Complex.I * ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) :=
-        sum_e_Ioc_formula (α r - α s) M N hsin_nz
-      have hu1_prod : u1 r * star (u1 s) = b r * star (b s) * e ((α r - α s) * ((M : ℝ) + 1 / 2)) := by
-        dsimp [u1]
-        simp only [map_mul, ← Complex.star_def, ← e_neg]
-        rw [mul_mul_mul_comm, ← e_add,
-          show α r * ((M : ℝ) + 1 / 2) + -(α s * ((M : ℝ) + 1 / 2)) =
-            (α r - α s) * ((M : ℝ) + 1 / 2) by ring]
-      have hu2_prod : u2 r * star (u2 s) = b r * star (b s) * e ((α r - α s) * ((M : ℝ) + (N : ℝ) + 1 / 2)) := by
-        dsimp [u2]
-        simp only [map_mul, ← Complex.star_def, ← e_neg]
-        rw [mul_mul_mul_comm, ← e_add,
-          show α r * ((M : ℝ) + (N : ℝ) + 1 / 2) + -(α s * ((M : ℝ) + (N : ℝ) + 1 / 2)) =
-            (α r - α s) * ((M : ℝ) + (N : ℝ) + 1 / 2) by ring]
-      rw [hsum_formula, hu1_prod, hu2_prod]
-      have hsinC : ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ) ≠ 0 :=
-        Complex.ofReal_ne_zero.mpr hsin_nz
-      field_simp [Complex.I_ne_zero, hsinC]
-    have hsplit_u :
-        ∑ r ∈ J, ∑ s ∈ J,
-          (if r = s then (0 : ℂ) else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) =
-        (1 / (2 * Complex.I)) *
-          ((∑ r ∈ J, ∑ s ∈ J,
-              if r = s then (0 : ℂ) else
-                u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) -
-           (∑ r ∈ J, ∑ s ∈ J,
-              if r = s then (0 : ℂ) else
-                u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ))) := by
-      have h1 :
-          ∑ r ∈ J, ∑ s ∈ J,
-            (if r = s then (0 : ℂ) else b r * star (b s) * ∑ n ∈ S, e ((α r - α s) * (n : ℝ))) =
-          ∑ r ∈ J, ∑ s ∈ J,
-            ((1 / (2 * Complex.I)) *
-              ((if r = s then (0 : ℂ) else
-                  u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) -
-               (if r = s then (0 : ℂ) else
-                  u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)))) := by
-        refine Finset.sum_congr rfl fun r hr => Finset.sum_congr rfl fun s hs => ?_
-        by_cases hrs : r = s
-        · simp [hrs]
-        · simp only [hrs, ↓reduceIte]
-          exact hsin_tele r s hr hs hrs
-      rw [h1]
-      trans (1 / (2 * Complex.I)) * ∑ r ∈ J, ∑ s ∈ J,
-        ((if r = s then (0 : ℂ) else
-            u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)) -
-         (if r = s then (0 : ℂ) else
-            u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ)))
-      · rw [Finset.mul_sum]
-        refine Finset.sum_congr rfl fun r _ => (Finset.mul_sum _ _ _).symm
-      · congr 1
-        simp_rw [Finset.sum_sub_distrib]
-    have hdiff_norm :
-        |∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 - (N : ℝ) * ∑ r ∈ J, ‖b r‖ ^ 2| ≤
-          δ⁻¹ * ∑ r ∈ J, ‖b r‖ ^ 2 := by
-      have hsub_eq := hdiag_real.trans hsplit_u
-      have hnorm_lhs :
-          |∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 - (N : ℝ) * ∑ r ∈ J, ‖b r‖ ^ 2| =
-            ‖((∑ n ∈ S, ‖∑ r ∈ J, b r * c r n‖ ^ 2 : ℝ) : ℂ) -
-              ((N : ℝ) : ℂ) * ((∑ r ∈ J, ‖b r‖ ^ 2 : ℝ) : ℂ)‖ := by
-        rw [← Complex.ofReal_mul, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
-      rw [hnorm_lhs, hsub_eq, norm_mul]
-      have hcoef : ‖(1 : ℂ) / (2 * Complex.I)‖ = 1 / 2 := by
-        rw [one_div, norm_inv, norm_mul, show ‖(2 : ℂ)‖ = 2 by norm_num, Complex.norm_I, mul_one,
-          one_div]
-      have hb1 := hilbert_inequality_sin_pi J α hws u1
-      have hb2 := hilbert_inequality_sin_pi J α hws u2
-      simp_rw [hu1_norm] at hb1
-      simp_rw [hu2_norm] at hb2
-      rw [hcoef]
-      have htri := norm_sub_le
-        (∑ r ∈ J, ∑ s ∈ J,
-          if r = s then (0 : ℂ) else u2 r * star (u2 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ))
-        (∑ r ∈ J, ∑ s ∈ J,
-          if r = s then (0 : ℂ) else u1 r * star (u1 s) / ((Real.sin (Real.pi * (α r - α s)) : ℝ) : ℂ))
-      nlinarith
-    linarith [(abs_le.mp hdiff_norm).2]
+    have hs (r : κ) (hr : r∈J) (s : κ) (hs : s∈J) (hrs : r≠s) :
+        Real.sin (Real.pi*(α r-α s))≠0 := by
+      intro h0
+      obtain ⟨k,hk⟩ := Real.sin_eq_zero_iff.mp h0
+      have heq : α r-α s=(k:ℝ) := mul_left_cancel₀ Real.pi_ne_zero (by linarith)
+      have H := (hws.2.2 r hr s hs hrs).trans (distToInt_le_abs_sub (α r-α s) k)
+      rw [heq,sub_self,abs_zero] at H
+      exact hws.1.not_ge H
+    have H := dual_large_sieve_of_cosecant J α (fun _ => δ⁻¹) hs
+      (fun u => by rw [←Finset.mul_sum]; exact hilbert_inequality_sin_pi J α hws u) b M N
+    rw [←Finset.mul_sum] at H
+    change |(∑n∈S,‖∑r∈J,b r*c r n‖^2)-(N:ℝ)*∑r∈J,‖b r‖^2|≤_ at H
+    linarith [(abs_le.mp H).2]
   exact (duality_iff S J c (add_nonneg (Nat.cast_nonneg N) (inv_nonneg.mpr hws.1.le))).mpr hdual a
 
 /-- **Sharp Analytic Large Sieve Inequality** (Montgomery–Vaughan):
@@ -3592,87 +3628,92 @@ def fareyPairs (Q : ℕ) : Finset (ℕ × ℕ) :=
 /-- Rational point `(a / q : ℝ)` associated with a Farey pair `(q, a)`. -/
 def fareyFraction (p : ℕ × ℕ) : ℝ := (p.2 : ℝ) / (p.1 : ℝ)
 
-/-- Reduced Farey fractions up to denominator `Q ≥ 1` are `(Q ^ 2)⁻¹`-well-spaced modulo `1`. -/
+/-- The denominators of two distinct reduced Farey fractions give their individual
+spacing before passing to a common lower bound. -/
+theorem farey_pair_spacing {Q : ℕ} {p1 p2 : ℕ×ℕ} (hp1 : p1∈fareyPairs Q)
+    (hp2 : p2∈fareyPairs Q) (hne : p1≠p2) :
+    ((p1.1:ℝ)*(p2.1:ℝ))⁻¹ ≤ distToInt (fareyFraction p1-fareyFraction p2) := by
+  rw [fareyPairs, Finset.mem_biUnion] at hp1 hp2
+  rcases hp1 with ⟨q1, hq1_mem, hp1'⟩
+  rcases hp2 with ⟨q2, hq2_mem, hp2'⟩
+  rw [Finset.mem_image] at hp1' hp2'
+  rcases hp1' with ⟨a1, ha1_mem, rfl⟩
+  rcases hp2' with ⟨a2, ha2_mem, rfl⟩
+  rw [Finset.mem_Icc] at hq1_mem hq2_mem
+  rw [Finset.mem_filter, Finset.mem_range] at ha1_mem ha2_mem
+  let m : ℤ := round (fareyFraction (q1, a1) - fareyFraction (q2, a2))
+  let num : ℤ := (a1 : ℤ) * (q2 : ℤ) - (a2 : ℤ) * (q1 : ℤ) - m * (q1 : ℤ) * (q2 : ℤ)
+  have hnum_ne : num ≠ 0 := by
+    intro h0
+    have hq1_dvd : (q1 : ℤ) ∣ (a1 : ℤ) * (q2 : ℤ) :=
+      ⟨(a2 : ℤ) + m * (q2 : ℤ), by dsimp [num] at h0; linarith⟩
+    have hq2_dvd : (q2 : ℤ) ∣ (a2 : ℤ) * (q1 : ℤ) :=
+      ⟨(a1 : ℤ) - m * (q1 : ℤ), by dsimp [num] at h0; linarith⟩
+    have hc1 : IsCoprime (q1 : ℤ) (a1 : ℤ) :=
+      Int.isCoprime_iff_nat_coprime.mpr ha1_mem.2.symm
+    have hc2 : IsCoprime (q2 : ℤ) (a2 : ℤ) :=
+      Int.isCoprime_iff_nat_coprime.mpr ha2_mem.2.symm
+    have hd1Z : (q1 : ℤ) ∣ (q2 : ℤ) := hc1.dvd_of_dvd_mul_left hq1_dvd
+    have hd2Z : (q2 : ℤ) ∣ (q1 : ℤ) := hc2.dvd_of_dvd_mul_left hq2_dvd
+    have hd1 : q1 ∣ q2 := Int.natCast_dvd_natCast.mp hd1Z
+    have hd2 : q2 ∣ q1 := Int.natCast_dvd_natCast.mp hd2Z
+    have hq_eq : q1 = q2 := Nat.dvd_antisymm hd1 hd2
+    subst hq_eq
+    have hm_eq : (a1 : ℤ) - (a2 : ℤ) = m * (q1 : ℤ) := by
+      have hq1_ne : (q1 : ℤ) ≠ 0 := by omega
+      have hmul : ((a1 : ℤ) - (a2 : ℤ) - m * (q1 : ℤ)) * (q1 : ℤ) = 0 := by
+        dsimp [num] at h0; linarith
+      rcases mul_eq_zero.mp hmul with h | h
+      · linarith
+      · exact absurd h hq1_ne
+    have hm0 : m = 0 := by
+      have hq1_Z : (0 : ℤ) < q1 := by exact_mod_cast hq1_mem.1
+      have ha1 : (a1 : ℤ) < (q1 : ℤ) := by exact_mod_cast ha1_mem.1
+      have ha2 : (a2 : ℤ) < (q1 : ℤ) := by exact_mod_cast ha2_mem.1
+      by_contra hm_ne
+      rcases lt_or_gt_of_ne hm_ne with hm_neg | hm_pos
+      · have : m ≤ -1 := by omega
+        have : m * (q1 : ℤ) ≤ -(q1 : ℤ) := by nlinarith
+        omega
+      · have : 1 ≤ m := by omega
+        have : (q1 : ℤ) ≤ m * (q1 : ℤ) := by nlinarith
+        omega
+    rw [hm0, zero_mul] at hm_eq
+    have ha_eq : a1 = a2 := by omega
+    exact hne (by simp [ha_eq])
+  have hnum_ge1 : (1 : ℝ) ≤ |(num : ℝ)| := by
+    have hnat : 1 ≤ num.natAbs := by omega
+    have hreal : (1 : ℝ) ≤ (num.natAbs : ℝ) := by exact_mod_cast hnat
+    simpa [Int.cast_abs] using hreal
+  have hq1_pos : (0 : ℝ) < q1 := by exact_mod_cast hq1_mem.1
+  have hq2_pos : (0 : ℝ) < q2 := by exact_mod_cast hq2_mem.1
+  have hden_pos : (0 : ℝ) < (q1 : ℝ) * (q2 : ℝ) := mul_pos hq1_pos hq2_pos
+  have hdiff_eq : fareyFraction (q1, a1) - fareyFraction (q2, a2) - (m : ℝ) =
+      (num : ℝ) / ((q1 : ℝ) * (q2 : ℝ)) := by
+    dsimp [fareyFraction, num]
+    push_cast
+    field_simp [hq1_pos.ne', hq2_pos.ne']
+  change ((q1:ℝ)*(q2:ℝ))⁻¹ ≤ |fareyFraction (q1,a1)-fareyFraction (q2,a2)-(m:ℝ)|
+  rw [hdiff_eq,abs_div,abs_of_pos hden_pos,←one_div]
+  exact div_le_div_of_nonneg_right hnum_ge1 hden_pos.le
+
+/-- The denominator of a Farey pair lies in the specified order range. -/
+theorem farey_denominator_mem {Q : ℕ} {p : ℕ×ℕ} (hp : p∈fareyPairs Q) : p.1∈Finset.Icc 1 Q := by
+  obtain ⟨q,hq,h⟩ := Finset.mem_biUnion.mp hp
+  obtain ⟨r,_,rfl⟩ := Finset.mem_image.mp h
+  exact hq
+
+/-- Reduced Farey fractions up to denominator Q are uniformly separated modulo one. -/
 theorem wellSpacedModOne_fareyPairs {Q : ℕ} (hQ : 1 ≤ Q) :
     WellSpacedModOne (fareyPairs Q) fareyFraction ((Q : ℝ) ^ 2)⁻¹ := by
-  have hQ_pos : (0 : ℝ) < Q := by exact_mod_cast (by omega : 0 < Q)
-  refine ⟨inv_pos.mpr (sq_pos_of_pos hQ_pos), ?_, ?_⟩
-  · have hQ1 : (1 : ℝ) ≤ (Q : ℝ) ^ 2 := by
-      have : (1 : ℝ) ≤ Q := by exact_mod_cast hQ
-      nlinarith
-    exact inv_le_one_of_one_le₀ hQ1
-  · intro p1 hp1 p2 hp2 hne
-    rw [fareyPairs, Finset.mem_biUnion] at hp1 hp2
-    rcases hp1 with ⟨q1, hq1_mem, hp1'⟩
-    rcases hp2 with ⟨q2, hq2_mem, hp2'⟩
-    rw [Finset.mem_image] at hp1' hp2'
-    rcases hp1' with ⟨a1, ha1_mem, rfl⟩
-    rcases hp2' with ⟨a2, ha2_mem, rfl⟩
-    rw [Finset.mem_Icc] at hq1_mem hq2_mem
-    rw [Finset.mem_filter, Finset.mem_range] at ha1_mem ha2_mem
-    let m : ℤ := round (fareyFraction (q1, a1) - fareyFraction (q2, a2))
-    let num : ℤ := (a1 : ℤ) * (q2 : ℤ) - (a2 : ℤ) * (q1 : ℤ) - m * (q1 : ℤ) * (q2 : ℤ)
-    have hnum_ne : num ≠ 0 := by
-      intro h0
-      have hq1_dvd : (q1 : ℤ) ∣ (a1 : ℤ) * (q2 : ℤ) :=
-        ⟨(a2 : ℤ) + m * (q2 : ℤ), by dsimp [num] at h0; linarith⟩
-      have hq2_dvd : (q2 : ℤ) ∣ (a2 : ℤ) * (q1 : ℤ) :=
-        ⟨(a1 : ℤ) - m * (q1 : ℤ), by dsimp [num] at h0; linarith⟩
-      have hc1 : IsCoprime (q1 : ℤ) (a1 : ℤ) :=
-        Int.isCoprime_iff_nat_coprime.mpr ha1_mem.2.symm
-      have hc2 : IsCoprime (q2 : ℤ) (a2 : ℤ) :=
-        Int.isCoprime_iff_nat_coprime.mpr ha2_mem.2.symm
-      have hd1Z : (q1 : ℤ) ∣ (q2 : ℤ) := hc1.dvd_of_dvd_mul_left hq1_dvd
-      have hd2Z : (q2 : ℤ) ∣ (q1 : ℤ) := hc2.dvd_of_dvd_mul_left hq2_dvd
-      have hd1 : q1 ∣ q2 := Int.natCast_dvd_natCast.mp hd1Z
-      have hd2 : q2 ∣ q1 := Int.natCast_dvd_natCast.mp hd2Z
-      have hq_eq : q1 = q2 := Nat.dvd_antisymm hd1 hd2
-      subst hq_eq
-      have hm_eq : (a1 : ℤ) - (a2 : ℤ) = m * (q1 : ℤ) := by
-        have hq1_ne : (q1 : ℤ) ≠ 0 := by omega
-        have hmul : ((a1 : ℤ) - (a2 : ℤ) - m * (q1 : ℤ)) * (q1 : ℤ) = 0 := by
-          dsimp [num] at h0; linarith
-        rcases mul_eq_zero.mp hmul with h | h
-        · linarith
-        · exact absurd h hq1_ne
-      have hm0 : m = 0 := by
-        have hq1_Z : (0 : ℤ) < q1 := by exact_mod_cast hq1_mem.1
-        have ha1 : (a1 : ℤ) < (q1 : ℤ) := by exact_mod_cast ha1_mem.1
-        have ha2 : (a2 : ℤ) < (q1 : ℤ) := by exact_mod_cast ha2_mem.1
-        by_contra hm_ne
-        rcases lt_or_gt_of_ne hm_ne with hm_neg | hm_pos
-        · have : m ≤ -1 := by omega
-          have : m * (q1 : ℤ) ≤ -(q1 : ℤ) := by nlinarith
-          omega
-        · have : 1 ≤ m := by omega
-          have : (q1 : ℤ) ≤ m * (q1 : ℤ) := by nlinarith
-          omega
-      rw [hm0, zero_mul] at hm_eq
-      have ha_eq : a1 = a2 := by omega
-      exact hne (by simp [ha_eq])
-    have hnum_ge1 : (1 : ℝ) ≤ |(num : ℝ)| := by
-      have hnat : 1 ≤ num.natAbs := by omega
-      have hreal : (1 : ℝ) ≤ (num.natAbs : ℝ) := by exact_mod_cast hnat
-      simpa [Int.cast_abs] using hreal
-    have hq1_pos : (0 : ℝ) < q1 := by exact_mod_cast hq1_mem.1
-    have hq2_pos : (0 : ℝ) < q2 := by exact_mod_cast hq2_mem.1
-    have hden_pos : (0 : ℝ) < (q1 : ℝ) * (q2 : ℝ) := mul_pos hq1_pos hq2_pos
-    have hden_le : (q1 : ℝ) * (q2 : ℝ) ≤ (Q : ℝ) ^ 2 := by
-      have hq1Q : (q1 : ℝ) ≤ Q := by exact_mod_cast hq1_mem.2
-      have hq2Q : (q2 : ℝ) ≤ Q := by exact_mod_cast hq2_mem.2
-      nlinarith
-    have hdiff_eq : fareyFraction (q1, a1) - fareyFraction (q2, a2) - (m : ℝ) =
-        (num : ℝ) / ((q1 : ℝ) * (q2 : ℝ)) := by
-      dsimp [fareyFraction, num]
-      push_cast
-      field_simp [hq1_pos.ne', hq2_pos.ne']
-    show ((Q : ℝ) ^ 2)⁻¹ ≤ distToInt (fareyFraction (q1, a1) - fareyFraction (q2, a2))
-    change ((Q : ℝ) ^ 2)⁻¹ ≤ |fareyFraction (q1, a1) - fareyFraction (q2, a2) - (m : ℝ)|
-    rw [hdiff_eq, abs_div, abs_of_pos hden_pos]
-    calc
-      ((Q : ℝ) ^ 2)⁻¹ ≤ ((q1 : ℝ) * (q2 : ℝ))⁻¹ := inv_anti₀ hden_pos hden_le
-      _ = 1 / ((q1 : ℝ) * (q2 : ℝ)) := by rw [one_div]
-      _ ≤ |(num : ℝ)| / ((q1 : ℝ) * (q2 : ℝ)) := by gcongr
+  have h : (1:ℝ)≤Q := by exact_mod_cast hQ
+  refine ⟨by positivity,inv_le_one_of_one_le₀ (one_le_pow₀ h),?_⟩
+  intro p hp q hq hpq
+  obtain ⟨hp₁,hp₂⟩ := Finset.mem_Icc.mp (farey_denominator_mem hp)
+  obtain ⟨hq₁,hq₂⟩ := Finset.mem_Icc.mp (farey_denominator_mem hq)
+  apply le_trans _ (farey_pair_spacing hp hq hpq)
+  apply inv_anti₀ (by positivity)
+  rw [sq];gcongr <;> exact_mod_cast ‹_›
 
 /-- **Farey Large Sieve Inequality**:
 for `1 ≤ Q` and `1 ≤ N`, summing `‖trigPoly a M N (a / q)‖ ^ 2` over reduced Farey pairs `(q, a)`
@@ -5053,39 +5094,42 @@ theorem sum_inv_ge_log_succ (n : ℕ) :
     linarith
 
 /-- Lower bound for the sum of `1 / φ(s)` over squarefree `s ≤ M` by the harmonic sum `∑_{1 ≤ m ≤ M} 1 / m`. -/
-theorem sum_squarefree_inv_totient_ge_sum_inv (M : ℕ) :
-    ∑ m ∈ Finset.Icc 1 M, (m : ℝ)⁻¹ ≤
-      ∑ s ∈ (Finset.Icc 1 M).filter Squarefree, (s.totient : ℝ)⁻¹ := by
+theorem sum_squarefree_coprime_inv_totient_ge_harmonic (M k₀ : ℕ) :
+    ∑ m ∈ (Finset.Icc 1 M).filter (fun m => m.Coprime k₀), (m : ℝ)⁻¹ ≤
+      ∑ s ∈ ((Finset.Icc 1 M).filter (fun m => m.Coprime k₀)).filter Squarefree, (s.totient : ℝ)⁻¹ := by
   let rad : ℕ → ℕ := fun m => ∏ p ∈ m.primeFactors, p
-  let SF := (Finset.Icc 1 M).filter Squarefree
-  have hrad_mem : ∀ m ∈ Finset.Icc 1 M, rad m ∈ SF := by
+  let SF := ((Finset.Icc 1 M).filter (fun m => m.Coprime k₀)).filter Squarefree
+  let A := (Finset.Icc 1 M).filter (fun m => m.Coprime k₀)
+  have hrad_mem : ∀ m ∈ A, rad m ∈ SF := by
     intro m hm
-    have hm' := Finset.mem_Icc.mp hm
+    have hma := Finset.mem_filter.mp hm
+    have hm' := Finset.mem_Icc.mp hma.1
     have hsq : Squarefree (rad m) := squarefree_prod_primes_set fun p hp => (Nat.mem_primeFactors.mp hp).1
     have hdvd : rad m ∣ m := Nat.prod_primeFactors_dvd m
     have hpos : 1 ≤ rad m := Nat.pos_of_ne_zero hsq.ne_zero
     have hle : rad m ≤ M := (Nat.le_of_dvd (by omega) hdvd).trans hm'.2
-    exact Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hpos, hle⟩, hsq⟩
-  have hfiber : ∑ m ∈ Finset.Icc 1 M, (m : ℝ)⁻¹ =
-      ∑ s ∈ SF, ∑ m ∈ (Finset.Icc 1 M).filter (fun m => rad m = s), (m : ℝ)⁻¹ := by
+    exact Finset.mem_filter.mpr ⟨Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hpos, hle⟩,hma.2.coprime_dvd_left hdvd⟩, hsq⟩
+  have hfiber : ∑ m ∈ A, (m : ℝ)⁻¹ =
+      ∑ s ∈ SF, ∑ m ∈ A.filter (fun m => rad m = s), (m : ℝ)⁻¹ := by
     rw [← Finset.sum_fiberwise_of_maps_to hrad_mem]
+  change ∑m∈A,(m:ℝ)⁻¹≤_
   rw [hfiber]
   refine Finset.sum_le_sum fun s hs => ?_
   have hs' := Finset.mem_filter.mp hs
-  have hs1 : 1 ≤ s := (Finset.mem_Icc.mp hs'.1).1
+  have hs1 : 1 ≤ s := (Finset.mem_Icc.mp (Finset.mem_filter.mp hs'.1).1).1
   have hs_sq : Squarefree s := hs'.2
   have hs_pos : 0 < s := by omega
   let T := s.primeFactors
   have hT_prime : ∀ p ∈ T, p.Prime := fun p hp => (Nat.mem_primeFactors.mp hp).1
   have hsub_fib :
-      ∑ m ∈ (Finset.Icc 1 M).filter (fun m => rad m = s), (m : ℝ)⁻¹ ≤
+      ∑ m ∈ A.filter (fun m => rad m = s), (m : ℝ)⁻¹ ≤
         (s : ℝ)⁻¹ * ∑ k ∈ (Finset.Icc 1 M).filter (fun k => k.primeFactors ⊆ T), (k : ℝ)⁻¹ := by
     let F_k := (Finset.Icc 1 M).filter (fun k => k.primeFactors ⊆ T)
-    let F_m := (Finset.Icc 1 M).filter (fun m => rad m = s)
+    let F_m := A.filter (fun m => rad m = s)
     have hinj : ∀ m ∈ F_m, ∃ k ∈ F_k, s * k = m := by
       intro m hm
       have hm' := Finset.mem_filter.mp hm
-      have hm_icc := Finset.mem_Icc.mp hm'.1
+      have hm_icc := Finset.mem_Icc.mp (Finset.mem_filter.mp hm'.1).1
       have hrad_eq : rad m = s := hm'.2
       have hs_dvd : s ∣ m := hrad_eq ▸ Nat.prod_primeFactors_dvd m
       let k := m / s
@@ -5138,13 +5182,19 @@ theorem sum_squarefree_inv_totient_ge_sum_inv (M : ℕ) :
       linarith
     field_simp [hp_pos.ne', hp_sub]
   calc
-    ∑ m ∈ (Finset.Icc 1 M).filter (fun m => rad m = s), (m : ℝ)⁻¹
+    ∑ m ∈ A.filter (fun m => rad m = s), (m : ℝ)⁻¹
         ≤ (s : ℝ)⁻¹ * ∑ k ∈ (Finset.Icc 1 M).filter (fun k => k.primeFactors ⊆ T), (k : ℝ)⁻¹ :=
           hsub_fib
     _ ≤ (s : ℝ)⁻¹ * ∏ p ∈ T, (p : ℝ) / ((p : ℝ) - 1) := by
           gcongr
           exact sum_inv_primeFactors_subset_le M T hT_prime
     _ = (s.totient : ℝ)⁻¹ := hprod_id
+
+/-- The sum of reciprocal totients over squarefree integers dominates the harmonic sum. -/
+theorem sum_squarefree_inv_totient_ge_sum_inv (M : ℕ) :
+    ∑ m ∈ Finset.Icc 1 M, (m : ℝ)⁻¹ ≤
+      ∑ s ∈ (Finset.Icc 1 M).filter Squarefree, (s.totient : ℝ)⁻¹ := by
+  simpa using sum_squarefree_coprime_inv_totient_ge_harmonic M 1
 
 /-- Logarithmic lower bound for the squarefree totient reciprocal sum (`1 ≤ z`):
 `Real.log ((⌊z⌋₊ : ℝ) + 1) ≤ ∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter Squarefree, (s.totient : ℝ)⁻¹`. -/

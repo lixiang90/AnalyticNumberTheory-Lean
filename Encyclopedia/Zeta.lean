@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.HurwitzFirstCorrection
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCorrection
 import AnalyticNumberTheory.RiemannZeta.HurwitzBoundedHeight
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCosine
@@ -113,3 +114,19 @@ $$`C(c)=\frac{\cos\bigl(\pi(c^2/2-c-1/8)\bigr)}{\cos(\pi c)}.`
 {docstring riemannSiegelCorrection_three_halves}
 
 {docstring mordellIntegral_eq_riemannSiegelCorrection}
+
+# Hurwitz ζ 函数的首修正公式
+%%%
+tag := "hurwitz-first-correction"
+file := "hurwitz-first-correction"
+%%%
+
+在临界线上取 $`s=1/2+it`，令 $`t=2\pi x^2`、$`x\ge1024`。对位移 $`0<a\le1`，记 $`\lambda=\{x-a\}`、$`q=\lfloor x\rfloor`、$`v=x+\lambda-q`。从 $`\zeta(s,a)` 中减去在 $`x` 处截断的正向和与对偶和后，首修正项为
+
+$$`x^{-s}\exp\!\left(\pi i\left(2x\lambda+\lambda^2-v^2/2-7/8\right)\right)C(v).`
+
+减去此项后的余量至多为 $`Kx^{-3/2}`，也就是 $`O(t^{-3/4})`。同一个常数 $`K` 对所有上述位移都适用。取 $`a=1` 时 $`v=2\{x\}`，恢复 Riemann ζ 函数的首修正系数。$`C` 在两个可去奇点处取前节给出的连续值。
+
+{docstring hurwitzFirstCorrection}
+
+{docstring hurwitzZeta_first_correction}

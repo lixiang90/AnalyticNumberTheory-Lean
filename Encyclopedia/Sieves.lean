@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.SieveMethods.LinearSieveQuantitative
+import AnalyticNumberTheory.SieveMethods.WeightedFareySieve
 import AnalyticNumberTheory.SieveMethods.ShiftedAlmostPrimes
 import AnalyticNumberTheory.AnalyticTools.HilbertKernelEstimates
 import AnalyticNumberTheory.SieveMethods.LinearSieve
@@ -174,9 +176,11 @@ $$`\left|V(t)-V(z)\frac{\log z}{\log t}\right|
 
 {docstring sieveEulerBelow_uniform_comparison}
 
-对 Rosser 下筛，连续取两层素数时，第二层满足 $`q<p` 和 $`pq^3<y`。写 $`u=\log y/\log z`。若 $`u\ge2` 并且每个子区间的乘积比较误差满足声明中的 $`\eta\le10^{-4}` 条件，则以 $`V(q)\exp[-\log(y/pq)/\log q]` 加权的两层总贡献至多为 $`(19/20)V(z)e^{-u}`。这样可在迭代中逐对控制余项。
+对 Rosser 下筛，连续取两层素数时，第二层满足 $`q<p` 和 $`pq^3<y`。写 $`u=\log y/\log z`。若 $`u\ge2` 并且每个子区间的乘积比较误差满足声明中的 $`\eta\le10^{-4}` 条件，则以 $`V(q)\exp[-\log(y/pq)/\log q]` 加权的两层总贡献至多为 $`(19/20)V(z)e^{-u}`。进一步估计连续积分后，同一组假设下收缩因子可降至 $`74/100`。这样可在迭代中逐对控制余项。
 
 {docstring linearSieve_prime_pair_contraction}
+
+{docstring linearSieve_prime_pair_contraction_sharp}
 
 # 等差数列的 Selberg 上界
 %%%
@@ -214,6 +218,23 @@ $$`XV(z)(f(u)-\varepsilon)-R\ \le\ S(z)\ \le\
 同一个 $`z` 下界对所有合乎条件的序列都适用。特别地，取固定 $`2<u\le4`，主项中的下筛函数为 $`2e^\gamma\log(u-1)/u>0`，因此在算术余项足够小时能得到正的筛余数目。
 
 {docstring linearSieve_sifted_bounds}
+
+# 线性筛余项的衰减率
+%%%
+tag := "quantitative-linear-sieve"
+file := "quantitative-linear-sieve"
+%%%
+
+写 $`y` 为筛权的水平，取 $`2\le z\le y` 并令 $`u=\log y/\log z`。固定 $`A,D\ge0` 和 $`B>0`，假设每个待筛素数满足 $`g(p)\le1-1/B`。对于每个 $`2\le w\le v\le z`，要求 $`\sum_{w\le p<v}g(p)\log p-\log(v/w)` 落在 $`[-L,A]`，其中 $`0\le L\le D\log y/(\log\log y)^5`。求和只取待筛素数。
+
+存在只依赖于 $`A,B,D` 的 $`c>0`，使得对充分大的 $`y` 和上述全部 $`z`，有
+
+$$`XV(z)(f(u)-E)-R\le S(z)\le XV(z)(F(u)+E)+R,
+\qquad E=c(\log\log y)^{-3/10},\quad R=\sum_{\substack{d\mid P(z)\\d<y}}|r_d|.`
+
+两侧使用同一个算术余项 $`R`，其中每个除数的系数都是一。主项中的误差随 $`y` 衰减，即使 $`z` 靠近区间的任一端点也适用。
+
+{docstring linearSieve_quantitative_bounds}
 
 # 长区间上的 Brun–Titchmarsh 系数二
 %%%
@@ -276,3 +297,31 @@ $$`\sum_{r\ne s}\frac{\delta_r}{(x_r-x_s)^2}\le\frac{\pi^2}{3\delta_s},
 {docstring AnalyticNumberTheory.AnalyticTools.hilbert_quadratic_row}
 
 {docstring AnalyticNumberTheory.AnalyticTools.hilbert_quartic_row}
+
+# 非均匀间距的大筛
+%%%
+tag := "large-sieve-local-gaps"
+file := "local-gap-large-sieve"
+%%%
+
+设点 $`\alpha_r` 在圆周 $`\mathbb R/\mathbb Z` 上两两相异。取 $`0<\delta_r\le1`，使每个其他点与 $`\alpha_r` 的圆周距离至少是 $`\delta_r`。对 $`S(\alpha)=\sum_{M<n\le M+N}a_ne^{2\pi i n\alpha}`，有
+
+$$`\sum_r\frac{|S(\alpha_r)|^2}{N+C/(\pi\delta_r)}
+     \le\sum_{M<n\le M+N}|a_n|^2,\qquad
+ C=\sqrt{\pi^2/3+2\bigl(4+\sqrt{16+\pi^4/45}\bigr)}<4.452.`
+
+例如对 $`Q` 阶 Farey 分数 $`a/q`，与另一既约分数 $`b/d` 的圆周距离至少为 $`1/(qd)`。所以分母为 $`q` 的每一项可取 $`\delta_r=1/(qQ)`，相应的大筛权为 $`N+CqQ/\pi`。把同分母的项合并，就得到按分母加权的算术大筛。
+
+{docstring weighted_analytic_large_sieve}
+
+{docstring weighted_farey_large_sieve}
+
+{docstring weighted_arithmetic_large_sieve}
+
+证明先在实轴上估计带核 $`1/(x_r-x_s)` 的 Hilbert 二次型。将对应的 Hermitian 矩阵平方，在特征向量上，对易子项的二次型为零。剩余项由{ref "individual-spacing-sums"}[逐点间距的二次、四次核估计]及两个不同极点的混合估计控制。最后对各点的整数平移交替求和并取平均，把实轴核化为 $`\pi/\sin(\pi x)`。
+
+{docstring AnalyticNumberTheory.AnalyticTools.hilbert_mixed_quadratic_row_sharp}
+
+{docstring AnalyticNumberTheory.AnalyticTools.weighted_hilbert_inequality}
+
+{docstring weighted_hilbert_cosecant}

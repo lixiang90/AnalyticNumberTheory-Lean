@@ -38,6 +38,7 @@ import Encyclopedia.RiemannHypothesis
 import Encyclopedia.ExceptionalZeros
 import Encyclopedia.LFunctions
 import Encyclopedia.Eta
+import Encyclopedia.Eisenstein
 import Encyclopedia.References
 
 open Verso.Genre Manual
@@ -120,6 +121,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.LatticePoints}
 
 {include 0 Encyclopedia.Eta}
+
+{include 0 Encyclopedia.Eisenstein}
 
 {include 0 Encyclopedia.Farey}
 

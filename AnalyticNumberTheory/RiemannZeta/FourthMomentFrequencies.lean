@@ -173,7 +173,8 @@ theorem fourthMomentMainTerm_mul_conj (N : ℕ) (t : ℝ) :
   rw [xiCompletionFactor_conj,divisorPolynomial_conj,map_mul,map_div₀,map_pow,map_pow,starRingEnd_self_apply,starRingEnd_self_apply,hphase]
   ring
 
-private theorem norm_critical_square_le {N : ℕ} (hN : 1 ≤ N) (t : ℝ) :
+/-- Pointwise square bound for the short divisor polynomial on the critical line. -/
+theorem norm_divisorPolynomial_critical_sq_le {N : ℕ} (hN : 1 ≤ N) (t : ℝ) :
     ‖divisorPolynomial N ((1/2:ℂ)+t*I)‖^2 ≤ 4*(N:ℝ)*(1+Real.log N)^3 := by
   apply (pow_le_pow_left₀ (norm_nonneg _) _ 2).trans (sum_coeff_sq hN)
   unfold divisorPolynomial dirichletPoly
@@ -226,7 +227,7 @@ theorem norm_integral_fourthMomentMainTerm_mul_conj_le {N : ℕ} {T : ℝ}
     change ‖hardyGammaUnit t^4*(D t)^2 - P t*(D t)^2‖ ≤ _
     rw [← sub_mul,norm_mul,norm_pow]
     apply mul_le_mul ((norm_gamma_four_sub_le (hT.trans ht.1)).trans (by gcongr; exact ht.1))
-      ((norm_critical_square_le hN t).trans_eq (by dsimp [L]; ring)) (sq_nonneg _) (by positivity)
+      ((norm_divisorPolynomial_critical_sq_le hN t).trans_eq (by dsimp [L]; ring)) (sq_nonneg _) (by positivity)
   have hiX : IntervalIntegrable X volume T (2*T) := ((continuous_fourthMomentMainTerm N false).mul
     (Complex.continuous_conj.comp (continuous_fourthMomentMainTerm N true))).intervalIntegrable ..
   have hlog : ContinuousOn Real.log (Set.Icc T (2*T)) := fun t ht => (Real.continuousAt_log (hT0.trans_le ht.1).ne').continuousWithinAt

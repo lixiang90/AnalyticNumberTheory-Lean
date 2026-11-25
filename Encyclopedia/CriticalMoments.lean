@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyUniformMoment
+import AnalyticNumberTheory.DirichletLFunctions.PeriodicCriticalSecondMoment
 import AnalyticNumberTheory.DirichletLFunctions.CharacterMomentConstants
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
 import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
@@ -9,6 +10,7 @@ import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
 import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
 import AnalyticNumberTheory.RiemannZeta.FourthMomentAsymptotic
+import AnalyticNumberTheory.RiemannZeta.FourthMomentIngham
 import AnalyticNumberTheory.RiemannZeta.HurwitzStripMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.StripMeanSquare
 import VersoManual
@@ -123,6 +125,17 @@ $$`\int_1^T |\zeta(1/2+it)|^4\,dt\sim\frac{T(\log T)^4}{2\pi^2}.`
 
 {docstring fourthMoment_riemannZeta_equivalent}
 
+主项的误差还能省下一个对数因子。对所有 $`T\ge 2`，有一个与 $`T` 无关的常数，使得
+
+$$`\int_0^T |\zeta(1/2+it)|^4\,dt
+=\frac{T(\log T)^4}{2\pi^2}+O\big(T(\log T)^3\big).`
+
+{docstring fourthMoment_riemannZeta_sharp_remainder}
+
+在 $`[T,2T]` 上，把 $`\zeta(s)^2` 分解成长度 $`N=\lfloor T/(4\pi)\rfloor` 的除数多项式 $`P_N(s)`、它在函数方程下的反射项，以及余项 $`R(s)`。函数方程把含 $`R` 的两个混合项合并成 $`4\operatorname{Re}(R(s)P_N(1-s))`。将这个乘积的积分移至 $`\operatorname{Re}s=2`，连同矩形水平边一并估计，得到 $`O(T(1+\log T)^3)`。对二倍区间求和保留了同一阶的余项。
+
+{docstring fourthMomentCrossTerm_integral_bound}
+
 平方展开中有两个对角项，各自的系数来自同一个算术和，其中 $`d(n)` 是 $`n` 的正因子个数。
 
 $$`\sum_{n\le X}\frac{d(n)^2}{n}=\frac{(\log X)^4}{4\pi^2}+O\big((1+\log X)^3\big).`
@@ -218,6 +231,29 @@ file := "primitive-character-second-term"
 {docstring AnalyticNumberTheory.DirichletLFunctions.primitive_character_second_moment}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.full_character_second_moment}
+
+# 周期 L 函数和单个非原始特征的二阶矩
+%%%
+tag := "periodic-critical-second-term"
+file := "periodic-critical-second-term"
+%%%
+
+设 $`q\ge 1`，$`\Phi` 为任意复值 $`q` 周期函数。令 $`A=q^{-1}\sum_{r=1}^q|\Phi(r)|^2`，$`\widehat\Phi` 为按 $`q^{-1/2}` 归一化的离散 Fourier 变换，并记
+
+$$`H(\Phi)=-\frac1q\sum_{r=1}^q|\Phi(r)|^2\psi(r/q).`
+
+临界线上的两个对角和分别带有 $`\Phi` 和 $`\widehat\Phi`。Parseval 恒等式使两者的均方系数同为 $`A`，它们的常数项则分别是 $`H(\Phi)` 和 $`H(\widehat\Phi)`。因此
+
+$$`\int_1^T |L(1/2+it,\Phi)|^2\,dt
+= A T\log\frac{T}{2\pi}
++\bigl[H(\Phi)+H(\widehat\Phi)-A(1+\log q)\bigr]T
++ O_{q,\Phi}\!\left(T^{3/4}\sqrt{\log(T+2)}\right).`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.periodic_critical_second_moment}
+
+对任意模 $`q` 的单个特征 $`\chi`，有 $`A=\varphi(q)/q`。对偶权 $`\widehat\chi(k)` 由频率 $`-k` 处的 Gauss 和除以 $`\sqrt q` 给出。将它代入 $`H` 就得到单个非原始特征的显式线性项。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.individual_character_second_moment}
 
 # 对移位、模数和高度一致的二阶矩
 %%%

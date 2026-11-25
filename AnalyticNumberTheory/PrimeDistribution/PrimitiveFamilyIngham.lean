@@ -51,15 +51,15 @@ theorem primitive_density_sum_eq_principal_add {Q : ℕ} (hQ : 1≤Q) (σ T : �
            rw [sum_congr rfl hsplit,sum_add_distrib]
            simp [hp₀]
 
-/-- Ingham's mean density bound over nonprincipal primitive characters, with
-multiplicities and both signs of the ordinate. -/
-theorem primitiveFamilyZeroCount_ingham :
+/-- The hybrid estimate at the rounded conductor-height cutoff, with seven
+logarithms for nonprincipal primitive characters. -/
+theorem primitiveFamilyZeroCount_ingham_at_cutoff :
     ∃ C : ℝ,0<C ∧ ∀{Q : ℕ} {σ T : ℝ},1≤Q → 2≤T → σ∈Set.Icc (1/2:ℝ) 1 →
-      (primitiveFamilyZeroCount Q σ T:ℝ) ≤
-        C*((Q:ℝ)^2*T)^(inghamExponent σ)*(Real.log ((Q:ℝ)*T))^9 := by
+      let X : ℕ := Q^2*(⌊T⌋₊+16)
+      (primitiveFamilyZeroCount Q σ T:ℝ) ≤ C*(1+Real.log X)^7*(X:ℝ)^(inghamExponent σ) := by
   obtain ⟨B,hB,H₄⟩ := primitive_conductors_critical_fourth_moment
   obtain ⟨D,hD,HD⟩ := character_ingham_symmetric_weighted hB
-  refine ⟨D*(9*20^9),by positivity,?_⟩
+  refine ⟨D,hD,?_⟩
   intro Q σ T hQ hT hσ
   let L := ⌊T⌋₊+16
   let X := Q^2*L
@@ -74,10 +74,7 @@ theorem primitiveFamilyZeroCount_ingham :
   have hqr : (1:ℝ)≤Q := by exact_mod_cast hQ
   have hLr : (16:ℝ)≤L := by exact_mod_cast hL
   have hTL : T<(L:ℝ) := by dsimp only [L];push_cast;linarith [Nat.lt_floor_add_one T]
-  have hLT : (L:ℝ)≤9*T := by dsimp only [L];push_cast;linarith [Nat.floor_le (by linarith : 0≤T)]
   have hrX : (X:ℝ)=(Q:ℝ)^2*L := by simp [X]
-  have hX' : (1:ℝ)≤X := by exact_mod_cast (by omega : 1≤X)
-  have hqT : 2≤(Q:ℝ)*T := hT.trans (le_mul_of_one_le_left (by linarith) hqr)
   have hhyb (m : ℕ) (hm : 1≤m) : CharacterHybridMean F.attach (fun p n => χ p n) (m*L) ((m:ℝ)*X) := by
     intro N hN a
     have hh := primitive_family_hybrid_mean Q (L:=m*L) (Nat.mul_pos hm (by omega)) N hN a
@@ -111,9 +108,29 @@ theorem primitiveFamilyZeroCount_ingham :
     (by simpa only [card_attach,F] using Nat.mul_le_mul_right L (card_primitiveFamily_le Q))
     (fun i _ => Nat.mul_le_mul_right L ((primitiveCharacterFamily_modulus i.property).2.trans
       (by simpa only [pow_two] using Nat.le_mul_of_pos_right Q hQ))) hhyb hmom
-  have hcount : (primitiveFamilyZeroCount Q σ T:ℝ) ≤ D*(1+Real.log X)^7*(X:ℝ)^(inghamExponent σ) := by
-    unfold primitiveFamilyZeroCount;push_cast
-    exact (Finset.sum_attach F _).symm.le.trans hz
+  change (primitiveFamilyZeroCount Q σ T:ℝ) ≤ D*(1+Real.log X)^7*(X:ℝ)^(inghamExponent σ)
+  simp only [primitiveFamilyZeroCount,Nat.cast_sum]
+  exact (Finset.sum_attach F _).symm.le.trans hz
+
+/-- Ingham's mean density bound over nonprincipal primitive characters, with
+multiplicities and both signs of the ordinate. -/
+theorem primitiveFamilyZeroCount_ingham :
+    ∃ C : ℝ,0<C ∧ ∀{Q : ℕ} {σ T : ℝ},1≤Q → 2≤T → σ∈Set.Icc (1/2:ℝ) 1 →
+      (primitiveFamilyZeroCount Q σ T:ℝ) ≤
+        C*((Q:ℝ)^2*T)^(inghamExponent σ)*(Real.log ((Q:ℝ)*T))^9 := by
+  obtain ⟨D,hD,H⟩ := primitiveFamilyZeroCount_ingham_at_cutoff
+  refine ⟨D*(9*20^9),by positivity,?_⟩
+  intro Q σ T hQ hT hσ
+  let L := ⌊T⌋₊+16
+  let X := Q^2*L
+  have hcount := H hQ hT hσ
+  change (primitiveFamilyZeroCount Q σ T:ℝ) ≤ D*(1+Real.log X)^7*(X:ℝ)^(inghamExponent σ) at hcount
+  have hqr : (1:ℝ)≤Q := by exact_mod_cast hQ
+  have hrX : (X:ℝ)=(Q:ℝ)^2*L := by simp [X]
+  have hLr : (1:ℝ)≤L := by dsimp [L];push_cast;linarith [Nat.cast_nonneg (α:=ℝ) ⌊T⌋₊]
+  have hX' : (1:ℝ)≤X := by rw [hrX];exact one_le_mul_of_one_le_of_one_le (one_le_pow₀ hqr) hLr
+  have hqT : 2≤(Q:ℝ)*T := hT.trans (le_mul_of_one_le_left (by linarith) hqr)
+  have hLT : (L:ℝ)≤9*T := by dsimp only [L];push_cast;linarith [Nat.floor_le (by linarith : 0≤T)]
   have hs := ingham_scale_bound hX' (by positivity : 0≤(Q:ℝ)^2*T) hqT
     (by rw [hrX];nlinarith only [mul_le_mul_of_nonneg_left hLT (sq_nonneg (Q:ℝ))])
     (by nlinarith only [mul_nonneg (sq_nonneg (Q:ℝ)) (show 0≤T^2-T by nlinarith only [hT,sq_nonneg (T-1)])]) hσ

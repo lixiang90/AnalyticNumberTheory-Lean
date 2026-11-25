@@ -1,6 +1,10 @@
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusIngham
+import AnalyticNumberTheory.PrimeDistribution.FixedModulusMontgomery
 import AnalyticNumberTheory.PrimeDistribution.PrimitiveFamilyIngham
+import AnalyticNumberTheory.PrimeDistribution.PrimitiveMontgomeryDensity
+import AnalyticNumberTheory.PrimeDistribution.InghamFamilyBounds
 import AnalyticNumberTheory.DirichletLFunctions.FamilyDensityCounts
+import AnalyticNumberTheory.PrimeDistribution.PointwiseFamilyDensity
 import AnalyticNumberTheory.PrimeDistribution.PrincipalCharacterDensity
 import AnalyticNumberTheory.PrimeDistribution.CharacterDetectorWindow
 import AnalyticNumberTheory.PrimeDistribution.CharacterInghamTypeI
@@ -79,6 +83,40 @@ $$`N(\sigma,T)\ll T^{3(1-\sigma)/(2-\sigma)}(\log T)^7.`
 结合{ref "vinogradov-korobov-zero-free"}[Vinogradov–Korobov 无零区]，对每个固定的 $`2/3<\theta<1` 都有 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。下述声明也适用于其他满足同一宽度条件的无零区。
 
 {docstring primePi_shortInterval_two_thirds_of_superLogZeroFree}
+
+# 从临界线点值到零密度
+%%%
+tag := "pointwise-zero-density"
+file := "pointwise-zero-density"
+%%%
+
+{index}[点值型零密度估计]设 $`a,b\ge0`。假设存在常数 $`B`，使每个正模数 $`q`、模 $`q` 的每个特征和每个实数 $`t` 都满足
+
+$$`|L(1/2+it,\chi)|\le B\,[q(|t|+2)]^a[1+\log(q(|t|+2))]^b.`
+
+在 $`3/4\le\sigma\le1`、$`T\ge2` 时，令 $`e=(1+4a)(1-\sigma)/(2\sigma-1)`。在固定模数处对所有特征求和，以及对 $`q\le Q` 的所有本原特征求和，分别有
+
+$$`\sum_{\chi\bmod q} N_\chi(\sigma,T)\ll (qT)^e(\log(qT))^{10+2b},`
+
+$$`\sum_{q\le Q}\ \sum_{\chi\bmod q}^{*} N_\chi(\sigma,T)\ll (Q^2T)^e(\log(QT))^{10+2b}.`
+
+这里 $`N_\chi` 计入实部至少为 $`\sigma`、实部小于一、且 $`|\Im\rho|\le T` 的临界带零点，每点按解析重数计入。两个上界都包括主特征，隐常数对模数、高度和 $`\sigma` 一致。
+
+{docstring modulusDensityCount_of_critical_growth}
+
+{docstring primitive_conductors_of_critical_growth}
+
+在 Riesz 积分检测器中，用假设给出的点值估计控制 $`L` 函数，再用稀疏混合均方估计控制平移后的 Möbius 多项式。对 $`a<1/4`，当 $`3/4+a<\sigma<1` 时，得到的高度幂次严格小于密度假设中的 $`2(1-\sigma)`。
+
+{docstring pointwiseDensityExponent_lt_density_hypothesis}
+
+ζ 函数在临界线上的 Weyl 界给出 $`a=1/6`、$`b=1`。因此只计 $`0<\Im\rho\le T` 并保留重数时，无条件得到
+
+$$`N_\zeta(\sigma,T)\ll T^{\frac{5(1-\sigma)}{3(2\sigma-1)}}(\log T)^{12}.`
+
+这里先单独计入极点项影响的低高度零点，再对其余零点使用稀疏检测。在 $`11/12<\sigma<1` 上，高度幂次严格小于 $`2(1-\sigma)`。
+
+{docstring weyl_zeta_density}
 
 # Huxley 零密度定理
 %%%
@@ -223,6 +261,12 @@ $$`\sum_{\chi\bmod q} N_\chi(\sigma,T)
 
 {docstring modulusDensityCount_ingham}
 
+非主特征在取整后的尺度上只用七个对数因子。主特征的 ζ 零点计数带有八个对数因子，因此上式的 $`(\log(qT))^9` 可以改进为 $`(\log(qT))^8`。对于 $`0\le T<2`，把高度扩大到 $`T+2` 就能覆盖实零点及全部低高度零点；此时幂次项和对数项使用同一尺度 $`q(T+2)`。
+
+{docstring modulusDensityCount_ingham_log_eight}
+
+{docstring modulusDensityCount_ingham_all_heights}
+
 # 按原始导子求和的 Ingham 零密度界
 %%%
 tag := "primitive-family-ingham-density"
@@ -241,3 +285,74 @@ $$`\sum_{1\le q\le Q}\ \sum_{\chi\bmod q}^{*}N_\chi(\sigma,T)
 {docstring primitive_density_sum_eq_principal_add}
 
 {docstring primitiveFamilyZeroCount_ingham}
+
+同样的对数改进适用于原始特征族。对 $`T\ge2` 可将对数幂降至八。对任意 $`T\ge0`，带重数总数至多为
+
+$$`C\,[Q^2(T+2)]^{3(1-\sigma)/(2-\sigma)}
+      \bigl(\log(Q(T+2))\bigr)^8.`
+
+{docstring primitive_conductors_ingham_log_eight}
+
+{docstring primitive_conductors_ingham_all_heights}
+
+# 固定模数的 Montgomery 零密度界
+%%%
+tag := "fixed-modulus-montgomery-density"
+file := "fixed-modulus-montgomery-density"
+%%%
+
+{index}[Montgomery 零密度定理]设 $`q\ge1`、$`T\ge2`、$`1/2\le\sigma\le1`。对每个模 $`q` 的 Dirichlet 特征 $`\chi`，令 $`N_\chi(\sigma,T)` 表示 $`\sigma\le\Re\rho<1`、$`|\Im\rho|\le T` 中的零点数，每个零点计其解析重数。则有
+
+$$`\sum_{\chi\bmod q}N_\chi(\sigma,T)
+  \ll(qT)^{2(1-\sigma)/\sigma}\bigl(\log(qT)\bigr)^{13}.`
+
+{docstring modulusDensityCount_montgomery}
+
+这个幂次与{ref "fixed-modulus-ingham-density"}[Ingham 界]在 $`\sigma=4/5` 相等；在 $`4/5<\sigma<1`，Montgomery 界的幂次更小。证明在单位高度区间内控制零点的个数，再合并两类检测结果。若共有 $`R` 个取样点，取 $`H` 与 $`qT` 同阶，并取 $`X=\lceil R\sqrt H\rceil`、$`Y=H^{1/\sigma}`。两项满足 $`Y^{2(1-\sigma)}=H^2Y^{2-4\sigma}=H^{2(1-\sigma)/\sigma}`。这些参数适用于主特征的 ζ 零点以及其他全部特征。
+
+{docstring montgomeryCutoff_balance}
+
+{docstring montgomery_count_of_alternatives}
+
+在取重数以前，两类检测合计用到十一个对数因子。利用单位区间零点数界控制重数，还能把定理右边的对数幂取成十二。对于 $`T\ge0`，以 $`q(T+2)` 作统一尺度，估计包括实轴上的零点。
+
+{docstring modulusDensityCount_montgomery_log_twelve}
+
+{docstring modulusDensityCount_montgomery_all_heights}
+
+取 $`q=1` 得到 ζ 函数的情形。下式只计正虚部，每个零点仍按重数计；当 $`4/5\le\sigma\le1` 时，右边用 $`T^{2(1-\sigma)/\sigma}(\log T)^{12}`。在任意模数下，主特征在开临界带中的零点及重数与 ζ 相同。
+
+{docstring montgomery_zeta_density_log_twelve}
+
+{docstring principal_character_montgomery_density}
+
+# 原始特征族的 Montgomery 零密度界
+%%%
+tag := "primitive-family-montgomery-density"
+file := "primitive-family-montgomery-density"
+%%%
+
+{index}[Montgomery 零密度估计]在 $`Q\ge1`、$`T\ge2` 和 $`1/2\le\sigma\le1` 时，所有原始特征的零点满足
+
+$$`\sum_{q\le Q}\ \sum_{\chi\bmod q}^{*}N_\chi(\sigma,T)
+ \ll (Q^2T)^{2(1-\sigma)/\sigma}\bigl(\log(QT)\bigr)^{13}.`
+
+计数包含模一的 Riemann ζ 函数、实零点及两侧高度，零点按重数计入。当 $`\sigma\ge4/5` 时，对第一类零点，用各个特征的零点作为 Dirichlet 多项式的取样点。设全部取样点数为 $`R`，把 Möbius 多项式的长度取为 $`\lceil R\sqrt H\rceil`，其中 $`H` 与 $`Q^2T` 同阶。这使稀疏特征均值中的相关项可由每个保留分块的长度吸收。对于第二类零点，{ref "character-family-critical-fourth"}[原始特征族第四矩]控制临界线上 $`L` 函数的贡献，稀疏均方控制同一批点上的 Möbius 多项式。
+
+{docstring sparse_montgomery_typeI_count}
+
+{docstring primitive_conductors_montgomery_density}
+
+在零点检测给出的带重数估计中只有十二个对数因子。将整数截断换回 $`Q^2T` 的尺度，并保留对 $`\zeta` 的十二次对数界，可把上式中的对数幂从十三降至十二，仍然对 $`Q,T,\sigma` 一致。
+
+{docstring primitive_conductors_montgomery_log_twelve}
+
+Montgomery 指数 $`2(1-\sigma)/\sigma` 与{ref "primitive-family-ingham-density"}[Ingham 指数] $`3(1-\sigma)/(2-\sigma)` 在 $`\sigma=4/5` 处相等。前者在交点右侧更小，后者在左侧更小。可以逐个参数取两种上界的最小值，保留各自的对数幂。若需要形如 $`(Q^2T)^{A(1-\sigma)}` 的统一上界，取 $`A=5/2` 即可，同时保留至多十二个对数因子。
+
+{docstring primitive_conductors_density_min}
+
+{docstring primitive_conductors_density_five_halves}
+
+把高度扩大到 $`T+2` 还得到从零高度开始的估计，可直接用于含有实零点的有界窗口。
+
+{docstring primitive_conductors_montgomery_all_heights_log_twelve}

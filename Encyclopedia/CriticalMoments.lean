@@ -1,6 +1,7 @@
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyUniformMoment
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicCriticalSecondMoment
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyFourthMoment
+import AnalyticNumberTheory.DirichletLFunctions.FullFamilyFourthSampling
 import AnalyticNumberTheory.DirichletLFunctions.CharacterMomentConstants
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
 import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
@@ -317,6 +318,43 @@ $$`\sum_{d\mid q}\varphi(d)\prod_{p\mid q/d}(1+p^{-1/4})^4\ll q.`
 对 $`1\le d\le Q` 的所有原始特征再求和，得到 $`Q^2T(1+\log(QT))^4` 阶的上界。积分区间仍为 $`[-T,T]`，可直接用于同时含有正、负虚部的均值估计。
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.primitive_conductors_critical_fourth_moment}
+
+# 固定模数特征族的近临界四阶矩
+%%%
+tag := "character-family-near-critical-fourth"
+file := "character-family-near-critical-fourth"
+%%%
+
+{index}[Dirichlet 特征族的分离样本]设 $`q\ge1`、$`T\ge2`，记 $`L=\log(qT)`。在 $`|\sigma-1/2|\le 1/(200L)` 内，模 $`q` 的本原特征满足
+
+$$`\sum_{\chi\bmod q}^{*}\int_{-T}^{T}|L(\sigma+it,\chi)|^4\,dt\ll\varphi(q)\,T L^4.`
+
+这里的常数对模数、高度和带内的实部一致。解析插值作用在整个特征族的积分和上。对具有复系数的函数 $`f`，使用全纯对偶函数 $`z\mapsto\overline{f(\bar z)}`，即可在实参数 $`\sigma` 处恢复第四绝对矩。矩形上的二次指数权同时控制水平边，从而在 $`T` 小而 $`q` 大时仍能使用同一个带宽。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_family_fourth_narrow_symmetric}
+
+将带宽缩为 $`1/(400L)`，在每个点使用 Cauchy 积分公式，得到
+
+$$`\sum_{\chi\bmod q}^{*}\int_{-T}^{T}|L'(\sigma+it,\chi)|^4\,dt\ll\varphi(q)\,T L^8.`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_family_deriv_fourth_narrow_symmetric}
+
+对每个 $`\chi` 各取有限集 $`E_\chi\subset[-T,T]`，同一集合中两个不同元素相距至少 $`\delta>0`。不同特征的集合可以重叠。沿临界线的样本满足
+
+$$`\sum_{\chi\bmod q}^{*}\ \sum_{t\in E_\chi}|L(1/2+it,\chi)|^4
+ \ll(\delta^{-1}+L)\,\varphi(q)\,T L^4.`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_family_fourth_separated}
+
+对模 $`q` 的全部特征取和，上述三条界对实际的 $`L(s,\chi)` 及诱导它的本原函数 $`L(s,\chi^*)` 均成立，右端的 $`\varphi(q)` 换为 $`q`。另外，若把所有导子 $`d\le Q` 的本原特征合并，窄带 $`|\sigma-1/2|\le1/(200\log(QT))` 内的积分和至多为 $`C Q^2T\log^4(QT)`。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.full_character_fourth_narrow_symmetric}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.full_character_deriv_fourth_narrow_symmetric}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.full_character_fourth_separated}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_conductors_fourth_narrow_strip}
 
 # 对移位、模数和高度一致的二阶矩
 %%%

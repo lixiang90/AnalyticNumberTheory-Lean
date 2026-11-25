@@ -8,7 +8,7 @@ open scoped Classical
 open AnalyticNumberTheory.DirichletLFunctions
 namespace AnalyticNumberTheory.PrimeDistribution
 
-private theorem unit_count {q L X : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}
+theorem nonprincipal_density_unit_count {q L X : ℕ} [NeZero q] {χ : DirichletCharacter ℂ q}
     (hq : q*L≤X) (hL : 1≤L) {σ : ℝ} (hσ : 1/2≤σ) (S : Finset ℂ)
     (hS : ∀ z∈S,χ≠1 ∧ χ.LFunction z=0 ∧ σ≤z.re ∧ z.re<1 ∧ 0≤z.im ∧ z.im<L)
     (j : ℕ) (hj : j<L) :
@@ -39,7 +39,7 @@ private theorem unit_count {q L X : ℕ} [NeZero q] {χ : DirichletCharacter ℂ
   rw [Real.log_mul (by norm_num) (by positivity : (X:ℝ)≠0)] at h
   linarith [Real.log_le_sub_one_of_pos (by norm_num : (0:ℝ)<2)]
 
-private theorem count_from_cells {L : ℕ} (S : Finset ℂ) {K : ℝ}
+theorem count_from_cells {L : ℕ} (S : Finset ℂ) {K : ℝ}
     (him : ∀ z∈S,0≤z.im ∧ z.im<L)
     (hc : ∀ j<L,((S.filter (fun z => ⌊z.im⌋₊=j)).card:ℝ)≤K) :
     (S.card:ℝ)≤L*K := by
@@ -48,7 +48,7 @@ private theorem count_from_cells {L : ℕ} (S : Finset ℂ) {K : ℝ}
   rw [card_eq_sum_card_fiberwise hmap,Nat.cast_sum]
   exact (sum_le_sum (fun j hj => hc j (mem_range.mp hj))).trans_eq (by simp)
 
-private theorem dyadic_logarithm_bound {X : ℝ} (hX : 1≤X) (j : ℕ) :
+theorem dyadic_logarithm_bound {X : ℝ} (hX : 1≤X) (j : ℕ) :
     1+Real.log ((2:ℝ)^j*X) ≤ (1+Real.log X)*((j:ℝ)+1) := by
   rw [Real.log_mul (by positivity) (by linarith : X≠0),Real.log_pow]
   nlinarith only [mul_le_mul_of_nonneg_left (Real.log_le_sub_one_of_pos (by norm_num : (0:ℝ)<2))
@@ -75,7 +75,7 @@ theorem character_ingham_upper_count {B : ℝ} (hB : 0<B) :
   have hx : (1:ℝ)<X := by exact_mod_cast (by omega : 1<X)
   have hl : 1≤ℓ := by dsimp [ℓ];linarith [Real.log_nonneg hx.le]
   have hZ : 0≤Z := Real.rpow_nonneg (Nat.cast_nonneg X) _
-  have hc (i) (hi : i∈F) := unit_count (hq i hi) hL hσ.1 (S i) (hS i hi)
+  have hc (i) (hi : i∈F) := nonprincipal_density_unit_count (hq i hi) hL hσ.1 (S i) (hS i hi)
   change _ ≤ (D+K*Real.exp 2)*ℓ^6*Z
   by_cases hgap : 1/ℓ≤σ-1/2
   · have h4' (j : ℕ) := (h₄ j).trans (mul_le_mul_of_nonneg_left (pow_le_pow_left₀

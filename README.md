@@ -29,7 +29,8 @@ declaration links the mathematical statement to the hypotheses used by the libra
 
 The library proves the Hardy–Ramanujan leading term by a saddle-point argument and the
 Bombieri–Vinogradov mean estimate by Vaughan's identity and the large sieve. Coverage
-is still in progress. The library also proves the exact Rademacher series and an unconditional
+is still in progress. The fixed-modulus and primitive-family zero counts satisfy both Ingham’s and Montgomery’s density exponents, with analytic multiplicity and both signs of the ordinate.
+The library also proves the exact Rademacher series and an unconditional
 zeta zero-density bound. It proves Linnik's polynomial bound for the least prime in each reduced residue class.
 Stronger zero-free regions and sharper prime estimates in short intervals remain in progress.
 

@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.ConductorPolynomialMeans
+import AnalyticNumberTheory.DirichletLFunctions.TailPolynomialEnergy
 import AnalyticNumberTheory.SieveMethods.DirichletPolynomials
 import AnalyticNumberTheory.SieveMethods.HalaszMontgomery
 import AnalyticNumberTheory.SieveMethods.SeparatedMeanValues
@@ -78,3 +79,27 @@ $$`\sum_{Q<q\le R}\frac1{\varphi(q)}\sum_{\chi\bmod q}^{*}|P_\chi(s)|^2
 对有界系数的四阶矩，将 $`P_\chi(s)^2` 写为长度 $`N^2` 的特征多项式。乘积系数的模由约数个数 $`d(n)` 控制。于是右端为 $`(2R+N^2/Q)(1+\log(N^2))^4`，对所有实数 $`t` 一致成立。
 
 {docstring AnalyticNumberTheory.PrimeDistribution.bounded_conductor_polynomial_fourth}
+
+# 固定模数的剩余类尾和
+%%%
+tag := "fixed-modulus-tail-energy"
+file := "residue-class-tails"
+%%%
+
+对 $`A<n\le X` 内的整数按模 $`q` 分组。固定一个剩余类后，商 $`\lfloor n/q\rfloor` 确定这个整数。商为零的至多一项贡献 $`1/A`，商为 $`j\ge1` 的一项至多贡献 $`1/(qj)`。故每一类都满足
+
+$$`\sum_{\substack{A<n\le X\\n\equiv r\pmod q}}\frac1n
+\le \frac1A+\frac{1+\log X}{q}\qquad(A\ge1).`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.sum_residue_tail_inv_le}
+
+在每个可逆剩余类内用权 $`1/n` 作 Cauchy–Schwarz 估计，再用特征正交关系合并所有类。对 $`s=1+it`，有
+
+$$`\sum_{\chi\bmod q}\left|\sum_{A<n\le X}a_n\chi(n)n^{-s}\right|^2
+\le\left(\frac qA+1+\log X\right)\sum_{A<n\le X}\frac{|a_n|^2}{n}.`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.character_sum_sq_le_of_fiber_weight}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.fixed_modulus_tail_energy}
+
+这个界与高度无关。把两个这样的尾段相乘并在特征上再用一次 Cauchy–Schwarz 不等式，即可估计{ref "prime-two-contours"}[平滑素数和的右侧积分]。

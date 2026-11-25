@@ -7,6 +7,7 @@ import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
+import AnalyticNumberTheory.ExponentialSums.PrimeContourTailMean
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -168,6 +169,41 @@ $`\sum_{\chi\bmod q}|P_a(s,\chi)|^4\le(q+N^2)(1+\log(N^2))^4`。
 {docstring AnalyticNumberTheory.PrimeDistribution.vonMangoldt_square_harmonic_energy}
 
 {docstring AnalyticNumberTheory.PrimeDistribution.fixed_modulus_vonMangoldt_polynomial_moments}
+
+# 平滑素数和的两条积分线
+%%%
+tag := "prime-two-contours"
+file := "two-contours"
+%%%
+
+设 $`\chi` 是模 $`q\ge2` 的非主特征，$`X=\lfloor x\rfloor`。在系数上把 Möbius 函数截于 $`U`，把 von Mangoldt 函数截于 $`V\ge1`。记相应的短特征多项式为 $`M_U` 和 $`P_V`，再记截短系数的 Dirichlet 卷积所给出的多项式为 $`I_{U,V}`。它的长度至多为 $`UV`。临界线上的分子为
+
+$$`E(s)=P_V(s)-M_U(s)L'(s,\chi)-I_{U,V}(s)L(s,\chi).`
+
+{docstring primeContourRegularPart}
+
+右侧积分线上的分子 $`B(s)` 由两个有限尾段相乘得到。第一段的系数为 $`\sum_{d\mid m,\,d>U}\mu(d)`，范围为 $`U<m\le X/V`。第二段的系数为 $`\Lambda(k)`，范围为 $`V<k\le X`。两段都带同一个特征的权。对数 Perron 核在 $`mk>x` 时取逆所得权重为零，故这个矩形范围精确给出原来的双曲线和。
+
+{docstring primeContourTailPart}
+
+用{ref "log-perron-contour-shift"}[归一化积分] $`\mathcal P_\sigma` 表示，两条积分线给出的恒等式是
+
+$$`\sum_{n\le x}\Lambda(n)\chi(n)\log(x/n)
+=\mathcal P_{1/2}(E;x)+\mathcal P_1(B;x).`
+
+{docstring logSmoothedPsiChar_two_contours}
+
+证明对 Vaughan 的系数恒等式使用有限求和，再对每一项应用{ref "critical-character-perron-inversion"}[非主特征的临界线反演]和有限多项式乘法公式。等式对所有正实 $`x` 成立，两项均绝对可积。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.logPerron_intervalCharacter_product}
+
+在 $`\Re s=1` 上，$`|x^s|=x`，而 $`(2\pi)^{-1}\int_{\mathbb R}(1+t^2)^{-1}\,dt=1/2`，因此尾项的特征平均带有精确因子 $`x/2`。分别对两个因子应用{ref "fixed-modulus-tail-energy"}[剩余类尾和估计]。Möbius 尾段的系数由 $`d(m)` 控制，素数尾段使用 Mertens 的带权估计。
+
+{docstring typeII_tail_polynomial_energy}
+
+{docstring vonMangoldt_tail_polynomial_energy}
+
+{docstring primeContourTail_integral_mean}
 
 # 有限 Poisson 求和与倒数相位
 %%%

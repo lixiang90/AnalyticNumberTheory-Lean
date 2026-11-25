@@ -32,7 +32,7 @@ Bombieri–Vinogradov mean estimate by Vaughan's identity and the large sieve. C
 is still in progress. The fixed-modulus and primitive-family zero counts satisfy both Ingham’s and Montgomery’s density exponents, with analytic multiplicity and both signs of the ordinate.
 The library also proves the exact Rademacher series and an unconditional
 zeta zero-density bound. It proves Linnik's polynomial bound for the least prime in each reduced residue class.
-Stronger zero-free regions and sharper prime estimates in short intervals remain in progress.
+The encyclopedia also gives the rational Huxley exponent on the strip from three quarters to one and the weighted primitive zero sums that enter the zero-density proof of Bombieri–Vinogradov.
 
 ## Building
 

@@ -68,13 +68,13 @@ theorem characterKernel_vertical_bound :
        _ = _ := by dsimp [D,H,l];ring
 
 /-- The logarithmically shifted line gives square-root conductor growth. -/
-theorem characterKernel_logarithmic_vertical_bound :
+theorem characterKernel_logarithmic_vertical_decay :
     ∃ C : ℝ,0<C ∧ ∀{q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q) {s : ℂ}
       (hs : s.re∈Icc (0:ℝ) 2) {X : ℝ},1≤X →
       let H := (q:ℝ)*(|s.im|+2)
       let δ := 1/(4+Real.log H)
       X^(s.re-3)*‖gammaSmoothingIntegral (fun w => χ.LFunction (s-3+w)) X (3-s.re-δ)‖ ≤
-        C*Real.sqrt H*(1+Real.log H) := by
+        C*Real.sqrt H*(1+Real.log H)*X^(-δ) := by
   obtain ⟨A,hA,HA⟩ := characterKernel_vertical_bound
   refine ⟨5*A*Real.exp 1,by positivity,?_⟩
   intro q _ χ s hs X hX
@@ -87,20 +87,37 @@ theorem characterKernel_logarithmic_vertical_bound :
   have hd : 0<δ := by dsimp [δ];positivity
   have hd' : δ≤1/4 := by dsimp [δ];apply one_div_le_one_div_of_le (by norm_num);linarith
   have h := HA χ hs hd hd' (zero_lt_one.trans_le hX)
-  have hx : X^(s.re-3)*X^(3-s.re-δ)≤1 := by
-    rw [←Real.rpow_add (zero_lt_one.trans_le hX)]
-    apply (Real.rpow_le_rpow_of_exponent_le hX (show s.re-3+(3-s.re-δ)≤0 by linarith)).trans_eq
-    simp
+  have hx : X^(s.re-3)*X^(3-s.re-δ)=X^(-δ) := by
+    rw [←Real.rpow_add (zero_lt_one.trans_le hX)];congr 1;ring
   have hdelta : H^δ≤Real.exp 1 := by
     rw [Real.rpow_def_of_pos (zero_lt_one.trans_le hH)]
     apply Real.exp_le_exp.mpr
     dsimp [δ];rw [mul_one_div,div_le_one (by positivity)];linarith
   have hsmall : 1+1/δ≤5*(1+Real.log H) := by simp only [δ,one_div,inv_inv];linarith
   rw [Real.rpow_add (zero_lt_one.trans_le hH),←Real.sqrt_eq_rpow] at h
-  change X^(s.re-3)*_ ≤ _*Real.sqrt H*(1+Real.log H)
+  change X^(s.re-3)*_ ≤ _*Real.sqrt H*(1+Real.log H)*X^(-δ)
   calc _ ≤ X^(s.re-3)*(A*(1+1/δ)*(Real.sqrt H*H^δ)*X^(3-s.re-δ)) := by gcongr
        _ = A*(1+1/δ)*Real.sqrt H*H^δ*(X^(s.re-3)*X^(3-s.re-δ)) := by ring
-       _ ≤ A*(5*(1+Real.log H))*Real.sqrt H*Real.exp 1*1 := by gcongr
+       _ ≤ A*(5*(1+Real.log H))*Real.sqrt H*Real.exp 1*X^(-δ) := by rw [hx];gcongr
        _ = _ := by ring
+
+/-- The logarithmically shifted line gives square-root conductor growth. -/
+theorem characterKernel_logarithmic_vertical_bound :
+    ∃ C : ℝ,0<C ∧ ∀{q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q) {s : ℂ}
+      (hs : s.re∈Icc (0:ℝ) 2) {X : ℝ},1≤X →
+      let H := (q:ℝ)*(|s.im|+2)
+      let δ := 1/(4+Real.log H)
+      X^(s.re-3)*‖gammaSmoothingIntegral (fun w => χ.LFunction (s-3+w)) X (3-s.re-δ)‖ ≤
+        C*Real.sqrt H*(1+Real.log H) := by
+
+  obtain ⟨C,hC,HC⟩ := characterKernel_logarithmic_vertical_decay
+  refine ⟨C,hC,?_⟩;intro q _ χ s hs X hX
+  let H := (q:ℝ)*(|s.im|+2)
+  have hH : 1≤H := one_le_mul_of_one_le_of_one_le (by exact_mod_cast (NeZero.one_le : 1≤q))
+    (by linarith [abs_nonneg s.im])
+  have hl := Real.log_nonneg hH
+  apply (HC χ hs hX).trans
+  apply mul_le_of_le_one_right (by change 0≤C*Real.sqrt H*(1+Real.log H);positivity)
+  exact (Real.rpow_le_rpow_of_exponent_le hX (show -(1/(4+Real.log H))≤0 from neg_nonpos.mpr (by positivity))).trans_eq (Real.rpow_zero _)
 
 end AnalyticNumberTheory.SieveMethods

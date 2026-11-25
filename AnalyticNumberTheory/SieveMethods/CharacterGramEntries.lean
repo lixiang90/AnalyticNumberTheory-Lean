@@ -64,4 +64,18 @@ theorem characterGramEntry_bound :
   rw [norm_mul,Complex.norm_cpow_eq_rpow_re_of_pos (zero_lt_one.trans_le hX)]
   convert h ψ hs hX using 1 <;> simp [sub_eq_add_neg]
 
+/-- Uniform off-diagonal part and rapidly decreasing principal-character part
+of the Gram kernel. -/
+theorem characterGramEntry_decay :
+    ∃ C : ℝ,0<C ∧ ∀{q : ℕ} [NeZero q] (ψ : DirichletCharacter ℂ q) {X : ℝ},1≤X →
+    ∀{u v : ℂ}, (u+conj v).re∈Icc (0:ℝ) 2 →
+    let H := (q:ℝ)*(|u.im-v.im|+2)
+    ‖(X:ℂ)^(u+conj v-3)*smoothedCharacterKernel ψ X (u+conj v)‖ ≤
+      C*(Real.sqrt H*(1+Real.log H)*X^(-(1/(4+Real.log H)))+(if ψ=1 then X/(1+|u.im-v.im|)^4 else 0)) := by
+  obtain ⟨C,hC,h⟩ := smoothedCharacterKernel_decay
+  refine ⟨C,hC,?_⟩
+  intro q _ ψ X hX u v hs
+  rw [norm_mul,Complex.norm_cpow_eq_rpow_re_of_pos (zero_lt_one.trans_le hX)]
+  convert h ψ hs hX using 1 <;> simp [sub_eq_add_neg]
+
 end AnalyticNumberTheory.SieveMethods

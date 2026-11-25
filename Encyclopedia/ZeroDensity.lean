@@ -124,15 +124,38 @@ tag := "huxley-zeta-density"
 file := "huxley"
 %%%
 
-{index}[Huxley 零密度定理]设 $`1/2\le\sigma\le1`、$`T\ge2`。以 $`N^*(\sigma,T)` 计入 $`\sigma\le\Re\rho<1`、$`0<\Im\rho\le T` 的 ζ 零点，每个零点计其重数。Huxley 的经典估计为
+{index}[Huxley 零密度定理]设 $`T\ge2`。记 $`N^*(\sigma,T)` 为满足 $`\sigma\le\Re\rho<1`、$`0<\Im\rho\le T` 的黎曼 ζ 零点数，每个零点计其重数。对 $`3/4\le\sigma\le1` 有
 
-$$`N^*(\sigma,T)\ll T^{12(1-\sigma)/5}(\log T)^{28}.`
+$$`N^*(\sigma,T)\ll T^{p(\sigma)}(\log T)^{23},\qquad
+p(\sigma)=\frac{(5\sigma-3)(1-\sigma)}{\sigma^2+\sigma-1}.`
+
+二十三次对数幂也给出经典陈述中的二十八次形式。对 $`1/2\le\sigma<3/4`，可以接上{ref "ingham-zeta-density"}[Ingham 的估计]，使用指数 $`3(1-\sigma)/(2-\sigma)`。两段在 $`\sigma=3/4` 都取值 $`3/5`。
+
+{docstring huxley_rational_zeroDensity_with_multiplicity}
+
+{docstring huxley_rational_zeroDensity_classical}
+
+{docstring ingham_huxley_zeroDensity_distinct}
+
+{index}[Huxley 检测器的截断长度]在高度区间 $`[T,2T]`，记 $`d=\sigma^2+\sigma-1`。取 Möbius 多项式长度 $`X`、Riesz 平滑长度 $`Y` 为
+
+$$`X=\left\lfloor T^{(2\sigma-1)/(2d)}\right\rfloor,\qquad
+Y=T^{(5\sigma-3)/(2d)}.`
+
+有限多项式的大值估计给出 $`Y^{2(1-\sigma)}` 与 $`TX^{4-6\sigma}`。临界线积分由 ζ 的四阶矩和 Möbius 多项式的大值分布控制。取上述参数后，四个高度幂中有三个恰好等于 $`p(\sigma)`，余者较小或相等。将高度区间相加，对不同零点得到二十二次对数幂，计入重数后再增加一次。
+
+{docstring huxley_rational_cutoff_conditions}
+
+在 $`3/4<\sigma<1` 内，有理指数严格小于一致的线性指数 $`12(1-\sigma)/5`。例如在 $`\sigma=9/10`，有理指数为 $`15/71`，线性指数为 $`6/25`。两者的差由恒等式给出
+
+$$`\frac{12}{5}(1-\sigma)-p(\sigma)
+=\frac{(1-\sigma)(3\sigma-1)(4\sigma-3)}{5(\sigma^2+\sigma-1)}.`
+
+{docstring huxley_uniform_sub_rational}
+
+对整个 $`1/2\le\sigma\le1`，可统一写成 $`N^*(\sigma,T)\ll T^{12(1-\sigma)/5}(\log T)^{28}`。
 
 {docstring huxley_zeroDensity_classical}
-
-高度幂次在 $`\sigma=3/4` 时和{ref "ingham-zeta-density"}[Ingham 的估计]相同，都是 $`3/5`。在 $`3/4<\sigma<1` 时 Huxley 的幂次更小。例如当 $`\sigma=9/10` 时，两者分别为 $`6/25` 与 $`3/11`。
-
-在 $`[T,2T]` 上对 $`\sigma\ge3/4` 取平滑长度 $`Y=T^{6/5}`、Möbius 多项式长度 $`X=\lfloor T^{1/2+6(1-\sigma)/5}\rfloor`。有限多项式由大值估计控制，移到临界线的积分由 ζ 的四阶矩及 Möbius 多项式的大值分布控制。将各段相加后，库中的证明对不同零点给出二十二次对数幂，计入重数给出二十三次。两种形式均可直接引用。
 
 {docstring huxley_zeroDensity_distinct}
 

@@ -19,7 +19,7 @@ namespace AnalyticNumberTheory.SieveMethods
 set_option maxHeartbeats 1000000 in
 /-- Sparse sampling bound for the smoothly weighted vectors, with any finite choice
 of frequencies and complex points in a strip of width one. -/
-theorem sparse_character_gram_sampling :
+theorem sparse_character_gram_decay :
     ∃C : ℝ,0<C ∧ ∀{ι : Type*} {F : Finset ι} {f : ι→ℕ→ℂ} {D L : ℕ},
     CharacterCorrelationFamily F f D → 1≤D → ∀(S : ι→Finset ℂ) {K X : ℝ},0≤K → 1≤X →
     (∀i∈F,∀z∈S i,0≤z.im ∧ z.im<L) →
@@ -28,13 +28,13 @@ theorem sparse_character_gram_sampling :
     ∀(J : Finset ℕ) (a : ℕ→ℂ),
     let H := (D:ℝ)*((L:ℝ)+2)
     (∑i∈F,∑z∈S i,‖∑n∈J,a n*characterGramVector X (f i) (u z) n‖^2) ≤
-      C*(K*X+(∑i∈F,((S i).card:ℝ))*Real.sqrt H*(1+Real.log H))*∑n∈J,‖a n‖^2 := by
-  obtain ⟨B,hB,HB⟩ := characterGramEntry_bound
+      C*(K*X+(∑i∈F,((S i).card:ℝ))*Real.sqrt H*(1+Real.log H)*X^(-(1/(4+Real.log H))))*∑n∈J,‖a n‖^2 := by
+  obtain ⟨B,hB,HB⟩ := characterGramEntry_decay
   refine ⟨B*(1+2*π),by positivity,?_⟩
   intro ι F f D L hfamily hD S K X hK hX him hcount u hu J a
   let W := F.sigma S
   let H := (D:ℝ)*((L:ℝ)+2)
-  let E := Real.sqrt H*(1+Real.log H)
+  let E := Real.sqrt H*(1+Real.log H)*X^(-(1/(4+Real.log H)))
   let R := ∑i∈F,((S i).card:ℝ)
   have hH : 1≤H := by
     dsimp [H];exact one_le_mul_of_one_le_of_one_le (by exact_mod_cast hD) (by linarith [Nat.cast_nonneg (α:=ℝ) L])
@@ -67,9 +67,15 @@ theorem sparse_character_gram_sampling :
     have hH' : 1≤H' := one_le_mul_of_one_le_of_one_le (by exact_mod_cast hq : (1:ℝ)≤q)
       (by linarith [abs_nonneg (p.2.im-r.2.im)])
     have hcomp : H'≤H := by dsimp [H',H];gcongr <;> exact_mod_cast hqD
-    have hmain : Real.sqrt H'*(1+Real.log H')≤E := mul_le_mul (Real.sqrt_le_sqrt hcomp)
+    have hcoeff : Real.sqrt H'*(1+Real.log H')≤Real.sqrt H*(1+Real.log H) := mul_le_mul (Real.sqrt_le_sqrt hcomp)
       (add_le_add_right (Real.log_le_log (zero_lt_one.trans_le hH') hcomp) 1)
       (by linarith [Real.log_nonneg hH']) (Real.sqrt_nonneg _)
+    have hshift : -(1/(4+Real.log H'))≤ -(1/(4+Real.log H)) := by
+      apply neg_le_neg;apply one_div_le_one_div_of_le (by linarith [Real.log_nonneg hH'])
+      linarith [Real.log_le_log (zero_lt_one.trans_le hH') hcomp]
+    have hmain : Real.sqrt H'*(1+Real.log H')*X^(-(1/(4+Real.log H')))≤E :=
+      mul_le_mul hcoeff (Real.rpow_le_rpow_of_exponent_le hX hshift)
+        (Real.rpow_nonneg hX'.le _) (by linarith [Real.log_nonneg hH,Real.sqrt_nonneg H,mul_nonneg (Real.sqrt_nonneg H) (Real.log_nonneg hH)])
     apply mul_le_mul_of_nonneg_left (add_le_add hmain ?_) hB.le
     by_cases h : ψ=1
     · simp [h,hdiag h]
@@ -94,9 +100,37 @@ theorem sparse_character_gram_sampling :
   rw [show W=F.sigma S by rfl,Finset.sum_sigma] at h
   apply h.trans
   apply mul_le_mul_of_nonneg_right _ (sum_nonneg fun _ _ => sq_nonneg _)
-  change B*(R*E+2*π*K*X) ≤ B*(1+2*π)*(K*X+R*Real.sqrt H*(1+Real.log H))
-  rw [show R*Real.sqrt H*(1+Real.log H)=R*E by dsimp [E];ring]
+  change B*(R*E+2*π*K*X) ≤ B*(1+2*π)*(K*X+R*Real.sqrt H*(1+Real.log H)*X^(-(1/(4+Real.log H))))
+  rw [show R*Real.sqrt H*(1+Real.log H)*X^(-(1/(4+Real.log H)))=R*E by dsimp [E];ring]
   nlinarith only [mul_nonneg (mul_nonneg hB.le hK) hX'.le,
     mul_nonneg (mul_nonneg (mul_nonneg hB.le Real.pi_pos.le) hR) hE]
+
+set_option maxHeartbeats 1000000 in
+/-- Sparse sampling bound for the smoothly weighted vectors, with any finite choice
+of frequencies and complex points in a strip of width one. -/
+theorem sparse_character_gram_sampling :
+    ∃C : ℝ,0<C ∧ ∀{ι : Type*} {F : Finset ι} {f : ι→ℕ→ℂ} {D L : ℕ},
+    CharacterCorrelationFamily F f D → 1≤D → ∀(S : ι→Finset ℂ) {K X : ℝ},0≤K → 1≤X →
+    (∀i∈F,∀z∈S i,0≤z.im ∧ z.im<L) →
+    (∀i∈F,∀j<L,(((S i).filter fun z => ⌊z.im⌋₊=j).card:ℝ)≤K) →
+    ∀(u : ℂ→ℂ),(∀i∈F,∀z∈S i,(u z).re∈Icc (0:ℝ) 1 ∧ (u z).im=z.im) →
+    ∀(J : Finset ℕ) (a : ℕ→ℂ),
+    let H := (D:ℝ)*((L:ℝ)+2)
+    (∑i∈F,∑z∈S i,‖∑n∈J,a n*characterGramVector X (f i) (u z) n‖^2) ≤
+      C*(K*X+(∑i∈F,((S i).card:ℝ))*Real.sqrt H*(1+Real.log H))*∑n∈J,‖a n‖^2 := by
+
+  obtain ⟨C,hC,HC⟩ := sparse_character_gram_decay
+  refine ⟨C,hC,?_⟩;intro ι F f D L hF hD S K X hK hX him hc u hu J a
+  have h := HC hF hD S hK hX him hc u hu J a
+  let H := (D:ℝ)*((L:ℝ)+2)
+  have hH : 1≤H := one_le_mul_of_one_le_of_one_le (by exact_mod_cast hD) (by linarith [Nat.cast_nonneg (α:=ℝ) L])
+  have hl := Real.log_nonneg hH
+  have hdec : X^(-(1/(4+Real.log H)))≤1 :=
+    (Real.rpow_le_rpow_of_exponent_le hX (neg_nonpos.mpr (by positivity))).trans_eq (Real.rpow_zero _)
+  have hr : 0≤∑i∈F,((S i).card:ℝ) := sum_nonneg fun _ _ => Nat.cast_nonneg _
+  apply h.trans
+  apply mul_le_mul_of_nonneg_right _ (sum_nonneg fun _ _ => sq_nonneg _)
+  apply mul_le_mul_of_nonneg_left (add_le_add le_rfl _) hC.le
+  exact mul_le_of_le_one_right (mul_nonneg (mul_nonneg hr (Real.sqrt_nonneg H)) (by linarith)) hdec
 
 end AnalyticNumberTheory.SieveMethods

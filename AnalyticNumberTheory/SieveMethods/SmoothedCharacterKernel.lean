@@ -76,13 +76,13 @@ theorem smoothedCharacterKernel_eq {q : ℕ} [NeZero q] (χ : DirichletCharacter
 
 /-- The kernel at height difference Im s has square-root conductor error. The
 rapidly decaying extra term occurs exactly for the principal character. -/
-theorem smoothedCharacterKernel_bound :
+theorem smoothedCharacterKernel_decay :
     ∃ C : ℝ,0<C ∧ ∀{q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q) {s : ℂ}
       (hs : s.re∈Icc (0:ℝ) 2) {X : ℝ},1≤X →
       let H := (q:ℝ)*(|s.im|+2)
       X^(s.re-3)*‖smoothedCharacterKernel χ X s‖ ≤
-        C*(Real.sqrt H*(1+Real.log H) + (if χ=1 then X/(1+|s.im|)^4 else 0)) := by
-  obtain ⟨A,hA,HA⟩ := characterKernel_logarithmic_vertical_bound
+        C*(Real.sqrt H*(1+Real.log H)*X^(-(1/(4+Real.log H))) + (if χ=1 then X/(1+|s.im|)^4 else 0)) := by
+  obtain ⟨A,hA,HA⟩ := characterKernel_logarithmic_vertical_decay
   obtain ⟨B,hB,HB⟩ := norm_Gamma_positive_strip_weight (a:=(2:ℝ)) (b:=4) (by norm_num) (by norm_num) 4
   refine ⟨A+B,by positivity,?_⟩
   intro q _ χ s hs X hX
@@ -115,12 +115,32 @@ theorem smoothedCharacterKernel_bound :
     · simp only [if_neg h] at hp ⊢
       rw [le_antisymm hp (norm_nonneg _)];simp
   rw [smoothedCharacterKernel_eq χ hX' hd hd' hs]
-  change _*‖_+r‖ ≤ (A+B)*(Real.sqrt H*(1+Real.log H)+_)
+  change _*‖_+r‖ ≤ (A+B)*(Real.sqrt H*(1+Real.log H)*X^(-δ)+_)
   apply (mul_le_mul_of_nonneg_left (norm_add_le _ _) (Real.rpow_nonneg hX'.le _)).trans
   rw [mul_add]
   apply (add_le_add hi hres).trans
-  have ha : 0≤Real.sqrt H*(1+Real.log H) := by positivity
+  have ha : 0≤Real.sqrt H*(1+Real.log H)*X^(-δ) := by positivity
   have hb : 0≤(if χ=1 then X/(1+|s.im|)^4 else 0) := by split_ifs <;> positivity
   nlinarith only [mul_nonneg hB.le ha,mul_nonneg hA.le hb]
+
+/-- The kernel at height difference Im s has square-root conductor error. The
+rapidly decaying extra term occurs exactly for the principal character. -/
+theorem smoothedCharacterKernel_bound :
+    ∃ C : ℝ,0<C ∧ ∀{q : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q) {s : ℂ}
+      (hs : s.re∈Icc (0:ℝ) 2) {X : ℝ},1≤X →
+      let H := (q:ℝ)*(|s.im|+2)
+      X^(s.re-3)*‖smoothedCharacterKernel χ X s‖ ≤
+        C*(Real.sqrt H*(1+Real.log H) + (if χ=1 then X/(1+|s.im|)^4 else 0)) := by
+
+  obtain ⟨C,hC,HC⟩ := smoothedCharacterKernel_decay
+  refine ⟨C,hC,?_⟩;intro q _ χ s hs X hX
+  let H := (q:ℝ)*(|s.im|+2)
+  have hH : 1≤H := one_le_mul_of_one_le_of_one_le (by exact_mod_cast (NeZero.one_le : 1≤q))
+    (by linarith [abs_nonneg s.im])
+  have hl := Real.log_nonneg hH
+  apply (HC χ hs hX).trans
+  apply mul_le_mul_of_nonneg_left (add_le_add _ le_rfl) hC.le
+  apply mul_le_of_le_one_right (by change 0≤Real.sqrt H*(1+Real.log H);positivity)
+  exact (Real.rpow_le_rpow_of_exponent_le hX (show -(1/(4+Real.log H))≤0 from neg_nonpos.mpr (by positivity))).trans_eq (Real.rpow_zero _)
 
 end AnalyticNumberTheory.SieveMethods

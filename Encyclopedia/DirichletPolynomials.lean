@@ -1,6 +1,7 @@
 import AnalyticNumberTheory.SieveMethods.DirichletPolynomials
 import AnalyticNumberTheory.SieveMethods.HalaszMontgomery
 import AnalyticNumberTheory.SieveMethods.SeparatedMeanValues
+import AnalyticNumberTheory.SieveMethods.HuxleyCharacterLargeValues
 import VersoManual
 
 open Verso.Genre Manual
@@ -26,3 +27,26 @@ $$`R V^2\le\left(\sum_{n=1}^N |a_n|^2\right)\bigl(N+(R-1)B\bigr).`
 对任意间距至少为 $`\delta>0` 的实频率 $`x_j`，把 $`\left|\sum_j c_je^{itx_j}\right|^2` 在区间 $`[a,b]` 上积分。从中减去对角项 $`(b-a)\sum_j|c_j|^2`，差的绝对值至多为 $`2\pi\delta^{-1}\sum_j|c_j|^2`。证明在两个端点各使用一次 Hilbert 不等式。
 
 {docstring AnalyticNumberTheory.SieveMethods.separated_frequency_mean_square}
+
+# 特征族中 Dirichlet 多项式的大值
+%%%
+tag := "huxley-character-large-values"
+file := "huxley-character-large-values"
+%%%
+
+{index}[Huxley 大值估计]设 $`P_\chi(s)=\sum_{n=1}^N a_n\chi(n)n^{-s}`。在半平面 $`\Re s\ge\sigma_0` 中，从长度 $`T\ge1` 的闭高度区间取样。对每个特征 $`\chi`，要求其不同样本的纵坐标相距至少 $`\delta>0`。记 $`R` 为各特征样本数之和，$`G=\sum_{n=1}^N |a_n|^2n^{-2\sigma_0}`。
+
+对模 $`q` 的全体特征取 $`D=q`，对导子不超过 $`Q` 的全体本原特征取 $`D=Q^2`。若每个样本都满足 $`|P_\chi(s)|\ge V>0`，且 $`V^2\ge c\sqrt{3D}(1+\log(3D))^2G`，则
+
+$$`R\;\ll\;(1+\delta^{-1})\left(\frac{NG}{V^2}+
+\frac{NDT\,G^3}{V^6}\bigl(1+\log(D(T+3))\bigr)^4\right).`
+
+阈值常数 $`c` 和上界的隐常数对两个特征族均为绝对常数。估计覆盖从 $`1` 到 $`N` 的所有系数。高度区间的起点和能量线 $`\sigma_0` 可以任意平移。
+
+{docstring HalfPlaneCharacterLargeValues}
+
+{docstring huxley_character_large_values}
+
+证明先在 $`M\le n\le2M` 上对特征相关核移线。设高度窗口长为 $`W`，$`H=D(W+2)`。移线产生 $`M^{-1/(4+\log H)}`，对 $`M=1,2,4,\ldots` 求和至多损失一个 $`1+\log H` 因子。用带权 Cauchy–Schwarz 合并各块，可把系数能量精确加回 $`G`。最后把高度区间切成较短的窗口，使各窗口中与样本数成正比的项至多为该窗口样本数乘以 $`V^2/2`。这一步给出上界中的 $`V^{-6}` 项。
+
+{docstring full_character_sampling}

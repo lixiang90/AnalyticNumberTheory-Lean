@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradovDensityMethod
 import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradovPrimeCounting
 import VersoManual
 
@@ -46,3 +47,68 @@ tag := "maximal-endpoints"
 对素数计数函数作分部求和，主项变成 $`\mathrm{Li}(y)/\varphi(q)`，其中 $`\mathrm{Li}(y)=\int_2^y dt/\log t`。此时截点的范围是 $`2\le y\le x`。
 
 {docstring bombieriVinogradov_piAP}
+
+
+# 由零密度估计控制显式公式中的零点和
+%%%
+tag := "primitive-family-zero-weights"
+file := "primitive-family-zero-weights"
+%%%
+
+{index}[加权零点和]设 $`Q\ge1`、$`T,x\ge2`，并记 $`H=Q^2T`。对每个导子不超过 $`Q` 的原始特征，把开临界带中 $`|\Im\rho|\le T` 的每个零点按重数计入。有
+
+$$`\sum_{q\le Q}\sum_{\chi\bmod q}^{*}\ \sum_{\rho=\beta+i\gamma}x^\beta
+\ll \bigl(\sqrt{x}\,H+xH^{1/3}\bigr)\log x\,(\log(QT))^8.`
+
+{docstring primitive_family_zero_power_sum}
+
+当 $`\beta\le1/2` 时，每个权重至多是 $`\sqrt{x}`，可以直接使用族的零点总数界。对右半带，在实部方向作分部求和，得到含有尾计数 $`N(\sigma,T)` 的积分。{ref "primitive-family-ingham-density"}[Ingham 估计]的指数不超过 $`(5-4\sigma)/3`。乘上 $`x^\sigma` 后，上界的对数是 $`\sigma` 的一次函数，所以最大值出现在 $`1/2` 或 $`1`。这两个端点分别给出 $`\sqrt{x}H` 和 $`xH^{1/3}`。
+
+{docstring AnalyticNumberTheory.AnalyticTools.weighted_rpow_sum_le_of_tail}
+
+{docstring density_weight_affine_le}
+
+显式公式给虚部 $`\gamma` 的零点附上 $`1/(1+|\gamma|)` 的权重。把高度分成 $`1+|\gamma|\asymp 2^j` 的区间后，零点和估计中的 $`T` 项每层贡献一个常数，$`T^{1/3}` 项则给出收敛的几何级数。这样得到对所有 $`T\ge1` 成立的加权界，包括虚部为零的零点。
+
+{docstring primitive_family_zero_reciprocal_sum}
+
+取 $`T=\sqrt{x}`，设 $`1\le Q\le\sqrt{x}`、$`x\ge4`。导子不超过 $`2Q` 的原始特征族满足
+
+$$`\sum_{q\le2Q}\sum_{\chi\bmod q}^{*}\sum_{|\gamma|\le\sqrt{x}}\frac{x^\beta}{1+|\gamma|}
+\ll \sqrt{x}\,Q^2(\log x)^{10}+xQ^{2/3}(\log x)^9.`
+
+{docstring primitive_dyadic_zero_reciprocal_sum}
+
+# 从单个特征的显式公式到导子平均
+%%%
+tag := "density-mean-character-sums"
+file := "density-mean-character-sums"
+%%%
+
+设 $`M_\chi(x)=\sup_{0\le y\le x}|\sum_{n\le y}\Lambda(n)\chi(n)|`。零密度证法所需的单特征输入是以下截断估计。对原始特征 $`\chi\bmod q`，其中 $`2\le q\le2\sqrt{x}`，要求
+
+$$`M_\chi(x)\ll \sqrt{x}\,(1+\log(qx))^2+
+ \sum_{|\gamma|\le\sqrt{x}}\frac{x^\beta}{1+|\gamma|}.`
+
+{docstring PrimitivePsiExplicitBound}
+
+在此前提下，对 $`Q<q\le R\le2Q` 求和，$`1/\varphi(q)` 的权与原始特征计数相配合，得到
+
+$$`\sum_{Q<q\le R}\frac1{\varphi(q)}\sum_{\chi\bmod q}^{*}M_\chi(x)
+\ll \sqrt{x}\,Q(\log x)^{11}+xQ^{-1/3}(\log x)^{10}.`
+
+{docstring primitive_dyadic_mean_of_explicit_bound}
+
+对 $`d<q\le D` 的各个二倍区间求和，第一项由最大的 $`D` 控制，第二项由最小的 $`d` 控制。这一步保留了上式的两个对数次数。
+
+{docstring primitive_large_conductor_mean_of_density}
+
+对给定的 $`A`，取 $`k=\max(0,\lceil A\rceil)`。Siegel–Walfisz 定理控制 $`q\le(\log x)^{3(k+10)}` 的小导子。若 $`D\le\sqrt{x}/(\log x)^{k+11}`，两个大导子项都至多是 $`O(x/(\log x)^A)`。下面的归约将这个估计接到算术级数中的 Bombieri–Vinogradov 定理。
+
+在小导子估计中，可以在每个特征上分别取截点上确界。对于 $`y\ge\sqrt{x}`，Siegel–Walfisz 定理中的导子对数幂加倍便覆盖原范围；更小的 $`y` 由初等 Chebyshev 界控制。
+
+{docstring sum_smallConductor_maximalPsiChar_le}
+
+{docstring primitive_density_maximal_log_saving}
+
+{docstring bombieriVinogradov_of_density_explicit}

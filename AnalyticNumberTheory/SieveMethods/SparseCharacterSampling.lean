@@ -52,15 +52,23 @@ private lemma norm_dyadicUnsmoothing {M n : ℕ} (hM : 1≤M) (hn : n∈Icc M (2
   ring
 
 set_option maxHeartbeats 700000 in
-/-- Sparse character sampling on dyadic coefficients, for any family with a common
-bound on the moduli of its pairwise character correlations. -/
-theorem sparse_character_bound_of_correlation :
+/-- Dyadic sparse sampling retaining the saving from the logarithmic shift.
+Any subset of a dyadic interval can serve as the frequency support. -/
+theorem sparse_character_dyadic_decay :
     ∃C : ℝ,0<C ∧ ∀{ι : Type*} {F : Finset ι} {f : ι→ℕ→ℂ} {D L : ℕ},1≤D →
-      CharacterCorrelationFamily F f D → SparseCharacterBound F f L ((D:ℝ)*((L:ℝ)+2)) C := by
-  obtain ⟨A,hA,HA⟩ := sparse_character_gram_sampling
+      CharacterCorrelationFamily F f D → ∀(S : ι→Finset ℂ) {K : ℝ},0≤K →
+      (∀i∈F,∀z∈S i,0≤z.im ∧ z.im<L) →
+      (∀i∈F,∀j<L,(((S i).filter fun z => ⌊z.im⌋₊=j).card:ℝ)≤K) →
+      ∀(u : ℂ→ℂ),(∀i∈F,∀z∈S i,(u z).re∈Set.Icc (0:ℝ) 1 ∧ (u z).im=z.im) →
+      ∀{M : ℕ},1≤M → ∀J : Finset ℕ,J⊆Icc M (2*M) → ∀a : ℕ→ℂ,
+      let H := (D:ℝ)*((L:ℝ)+2)
+      let R := ∑i∈F,((S i).card:ℝ)
+      (∑i∈F,∑z∈S i,‖∑n∈J,a n*f i n*(n:ℂ)^(-u z)‖^2) ≤
+        C*(K*M+R*Real.sqrt H*(1+Real.log H)*(M:ℝ)^(-(1/(4+Real.log H))))*(∑n∈J,‖a n‖^2) := by
+  obtain ⟨A,hA,HA⟩ := sparse_character_gram_decay
   refine ⟨A*(Real.exp 1)^2,by positivity,?_⟩
-  intro ι F f D L hD hF S K hK him hcount u hu M hM a
-  let J := Icc M (2*M)
+  intro ι F f D L hD hF S K hK him hcount u hu M hM J hJ a
+  dsimp only
   let b (n:ℕ) := a n*dyadicUnsmoothing M n
   have hm : 1≤(M:ℝ) := by exact_mod_cast hM
   have hs (p) (hp:p∈F) (z) (hz:z∈S p) :
@@ -68,25 +76,47 @@ theorem sparse_character_bound_of_correlation :
     have ht : ∑n∈J,b n*characterGramVector M (f p) (u z) n =
         (M:ℂ)^(u z)*∑n∈J,a n*f p n*(n:ℂ)^(-u z) := by
       rw [mul_sum];apply sum_congr rfl;intro n hn
-      dsimp only [b];rw [mul_assoc,unsmoothed_term hM hn];ring
+      dsimp only [b];rw [mul_assoc,unsmoothed_term hM (hJ hn)];ring
     rw [ht,norm_mul,Complex.norm_natCast_cpow_of_pos (by omega : 0<M),mul_pow]
     exact le_mul_of_one_le_left (sq_nonneg _) (one_le_pow₀ (Real.one_le_rpow hm (hu p hp z hz).1.1))
   have he : ∑n∈J,‖b n‖^2≤(Real.exp 1)^2*∑n∈J,‖a n‖^2 := by
     rw [mul_sum];apply sum_le_sum;intro n hn
     dsimp only [b];rw [norm_mul,mul_pow,mul_comm]
-    gcongr;exact norm_dyadicUnsmoothing hM hn
+    gcongr;exact norm_dyadicUnsmoothing hM (hJ hn)
   let H := (D:ℝ)*((L:ℝ)+2)
   have hH : 1≤H := one_le_mul_of_one_le_of_one_le (by exact_mod_cast hD : (1:ℝ)≤D)
     (by linarith [Nat.cast_nonneg (α:=ℝ) L])
   let R := ∑i∈F,((S i).card:ℝ)
   have hR : 0≤R := sum_nonneg fun _ _ => Nat.cast_nonneg _
-  let B := K*M+R*Real.sqrt H*(1+Real.log H)
+  let B := K*M+R*Real.sqrt H*(1+Real.log H)*(M:ℝ)^(-(1/(4+Real.log H)))
   have hB : 0≤B := add_nonneg (mul_nonneg hK (Nat.cast_nonneg _))
-    (mul_nonneg (mul_nonneg hR (Real.sqrt_nonneg H)) (by linarith [Real.log_nonneg hH]))
+    (mul_nonneg (mul_nonneg (mul_nonneg hR (Real.sqrt_nonneg H)) (by linarith [Real.log_nonneg hH])) (Real.rpow_nonneg (Nat.cast_nonneg M) _))
   have h := HA hF hD S hK hm him hcount u hu J b
   apply (sum_le_sum (fun p hp => sum_le_sum (hs p hp))).trans (h.trans ?_)
   change A*B*_ ≤ A*(Real.exp 1)^2*B*_
   exact (mul_le_mul_of_nonneg_left he (mul_nonneg hA.le hB)).trans_eq (by ring)
+
+set_option maxHeartbeats 700000 in
+/-- Sparse character sampling on dyadic coefficients, for any family with a common
+bound on the moduli of its pairwise character correlations. -/
+theorem sparse_character_bound_of_correlation :
+    ∃C : ℝ,0<C ∧ ∀{ι : Type*} {F : Finset ι} {f : ι→ℕ→ℂ} {D L : ℕ},1≤D →
+      CharacterCorrelationFamily F f D → SparseCharacterBound F f L ((D:ℝ)*((L:ℝ)+2)) C := by
+
+  obtain ⟨C,hC,HC⟩ := sparse_character_dyadic_decay
+  refine ⟨C,hC,?_⟩
+  intro ι F f D L hD hF S K hK him hc u hu M hM a
+  have hh := HC hD hF S hK him hc u hu hM (Icc M (2*M)) (fun _ h => h) a
+  let H := (D:ℝ)*((L:ℝ)+2)
+  have hH : 1≤H := one_le_mul_of_one_le_of_one_le (by exact_mod_cast hD) (by linarith [Nat.cast_nonneg (α:=ℝ) L])
+  have hl := Real.log_nonneg hH
+  have hdec : (M:ℝ)^(-(1/(4+Real.log H)))≤1 :=
+    (Real.rpow_le_rpow_of_exponent_le (by exact_mod_cast hM : (1:ℝ)≤M) (neg_nonpos.mpr (by positivity))).trans_eq (Real.rpow_zero _)
+  have hr : 0≤∑i∈F,((S i).card:ℝ) := sum_nonneg fun _ _ => Nat.cast_nonneg _
+  apply hh.trans
+  apply mul_le_mul_of_nonneg_right _ (sum_nonneg fun _ _ => sq_nonneg _)
+  apply mul_le_mul_of_nonneg_left (add_le_add le_rfl _) hC.le
+  exact mul_le_of_le_one_right (mul_nonneg (mul_nonneg hr (Real.sqrt_nonneg H)) (by linarith)) hdec
 
 /-- The sparse dyadic mean square with a single absolute constant for every fixed
 modulus and every cutoff Q in the family of primitive characters. -/

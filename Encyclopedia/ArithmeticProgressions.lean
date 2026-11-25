@@ -73,3 +73,32 @@ $$`\psi(y,\chi)=-\sum_{|\gamma|\le\sqrt{x}}m(\rho)\frac{y^\rho-1}{\rho}
 零点取自 $`0<\Re\rho<1`。在 $`y=1` 处，零点权都为零。一般截点由半整数移来，核对 $`y` 的导数是 $`y^{\rho-1}`，模至多为一。再用单位高度区间中的零点数估计，把避开零点所选的高度移至 $`\sqrt{x}`。
 
 {docstring nonprincipal_psi_signed_explicit_formula}
+
+# 可选截断高度的显式公式
+%%%
+tag := "explicit-formula-height"
+file := "explicit-formula-height"
+%%%
+
+{index}[截断高度]取一个非主 Dirichlet 特征 $`\chi\bmod q`，并选定 $`0<T\le\sqrt{x}`。对每个实数端点 $`1\le y\le x`，都有
+
+$$`\psi(y,\chi)
+=-\sum_{\substack{L(\rho,\chi)=0,\ 0<\Re\rho<1\\ |\Im\rho|\le T}}
+m(\rho)\frac{y^\rho-1}{\rho}
++O\!\left(\frac{x}{T}(1+\log(qx))^2\right).`
+
+隐常数与模数、特征、端点和高度都无关。边界 $`|\Im\rho|=T` 上的零点计入和中。取 $`T=\sqrt{x}` 即得{ref "character-truncated-explicit-formula"}[平方根高度的公式]。取较小的 $`T` 会增大截断误差，同时缩短需要考察的零点区间。
+
+{docstring nonprincipal_psi_signed_explicit_at_height}
+
+当 $`T\ge8` 时，在半整数处使用 Perron 公式，并在 $`[T-3/4,T-1/4]` 中选取避开零点的积分高度。最后移回 $`T` 时，只有宽度至多为一的水平带内的零点会改变留数和。
+
+{docstring perron_halfInteger_height_parameters}
+
+{docstring primitive_signed_explicit_at_height_of_perron}
+
+当 $`0<T\le8` 时，实部在 $`(0,1)`、虚部在 $`[-8,8]` 内的零点个数可由 Jensen 估计控制。正则化权在 $`y=1` 时为零，因此同一公式包括左端点。对非本原特征，诱导保持临界带内的零点及其重数，特征和的差来自整除模数的素数幂。
+
+{docstring nonprincipal_psi_signed_explicit_small_height}
+
+{docstring primitive_signed_explicit_height_of_perron}

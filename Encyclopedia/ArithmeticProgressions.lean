@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.PageProgressions
-import AnalyticNumberTheory.PrimeDistribution.SignedCharacterExplicitFormula
+import AnalyticNumberTheory.PrimeDistribution.RightmostCharacterZeros
 import AnalyticNumberTheory.PrimeDistribution.SiegelWalfisz
 import VersoManual
 
@@ -102,3 +102,32 @@ m(\rho)\frac{y^\rho-1}{\rho}
 {docstring nonprincipal_psi_signed_explicit_small_height}
 
 {docstring primitive_signed_explicit_height_of_perron}
+
+# 显式公式中靠近一的零点
+%%%
+tag := "rightmost-character-zeros"
+file := "rightmost-character-zeros"
+%%%
+
+{index}[例外实零点的显式项]对非主特征 $`\chi`，在{ref "explicit-formula-height"}[可选高度的显式公式]中只保留 $`\Re\rho\ge\sigma` 的零点。记剩下的复数和为 $`R_\chi(y;\sigma,T)`，记 $`N_\chi(T)` 为临界带内虚部绝对值至多 $`T` 的零点总数，两者都计重数。对 $`1\le y\le x`、$`0<T\le\sqrt{x}` 和任意实数 $`\sigma`，有
+
+$$`\left\lvert\psi(y,\chi)+R_\chi(y;\sigma,T)\right\rvert
+\le C\,\frac{x}{T}(1+\log(qx))^2+N_\chi(T)(\log x)x^\sigma.`
+
+被删去的每个零点 $`\rho` 满足 $`\Re\rho<\sigma`。从积分 $`\int_0^{\log y}e^{\rho v}\,dv` 可得其权的模至多为 $`(\log y)y^{\Re\rho}`，即使零点非常接近原点也适用。
+
+{docstring rightmostPerronZeroSum}
+
+{docstring norm_characterPerronZeroSum_sub_rightmost}
+
+{docstring nonprincipal_psi_rightmost_explicit}
+
+若 $`\sigma\ge 1-c/\log(q(T+2))`，经典无零区域表明保留的零点集至多含有一个元素。只要它非空，特征就是实特征，唯一的零点 $`\beta` 是单实零点。此时 $`R_\chi(y;\sigma,T)=(y^\beta-1)/\beta`，同一个 $`\beta` 适用于所有端点。
+
+{docstring nonprincipalDensityFinset_zeroFree_cases}
+
+{docstring rightmostPerronZeroSum_of_singleton}
+
+在整个范围 $`q\le Q` 内取公共边界 $`1-c/\log((Q+2)(T+2))`，{ref "page-prime-progressions"}[Page 定理]还保证：至多只有一个本原特征所诱导的特征能留下零点。这个本原特征的选择与 $`T` 无关。
+
+{docstring page_nonprincipalDensityFinset_empty}

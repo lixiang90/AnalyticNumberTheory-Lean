@@ -21,7 +21,8 @@ noncomputable def barnesDoubleZeta (a b s : ℂ) : ℂ := ∑' p : ℕ×ℕ,(bar
 theorem barnesVector_re_pos {a b : ℂ} (ha : 0<a.re) (hb : 0<b.re) (p : ℕ×ℕ) :
     0<(barnesVector a b p).re := by simp [barnesVector,Complex.mul_re]; positivity
 
-private theorem summable_barnes_real {a b u : ℝ} (ha : 0<a) (hb : 0<b) (hu : 2<u) :
+/-- Convergence of the positive real majorant for a rank-two Barnes lattice. -/
+theorem summable_barnes_real {a b u : ℝ} (ha : 0<a) (hb : 0<b) (hu : 2<u) :
     Summable fun p : ℕ×ℕ => (a+b*p.1+p.2)^(-u) := by
   let c := min 1 (min a b)
   have hc : 0<c := lt_min zero_lt_one (lt_min ha hb)

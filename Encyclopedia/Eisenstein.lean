@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.ModularAndPartitions.EisensteinHankel
+import AnalyticNumberTheory.ModularAndPartitions.EisensteinTiltedContour
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinConvergence
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinConeIntegral
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinConeContinuation
@@ -106,3 +108,21 @@ $$`\Gamma(s)\mathcal C(z,s)=
 {docstring eisensteinConeSum_eq_barnes}
 
 {docstring eisensteinConeSum_gamma_eq_integral}
+
+# 所有复权的 Hankel 围道公式
+%%%
+tag := "eisenstein-hankel-contour"
+file := "hankel-contour"
+%%%
+
+在 $`\Re s>2` 时，按余数类的 Barnes 双重级数分解对整个上半平面成立。要把积分公式也推广至整个上半平面和所有复权，可把正实射线旋转为方向 $`\omega` 的射线。对于 $`c>0`、$`w=cz+d`，取
+
+$$`\omega=1-i\frac{1+|\Re w|}{\Im w}.`
+
+这样 $`\Re\omega>0` 且 $`\Re(w\omega)>0`，沿射线两个几何因子都衰减。Hankel 围道先沿割线一侧进入，在原点附近绕一圈，再沿另一侧返回。可以为全部 $`c` 个偏移量选用同一半径。所得围道积分给出周期差 $`w^{-s}G(\gamma z,s)-G(z,s)` 对任意 $`s\in\mathbb C` 的表示。在 $`\Re w>0` 的区域也可以沿正实轴使用普通 Hankel 围道。
+
+{docstring eisensteinConeSum_eq_barnes_upperHalfPlane}
+
+{docstring eisensteinPeriod_eq_hankel}
+
+{docstring eisensteinPeriod_eq_tiltedHankel}

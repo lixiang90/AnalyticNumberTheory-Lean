@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPrimeTripleAsymptotic
 import AnalyticNumberTheory.AdditiveNumberTheory.VinogradovThreePrimes
 import VersoManual
 
@@ -44,3 +45,22 @@ file := "goldbach"
 对奇数 $`N`，奇异级数的正下界使主项压过误差。扣掉来自真正素数幂 $`p^j`（$`j\ge 2`）以及素数二的贡献后，剩下的表示由三个奇素数组成。这样得到 Vinogradov 三素数定理，量词是“所有充分大的奇数”，三个素数可以重复。
 
 {docstring vinogradov_three_primes}
+
+# 三个素数的无权表示数
+%%%
+tag := "goldbach-unweighted-ternary"
+file := "ordered-prime-triples"
+%%%
+
+令 $`T(N)` 为满足 $`p_1+p_2+p_3=N` 的有序奇素数三元组数，允许素数重复。将对数权去掉后得到
+
+$$`T(N)=\frac{\mathfrak S_3(N)N^2}{2(\log N)^3}
+        +O\!\left(\frac{N^2}{(\log N)^4}\right).`
+
+把素数二也计入时，上式的主项和误差阶同样成立。这里去权需要控制小素数。在每个三元组中，以 $`\log N` 代替 $`\log p_i` 会产生差额 $`\log(N/p_i)`。固定 $`p_i` 后，其余两项满足二元 Goldbach 条件。用 Selberg 上界筛控制二元表示数，利用{ref "brun-titchmarsh-full"}[Brun–Titchmarsh 不等式]对随 $`N-p_i` 变化的局部因子取平均，再作 Abel 分部求和，便能把去权误差压到上式的量级。
+
+{docstring goldbachPrimeSieveFactor_average}
+
+{docstring goldbachTernaryOddCount_asymptotic}
+
+{docstring goldbachTernaryCount_asymptotic}

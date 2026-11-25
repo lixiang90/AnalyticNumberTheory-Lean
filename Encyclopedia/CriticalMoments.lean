@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.ReflectedSecondMoment
 import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
 import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
@@ -82,6 +83,27 @@ $$`\zeta(2\sigma)\prod_{p\mid q}(1-p^{-2\sigma}).`
 {docstring AnalyticNumberTheory.DirichletLFunctions.mean_sq_periodicLFunction_of_half_lt}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.mean_sq_LFunction_strip_euler_factors}
+
+# ζ 函数在临界线两侧的二次矩
+%%%
+tag := "zeta-strip-second-moment-error"
+file := "strip-mean-square"
+%%%
+
+取 $`I_\sigma(T)=\int_1^T|\zeta(\sigma+it)|^2\,dt`。当 $`1/2<\sigma<1` 固定时，Dirichlet 多项式的对角项决定主项。保留各频率间距的均方估计给出
+
+$$`I_\sigma(T)=(T-1)\zeta(2\sigma)+O_\sigma(T^{2-2\sigma}).`
+
+对固定 $`0<\sigma<1/2`，应用函数方程，把积分转到 $`1-\sigma` 处。Gamma 因子引入幂权；分部积分后得到
+
+$$`I_\sigma(T)=\frac{(2\pi)^{2\sigma-1}\zeta(2-2\sigma)}{2-2\sigma}
+ T^{2-2\sigma}+O_\sigma(T).`
+
+两式均对 $`T\ge1` 成立。右半带中误差随 $`T` 次线性增长，左半带中主项比线性项增长得快。
+
+{docstring riemannZeta_right_strip_second_moment}
+
+{docstring riemannZeta_left_strip_second_moment}
 
 # ζ 函数的四阶矩
 %%%

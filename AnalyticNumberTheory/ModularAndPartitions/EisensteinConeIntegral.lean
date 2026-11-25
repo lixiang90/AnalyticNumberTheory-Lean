@@ -41,7 +41,8 @@ private def coneEnumeration {c : ℤ} (hc : 0<c) (d : ℤ) : (ℕ×ℕ) ≃ cone
 noncomputable def eisensteinBarnesOffset (c : ℕ) (d : ℤ) (z : ℍ) (j : Fin c) : ℂ :=
   (j:ℕ)*(z:ℂ)+((d*(j:ℕ)/(c:ℤ):ℤ):ℂ)+1
 
-private theorem barnesOffset_re_pos {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
+/-- The real part of each offset is positive on the right of the cusp. -/
+theorem barnesOffset_re_pos {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
     (hz : 0<((c:ℝ)*z.re+d)) (j : Fin c) :
     0<(eisensteinBarnesOffset c d z j).re := by
   have hc' : 0<(c:ℤ) := by exact_mod_cast hc
@@ -58,9 +59,10 @@ private theorem barnesOffset_re_pos {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
   have hj : 0≤((j:ℕ):ℝ) := Nat.cast_nonneg _
   nlinarith only [h₁,h₂,mul_nonneg hj hz.le]
 
-/-- The cone is a finite sum of Barnes double zeta series. -/
-theorem eisensteinConeSum_eq_barnes {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
-    (hz : 0<((c:ℝ)*z.re+d)) {s : ℂ} (hs : 2<s.re) :
+/-- Splitting the cone into Barnes double zeta series works everywhere
+in the upper half-plane, including to the left of the cusp. -/
+theorem eisensteinConeSum_eq_barnes_upperHalfPlane {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
+    {s : ℂ} (hs : 2<s.re) :
     eisensteinConeSum c d z s=∑ j : Fin c,barnesDoubleZeta (eisensteinBarnesOffset c d z j)
       ((c:ℂ)*z+d) s := by
   letI : NeZero c := ⟨hc.ne'⟩
@@ -81,10 +83,20 @@ theorem eisensteinConeSum_eq_barnes {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
     unfold barnesVector eisensteinBarnesOffset; push_cast; dsimp only [m,n,j]; ring_nf
   have hsum : Summable fun p : Fin c × (ℕ×ℕ) =>
       (barnesVector (eisensteinBarnesOffset c d z p.1) ((c:ℂ)*z+d) p.2)^(-s) := by
-    apply Summable.of_norm
-    apply (summable_prod_of_nonneg (fun _ => norm_nonneg _)).mpr
-    refine ⟨fun j => ?_,(hasSum_fintype _).summable⟩
-    exact (summable_barnesDoubleZeta (barnesOffset_re_pos hc d z hz j) (by simpa [Complex.mul_re] using hz) hs).norm
+    have hw : Summable fun v : Fin 2→ℤ => eisensteinLatticeTerm z s (v 0) (v 1) :=
+      (finTwoArrowEquiv ℤ).summable_iff.mpr (summable_eisensteinLatticeTerm z hs)
+    have hv : Summable fun v : coneIndices c d => V v.1 := by
+      apply (hw.subtype (fun u : Fin 2→ℤ => 0≤u 0 ∧ d*u 0<(c:ℤ)*u 1)).congr
+      intro v
+      have hpos : 0<v.1 0 ∨ v.1 0=0 ∧ 0<v.1 1 := by
+        rcases v.2.1.eq_or_lt with hm|hm
+        · right; refine ⟨hm.symm,?_⟩
+          have hn := v.2.2; rw [←hm,mul_zero] at hn
+          exact (mul_pos_iff_of_pos_left hc').mp hn
+        · exact Or.inl hm
+      have hn : ¬(v.1 0=0 ∧ v.1 1=0) := by rcases hpos with h|⟨_,h⟩ <;> omega
+      simp only [Function.comp_apply,eisensteinLatticeTerm,if_neg hn,if_pos hpos,V]
+    exact (E.summable_iff.mpr hv).congr he
   have hs' : eisensteinConeSum c d z s=∑' v : coneIndices c d,V v.1 := by
     classical
     change _=∑' v : {u : Fin 2→ℤ | 0≤u 0 ∧ d*u 0<(c:ℤ)*u 1},V v.1
@@ -97,6 +109,12 @@ theorem eisensteinConeSum_eq_barnes {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
       rw [if_neg hv,Set.indicator_of_notMem hv]
   rw [hs',←E.tsum_eq]
   simp_rw [he]; rw [hsum.tsum_prod,tsum_fintype]; rfl
+
+/-- Specialization to the domain of the positive-axis Mellin integral. -/
+theorem eisensteinConeSum_eq_barnes {c : ℕ} (hc : 0<c) (d : ℤ) (z : ℍ)
+    (_hz : 0<((c:ℝ)*z.re+d)) {s : ℂ} (hs : 2<s.re) :
+    eisensteinConeSum c d z s=∑ j : Fin c,barnesDoubleZeta (eisensteinBarnesOffset c d z j)
+      ((c:ℂ)*z+d) s := eisensteinConeSum_eq_barnes_upperHalfPlane hc d z hs
 
 /-- Mellin integral formula for the correction cone in the half-plane
 of absolute convergence. Each term has explicit offset and modular denominator. -/

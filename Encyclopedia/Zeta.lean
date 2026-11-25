@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.RiemannSiegelElementaryPhase
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelFirstCorrection
 import AnalyticNumberTheory.RiemannZeta.HurwitzFirstCorrection
 import AnalyticNumberTheory.RiemannZeta.RiemannSiegelCorrection
@@ -140,3 +141,7 @@ $$`Z(t)=2\sum_{n=1}^{N}\frac{\cos(\vartheta(t)-t\log n)}{\sqrt n}
 {docstring hurwitzZeta_first_correction_height}
 
 {docstring hardyZ_riemannSiegel_first_correction}
+
+以初等相位 $`\theta_0(t)=(t\log(t/(2\pi))-t)/2-\pi/8` 代替精确的 Gamma 相位后，实余弦和仍保留首个修正项和 $`O(t^{-3/4})` 的余项。
+
+{docstring hardyZ_elementary_first_correction}

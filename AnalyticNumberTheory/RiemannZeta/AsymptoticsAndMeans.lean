@@ -2016,7 +2016,8 @@ private lemma harmonic_Icc_one_le {N : ℕ} (hN : 1 ≤ N) :
     rw [integral_one_div_of_pos zero_lt_one (Nat.cast_pos.mpr hN), div_one]
   exact hsum_le.trans_eq ((htele N hN).trans hint_log)
 
-private lemma offDiag_dirichlet_sum_bound_of_ge_half {σ : ℝ} (hσ : 1 / 2 ≤ σ) (N : ℕ) (hN : 1 ≤ N) :
+/-- Absolute sum of the unequal-frequency mean-square kernels for a Dirichlet polynomial. -/
+theorem offDiag_dirichlet_sum_bound_of_ge_half {σ : ℝ} (hσ : 1 / 2 ≤ σ) (N : ℕ) (hN : 1 ≤ N) :
     ∑ m ∈ Finset.Icc 1 N, ∑ n ∈ Finset.Icc 1 N,
         (if m = n then 0 else 2 * (m : ℝ) ^ (-σ) * (n : ℝ) ^ (-σ) / |Real.log n - Real.log m|) ≤
       (4 / Real.log 2) * (∑ m ∈ Finset.Icc 1 N, (m : ℝ) ^ (-σ)) ^ 2 +

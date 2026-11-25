@@ -80,7 +80,8 @@ theorem abs_goldbachTernary_normalized_le {N M : ℕ} (hM : 1 ≤ M)
     _ ≤ _ := add_le_add (add_le_add hmajor htrunc) hminor
     _ = _ := by field_simp [hn.ne', hMs.ne']
 
-private theorem eventually_const_log_pow_le_rpow (C : ℝ) (k : ℕ) {b : ℝ} (hb : 0 < b) :
+/-- Any fixed power of the logarithm, even after scaling, is eventually bounded by a positive power. -/
+theorem eventually_const_log_pow_le_rpow (C : ℝ) (k : ℕ) {b : ℝ} (hb : 0 < b) :
     ∀ᶠ x : ℝ in atTop, C * (Real.log x) ^ k ≤ x ^ b := by
   have ho := (isLittleO_log_rpow_rpow_atTop (k : ℝ) hb).tendsto_div_nhds_zero
   have ht := ((tendsto_const_nhds (x := C)).mul ho).eventually (gt_mem_nhds (by simp : C * 0 < 1))

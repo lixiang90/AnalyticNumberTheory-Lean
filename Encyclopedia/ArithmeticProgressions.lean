@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.PageProgressions
+import AnalyticNumberTheory.PrimeDistribution.SignedCharacterExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.SiegelWalfisz
 import VersoManual
 
@@ -43,3 +44,32 @@ file := "page-exceptional-conductor"
 {docstring page_psiChar_partial}
 
 {docstring page_psiAP}
+
+# 特征和的截断显式不等式
+%%%
+tag := "character-truncated-explicit-formula"
+file := "character-truncated-explicit-formula"
+%%%
+
+{index}[特征和的截断显式公式]设 $`\chi` 是模 $`q` 的非主特征。对所有 $`x\ge4` 和 $`0\le y\le x`，特征和 $`\psi(y,\chi)=\sum_{n\le y}\chi(n)\Lambda(n)` 满足
+
+$$`|\psi(y,\chi)|\ll \sqrt{x}\,(1+\log(qx))^2+\sum_{\substack{L(\rho,\chi)=0,\ 0<\beta<1\\ |\gamma|\le\sqrt{x}}} m(\rho)\,\frac{x^\beta}{1+|\gamma|},\qquad \rho=\beta+i\gamma.`
+
+这里 $`m(\rho)` 是解析重数，隐常数是绝对常数。零点和同时包含正、负虚部和实零点。同一右端控制区间 $`[0,x]` 中的每个截点，也适用于模数超过 $`\sqrt{x}` 的情形。
+
+{docstring nonprincipal_psi_truncated_explicit_bound}
+
+对本原特征，证明在半整数 $`h=\lfloor y\rfloor+1/2` 处使用 Perron 公式。把整函数权 $`g_h(s)=(h^s-1)/s`（其中 $`g_h(0)=\log h`）乘以完成的 $`L` 函数的对数导数，再把积分移到 $`\Re s=-1/2`。每个零点贡献 $`m(\rho)g_h(\rho)`。对于靠近原点的零点，泛函方程将它与同一高度的 $`1-\overline\rho` 配对，二者重数相同，由此得到上式中的零点权。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.sum_norm_perronDifferenceWeight_le}
+
+由本原特征诱导到模 $`q` 时，临界带内的零点及重数保持不变。von Mangoldt 和中新出现的误差只来自整除 $`q` 的素数幂，可并入平方根误差项。
+
+对于 $`1\le y\le x`，还可以保留留数的复数值，得到固定高度的显式公式
+
+$$`\psi(y,\chi)=-\sum_{|\gamma|\le\sqrt{x}}m(\rho)\frac{y^\rho-1}{\rho}
++O\!\left(\sqrt{x}\,(1+\log(qx))^2\right).`
+
+零点取自 $`0<\Re\rho<1`。在 $`y=1` 处，零点权都为零。一般截点由半整数移来，核对 $`y` 的导数是 $`y^{\rho-1}`，模至多为一。再用单位高度区间中的零点数估计，把避开零点所选的高度移至 $`\sqrt{x}`。
+
+{docstring nonprincipal_psi_signed_explicit_formula}

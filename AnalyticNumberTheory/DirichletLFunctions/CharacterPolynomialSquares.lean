@@ -38,30 +38,53 @@ theorem factorPairCount_eq_zero {S : Finset ℕ} {N k : ℕ}
   rw [←he,pow_two] at hk
   omega
 
+/-- The coefficient of k in the square of a finitely supported Dirichlet polynomial. -/
+def factorPairWeight (S : Finset ℕ) (a : ℕ → ℂ) (k : ℕ) : ℂ :=
+  ∑ p ∈ (S ×ˢ S).filter (fun p => p.1*p.2=k), a p.1 * a p.2
+
+/-- Squaring coefficients of modulus at most one costs at most the ordinary divisor function. -/
+theorem norm_factorPairWeight_le {S : Finset ℕ} {a : ℕ → ℂ} (ha : ∀ n∈S, ‖a n‖≤1)
+    {k : ℕ} (hk : 0<k) : ‖factorPairWeight S a k‖ ≤ k.divisors.card := by
+  apply (norm_sum_le _ _).trans
+  apply le_trans (b:=∑ _p∈(S ×ˢ S).filter (fun p => p.1*p.2=k),(1:ℝ))
+  · apply sum_le_sum; intro p hp
+    obtain ⟨hi,hj⟩ := mem_product.mp (mem_filter.mp hp).1
+    rw [norm_mul];exact mul_le_one₀ (ha _ hi) (norm_nonneg _) (ha _ hj)
+  · simpa only [sum_const,nsmul_eq_mul,mul_one,factorPairCount] using
+      (Nat.cast_le.mpr (factorPairCount_le_divisors S hk) :
+        (factorPairCount S k:ℝ) ≤ k.divisors.card)
+
+/-- Squaring a twisted polynomial preserves the character and convolves the original coefficients. -/
+theorem weighted_characterPolynomial_square {q M : ℕ} (χ : DirichletCharacter ℂ q)
+    (a : ℕ→ℂ) (S : Finset ℕ) (hS : S⊆Finset.Icc 1 M) (s : ℂ) :
+    (∑n∈S,a n*χ n*(n:ℂ)^(-s))^2=
+      ∑k∈Finset.Icc 1 (M^2),factorPairWeight S a k*χ k*(k:ℂ)^(-s) := by
+  let F (k : ℕ) := χ k*(k:ℂ)^(-s)
+  have hmul (m n : ℕ) : F m*F n=F (m*n) := by
+    simp only [F,Nat.cast_mul,map_mul,Complex.natCast_mul_natCast_cpow];ring
+  have hmap (p : ℕ×ℕ) (hp : p∈S ×ˢ S) : p.1*p.2∈Finset.Icc 1 (M^2) := by
+    obtain ⟨hm,hn⟩ := mem_product.mp hp
+    exact Finset.mem_Icc.mpr ⟨Nat.mul_pos (mem_Icc.mp (hS hm)).1 (mem_Icc.mp (hS hn)).1,
+      by simpa [pow_two] using Nat.mul_le_mul (mem_Icc.mp (hS hm)).2 (mem_Icc.mp (hS hn)).2⟩
+  simp only [mul_assoc]
+  change (∑n∈S,a n*F n)^2=∑k∈Finset.Icc 1 (M^2),factorPairWeight S a k*F k
+  rw [pow_two,sum_mul];simp_rw [mul_sum]
+  rw [←sum_product',←sum_fiberwise_of_maps_to hmap]
+  apply sum_congr rfl;intro k _
+  rw [factorPairWeight,sum_mul]
+  apply sum_congr rfl;intro p hp
+  have he := (mem_filter.mp hp).2
+  calc _ = (a p.1 * a p.2)*(F p.1*F p.2) := by ring
+       _ = _ := by rw [hmul,he]
+
 /-- The square of a finite character Dirichlet polynomial written at twice
 the original length on a logarithmic scale. -/
 theorem characterPolynomial_square {q M : ℕ} [NeZero q] (χ : DirichletCharacter ℂ q)
     (S : Finset ℕ) (hS : S⊆Finset.Icc 1 M) (s : ℂ) :
     (∑n∈S,χ n*(n:ℂ)^(-s))^2=
       ∑k∈Finset.Icc 1 (M^2),(factorPairCount S k:ℂ)*χ k*(k:ℂ)^(-s) := by
-  let F (k : ℕ) := χ k*(k:ℂ)^(-s)
-  have hmul (m n : ℕ) : F m*F n=F (m*n) := by
-    have he := Complex.mul_cpow_ofReal_nonneg (Nat.cast_nonneg m) (Nat.cast_nonneg n) (-s)
-    simp only [Complex.ofReal_natCast] at he
-    simp only [F,Nat.cast_mul,map_mul,he];ring
-  have hmap (p : ℕ×ℕ) (hp : p∈S ×ˢ S) : p.1*p.2∈Finset.Icc 1 (M^2) := by
-    obtain ⟨hm,hn⟩ := mem_product.mp hp
-    exact Finset.mem_Icc.mpr ⟨Nat.mul_pos (mem_Icc.mp (hS hm)).1 (mem_Icc.mp (hS hn)).1,
-      by simpa [pow_two] using Nat.mul_le_mul (mem_Icc.mp (hS hm)).2 (mem_Icc.mp (hS hn)).2⟩
-  change (∑n∈S,F n)^2=_
-  rw [pow_two,sum_mul];simp_rw [mul_sum,hmul]
-  rw [←sum_product']
-  rw [←sum_fiberwise_of_maps_to hmap]
-  apply sum_congr rfl;intro k _
-  calc (∑p∈(S ×ˢ S).filter (fun p=>p.1*p.2=k),F (p.1*p.2)) =
-          ∑_p∈(S ×ˢ S).filter (fun p=>p.1*p.2=k),F k := by
-            apply sum_congr rfl;intro p hp;rw [(mem_filter.mp hp).2]
-       _ = _ := by simp [factorPairCount,F,mul_assoc]
+  simpa [factorPairWeight,factorPairCount] using
+    weighted_characterPolynomial_square χ (fun _ => 1) S hS s
 
 /-- The coefficient used after writing the real part as a positive real
 weight and retaining only the imaginary frequency in the polynomial. -/

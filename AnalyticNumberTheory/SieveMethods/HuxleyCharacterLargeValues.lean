@@ -26,7 +26,9 @@ def HalfPlaneCharacterLargeValues {ι : Type*} (F : Finset ι) (f : ι→ℕ→�
     c*Real.sqrt (3*D)*(1+Real.log (3*D))^2*G≤V^2 →
     (∑i∈F,((S i).card:ℝ))≤C*(1+δ⁻¹)*(N*G/V^2+N*(D:ℝ)*T*G^3*(1+Real.log ((D:ℝ)*(T+3)))^4/V^6)
 
-private theorem halfPlane_of_strip {ι : Type*} {F : Finset ι} {f : ι→ℕ→ℂ} {D : ℕ} {c C : ℝ}
+/-- Extend a strip large-value estimate to any energy line and to its entire
+right half-plane, with the count expressed in terms of height separation. -/
+theorem halfPlane_large_values_of_strip {ι : Type*} {F : Finset ι} {f : ι→ℕ→ℂ} {D : ℕ} {c C : ℝ}
     (hD : 1≤D) (hc : 0<c) (hC : 0<C) (hf : ∀i∈F,∀n,‖f i n‖≤1)
     (HB : CharacterLargeValueBound F f D c C) :
     HalfPlaneCharacterLargeValues F f D (max c 4) (2*C) := by
@@ -118,9 +120,9 @@ theorem huxley_character_large_values :
   refine ⟨max c 4,2*C,lt_of_lt_of_le hc (le_max_left c _),by positivity,?_,?_⟩
   · intro q _ N hN
     have hq : 1≤q := NeZero.one_le
-    exact halfPlane_of_strip hq hc hC (fun χ _ n => χ.norm_le_one _) (HC hq (fixed_modulus_correlation_family q)) hN
+    exact halfPlane_large_values_of_strip hq hc hC (fun χ _ n => χ.norm_le_one _) (HC hq (fixed_modulus_correlation_family q)) hN
   · intro Q hQ N hN
     have hD := Nat.one_le_pow 2 Q hQ
-    exact halfPlane_of_strip hD hc hC (fun p _ n => p.2.norm_le_one _) (HC hD (primitive_correlation_family Q)) hN
+    exact halfPlane_large_values_of_strip hD hc hC (fun p _ n => p.2.norm_le_one _) (HC hD (primitive_correlation_family Q)) hN
 
 end AnalyticNumberTheory.SieveMethods

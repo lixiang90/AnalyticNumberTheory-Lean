@@ -2369,7 +2369,8 @@ theorem norm_psiChar_sub_primitive_le {x : ℝ} (hx : 1 ≤ x) {q : ℕ} (hq : 1
           Complex.re_le_norm _
     _ ≤ (Real.log q / Real.log 2) * Real.log x := norm_psi_sub_psiChar_one_le hx hq
 
-private lemma sum_Icc_divisors_swap (N : ℕ) (f : ℕ → ℕ → ℝ) :
+/-- Switch between the multiple and cofactor in every divisor sum up to N. -/
+theorem sum_Icc_divisors_swap (N : ℕ) (f : ℕ → ℕ → ℝ) :
     ∑ r ∈ Finset.Icc 1 N, ∑ d ∈ r.divisors, f d (r / d) =
       ∑ d ∈ Finset.Icc 1 N, ∑ k ∈ Finset.Icc 1 (N / d), f d k := by
   trans ∑ p ∈ (Finset.Icc 1 N).sigma (fun r => r.divisors), f p.2 (p.1 / p.2)
@@ -2701,7 +2702,8 @@ theorem sum_inv_totient_le_mul_log :
           gcongr
     _ = C * Real.log ((N : ℝ) + 2) := by dsimp [C]; ring
 
-private lemma psiChar_primitiveCharacter_changeLevel {x : ℝ} {q d : ℕ}
+/-- Lifting a primitive character and passing back to its conductor preserves its twisted Chebyshev sum. -/
+theorem psiChar_primitiveCharacter_changeLevel {x : ℝ} {q d : ℕ}
     [NeZero q] [NeZero d] (hd : d ∣ q) {ψ : DirichletCharacter ℂ d} (hψ : ψ.IsPrimitive) :
     psiChar x (DirichletCharacter.changeLevel hd ψ).primitiveCharacter = psiChar x ψ := by
   have hψ_cond : ψ.conductor = d := (DirichletCharacter.isPrimitive_def ψ).mp hψ
@@ -2721,7 +2723,8 @@ private lemma psiChar_primitiveCharacter_changeLevel {x : ℝ} {q d : ℕ}
       rw [h0a, h0b]
   simpa using h1.trans h2
 
-private lemma sum_erase_one_norm_psiChar_primitive_le {x : ℝ} {q : ℕ} (hq : 1 ≤ q) :
+/-- Group the nonprincipal character norms by their primitive conductors. -/
+theorem sum_erase_one_norm_psiChar_primitive_le {x : ℝ} {q : ℕ} (hq : 1 ≤ q) :
     ∑ χ ∈ (Finset.univ : Finset (DirichletCharacter ℂ q)).erase 1,
         ‖psiChar x χ.primitiveCharacter‖ ≤
       ∑ d ∈ q.divisors with 2 ≤ d,

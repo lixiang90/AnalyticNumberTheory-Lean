@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.PerronWeightedMoments
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyUniformMoment
 import AnalyticNumberTheory.DirichletLFunctions.PeriodicCriticalSecondMoment
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyFourthMoment
@@ -387,3 +388,21 @@ $$`\frac1{\varphi(q)}\sum_{\chi\bmod q}\int_0^T|L(1/2+it,\chi)|^2\,dt
 {docstring AnalyticNumberTheory.AnalyticTools.reduced_sqrt_ratio_sum_le}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.full_character_second_moment_uniform}
+
+# Perron 积分中的加权四阶矩
+%%%
+tag := "perron-weighted-fourth-moments"
+file := "perron-weighted-fourth-moments"
+%%%
+
+{index}[Perron 权下的四阶矩]在平均分布定理的复积分证法中，Perron 核给高度积分附上 $`1/|s|` 的权。沿 $`s=1/2+it` 积分，并对 $`q\le Q` 的本原特征求和，有
+
+$$`\sum_{q\le Q}\frac1{\varphi(q)}\sum_{\chi\bmod q}^{*}
+\int_{-T}^T \frac{|L(1/2+it,\chi)|^4}{|1/2+it|}\,dt
+\ll Q\,\log^5(QT),\qquad Q\ge1,\quad T\ge2.`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_perron_fourth_moment}
+
+固定 $`q` 时，普通四阶矩在 $`[-u,u]` 上的上界含因子 $`\varphi(q)u`。在 $`u\le |t|\le 2u` 上，分母至少为 $`u`。每个这样的高度区间便贡献同阶的上界，相加损失一个对数因子。对 $`|t|\le1` 则用 $`|1/2+it|\ge1/2`。把 $`L` 换成 $`L'` 后，同样的计算给出 $`Q\log^9(QT)`。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.primitive_perron_deriv_fourth_moment}

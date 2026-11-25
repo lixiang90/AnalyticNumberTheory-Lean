@@ -32,7 +32,7 @@ Bombieri–Vinogradov mean estimate by Vaughan's identity and the large sieve. C
 is still in progress. The fixed-modulus and primitive-family zero counts satisfy both Ingham’s and Montgomery’s density exponents, with analytic multiplicity and both signs of the ordinate.
 The library also proves the exact Rademacher series and an unconditional
 zeta zero-density bound. It proves Linnik's polynomial bound for the least prime in each reduced residue class.
-The encyclopedia also gives the rational Huxley exponent on the strip from three quarters to one and the weighted primitive zero sums that enter the zero-density proof of Bombieri–Vinogradov.
+The encyclopedia gives the rational Huxley exponent on the strip from three quarters to one. A signed truncated explicit formula for every nonprincipal Dirichlet character and Ingham’s zero-density estimate yield a second proof of the maximal Bombieri–Vinogradov theorem for ψ, θ and π. For a saving of $(\log x)^k$ this proof permits $Q\leq\sqrt{x}/(\log x)^{k+12}$. The Barban–Davenport–Halberstam theorem bounds the sum of squared errors over all reduced residue classes by $O_A(xQ\log x)$ for $x/(\log x)^A\leq Q\leq x$.
 
 ## Building
 

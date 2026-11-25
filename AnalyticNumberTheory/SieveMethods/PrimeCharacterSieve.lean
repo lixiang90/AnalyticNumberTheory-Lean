@@ -19,7 +19,7 @@ namespace AnalyticNumberTheory.SieveMethods
 private theorem norm_sq_cast (z : ℂ) : (‖z‖^2:ℝ) = (z * star z:ℂ) := by
   rw [RCLike.star_def,Complex.mul_conj,Complex.normSq_eq_norm_sq,Complex.ofReal_pow]
 
-private theorem character_transform_parseval {q : ℕ} [NeZero q] (T : ℕ → ℂ) :
+theorem character_transform_parseval {q : ℕ} [NeZero q] (T : ℕ → ℂ) :
     let U := (range q).filter (fun c => c.Coprime q)
     (∑ χ : DirichletCharacter ℂ q, ‖∑ c ∈ U, star (χ c)*T c‖^2) =
       (q.totient:ℝ)*∑ c ∈ U,‖T c‖^2 := by
@@ -126,27 +126,39 @@ private theorem extendedIndex_injOn (Q Z : ℕ) :
   have hχψ := DirichletCharacter.changeLevel_injective (dvd_mul_right q d) heq
   subst ψ; rfl
 
-/-- Static prime-supported character large sieve. The loss in the Farey
-cutoff is a factor Z, while the saving on the left is log Z. The support
-condition also permits arbitrary integers coprime to every modulus ≤ QZ. -/
-theorem sifted_character_large_sieve (a : ℕ → ℂ) (M : ℕ) {N Q Z : ℕ}
-    (hN : 1≤N) (hQ : 1≤Q) (hZ : 1≤Z)
-    (ha : ∀ n ∈ Ioc M (M+N), a n≠0 → ∀ r ∈ Icc 1 (Q*Z), n.Coprime r) :
-    Real.log Z * (∑ p ∈ primitiveCharacterFamily Q, ‖∑ n ∈ Ioc M (M+N), a n*p.2 n‖^2) ≤
-      ((N:ℝ)-1+((Q:ℝ)*Z)^2)*∑ n ∈ Ioc M (M+N),‖a n‖^2 := by
-  let F := primitiveCharacterFamily Q
-  let U := (Icc 1 (Q*Z)).sigma (fun r => (univ : Finset (DirichletCharacter ℂ r)))
+/-- Gauss-sum-weighted large sieve on the full character family for
+coefficients supported on integers coprime to every modulus up to Q. -/
+theorem gauss_weighted_character_large_sieve (a : ℕ→ℂ) (M : ℕ) {N Q : ℕ}
+    (hN : 1≤N) (hQ : 1≤Q)
+    (ha : ∀ n∈Ioc M (M+N), a n≠0 → ∀ r∈Icc 1 Q,n.Coprime r) :
+    (∑r∈Icc 1 Q,∑χ : DirichletCharacter ℂ r,
+      inducedCharacterWeight r χ*‖∑n∈Ioc M (M+N),a n*χ n‖^2)≤
+      ((N:ℝ)-1+(Q:ℝ)^2)*∑n∈Ioc M (M+N),‖a n‖^2 := by
+  calc _ = ∑r∈Icc 1 Q,∑ c∈(range r).filter (fun c => c.Coprime r),‖trigPoly a M N ((c:ℝ)/r)‖^2 := by
+         apply sum_congr rfl;intro r hr
+         exact gauss_weighted_character_identity r (mem_Icc.mp hr).1 a M N (fun n hn h => ha n hn h r hr)
+       _ ≤ _ := farey_large_sieve a M hN hQ
+
+/-- Large sieve with a separate logarithmic weight log(Q/q) at each
+primitive conductor q, for real cutoff Q and arbitrary rough support. -/
+theorem sifted_conductor_weighted_large_sieve (a : ℕ→ℂ) (M : ℕ) {N : ℕ} {Q : ℝ}
+    (hN : 1≤N) (hQ : 1≤Q)
+    (ha : ∀ n∈Ioc M (M+N),a n≠0 → ∀r∈Icc 1 ⌊Q⌋₊,n.Coprime r) :
+    (∑p∈primitiveCharacterFamily ⌊Q⌋₊,Real.log (Q/p.1)*‖∑n∈Ioc M (M+N),a n*p.2 n‖^2)≤
+      ((N:ℝ)-1+(⌊Q⌋₊:ℝ)^2)*∑n∈Ioc M (M+N),‖a n‖^2 := by
+  let F := primitiveCharacterFamily ⌊Q⌋₊
+  let U := (Icc 1 ⌊Q⌋₊).sigma (fun r => (univ : Finset (DirichletCharacter ℂ r)))
   let A := fun p : CharacterIndex => ‖∑ n ∈ Ioc M (M+N),a n*p.2 n‖^2
   let V := fun p : CharacterIndex => inducedCharacterWeight p.1 p.2 * A p
-  let E := extensions Q Z
+  let E := F.sigma (fun p => (Icc 1 (⌊Q⌋₊/p.1)).filter (fun d => Squarefree d ∧ d.Coprime p.1))
   let g := fun i : (p : CharacterIndex) × ℕ => extendedIndex i.1 i.2
-  have hZQ : 1≤Q*Z := Nat.one_le_iff_ne_zero.mpr (Nat.mul_ne_zero (by omega) (by omega))
+  have hQn : 1≤⌊Q⌋₊ := Nat.le_floor (by simpa using hQ)
   have hmem (i) (hi : i∈E) : g i ∈ U := by
     obtain ⟨hp,hd⟩ := mem_sigma.mp hi
     have hq := mem_Icc.mp (mem_sigma.mp hp).1
     have hs := mem_Icc.mp (mem_filter.mp hd).1
-    exact mem_sigma.mpr ⟨mem_Icc.mpr ⟨Nat.mul_pos hq.1 hs.1,Nat.mul_le_mul hq.2 hs.2⟩,mem_univ _⟩
-  have hval (p : CharacterIndex) (hp : p∈F) (d : ℕ) (hd : d∈(Icc 1 Z).filter (fun d => Squarefree d ∧ d.Coprime p.1)) :
+    exact mem_sigma.mpr ⟨mem_Icc.mpr ⟨Nat.mul_pos hq.1 hs.1,(Nat.mul_le_mul_left _ hs.2).trans (Nat.mul_div_le _ _)⟩,mem_univ _⟩
+  have hval (p : CharacterIndex) (hp : p∈F) (d : ℕ) (hd : d∈(Icc 1 (⌊Q⌋₊/p.1)).filter (fun d => Squarefree d ∧ d.Coprime p.1)) :
       V (extendedIndex p d) = ((p.1:ℝ)/p.1.totient)*(d.totient:ℝ)⁻¹*A p := by
     obtain ⟨hq,hχ⟩ := mem_sigma.mp hp
     have hq' : 0<p.1 := (mem_Icc.mp hq).1
@@ -168,31 +180,62 @@ theorem sifted_character_large_sieve (a : ℕ → ℂ) (M : ℕ) {N Q Z : ℕ}
     dsimp only [inducedCharacterWeight,extendedIndex]
     rw [hc,Nat.mul_div_cancel_left _ hq',if_pos ⟨hs,hcop⟩,Nat.totient_mul hcop.symm,Nat.cast_mul]
     simp only [div_eq_mul_inv,mul_inv]; ring
-  have hamp : Real.log Z * (∑ p ∈ F,A p) ≤ ∑ i ∈ E,V (g i) := by
-    rw [mul_sum]
-    dsimp only [E,extensions]
-    rw [sum_sigma]
-    apply sum_le_sum
-    intro p hp
-    have hx : Real.log Z ≤ (p.1:ℝ)/p.1.totient * ∑ d ∈ (Icc 1 Z).filter (fun d => Squarefree d ∧ d.Coprime p.1), (d.totient:ℝ)⁻¹ := by
-      have hfirst := sum_squarefree_inv_totient_ge_log (z:=(Z:ℝ)) (by exact_mod_cast hZ)
-      simpa only [Nat.floor_natCast] using hfirst.trans (by simpa only [Nat.floor_natCast] using sum_squarefree_coprime_inv_totient_ge p.1 Z (mem_Icc.mp (mem_sigma.mp hp).1).1)
+  have hamp : (∑p∈F,Real.log (Q/p.1)*A p) ≤ ∑ i ∈ E,V (g i) := by
+    dsimp only [E];rw [sum_sigma]
+    apply sum_le_sum;intro p hp
+    obtain ⟨hq₀,hq⟩ := mem_Icc.mp (mem_sigma.mp hp).1
+    have hqr : (p.1:ℝ)≤Q := (Nat.cast_le.mpr hq).trans (Nat.floor_le (by linarith))
+    have hratio : 1≤Q/(p.1:ℝ) := (one_le_div (Nat.cast_pos.mpr hq₀)).mpr hqr
+    have hlower := sum_squarefree_inv_totient_ge_log hratio
+    rw [Nat.floor_div_natCast] at hlower
+    have hx := hlower.trans (sum_squarefree_coprime_inv_totient_ge p.1 (⌊Q⌋₊/p.1) hq₀)
     calc
-      _ ≤ ((p.1:ℝ)/p.1.totient * ∑ d ∈ (Icc 1 Z).filter (fun d => Squarefree d ∧ d.Coprime p.1), (d.totient:ℝ)⁻¹)*A p :=
+      _ ≤ ((p.1:ℝ)/p.1.totient * ∑ d ∈ (Icc 1 (⌊Q⌋₊/p.1)).filter (fun d => Squarefree d ∧ d.Coprime p.1), (d.totient:ℝ)⁻¹)*A p :=
         mul_le_mul_of_nonneg_right hx (sq_nonneg _)
       _ = _ := by rw [mul_sum,sum_mul]; apply sum_congr rfl; intro d hd; exact (hval p hp d hd).symm
   have hsub : E.image g ⊆ U := by intro i hi; obtain ⟨j,hj,rfl⟩ := mem_image.mp hi; exact hmem j hj
   have hg := Finset.sum_le_sum_of_subset_of_nonneg (f:=V) hsub (fun p _ _ => mul_nonneg (inducedCharacterWeight_nonneg _) (sq_nonneg _))
-  rw [sum_image (extendedIndex_injOn Q Z)] at hg
+  have hE : E⊆extensions ⌊Q⌋₊ ⌊Q⌋₊ := by
+    intro i hi
+    obtain ⟨hp,hd⟩ := mem_sigma.mp hi
+    obtain ⟨hr,hh⟩ := mem_filter.mp hd
+    exact mem_sigma.mpr ⟨hp,mem_filter.mpr ⟨mem_Icc.mpr ⟨(mem_Icc.mp hr).1,
+      (mem_Icc.mp hr).2.trans (Nat.div_le_self ..)⟩,hh⟩⟩
+  rw [sum_image (fun _ hi _ hj h => extendedIndex_injOn ⌊Q⌋₊ ⌊Q⌋₊ (hE hi) (hE hj) h)] at hg
   have hbound := hamp.trans hg
   dsimp only [U] at hbound
   rw [sum_sigma] at hbound
-  refine hbound.trans ?_
-  calc
-    _ = ∑ r ∈ Icc 1 (Q*Z), ∑ c ∈ (range r).filter (fun c => c.Coprime r), ‖trigPoly a M N ((c:ℝ)/r)‖^2 := by
-      apply sum_congr rfl
-      intro r hr
-      exact gauss_weighted_character_identity r (mem_Icc.mp hr).1 a M N (fun n hn h => ha n hn h r hr)
-    _ ≤ _ := by simpa only [Nat.cast_mul] using farey_large_sieve a M hN hZQ
+  exact hbound.trans (gauss_weighted_character_large_sieve a M hN hQn ha)
+
+/-- Static prime-supported character large sieve. The loss in the Farey
+cutoff is a factor Z, while the saving on the left is log Z. The support
+condition also permits arbitrary integers coprime to every modulus ≤ QZ. -/
+theorem sifted_character_large_sieve (a : ℕ → ℂ) (M : ℕ) {N Q Z : ℕ}
+    (hN : 1≤N) (hQ : 1≤Q) (hZ : 1≤Z)
+    (ha : ∀ n ∈ Ioc M (M+N), a n≠0 → ∀ r ∈ Icc 1 (Q*Z), n.Coprime r) :
+    Real.log Z * (∑ p ∈ primitiveCharacterFamily Q, ‖∑ n ∈ Ioc M (M+N), a n*p.2 n‖^2) ≤
+      ((N:ℝ)-1+((Q:ℝ)*Z)^2)*∑ n ∈ Ioc M (M+N),‖a n‖^2 := by
+  let W := Q*Z
+  have hw : 1≤W := Nat.mul_pos hQ hZ
+  have hw' : 1≤(W:ℝ) := by exact_mod_cast hw
+  have h := sifted_conductor_weighted_large_sieve a M hN hw' (by simpa only [Nat.floor_natCast] using ha)
+  rw [Nat.floor_natCast] at h
+  have hsub : primitiveCharacterFamily Q⊆primitiveCharacterFamily W := by
+    intro p hp
+    have hh := mem_sigma.mp hp
+    exact mem_sigma.mpr ⟨mem_Icc.mpr ⟨(mem_Icc.mp hh.1).1,(mem_Icc.mp hh.1).2.trans
+        (Nat.le_mul_of_pos_right Q hZ)⟩,hh.2⟩
+  let A := fun p : CharacterIndex => ‖∑ n∈Ioc M (M+N),a n*p.2 n‖^2
+  have hqle (n) (hn:n∈Icc 1 W) : 1≤(W:ℝ)/n := (one_le_div (Nat.cast_pos.mpr (mem_Icc.mp hn).1)).mpr
+    (by exact_mod_cast (mem_Icc.mp hn).2)
+  have hsum := sum_le_sum_of_subset_of_nonneg (f:=fun p : CharacterIndex => Real.log ((W:ℝ)/p.1)*A p) hsub
+    (fun p hp _ => mul_nonneg (Real.log_nonneg (hqle p.1 (mem_sigma.mp hp).1)) (sq_nonneg _))
+  apply le_trans _ (hsum.trans (h.trans_eq (by dsimp only [W];push_cast;rfl)))
+  rw [mul_sum];apply sum_le_sum;intro p hp
+  have hh := mem_Icc.mp (mem_sigma.mp hp).1
+  apply mul_le_mul_of_nonneg_right _ (sq_nonneg _)
+  apply Real.log_le_log (by exact_mod_cast hZ : 0<(Z:ℝ))
+  apply (le_div_iff₀ (Nat.cast_pos.mpr hh.1)).mpr
+  exact_mod_cast (Nat.mul_comm Z p.1).trans_le (Nat.mul_le_mul_right Z hh.2)
 
 end AnalyticNumberTheory.SieveMethods

@@ -353,14 +353,11 @@ theorem abs_thetaAP_sub_le_maximalPsiAPError {x t : ℝ} (ht : 0 ≤ t) (htx : t
       thetaAP t q a - t/q.totient by ring] at htriangle
   exact htriangle.trans (add_le_add he hminor)
 
-/-- Maximal Bombieri–Vinogradov for `θ`. -/
-theorem bombieriVinogradov_maximal_theta (A : ℝ) :
-    ∃ B : ℝ, 0 ≤ B ∧ ∃ C > 0, ∀ {x Q : ℝ}, 2 ≤ x → 1 ≤ Q →
-      Q ≤ Real.sqrt x / Real.log x^B →
-      ∑ q ∈ Icc 1 ⌊Q⌋₊, maximalThetaAPError x q ≤ C*x/Real.log x^A := by
+/-- Uniform conversion of the two-endpoint maximal discrepancy for the first
+Chebyshev function to that for the second. -/
+theorem maximalThetaAPError_le_maximalPsi_add_sqrt {x : ℝ} (hx : 2≤x) {q : ℕ} (hq : 1≤q) :
+    maximalThetaAPError x q≤((Real.log 4+4)*3)*(maximalPsiAPError x q+Real.sqrt x) := by
   let D := (Real.log 4+4)*3
-  apply bombieriVinogradov_of_le_maximal_add_sqrt (D:=D) (by dsimp [D]; positivity) _ A
-  intro x hx q hq
   have hx0 : 0 ≤ x := by linarith
   have hD : 1 ≤ D := by dsimp [D]; linarith [Real.log_nonneg (by norm_num : (1:ℝ) ≤ 4)]
   have hpos := (maxPsiAPError_nonneg _ q).trans (maxPsiAPError_le_maximalPsiAPError hx0 le_rfl hq)
@@ -373,5 +370,15 @@ theorem bombieriVinogradov_maximal_theta (A : ℝ) :
   apply (abs_thetaAP_sub_le_maximalPsiAPError ht.1 ht.2 hq (mem_filter.mp ha).2).trans
   change _ + D*Real.sqrt x ≤ _
   nlinarith only [mul_le_mul_of_nonneg_right hD hpos]
+
+/-- Maximal Bombieri–Vinogradov for `θ`. -/
+theorem bombieriVinogradov_maximal_theta (A : ℝ) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∃ C > 0, ∀ {x Q : ℝ}, 2 ≤ x → 1 ≤ Q →
+      Q ≤ Real.sqrt x / Real.log x^B →
+      ∑ q ∈ Icc 1 ⌊Q⌋₊, maximalThetaAPError x q ≤ C*x/Real.log x^A := by
+  let D := (Real.log 4+4)*3
+  apply bombieriVinogradov_of_le_maximal_add_sqrt (D:=D) (by dsimp [D]; positivity) _ A
+  intro x hx q hq
+  exact maximalThetaAPError_le_maximalPsi_add_sqrt hx hq
 
 end AnalyticNumberTheory.PrimeDistribution

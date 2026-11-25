@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.WeightedArgumentPrinciple
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.HorizontalLogMean
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.Jensen
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.BorelCaratheodory
@@ -45,3 +46,22 @@ file := "horizontal-logarithmic-mean"
 {docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.continuous_integral_horizontalLogKernel}
 
 {docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.continuousAt_horizontalLogMean}
+
+# 矩形上的加权辐角原理
+%%%
+tag := "weighted-argument-principle"
+file := "weighted-argument-principle"
+%%%
+
+{index}[加权辐角原理]设 $`f,g` 为整函数，矩形 $`R` 的边界上 $`f` 处处非零。沿边界按逆时针方向积分，可得
+
+$$`\frac{1}{2\pi i}\int_{\partial R}g(s)\frac{f'(s)}{f(s)}\,ds
+ =\sum_{\rho\in R^\circ,\,f(\rho)=0}m_\rho\,g(\rho).`
+
+其中 $`m_\rho` 是解析零点阶数。取 $`g=1` 时，积分数出内部零点的总重数；取 $`g(s)=s` 时，积分给出计重数的零点之和。
+
+{docstring weighted_argument_principle_rect_entire}
+
+证明先从 $`f` 中提出有限乘积 $`\prod_\rho(s-\rho)^{m_\rho}`。剩余因子在闭矩形上处处非零，其对数导数乘以 $`g` 后的边界积分为零。对其余各项 $`m_\rho g(s)/(s-\rho)` 使用柯西积分公式即可。
+
+{docstring factor_entire_finite_zeros}

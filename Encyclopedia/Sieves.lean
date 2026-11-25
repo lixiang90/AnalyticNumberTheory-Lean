@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.CharacterGaussLargeSieve
 import AnalyticNumberTheory.SieveMethods.PrimePairEight
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshRealZeros
 import AnalyticNumberTheory.SieveMethods.BrunTitchmarshStrict
@@ -15,6 +16,9 @@ import AnalyticNumberTheory.SieveMethods.CombinatorialSieve
 import AnalyticNumberTheory.SieveMethods.LargeSieve
 import AnalyticNumberTheory.SieveMethods.LegendrePrimeCounting
 import AnalyticNumberTheory.SieveMethods.SelbergSieve
+import AnalyticNumberTheory.SieveMethods.ConductorDivisorLargeSieve
+import AnalyticNumberTheory.SieveMethods.ReciprocalConductorLargeSieve
+import AnalyticNumberTheory.SieveMethods.SiftedCharacterLargeSieve
 import AnalyticNumberTheory.SieveMethods.PrimeHybridSieve
 import AnalyticNumberTheory.SieveMethods.LinearSieveFunctions
 import AnalyticNumberTheory.SieveMethods.RosserSiftedCount
@@ -63,6 +67,50 @@ file := "brun-selberg"
 对于偶数 $`2N`，Selberg 筛还给出素数表示 $`2N=p+p'` 的个数上界。奇素数 $`\ell` 通常筛去两个剩余类，当 $`\ell\mid N` 时这两个类重合。由此在统一上界 $`O(N/(\log N)^2)` 上出现修正因子 $`\prod_{\ell\mid N,\,\ell>2}(1+1/(\ell-2))`。{ref "goldbach-exceptional-set"}[Goldbach 例外集]一文则说明有表示的偶数占多大比例。
 
 {docstring selberg_goldbach_upper_bound}
+
+# 粗数支撑上的特征大筛
+%%%
+tag := "sifted-character-large-sieve"
+%%%
+
+设 $`a_n` 支撑在 $`M<n\le M+N`，且 $`a_n\ne0` 时 $`n` 没有不超过 $`Q` 的素因子，$`Q\ge1` 可以是实数。记 $`P(\chi)=\sum_{M<n\le M+N}a_n\chi(n)`。则本原特征的大筛估计保留随导子 $`q` 变化的对数权：
+
+$$`\sum_{q\le Q}\log(Q/q)\sum_{\chi\bmod q}^{*}|P(\chi)|^2
+\le (N-1+\lfloor Q\rfloor^2)\sum_{M<n\le M+N}|a_n|^2.`
+
+{docstring rough_character_large_sieve_log_weight}
+
+更一般地，记 $`\tau_q(\bar\chi,n)=\sum_{c\bmod q}\bar\chi(c)e(nc/q)`。在固定的 $`q` 上，有限 Parseval 恒等式把全部特征的 Gauss 变换平方和准确地化成分母为 $`q` 的既约分数上的平方和。由此对任意系数得到
+
+$$`\sum_{q\le Q}\frac1{\varphi(q)}\sum_{\chi\bmod q}
+\left|\sum_{M<n\le M+N}a_n\tau_q(\bar\chi,n)\right|^2
+\le (N-1+Q^2)\sum_{M<n\le M+N}|a_n|^2.`
+
+{docstring gauss_polynomial_large_sieve}
+
+
+证明先对全体特征引入 Gauss 和权 $`|\tau(\overline\chi)|^2/\varphi(q)`，用正交性把加权均方化为 Farey 分数处的三角多项式均方。一个导子为 $`q` 的本原特征可以提升到 $`qd\le Q`，其中 $`d` 无平方因子且与 $`q` 互素。粗数支撑使这些提升在多项式中取值相同。对 $`d\le Q/q` 加权求和便产生 $`\log(Q/q)`。
+
+{docstring gauss_weighted_character_large_sieve}
+
+把同一模数 $`q` 的每个特征换为诱导它的本原特征 $`\chi^*`，对任意系数有
+
+$$`\sum_{\chi\bmod q}\left|\sum_{M<n\le M+N}a_n\chi^*(n)\right|^2
+\le (N-1+q)\sum_{M<n\le M+N}|a_n|^2.`
+
+把左侧按导子 $`d\mid q` 分组后，每组都能用分母为 $`d` 的简化分数处的加法均方控制。这些分数在同一分母为 $`q` 的网格上，相邻点模一的间距至少为 $`1/q`。
+
+{docstring inducing_characters_large_sieve}
+
+对任意系数也有按导子截断的估计。设 $`1\le D`，在 $`D<q\le Q` 的本原特征上，以 $`1/\varphi(q)` 取均方。对通常的特征大筛作分部求和，得到
+
+$$`\sum_{D<q\le Q}\frac1{\varphi(q)}
+\sum_{\chi\bmod q}^{*}|P(\chi)|^2
+\le\left(2Q+\frac{2N}{D}\right)\sum_{M<n\le M+N}|a_n|^2.`
+
+在整数截点 $`D,Q` 上，右侧的 $`2N/D` 可以换为 $`N/D`。对 von Mangoldt 系数使用这一估计，可在 Barban 方差的导子和中保留上截点所带的因子。
+
+{docstring reciprocal_conductor_large_sieve_real}
 
 # 素数支撑的混合大筛
 %%%

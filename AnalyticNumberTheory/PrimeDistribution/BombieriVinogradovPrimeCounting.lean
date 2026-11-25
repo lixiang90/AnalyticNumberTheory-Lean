@@ -122,7 +122,9 @@ theorem abs_piAP_sub_le_maximalPiAPError {x y : ℝ} (hy : y ∈ Set.Icc 2 x)
     exact piAPError_le ht hq hb
   · exact ⟨y,hy,a,ha,rfl⟩
 
-private lemma maximalPiAPError_le {x : ℝ} (hx : 2 ≤ x) {q : ℕ} (hq : 1 ≤ q) :
+/-- Partial summation transfers the maximal Chebyshev discrepancy to the
+prime counting function and its logarithmic integral main term. -/
+theorem maximalPiAPError_le_maximalPsi_add_sqrt {x : ℝ} (hx : 2 ≤ x) {q : ℕ} (hq : 1 ≤ q) :
     maximalPiAPError x q ≤ (((Real.log 4+4)*3+2)/Real.log 2) *
       (maximalPsiAPError x q + Real.sqrt x) := by
   unfold maximalPiAPError
@@ -137,6 +139,6 @@ theorem bombieriVinogradov_piAP (A : ℝ) :
     ∃ B : ℝ, 0 ≤ B ∧ ∃ C > 0, ∀ {x Q : ℝ}, 2 ≤ x → 1 ≤ Q →
       Q ≤ Real.sqrt x / Real.log x^B →
       ∑ q ∈ Icc 1 ⌊Q⌋₊, maximalPiAPError x q ≤ C*x/Real.log x^A :=
-  bombieriVinogradov_of_le_maximal_add_sqrt (by positivity) (fun hx _ hq => maximalPiAPError_le hx hq) A
+  bombieriVinogradov_of_le_maximal_add_sqrt (by positivity) (fun hx _ hq => maximalPiAPError_le_maximalPsi_add_sqrt hx hq) A
 
 end AnalyticNumberTheory.PrimeDistribution

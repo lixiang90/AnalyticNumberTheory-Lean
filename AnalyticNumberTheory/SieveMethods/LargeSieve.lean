@@ -4079,7 +4079,9 @@ private theorem complex_mul_star_eq_norm_sq (z : ℂ) :
     z * star z = ((‖z‖ ^ 2 : ℝ) : ℂ) := by
   rw [RCLike.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.ofReal_pow]
 
-private theorem character_sum_le_trigPoly_sum (a : ℕ → ℂ) (M N q : ℕ) (hq : 1 ≤ q) :
+/-- At one modulus, the primitive character energy is bounded by the
+additive energy at the reduced fractions with that denominator. -/
+theorem character_sum_le_trigPoly_sum (a : ℕ → ℂ) (M N q : ℕ) (hq : 1 ≤ q) :
     ((q : ℝ) / (q.totient : ℝ)) *
         ∑ χ ∈ (Finset.univ : Finset (DirichletCharacter ℂ q)).filter (fun χ => χ.IsPrimitive),
           ‖∑ n ∈ Finset.Ioc M (M + N), a n * χ n‖ ^ 2 ≤

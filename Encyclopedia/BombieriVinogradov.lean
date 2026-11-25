@@ -1,4 +1,5 @@
-import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradovDensityMethod
+import AnalyticNumberTheory.PrimeDistribution.BarbanDavenportHalberstam
+import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradovByZeroDensity
 import AnalyticNumberTheory.PrimeDistribution.BombieriVinogradovPrimeCounting
 import VersoManual
 
@@ -92,7 +93,7 @@ $$`M_\chi(x)\ll \sqrt{x}\,(1+\log(qx))^2+
 
 {docstring PrimitivePsiExplicitBound}
 
-在此前提下，对 $`Q<q\le R\le2Q` 求和，$`1/\varphi(q)` 的权与原始特征计数相配合，得到
+应用{ref "character-truncated-explicit-formula"}[非主特征的截断显式公式]，对 $`Q<q\le R\le2Q` 求和，$`1/\varphi(q)` 的权与原始特征计数相配合，得到
 
 $$`\sum_{Q<q\le R}\frac1{\varphi(q)}\sum_{\chi\bmod q}^{*}M_\chi(x)
 \ll \sqrt{x}\,Q(\log x)^{11}+xQ^{-1/3}(\log x)^{10}.`
@@ -112,3 +113,40 @@ $$`\sum_{Q<q\le R}\frac1{\varphi(q)}\sum_{\chi\bmod q}^{*}M_\chi(x)
 {docstring primitive_density_maximal_log_saving}
 
 {docstring bombieriVinogradov_of_density_explicit}
+
+把每个特征的截断公式代入导子平均，就得到零密度证法的无条件结论。设 $`x\ge4`、$`Q\ge1`。对于任意自然数 $`k`，若 $`Q\le\sqrt{x}/(\log x)^{k+12}`，则把每个模数的剩余类和截点 $`y` 分别最大化后，$`\psi` 的误差总和仍为 $`O_k(x/(\log x)^k)`。同一级别适用于 $`\theta` 和 $`\pi`，素数计数的主项为 $`\mathrm{Li}(y)/\varphi(q)`。
+
+{docstring primitive_dyadic_mean_by_zero_density}
+
+{docstring bombieriVinogradov_maximal_by_zero_density}
+
+{docstring bombieriVinogradov_maximal_theta_by_zero_density}
+
+{docstring bombieriVinogradov_maximal_pi_by_zero_density}
+
+# 素数在剩余类中的平方均值
+%%%
+tag := "barban-davenport-halberstam"
+file := "barban-davenport-halberstam"
+%%%
+
+{index}[Barban–Davenport–Halberstam 定理]设 $`A>0` 为常数，$`x`、$`Q` 为实数，且 $`x\ge2`、$`x/(\log x)^A\le Q\le x`。在每个模数的全部简化剩余类上，把 $`\psi(x;q,a)` 与 $`x/\varphi(q)` 之差平方再求和，则
+
+$$`\sum_{q\le Q}\ \sum_{\substack{0\le a<q\\ (a,q)=1}}
+ \left(\psi(x;q,a)-\frac{x}{\varphi(q)}\right)^2 \ll_A xQ\log x.`
+
+{docstring barban_davenport_halberstam}
+
+这里的 $`\psi` 用 von Mangoldt 函数加权，每个素数幂均按其权重计入。以 $`Q=x` 为例，平方误差总和是 $`O_A(x^2\log x)`。证明的第一步是对每个模数应用特征正交性。任取实数 $`m` 作为中心项的分子，Parseval 恒等式给出
+
+$$`\sum_{(a,q)=1}\left(\psi(x;q,a)-\frac{m}{\varphi(q)}\right)^2
+=\frac{1}{\varphi(q)}\sum_{\chi\bmod q}
+ \left|\psi(x,\chi)-\mathbf{1}_{\chi=\chi_0}m\right|^2.`
+
+{docstring progressionVariance_eq_character_mean}
+
+取 $`m=x`。素数定理控制主特征产生的误差。其余特征由原始特征诱导，替换时只须扣除整除模数的素数幂。最后按导子重排：小导子用 Siegel–Walfisz 定理，大导子用大筛。写 $`q=kd` 后保留 $`d\le Q/k`，使大筛估计中关于上限的线性项可对 $`k` 求和。
+
+{docstring progressionVariance_le_conductor_energy}
+
+{docstring barban_conductor_mean}

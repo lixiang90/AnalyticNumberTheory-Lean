@@ -1,7 +1,8 @@
+import AnalyticNumberTheory.PrimeDistribution.ConductorPolynomialMeans
 import AnalyticNumberTheory.SieveMethods.DirichletPolynomials
 import AnalyticNumberTheory.SieveMethods.HalaszMontgomery
 import AnalyticNumberTheory.SieveMethods.SeparatedMeanValues
-import AnalyticNumberTheory.SieveMethods.HuxleyCharacterLargeValues
+import AnalyticNumberTheory.SieveMethods.ConductorMultipleSampling
 import VersoManual
 
 open Verso.Genre Manual
@@ -50,3 +51,30 @@ $$`R\;\ll\;(1+\delta^{-1})\left(\frac{NG}{V^2}+
 证明先在 $`M\le n\le2M` 上对特征相关核移线。设高度窗口长为 $`W`，$`H=D(W+2)`。移线产生 $`M^{-1/(4+\log H)}`，对 $`M=1,2,4,\ldots` 求和至多损失一个 $`1+\log H` 因子。用带权 Cauchy–Schwarz 合并各块，可把系数能量精确加回 $`G`。最后把高度区间切成较短的窗口，使各窗口中与样本数成正比的项至多为该窗口样本数乘以 $`V^2/2`。这一步给出上界中的 $`V^{-6}` 项。
 
 {docstring full_character_sampling}
+
+若只取导子为 $`b` 的倍数的本原特征，且 $`1\le b\le Q`，则可在阈值和计数上界中同时取 $`D=\lfloor Q^2/b\rfloor`。理由是两特征的相关积可以提升到 $`\operatorname{lcm}(q,r)`。因 $`b\mid\gcd(q,r)`，这个模数至多为 $`Q^2/b`。同一改进也适用于任意有限高度窗口内的均方。
+
+{docstring common_conductor_window_mean}
+
+{docstring common_conductor_large_values}
+
+# 固定高度的导子平均
+%%%
+tag := "conductor-polynomial-means"
+file := "conductor-polynomial-means"
+%%%
+
+令 $`P_\chi(s)=\sum_{n\le N}a_n\chi(n)n^{-s}`。固定 $`s=1/2+it`，在 $`Q<q\le R` 的本原特征上应用大筛，得到
+
+$$`\sum_{Q<q\le R}\frac1{\varphi(q)}\sum_{\chi\bmod q}^{*}|P_\chi(s)|^2
+\le (2R+N/Q)\sum_{n\le N}\frac{|a_n|^2}{n},\qquad Q\ge1.`
+
+{docstring AnalyticNumberTheory.PrimeDistribution.conductor_polynomial_second_moment}
+
+模长至多为一的系数给出 $`1+\log N` 的对角和，因而可用于 Möbius 多项式。若 $`a_n=\Lambda(n)`，则用 $`\Lambda(n)\le\log N` 和 Mertens 和式得到 $`O((1+\log N)^2)`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.mangoldt_conductor_polynomial_second}
+
+对有界系数的四阶矩，将 $`P_\chi(s)^2` 写为长度 $`N^2` 的特征多项式。乘积系数的模由约数个数 $`d(n)` 控制。于是右端为 $`(2R+N^2/Q)(1+\log(N^2))^4`，对所有实数 $`t` 一致成立。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.bounded_conductor_polynomial_fourth}

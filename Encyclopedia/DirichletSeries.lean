@@ -4,6 +4,7 @@ import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.FrequencyUniqueness
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
 import AnalyticNumberTheory.DirichletSeries.FrequencyMeanValues
+import AnalyticNumberTheory.DirichletSeries.EventualLandau
 import VersoManual
 
 open Verso.Genre Manual
@@ -142,6 +143,50 @@ $$`\lim_{T\to\infty}\frac{1}{2T}\int_{-T}^{T}|F(\sigma+it)|^2\,dt
 例如 $`F(s)=2+3e^{-\sqrt{2}s}` 的二次均值是 $`4+9e^{-2\sqrt{2}\sigma}`。交叉项在对称平均中趋于零。
 
 {docstring DirichletFrequency.tendsto_vertical_mean_square}
+
+# 广义 Dirichlet 级数的逐项微分
+%%%
+tag := "general-dirichlet-derivatives"
+file := "termwise-derivatives"
+%%%
+
+频率 $`\lambda_n` 的指数项每求一次导数，就多出一个因子 $`-\lambda_n`。在{ref "general-dirichlet-convergence"}[有序收敛的开半平面]内，这给出任意阶导数的展开
+
+$$`F^{(k)}(s)=\sum_{n\ge0}(-\lambda_n)^k a_n e^{-\lambda_n s}.`
+
+{docstring DirichletFrequency.iteratedDeriv_sum}
+
+先对有限部分和求导，再用全纯函数序列的局部一致收敛把导数传到极限。每一阶加权部分和都在原来的开半平面内局部一致收敛。
+
+{docstring DirichletFrequency.tendstoLocallyUniformlyOn_weighted_partialSum}
+
+# 正系数级数的 Landau 奇点定理
+%%%
+tag := "landau-general-dirichlet"
+file := "landau-singularity"
+%%%
+
+设 $`a_n\ge0`。在实轴上，各项同号，因此有序收敛与绝对收敛具有相同的横坐标。在有限的收敛横坐标 $`\sigma_c` 处，和函数必有奇点。这里的结论也排除了与右半平面上的和函数相符的任何圆盘全纯延拓。
+
+{docstring DirichletFrequency.absoluteAbscissa_eq_of_nonneg}
+
+设级数在 $`\Re s>\sigma` 内收敛，并且能延拓到以 $`\sigma` 为中心、半径为 $`r` 的开圆盘。取实数 $`x<c`，其中 $`c>\sigma`，在 $`c` 处向左展开 Taylor 级数。由{ref "general-dirichlet-derivatives"}[逐项微分]，Taylor 展开中每个频率对第 $`k` 项的贡献为
+
+$$`a_n e^{-c\lambda_n}\frac{((c-x)\lambda_n)^k}{k!}.`
+
+{docstring DirichletFrequency.hasSum_taylorMoment_frequency}
+
+这些数非负。对 $`k` 求和得到 $`a_n e^{-x\lambda_n}`，于是 Taylor 级数的收敛给出原级数在 $`x` 处的绝对收敛。令 $`c` 从右方趋于 $`\sigma`，可使 $`x` 遍历圆盘内的左半段。因此 $`\sigma_a\le\sigma-r`，而且和函数在整个开圆盘上与给定的延拓相等。取 $`\sigma=\sigma_c` 就得到矛盾。
+
+{docstring DirichletFrequency.landau_absoluteAbscissa_le}
+
+{docstring DirichletFrequency.landau_eqOn_ball}
+
+有限个任意复系数只贡献一个整的指数多项式。去掉这些项后，以上奇点结论适用于最终为非负实数的系数。例如 $`\sum_{n\ge0}2^{-ns}=1/(1-2^{-s})` 的收敛横坐标为零。改变有限个系数，在 $`s=0` 的极点仍然存在。
+
+{docstring DirichletFrequency.sum_tail_eq_sub}
+
+{docstring DirichletFrequency.no_continuation_of_eventually_nonneg}
 
 # 指数平滑与 Ramachandra 公式
 %%%

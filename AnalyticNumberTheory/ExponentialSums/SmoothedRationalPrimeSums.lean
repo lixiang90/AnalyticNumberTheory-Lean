@@ -44,23 +44,23 @@ theorem logSmoothedPsiChar_mean :
   rw [← sum_erase_add _ _ (mem_univ (1 : DirichletCharacter ℂ q))]
   exact (add_le_add hrest hprincipal).trans_eq (by change K*M+c*M=(K+c)*M; ring)
 
-/-- At any reduced rational phase a/q, logarithmic smoothing gives the two
-terms x/sqrt(q) times (1+log x)⁵ and x^(3/4) q^(1/4) times (1+log x)⁴.
-The absolute constant is uniform for every positive modulus q ≤ x. -/
-theorem logSmoothedPrimeExpSum_rational_contour :
+/-- The contour estimate retaining the exact ratio q/φ(q) in front of the
+two terms. This keeps the arithmetic dependence separate from the logarithms
+introduced by the analytic estimates. -/
+theorem logSmoothedPrimeExpSum_rational_totient :
     ∃ C : ℝ, 0 < C ∧ ∀ {q : ℕ} [NeZero q] {a : ℤ} {x : ℝ},
       a.natAbs.Coprime q → (q : ℝ) ≤ x →
       ‖logSmoothedPrimeExpSum x ((a : ℝ)/q)‖ ≤
-        C * ((x/Real.sqrt q)*(1+Real.log x)^5 + x^(3/4 : ℝ)*(q : ℝ)^(1/4 : ℝ)*(1+Real.log x)^4) := by
+        C*((q : ℝ)/q.totient)*((x/Real.sqrt q)*(1+Real.log x)^4 + x^(3/4 : ℝ)*(q : ℝ)^(1/4 : ℝ)*(1+Real.log x)^3) := by
   obtain ⟨K,hK,mean⟩ := logSmoothedPsiChar_mean
   let D := 1/Real.log 2
   have hD : 0 < D := by dsimp [D]; positivity
-  refine ⟨D+6*K, by positivity, ?_⟩
+  refine ⟨D+K, by positivity, ?_⟩
   intro q _ a x ha hqx
   let L := 1+Real.log x
   let U := x/Real.sqrt q
   let V := x^(3/4 : ℝ)*(q : ℝ)^(1/4 : ℝ)
-  let T := U*L^5 + V*L^4
+  let T := U*L^4 + V*L^3
   have hq₁ : (1 : ℝ) ≤ q := by exact_mod_cast NeZero.pos q
   have hq₀ := zero_lt_one.trans_le hq₁
   have hx := hq₁.trans hqx
@@ -72,8 +72,8 @@ theorem logSmoothedPrimeExpSum_rational_contour :
   have hL₀ := zero_le_one.trans hL
   have hU : 1 ≤ U := (one_le_div hroot).mpr ((Real.sqrt_le_iff.mpr ⟨hq₀.le, by nlinarith only [mul_nonneg hq₀.le (sub_nonneg.mpr hq₁)]⟩).trans hqx)
   have hV : 0 ≤ V := by dsimp [V]; positivity
-  have hfirst : L^3 ≤ T := (pow_le_pow_right₀ hL (by decide : 3 ≤ 5)).trans
-    ((le_mul_of_one_le_left (pow_nonneg hL₀ 5) hU).trans (le_add_of_nonneg_right (by positivity : 0 ≤ V*L^4)))
+  have hfirst : L^3 ≤ T := (pow_le_pow_right₀ hL (by decide : 3 ≤ 4)).trans
+    ((le_mul_of_one_le_left (pow_nonneg hL₀ 4) hU).trans (le_add_of_nonneg_right (by positivity : 0 ≤ V*L^3)))
   have herr : (Real.log q/Real.log 2)*(Real.log x)^2/2 ≤ D*T := by
     have hp : Real.log q*(Real.log x)^2 ≤ L*L^2 :=
       mul_le_mul (by dsimp [L]; linarith only [hlog]) (pow_le_pow_left₀ hlogx (by dsimp [L]; linarith) 2)
@@ -97,20 +97,50 @@ theorem logSmoothedPrimeExpSum_rational_contour :
     calc
       _ = (Real.sqrt q*U)*L^4 + (Real.sqrt q*V)*L^3 := by rw [hUeq,hpow]
       _ = _ := by ring
-  have hratio := (div_totient_le_six_mul_log (NeZero.pos q)).trans
-    (mul_le_mul_of_nonneg_left (add_le_add_right hlog 1) (by norm_num : (0 : ℝ) ≤ 6))
+  let R := (q : ℝ)/q.totient
+  have hφ : (0 : ℝ)<q.totient := Nat.cast_pos.mpr (Nat.totient_pos.mpr (NeZero.pos q))
+  have hR : 1 ≤ R := (one_le_div hφ).mpr (Nat.cast_le.mpr (Nat.totient_le q))
+  have hT := (pow_nonneg hL₀ 3).trans hfirst
+  have herr' : (Real.log q/Real.log 2)*(Real.log x)^2/2 ≤ D*R*T := by
+    apply herr.trans
+    exact (mul_le_mul_of_nonneg_left (le_mul_of_one_le_left hT hR) hD.le).trans_eq (by ring)
   have hsum := mean hqx
   change _ ≤ K*(x*L^4 + (x*q)^(3/4 : ℝ)*L^3) at hsum
   rw [hscale] at hsum
-  have hm : (Real.sqrt q/q.totient)*(∑ χ : DirichletCharacter ℂ q, ‖logSmoothedPsiChar χ x‖) ≤ (6*K)*T := by
-    apply (mul_le_mul_of_nonneg_left hsum (by positivity : 0 ≤ Real.sqrt q/q.totient)).trans
+  have hm : (Real.sqrt q/q.totient)*(∑ χ : DirichletCharacter ℂ q, ‖logSmoothedPsiChar χ x‖) ≤ K*R*T := by
+    apply (mul_le_mul_of_nonneg_left hsum (by positivity : 0 ≤ Real.sqrt q/q.totient)).trans_eq
     calc
       _ = ((q : ℝ)/q.totient)*(K*(U*L^4 + V*L^3)) := by
         simp only [div_eq_mul_inv]
         linear_combination (q.totient : ℝ)⁻¹*K*(U*L^4 + V*L^3) * Real.sq_sqrt hq₀.le
-      _ ≤ (6*L)*(K*(U*L^4 + V*L^3)) := mul_le_mul_of_nonneg_right hratio (by positivity)
-      _ = _ := by dsimp only [T]; ring
+      _ = K*R*T := by dsimp only [R,T]; ring
   exact (norm_logSmoothedPrimeExpSum_le_character_mean ha hx).trans
-    ((add_le_add herr hm).trans_eq (by change D*T+(6*K)*T=(D+6*K)*T; ring))
+    ((add_le_add herr' hm).trans_eq (by change D*R*T+K*R*T=(D+K)*R*T; ring))
+
+/-- At any reduced rational phase a/q, logarithmic smoothing gives the two
+terms x/sqrt(q) times (1+log x)⁵ and x^(3/4) q^(1/4) times (1+log x)⁴.
+The absolute constant is uniform for every positive modulus q ≤ x. -/
+theorem logSmoothedPrimeExpSum_rational_contour :
+    ∃ C : ℝ, 0 < C ∧ ∀ {q : ℕ} [NeZero q] {a : ℤ} {x : ℝ},
+      a.natAbs.Coprime q → (q : ℝ) ≤ x →
+      ‖logSmoothedPrimeExpSum x ((a : ℝ)/q)‖ ≤
+        C * ((x/Real.sqrt q)*(1+Real.log x)^5 + x^(3/4 : ℝ)*(q : ℝ)^(1/4 : ℝ)*(1+Real.log x)^4) := by
+  obtain ⟨K,hK,H⟩ := logSmoothedPrimeExpSum_rational_totient
+  refine ⟨6*K, by positivity,?_⟩
+  intro q _ a x ha hqx
+  have hq₁ : (1 : ℝ) ≤ q := by exact_mod_cast NeZero.pos q
+  have hx := hq₁.trans hqx
+  have hx₀ := zero_lt_one.trans_le hx
+  let L := 1+Real.log x
+  let U := x/Real.sqrt q
+  let V := x^(3/4 : ℝ)*(q : ℝ)^(1/4 : ℝ)
+  have hL : 0 ≤ L := by dsimp only [L]; linarith only [Real.log_nonneg hx]
+  have hU : 0 ≤ U := by dsimp [U]; positivity
+  have hV : 0 ≤ V := by dsimp [V]; positivity
+  have hr : (q : ℝ)/q.totient ≤ 6*L := (div_totient_le_six_mul_log (NeZero.pos q)).trans
+    (mul_le_mul_of_nonneg_left (add_le_add_right (Real.log_le_log (zero_lt_one.trans_le hq₁) hqx) 1) (by norm_num))
+  apply (H ha hqx).trans
+  change K*_* (U*L^4+V*L^3) ≤ (6*K)*(U*L^5+V*L^4)
+  exact (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr hK.le) (by positivity)).trans_eq (by ring)
 
 end AnalyticNumberTheory.ExponentialSums

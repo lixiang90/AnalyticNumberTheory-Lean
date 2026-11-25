@@ -8,6 +8,8 @@ import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
 import AnalyticNumberTheory.ExponentialSums.PrimeDensityWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
 import AnalyticNumberTheory.ExponentialSums.PrimeContourWeights
+import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeTotientBound
+import AnalyticNumberTheory.AdditiveNumberTheory.GaussCoefficientBounds
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -262,6 +264,18 @@ $$`\left|\sum_{n\le x}\Lambda(n)e(an/q)\log(x/n)\right|
 {docstring norm_logSmoothedPrimeExpSum_le_character_mean}
 
 {docstring logSmoothedPrimeExpSum_rational_contour}
+
+把 $`q/\varphi(q)` 保留到最后一步，模数的贡献可更精确地写为 $`\log\log(10q)`。由{ref "reciprocal-totient"}[欧拉函数的下界]，每个 Gauss 系数至多为常数倍的 $`\sqrt{\operatorname{cond}(\chi)}\log\log(10q)/q`。平滑和因此满足
+
+$$`|S_1(a/q,x)|\ll
+\log\log(10q)\left(\frac{x}{\sqrt q}(1+\log x)^4
++x^{3/4}q^{1/4}(1+\log x)^3\right).`
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.rationalCharacterCoefficient_loglog}
+
+{docstring logSmoothedPrimeExpSum_rational_totient}
+
+{docstring logSmoothedPrimeExpSum_rational_loglog}
 
 # 用对数平滑和恢复截断素数和
 %%%

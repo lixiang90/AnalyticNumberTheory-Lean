@@ -1,6 +1,7 @@
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
 import AnalyticNumberTheory.PrimeDistribution.LeastPrime
 import AnalyticNumberTheory.PrimeDistribution.LeastPrimeSubexponential
+import AnalyticNumberTheory.PrimeDistribution.ReciprocalTotient
 import VersoManual
 
 open Verso.Genre Manual
@@ -32,3 +33,33 @@ $$`|\psi(x)-x|\le Cx\exp(-c\sqrt{\log x}).`
 对任意固定的 $`ε>0`，把{ref "primes-in-progressions"}[Siegel–Walfisz 定理]中的截点取作 $`x=\exp(Cq^ε)`，可以使主项压过误差。取充分大的常数 $`C`，此结论对每个正模数和每个简化剩余类都成立。
 
 {docstring leastPrimeAP_le_exp_rpow}
+
+# 欧拉函数的倒数与 Mertens 乘积
+%%%
+tag := "reciprocal-totient"
+file := "reciprocal-totient"
+%%%
+
+{index}[欧拉函数]对每个正整数 $`n`，欧拉乘积表明 $`n/\varphi(n)` 的大小只由 $`n` 的不同素因子决定。每个素因子至少是 $`2`，所以它们的个数 $`\omega(n)` 满足 $`\omega(n)\log 2\le\log n`。
+
+{docstring div_totient_eq_reciprocal_product}
+
+{docstring primeFactors_card_mul_log_two_le}
+
+任取 $`y\ge2`。在 $`p\le y` 的部分，补入所有遗漏的素数只会增大乘积。Mertens 第三定理的对数误差式给出 $`\prod_{p\le y}(1-1/p)^{-1}\ll\log y`，常数从 $`y=2` 起一致。
+
+{docstring reciprocal_mertens_product_le}
+
+在 $`p>y` 的部分，每个因子等于 $`1+1/(p-1)\le\exp(2/y)`。由此得到
+
+$$`\frac{n}{\varphi(n)}\le
+\prod_{p\le y}(1-1/p)^{-1}
+\exp\!\left(\frac{2\log n}{y\log 2}\right).`
+
+{docstring reciprocal_totient_large_primes_le}
+
+{docstring div_totient_le_mertens_mul_exp}
+
+取 $`y=\log(10n)`，大素因子的总贡献便被绝对常数控制。于是对包括 $`n=1` 在内的所有正整数都有 $`n/\varphi(n)\ll\log\log(10n)`。这一估计直接用于{ref "smoothed-rational-prime-bound"}[有理频率的 Gauss 系数]。
+
+{docstring div_totient_le_loglog}

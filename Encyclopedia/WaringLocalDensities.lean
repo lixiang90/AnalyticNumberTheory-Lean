@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.WaringUniformDensities
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringLocalDensities
 import AnalyticNumberTheory.AdditiveNumberTheory.WaringSeriesPositivity
 import VersoManual
@@ -33,3 +34,23 @@ file := "waring-local-densities"
 对于整除 $`k` 的素数，在模 $`p` 下可解还不足以直接套用单根提升。这里取 $`2v_p(k)+1` 层作为起点，用 Hensel 引理提升，再对其余变量的自由取值计数。合并有限个小素数的显式界与大素数乘积的尾部估计，就得到一个对所有 $`n` 都有效的正下界。下面给出便于应用的一组充分条件。
 
 {docstring exists_pos_le_waringSingularSeries_re_of_cube}
+
+# 四倍次数下的一致正下界
+%%%
+tag := "waring-four-degree-local"
+file := "unit-coordinates"
+%%%
+
+设 $`k\ge1`。对每个素数幂 $`p^h`，只要 $`s\ge4k`，每个剩余类都有一个含单位坐标的 $`s` 项表示。证明按单位的 $`k` 次幂陪集分类。每增加两个变量，至少能达到一个原先遗漏的单位类，直到覆盖全部单位；非单位只需再加一个一。
+
+{docstring waring_prime_power_unit_representation}
+
+在精度 $`p^{2v_p(k)+1}` 处选出一个单位坐标，任意提升其余坐标。剩下一个单位的 $`k` 次幂方程，由 Hensel 引理求解。因此每个局部因子都得到与目标 $`n` 无关的下界。将各素数处的结果合并，对所有 $`n` 有 $`\mathfrak S_{k,s}(n)\ge c_{k,s}>0`。
+
+{docstring waringLocalFactor_re_ge_of_four_mul}
+
+{docstring exists_pos_le_waringSingularSeries_re_of_four_mul}
+
+结合{ref "waring"}[圆法渐近公式]，当 $`k\ge2`、$`s>2^k` 且 $`s\ge4k` 时，每个充分大的整数都能写成 $`s` 个非负整数的 $`k` 次幂之和。
+
+{docstring eventually_waringCount_pos_of_four_mul}

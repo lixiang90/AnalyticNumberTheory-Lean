@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.VinogradovKorobovPNT
 import AnalyticNumberTheory.PrimeDistribution.ImprovedPrimeNumberTheorem
 import AnalyticNumberTheory.RiemannZeta.Littlewood
 import VersoManual
@@ -6,7 +7,7 @@ open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open AnalyticNumberTheory.RiemannZeta AnalyticNumberTheory.ExponentialSums
 
-#doc (Manual) "Littlewood 对 ζ 函数无零区的改进" =>
+#doc (Manual) "ζ 函数的 Littlewood 与 Vinogradov–Korobov 无零区" =>
 %%%
 tag := "littlewood-zero-free"
 file := "littlewood-zero-free"
@@ -63,3 +64,32 @@ $$`\psi(x)=x+O_d\!\left(xe^{-d\sqrt{\log x}}\right).`
 对 $`\vartheta(x)-x` 和 $`\pi(x)-\operatorname{li}(x)` 也成立同阶估计。证明先为指定的 $`d` 选择显式公式的截断高度，并用无对数损失的密度界估计零点贡献。随后扣除高次素数幂，用分部求和转回素数个数。
 
 {docstring AnalyticNumberTheory.PrimeDistribution.prime_number_theorem_arbitrary_exp}
+
+# Vinogradov–Korobov 无零区
+%%%
+tag := "vinogradov-korobov-zero-free"
+file := "vinogradov-korobov"
+%%%
+
+{index}[Vinogradov–Korobov 无零区]在高度 $`t\ge16`、$`1\le N\le t`、$`N\le M\le 2N` 时，{ref "vinogradov-mean-values"}[Vinogradov 平均值定理]给出一致的对数相位和估计
+
+$$`\left|\sum_{N<n\le M}n^{it}\right|
+\le CN\exp\!\left(-c\frac{(\log N)^3}{(\log t)^2}\right).`
+
+{docstring vinogradov_logarithmic_block}
+
+对 $`0\le\eta\le1/4`、$`\sigma\ge1-\eta` 和 $`|t|\ge16`，按长度分段估计 Dirichlet 和，并将实部权重与分段相消相平衡，可得 $`|\zeta(\sigma+it)|\le D(1+\log |t|)\exp(K\eta^{3/2}\log|t|)`。把此界代入圆盘上的对数导数估计，可证存在常数 $`b>0`，使所有充分大的 $`|t|` 满足
+
+$$`\zeta(\sigma+it)\ne0\qquad\left(\sigma\ge 1-\frac{b}{(\log |t|)^{2/3}(\log\log |t|)^{1/3}}\right).`
+
+{docstring vinogradovKorobov_strip_growth}
+
+{docstring vinogradovKorobov_zero_free}
+
+在{ref "prime-counting"}[素数定理]中，记 $`E(x)=(\log x)^{3/5}(\log\log x)^{-1/5}`。取适当的截断高度，零点和与截断误差同时降到 $`O(xe^{-dE(x)})`。对某个常数 $`d>0`，三个计数函数都有这个误差阶，主项分别是 $`x`、$`x` 和对数积分 $`\operatorname{li}(x)`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.psi_error_vinogradovKorobov}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.theta_error_vinogradovKorobov}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.primePi_error_vinogradovKorobov}

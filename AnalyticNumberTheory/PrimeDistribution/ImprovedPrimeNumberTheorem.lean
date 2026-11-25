@@ -14,7 +14,8 @@ open Finset Real Complex Filter Asymptotics MeasureTheory
 open scoped Topology
 namespace AnalyticNumberTheory.PrimeDistribution
 
-private theorem explicit_formula_global_weight :
+/-- A global version of the truncated explicit formula with an absolute zero sum. -/
+theorem explicit_formula_global_weight :
     ∃ D : ℝ, 0<D ∧ ∀ {x T : ℝ}, 2≤x → 2≤T → T≤x →
       |Chebyshev.psi x-x| ≤ D*(1+x*(Real.log x)^2/T+Real.log x+
         x*∑ ρ∈nontrivialZerosUpTo T,(zeroMultiplicity ρ:ℝ)*x^(ρ.re-1)) := by
@@ -159,12 +160,15 @@ private theorem integrable_theta_error {x : ℝ} (hx : 2≤x) :
     fun_prop (disch := positivity)
   simpa only [sub_div] using hi.sub (hj.intervalIntegrable_of_Icc hx)
 
-/-- Abel summation transfers the exponential improvement to the difference
-between prime counting and the logarithmic integral. -/
-theorem primePi_error_arbitrary_exp_of_growing_gap (hz : GrowingZetaScaledGap) {d : ℝ} (hd : 0<d) :
-    ∃ C : ℝ, 0<C ∧ ∀ᶠ x : ℝ in atTop,
-      |primePi x-logIntegral x|≤C*x*Real.exp (-d*√(Real.log x)) := by
-  obtain ⟨C,hC,H⟩ := theta_error_arbitrary_exp_of_growing_gap hz (show 0<2*d by positivity)
+/-- Abel summation transfers a general exponential or slowly varying error from
+theta to prime counting. It suffices to compare the weights on the range from
+the square root of the endpoint to the endpoint. -/
+theorem primePi_error_of_theta_weight {F E : ℝ → ℝ} (hE0 : ∀ x, 0≤E x)
+    (H : ∃ C>(0:ℝ), ∀ᶠ x : ℝ in atTop, |Chebyshev.theta x-x|≤C*x*F x)
+    (hscale : ∀ᶠ x : ℝ in atTop, √x≤x*E x)
+    (hlocal : ∀ᶠ x : ℝ in atTop, ∀ t : ℝ, √x≤t → t≤x → F t≤E x) :
+    ∃ C>(0:ℝ), ∀ᶠ x : ℝ in atTop, |primePi x-logIntegral x|≤C*x*E x := by
+  obtain ⟨C,hC,H⟩ := H
   obtain ⟨U,hU⟩ := eventually_atTop.mp H
   have h₂ : 0<Real.log 2 := Real.log_pos (by norm_num)
   let B := (Real.log 4+1)/(Real.log 2)^2
@@ -173,9 +177,9 @@ theorem primePi_error_arbitrary_exp_of_growing_gap (hz : GrowingZetaScaledGap) {
   have hD : 0<D := by dsimp [D]; positivity
   refine ⟨C/Real.log 2+2/Real.log 2+B+D,by positivity,?_⟩
   filter_upwards [Real.tendsto_sqrt_atTop.eventually_ge_atTop U,Real.tendsto_sqrt_atTop.eventually_ge_atTop 2,
-    eventually_ge_atTop (4:ℝ),eventually_sqrt_le_exp_error d] with x hUs hxs hx hscale
+    eventually_ge_atTop (4:ℝ),hscale,hlocal] with x hUs hxs hx hscale hloc
   let s := √x
-  let E := Real.exp (-d*√(Real.log x))
+  let e := E x
   let f (t : ℝ) := (Chebyshev.theta t-t)/(t*(Real.log t)^2)
   have hx' : 0<x := by linarith
   have hsx : s≤x := Real.sqrt_le_self_iff.mpr (.inr (by linarith))
@@ -202,40 +206,30 @@ theorem primePi_error_arbitrary_exp_of_growing_gap (hz : GrowingZetaScaledGap) {
           Chebyshev.theta_nonneg t,mul_nonneg (Real.log_nonneg (by norm_num : (1:ℝ)≤4)) (show 0≤t by linarith [ht.1])])
     rw [Real.norm_eq_abs,abs_of_nonneg (sub_nonneg.mpr hxs)] at hbd
     nlinarith only [hbd,hB]
-  have hE : 0<E := Real.exp_pos _
-  have hright : |∫ t in s..x,f t| ≤ D*x*E := by
+  have he : 0≤e := hE0 x
+  have hright : |∫ t in s..x,f t| ≤ D*x*e := by
     have hbd := intervalIntegral.norm_integral_le_of_norm_le_const (a:=s) (b:=x) (f:=f)
-      (C:=D*E) (fun t ht => by
+      (C:=D*e) (fun t ht => by
         rw [Set.uIoc_of_le hsx] at ht
-        have hg := Real.log_le_log hs' ht.1.le
-        change Real.log (√x)≤Real.log t at hg
-        rw [Real.log_sqrt hx'.le] at hg
-        have hlx := Real.log_nonneg (show 1≤x by linarith)
-        have hlt := Real.log_nonneg (show 1≤t by linarith [ht.1,hxs])
-        have hlog : √(Real.log x)≤2*√(Real.log t) := by
-          apply (sq_le_sq₀ (Real.sqrt_nonneg _) (by positivity)).mp
-          rw [mul_pow,Real.sq_sqrt hlx,Real.sq_sqrt hlt]; nlinarith
-        have he : Real.exp (-(2*d)*√(Real.log t))≤E := Real.exp_le_exp.mpr (by
-          nlinarith only [mul_le_mul_of_nonneg_left hlog hd.le])
+        have hdec := hloc t ht.1.le ht.2
         have ht' := hU t (hUs.trans ht.1.le)
-        have hb : |Chebyshev.theta t-t|≤(C*E)*t := by
-          nlinarith only [ht',mul_le_mul_of_nonneg_left he (show 0≤C*t by positivity [show 0<t by linarith [ht.1,hxs]])]
-        exact (hcmp (hxs.trans ht.1.le) (mul_nonneg hC.le hE.le) hb).trans_eq (by dsimp [D]; ring))
+        have hb : |Chebyshev.theta t-t|≤(C*e)*t := by
+          nlinarith only [ht',mul_le_mul_of_nonneg_left hdec (show 0≤C*t by positivity [show 0<t by linarith [ht.1,hxs]])]
+        exact (hcmp (hxs.trans ht.1.le) (mul_nonneg hC.le he) hb).trans_eq (by dsimp [D]; ring))
     rw [Real.norm_eq_abs,abs_of_nonneg (sub_nonneg.mpr hsx)] at hbd
-    nlinarith only [hbd,mul_nonneg (mul_nonneg hD.le hE.le) hs'.le]
-  have hfx : |∫ t in (2:ℝ)..x,f t|≤ B*s+D*x*E := by
+    nlinarith only [hbd,mul_nonneg (mul_nonneg hD.le he) hs'.le]
+  have hfx : |∫ t in (2:ℝ)..x,f t|≤ B*s+D*x*e := by
     rw [←intervalIntegral.integral_add_adjacent_intervals hi₁ hi₂]
     exact (abs_add_le ..).trans (add_le_add hleft hright)
   have hθ := hU x (hUs.trans hsx)
-  have hdec : Real.exp (-(2*d)*√(Real.log x))≤E := Real.exp_le_exp.mpr (by
-    nlinarith only [mul_nonneg hd.le (Real.sqrt_nonneg (Real.log x))])
+  have hdec := hloc x hsx le_rfl
   have hxlog := Real.log_le_log (by norm_num : (0:ℝ)<2) (by linarith : 2≤x)
-  have hfirst : |(Chebyshev.theta x-x)/Real.log x|≤(C/Real.log 2)*x*E := by
+  have hfirst : |(Chebyshev.theta x-x)/Real.log x|≤(C/Real.log 2)*x*e := by
     rw [abs_div,abs_of_pos (h₂.trans_le hxlog)]
-    calc _ ≤ (C*x*E)/Real.log 2 := by gcongr; exact hθ.trans (mul_le_mul_of_nonneg_left hdec (by positivity))
+    calc _ ≤ (C*x*e)/Real.log 2 := by gcongr; exact hθ.trans (mul_le_mul_of_nonneg_left hdec (by positivity))
          _ = _ := by ring
-  have hsE : s≤x*E := hscale
-  have hone : 1≤x*E := (show 1≤s by linarith).trans hsE
+  have hsE : s≤x*e := hscale
+  have hone : 1≤x*e := (show 1≤s by linarith).trans hsE
   have hconst := mul_le_mul_of_nonneg_left hone (show 0≤2/Real.log 2 by positivity)
   have hid := primePi_sub_li_eq_theta_sub_id_abel (show 2≤x by linarith)
   change primePi x-logIntegral x=(Chebyshev.theta x-x)/Real.log x+2/Real.log 2+∫ t in (2:ℝ)..x,f t at hid
@@ -244,6 +238,26 @@ theorem primePi_error_arbitrary_exp_of_growing_gap (hz : GrowingZetaScaledGap) {
   rw [abs_of_nonneg (by positivity : 0≤2/Real.log 2)] at ht1
   exact (abs_add_le ..).trans ((add_le_add ht1 hfx).trans (by
     nlinarith only [hfirst,hconst,mul_le_mul_of_nonneg_left hsE hB.le]))
+
+/-- Abel summation transfers the exponential improvement to the difference
+between prime counting and the logarithmic integral. -/
+theorem primePi_error_arbitrary_exp_of_growing_gap (hz : GrowingZetaScaledGap) {d : ℝ} (hd : 0<d) :
+    ∃ C : ℝ, 0<C ∧ ∀ᶠ x : ℝ in atTop,
+      |primePi x-logIntegral x|≤C*x*Real.exp (-d*√(Real.log x)) := by
+  apply primePi_error_of_theta_weight (F:=fun x => Real.exp (-(2*d)*√(Real.log x)))
+    (fun _ => (Real.exp_pos _).le) (theta_error_arbitrary_exp_of_growing_gap hz (by positivity))
+    (eventually_sqrt_le_exp_error d)
+  filter_upwards [eventually_ge_atTop (4:ℝ)] with x hx t ht _
+  have hs : 0<√x := Real.sqrt_pos.mpr (by linarith)
+  have hg := Real.log_le_log hs ht
+  rw [Real.log_sqrt (by linarith)] at hg
+  have hlx := Real.log_nonneg (by linarith : 1≤x)
+  have hlt := Real.log_nonneg (by nlinarith [Real.sq_sqrt (by linarith : 0≤x)] : 1≤t)
+  apply Real.exp_le_exp.mpr
+  have hlog : √(Real.log x)≤2*√(Real.log t) := by
+    apply (sq_le_sq₀ (Real.sqrt_nonneg _) (by positivity)).mp
+    rw [mul_pow,Real.sq_sqrt hlx,Real.sq_sqrt hlt]; linarith
+  nlinarith only [mul_le_mul_of_nonneg_left hlog hd.le]
 
 /-- For each fixed positive d, the error of the prime number theorem for
 ψ is O_d(x exp(−d sqrt(log x))). -/

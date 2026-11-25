@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.SieveMethods.DickmanFunction
 import AnalyticNumberTheory.SieveMethods.CombinatorialSieve
 import AnalyticNumberTheory.SieveMethods.LargeSieve
 import AnalyticNumberTheory.SieveMethods.LegendrePrimeCounting
@@ -111,3 +112,21 @@ $$`|S-XV(z)|\le 2A X V(z)e^{-u\log u/2}
 第一项只取决于筛密度，第二项保留了原序列在截断范围内的算术误差。
 
 {docstring siftedCount_fundamental_lemma}
+
+# Dickman 函数与上下筛之差
+%%%
+tag := "sieve-dickman"
+file := "dickman"
+%%%
+
+{index}[Dickman 函数]在 $`0\le v\le 1` 上取一，随后满足 $`v\rho'(v)=-\rho(v-1)`。这个延迟方程把线性筛的两个主函数联系起来。对 $`u\ge1` 有
+
+$$`F(u)-f(u)=\frac{2e^\gamma}{u}\rho(u-1).`
+
+{docstring linearSieve_gap_eq_dickman}
+
+滑动区间上的积分恒等式给出 $`\rho(v)>0`，并可逐个单位区间迭代。对整数 $`n\ge0` 和 $`v\ge n`，有 $`\rho(v)\le1/n!`。因此在 $`u\ge n+1` 时，上下筛主函数之差严格为正，且至多为 $`2e^\gamma/(u\,n!)`。
+
+{docstring dickman_le_inv_factorial}
+
+{docstring linearSieve_gap_le_factorial}

@@ -21,23 +21,27 @@ def LittlewoodStripGrowth : Prop :=
     ∀ᶠ T : ℝ in atTop, ∀ z : ℂ, 1-η ≤ z.re → z.re ≤ 2 → T ≤ |z.im| → |z.im| ≤ 3*T →
       ‖riemannZeta z‖ ≤ T^(ε*η)
 
-private noncomputable def center (h y : ℝ) : ℂ := ((1+h:ℝ):ℂ)+y*I
+/-- Center to the right of the line of absolute convergence used in the zero detector. -/
+noncomputable def zetaZeroDiskCenter (h y : ℝ) : ℂ := ((1+h:ℝ):ℂ)+y*I
 
-private theorem center_re (h y : ℝ) : (center h y).re = 1+h := by simp [center]
-private theorem center_im (h y : ℝ) : (center h y).im = y := by simp [center]
+private theorem center_re (h y : ℝ) : (zetaZeroDiskCenter h y).re = 1+h := by simp [zetaZeroDiskCenter]
+private theorem center_im (h y : ℝ) : (zetaZeroDiskCenter h y).im = y := by simp [zetaZeroDiskCenter]
 
-private theorem disk_bound {ε R h u y : ℝ} (hε : 0 < ε) (hR : 0 < R) (hR' : R ≤ 1/4)
-    (hh : 0 < h) (hh' : h ≤ 1/4) (hu : 4 ≤ u) (hy₁ : u ≤ |y|) (hy₂ : |y| ≤ 2*u)
-    (hg : ∀ z : ℂ, 1-R ≤ z.re → z.re ≤ 2 → 3*u/4 ≤ |z.im| → |z.im| ≤ 3*(3*u/4) →
-      ‖riemannZeta z‖ ≤ (3*u/4)^(ε*R)) (hinv : 2/h ≤ u^(ε*R)) :
-    AnalyticOnNhd ℂ riemannZeta (closedBall (center h y) R) ∧ riemannZeta (center h y) ≠ 0 ∧
-      ∀ w ∈ sphere (center h y) R, ‖riemannZeta w/riemannZeta (center h y)‖ ≤ u^(2*(ε*R)) := by
-  have hdist (w : ℂ) (hw : w ∈ closedBall (center h y) R) :
+/-- A strip bound around the height of the disk controls the quotient in
+Landau's local logarithmic-derivative estimate. -/
+theorem zeta_disk_bound_of_strip_norm {R h u y G : ℝ} (hR' : R ≤ 1/4)
+    (hh : 0<h) (hh' : h≤1/4) (hu : 4≤u) (hy₁ : u≤|y|) (hy₂ : |y|≤2*u)
+    (hg : ∀ z : ℂ, 1-R≤z.re → z.re≤2 → 3*u/4≤|z.im| → |z.im|≤3*(3*u/4) →
+      ‖riemannZeta z‖≤G) :
+    AnalyticOnNhd ℂ riemannZeta (closedBall (zetaZeroDiskCenter h y) R) ∧
+      riemannZeta (zetaZeroDiskCenter h y)≠0 ∧ ∀ w∈sphere (zetaZeroDiskCenter h y) R,
+      ‖riemannZeta w/riemannZeta (zetaZeroDiskCenter h y)‖≤G*(2/h) := by
+  have hdist (w : ℂ) (hw : w ∈ closedBall (zetaZeroDiskCenter h y) R) :
       |w.re-(1+h)| ≤ R ∧ |w.im-y| ≤ R := by
-    have hd : ‖w-center h y‖ ≤ R := by simpa [mem_closedBall,dist_eq_norm] using hw
-    exact ⟨by simpa only [Complex.sub_re,center_re] using (Complex.abs_re_le_norm (w-center h y)).trans hd,
-      by simpa only [Complex.sub_im,center_im] using (Complex.abs_im_le_norm (w-center h y)).trans hd⟩
-  have him (w : ℂ) (hw : w ∈ closedBall (center h y) R) : 3*u/4 ≤ |w.im| ∧ |w.im| ≤ 3*(3*u/4) := by
+    have hd : ‖w-zetaZeroDiskCenter h y‖ ≤ R := by simpa [mem_closedBall,dist_eq_norm] using hw
+    exact ⟨by simpa only [Complex.sub_re,center_re] using (Complex.abs_re_le_norm (w-zetaZeroDiskCenter h y)).trans hd,
+      by simpa only [Complex.sub_im,center_im] using (Complex.abs_im_le_norm (w-zetaZeroDiskCenter h y)).trans hd⟩
+  have him (w : ℂ) (hw : w ∈ closedBall (zetaZeroDiskCenter h y) R) : 3*u/4 ≤ |w.im| ∧ |w.im| ≤ 3*(3*u/4) := by
     have hab := abs_sub_abs_le_abs_sub w.im y
     have hba := abs_sub_abs_le_abs_sub y w.im
     rw [abs_sub_comm y w.im] at hba
@@ -45,61 +49,71 @@ private theorem disk_bound {ε R h u y : ℝ} (hε : 0 < ε) (hR : 0 < R) (hR' :
     constructor <;> linarith
   have hdiff : DifferentiableOn ℂ riemannZeta {z : ℂ | z ≠ 1} := fun z hz =>
     (differentiableAt_riemannZeta hz).differentiableWithinAt
-  have hnoPole : ∀ w ∈ closedBall (center h y) R, w ≠ 1 := by
+  have hnoPole : ∀ w ∈ closedBall (zetaZeroDiskCenter h y) R, w ≠ 1 := by
     intro w hw he
     have := (him w hw).1
     rw [he,Complex.one_im,abs_zero] at this
     linarith
-  have hcn := riemannZeta_ne_zero_of_one_lt_re (s := center h y) (by rw [center_re]; linarith)
+  have hcn := riemannZeta_ne_zero_of_one_lt_re (s := zetaZeroDiskCenter h y) (by rw [center_re]; linarith)
   refine ⟨(hdiff.analyticOnNhd isOpen_ne).mono hnoPole,hcn,?_⟩
   intro w hw
   have hcb := Metric.sphere_subset_closedBall hw
   have hr := abs_le.mp (hdist w hcb).1
   have hm := him w hcb
   have hw' := hg w (by linarith [hr.1]) (by linarith [hr.2]) hm.1 hm.2
-  have hpow := Real.rpow_le_rpow (by positivity : 0 ≤ 3*u/4) (by linarith : 3*u/4 ≤ u) (mul_nonneg hε.le hR.le)
-  have hlow : h/2 ≤ ‖riemannZeta (center h y)‖ := by
+  have hlow : h/2 ≤ ‖riemannZeta (zetaZeroDiskCenter h y)‖ := by
     have H := norm_riemannZeta_ge_of_one_lt_re (σ := 1+h) (by linarith) y
-    change (1+h-1)/(1+h) ≤ ‖riemannZeta (center h y)‖ at H
+    change (1+h-1)/(1+h) ≤ ‖riemannZeta (zetaZeroDiskCenter h y)‖ at H
     rw [show 1+h-1=h by ring] at H
     exact (div_le_div_of_nonneg_left hh.le (by linarith) (by linarith)).trans H
-  rw [norm_div,show 2*(ε*R) = ε*R+ε*R by ring,Real.rpow_add (by linarith : 0 < u)]
-  calc _ ≤ u^(ε*R)/(h/2) := div_le_div₀ (by positivity) (hw'.trans hpow) (by positivity) hlow
-       _ = u^(ε*R)*(2/h) := by ring
-       _ ≤ _ := mul_le_mul_of_nonneg_left hinv (by positivity)
+  rw [norm_div]
+  exact (div_le_div₀ ((norm_nonneg _).trans hw') hw' (by positivity) hlow).trans_eq (by ring)
 
-private theorem local_zero_inequality {h R M t β : ℝ} (hh : 0 < h) (hR : 0 < R)
+private theorem disk_bound {ε R h u y : ℝ} (hε : 0 < ε) (hR : 0 < R) (hR' : R ≤ 1/4)
+    (hh : 0 < h) (hh' : h ≤ 1/4) (hu : 4 ≤ u) (hy₁ : u ≤ |y|) (hy₂ : |y| ≤ 2*u)
+    (hg : ∀ z : ℂ, 1-R ≤ z.re → z.re ≤ 2 → 3*u/4 ≤ |z.im| → |z.im| ≤ 3*(3*u/4) →
+      ‖riemannZeta z‖ ≤ (3*u/4)^(ε*R)) (hinv : 2/h ≤ u^(ε*R)) :
+    AnalyticOnNhd ℂ riemannZeta (closedBall (zetaZeroDiskCenter h y) R) ∧ riemannZeta (zetaZeroDiskCenter h y) ≠ 0 ∧
+      ∀ w ∈ sphere (zetaZeroDiskCenter h y) R, ‖riemannZeta w/riemannZeta (zetaZeroDiskCenter h y)‖ ≤ u^(2*(ε*R)) := by
+  obtain ⟨ha,hcn,hb⟩ := zeta_disk_bound_of_strip_norm hR' hh hh' hu hy₁ hy₂ hg
+  refine ⟨ha,hcn,fun w hw => (hb w hw).trans ?_⟩
+  have hpow := Real.rpow_le_rpow (by positivity : 0≤3*u/4) (by linarith : 3*u/4≤u) (mul_nonneg hε.le hR.le)
+  rw [show 2*(ε*R)=ε*R+ε*R by ring,Real.rpow_add (by linarith : 0<u)]
+  exact mul_le_mul hpow hinv (by positivity) (by positivity)
+
+/-- Landau’s disk estimate and the positive trigonometric polynomial bound a zero near one. -/
+theorem zeta_local_zero_inequality {h R M t β : ℝ} (hh : 0 < h) (hR : 0 < R)
     (hβ : β < 1) (hnear : 1+h-β ≤ R/2) (hzer : riemannZeta ((β:ℂ)+t*I) = 0)
     (hdisc : ∀ y : ℝ, y = t ∨ y = 2*t →
-      AnalyticOnNhd ℂ riemannZeta (closedBall (center h y) R) ∧ riemannZeta (center h y) ≠ 0 ∧
-      ∀ w ∈ sphere (center h y) R, ‖riemannZeta w/riemannZeta (center h y)‖ ≤ M)
+      AnalyticOnNhd ℂ riemannZeta (closedBall (zetaZeroDiskCenter h y) R) ∧ riemannZeta (zetaZeroDiskCenter h y) ≠ 0 ∧
+      ∀ w ∈ sphere (zetaZeroDiskCenter h y) R, ‖riemannZeta w/riemannZeta (zetaZeroDiskCenter h y)‖ ≤ M)
     {C : ℝ} (hpole : (-deriv riemannZeta ((1+h:ℝ):ℂ)/riemannZeta ((1+h:ℝ):ℂ)).re ≤ 1/h+C) :
     4/(1+h-β) ≤ 3/h+3*C+20/R*Real.log M := by
   let ρ := (β:ℂ)+t*I
-  have hmem : ρ ∈ closedBall (center h t) (R/2) := by
+  have hmem : ρ ∈ closedBall (zetaZeroDiskCenter h t) (R/2) := by
     rw [mem_closedBall,dist_eq_norm]
-    have he : ρ-center h t = ((β-(1+h):ℝ):ℂ) := by dsimp [ρ,center]; push_cast; ring
+    have he : ρ-zetaZeroDiskCenter h t = ((β-(1+h):ℝ):ℂ) := by dsimp [ρ,zetaZeroDiskCenter]; push_cast; ring
     rw [he,Complex.norm_real,Real.norm_eq_abs,abs_of_nonpos (by linarith)]
     linarith
-  have hz (y : ℝ) (w : ℂ) (_ : w ∈ closedBall (center h y) (R/2)) (hw : riemannZeta w=0) :
-      w.re ≤ (center h y).re := by
+  have hz (y : ℝ) (w : ℂ) (_ : w ∈ closedBall (zetaZeroDiskCenter h y) (R/2)) (hw : riemannZeta w=0) :
+      w.re ≤ (zetaZeroDiskCenter h y).re := by
     have hr : w.re < 1 := lt_of_not_ge fun h => riemannZeta_ne_zero_of_one_le_re h hw
     rw [center_re]; linarith
   obtain ⟨ha,hn,hb⟩ := hdisc t (Or.inl rfl)
   obtain ⟨ha',hn',hb'⟩ := hdisc (2*t) (Or.inr rfl)
   have h₁ := landau_neg_re_logDeriv_center_le_sub_zero hR ha hn hb (hz t) hmem hzer
   have h₂ := landau_neg_re_logDeriv_center_le hR ha' hn' hb' (hz (2*t))
-  have hi : ((center h t-ρ)⁻¹).re = 1/(1+h-β) := by
-    have he : center h t-ρ = ((1+h-β:ℝ):ℂ) := by dsimp [center,ρ]; push_cast; ring
+  have hi : ((zetaZeroDiskCenter h t-ρ)⁻¹).re = 1/(1+h-β) := by
+    have he : zetaZeroDiskCenter h t-ρ = ((1+h-β:ℝ):ℂ) := by dsimp [zetaZeroDiskCenter,ρ]; push_cast; ring
     rw [he,← Complex.ofReal_inv,Complex.ofReal_re,one_div]
   have hld (z : ℂ) : -(logDeriv riemannZeta z).re = (-deriv riemannZeta z/riemannZeta z).re := by
     rw [logDeriv_apply,neg_div,Complex.neg_re]
   rw [hld,hi] at h₁
   rw [hld] at h₂
   have h3 := three_neg_logDeriv_add_four_add_nonneg (σ := 1+h) (by linarith) t
-  have he : center h (2*t) = ((1+h:ℝ):ℂ)+2*(t:ℂ)*I := by dsimp [center]; push_cast; ring
+  have he : zetaZeroDiskCenter h (2*t) = ((1+h:ℝ):ℂ)+2*(t:ℂ)*I := by dsimp [zetaZeroDiskCenter]; push_cast; ring
   rw [he] at h₂
-  dsimp only [center] at h₁
+  dsimp only [zetaZeroDiskCenter] at h₁
   calc 4/(1+h-β) = 4*(1/(1+h-β)) := by ring
        _ ≤ 3*(1/h+C) + 5*(4/R*Real.log M) := by linarith only [hpole,h₁,h₂,h3]
        _ = _ := by ring
@@ -139,8 +153,8 @@ theorem littlewood_zero_free_of_stripGrowth (hg : LittlewoodStripGrowth) {B : �
       rw [he,div_le_iff₀ (by positivity)]
       exact hlg.trans_eq (by ring)
     have hd : ∀ y : ℝ, y = t ∨ y = 2*t →
-        AnalyticOnNhd ℂ riemannZeta (closedBall (center h y) R) ∧ riemannZeta (center h y) ≠ 0 ∧
-        ∀ w ∈ sphere (center h y) R, ‖riemannZeta w/riemannZeta (center h y)‖ ≤ M := by
+        AnalyticOnNhd ℂ riemannZeta (closedBall (zetaZeroDiskCenter h y) R) ∧ riemannZeta (zetaZeroDiskCenter h y) ≠ 0 ∧
+        ∀ w ∈ sphere (zetaZeroDiskCenter h y) R, ‖riemannZeta w/riemannZeta (zetaZeroDiskCenter h y)‖ ≤ M := by
       intro y hy
       apply disk_bound hε hR hR' hh hhr hu _ _ hstrip hinv
       · rcases hy with rfl | rfl
@@ -152,7 +166,7 @@ theorem littlewood_zero_free_of_stripGrowth (hg : LittlewoodStripGrowth) {B : �
     have hrel : B/Real.log u = h/10 := by dsimp [h,L]; ring
     rw [hrel] at hσ
     have hdif : 1+h-σ ≤ R/2 := by change h < R/4 at hsmallR; linarith
-    have H := local_zero_inequality hh hR (lt_of_not_ge hβ) hdif hzero hd (hpole hh (by linarith))
+    have H := zeta_local_zero_inequality hh hR (lt_of_not_ge hβ) hdif hzero hd (hpole hh (by linarith))
     have hu0 : 0 < u := by linarith
     rw [show Real.log M = 2*(ε*R)*L by dsimp only [M,L]; rw [Real.log_rpow hu0]] at H
     have hp : 3*C*h ≤ 1/10 := by

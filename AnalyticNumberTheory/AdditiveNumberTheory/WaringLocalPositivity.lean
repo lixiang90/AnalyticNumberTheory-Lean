@@ -52,17 +52,17 @@ theorem exists_pow_eq_of_henselLevel {k r : ℕ} (hk : 0 < k) (hr : waringHensel
   refine ⟨PadicInt.toZModPow r z, ?_⟩
   simpa [c] using congrArg (PadicInt.toZModPow r) hpow
 
-/-- If each residue above one admits a root, each lift of the other coordinates
+/-- If each residue above the prescribed class admits a root, each lift of the other coordinates
 gives a distinct representation. -/
-theorem waringLocalCount_ge_of_unit_lifting {q Q : ℕ} [NeZero q] [NeZero Q]
-    (hqQ : q ∣ Q) (k s : ℕ) (n : ZMod Q)
-    (hx : 0 < waringLocalCount k s (ZMod.castHom hqQ (ZMod q) n - 1))
-    (hlift : ∀ b : ZMod Q, ZMod.castHom hqQ (ZMod q) b = 1 → ∃ z : ZMod Q, z^k = b) :
+theorem waringLocalCount_ge_of_liftable_residue {q Q : ℕ} [NeZero q] [NeZero Q]
+    (hqQ : q ∣ Q) (k s : ℕ) (n : ZMod Q) (a : ZMod q)
+    (hx : 0 < waringLocalCount k s (ZMod.castHom hqQ (ZMod q) n - a))
+    (hlift : ∀ b : ZMod Q, ZMod.castHom hqQ (ZMod q) b = a → ∃ z : ZMod Q, z^k = b) :
     (Q/q)^s ≤ waringLocalCount k (s+1) n := by
   classical
   let red := ZMod.castHom hqQ (ZMod q)
   obtain ⟨x,hx⟩ := card_pos.mp hx
-  have hsum : ∑ i, x i ^ k = red n - 1 := (mem_filter.mp hx).2
+  have hsum : ∑ i, x i ^ k = red n - a := (mem_filter.mp hx).2
   let enc (i : Fin s) (a : Fin (Q/q)) : ℕ := (x i).val + q*a.val
   have hlt (i : Fin s) (a : Fin (Q/q)) : enc i a < Q := calc
     _ < q*(a.val+1) := by dsimp [enc]; rw [Nat.mul_succ]; have := (x i).val_lt; omega
@@ -93,6 +93,14 @@ theorem waringLocalCount_ge_of_unit_lifting {q Q : ℕ} [NeZero q] [NeZero Q]
     exact Nat.eq_of_mul_eq_mul_left (NeZero.pos q) (Nat.add_left_cancel h)
   simpa [waringLocalCount] using card_le_card_of_injOn (s := univ) rep (fun v _ => hm v) hi.injOn
 
+/-- A class congruent to one can be filled by a single power at every lifting precision. -/
+theorem waringLocalCount_ge_of_unit_lifting {q Q : ℕ} [NeZero q] [NeZero Q]
+    (hqQ : q ∣ Q) (k s : ℕ) (n : ZMod Q)
+    (hx : 0 < waringLocalCount k s (ZMod.castHom hqQ (ZMod q) n - 1))
+    (hlift : ∀ b : ZMod Q, ZMod.castHom hqQ (ZMod q) b = 1 → ∃ z : ZMod Q, z^k = b) :
+    (Q/q)^s ≤ waringLocalCount k (s+1) n :=
+  waringLocalCount_ge_of_liftable_residue hqQ k s n 1 hx hlift
+
 /-- Taking a suitable number of coordinates equal to one represents every
 residue modulo `q` with at least `q-1` summands. -/
 theorem waringLocalCount_pos_of_modulus_le {q : ℕ} [NeZero q] {k s : ℕ}
@@ -108,12 +116,10 @@ theorem waringLocalCount_pos_of_modulus_le {q : ℕ} [NeZero q] {k s : ℕ}
   have he : (range s).filter (fun i => i < n.val) = range n.val := by ext i; simp; omega
   simp [he]
 
-/-- A representation with a coordinate one at Hensel precision supplies a
-uniform lower bound for the limiting density. -/
-theorem waringLocalFactor_re_ge_of_henselLevel {k s : ℕ} (hk : 0 < k) (hs : 2*k < s+1)
-    (n : ℕ) (hbase : 0 < waringLocalCount k s ((n : ZMod (p^waringHenselLevel p k)) - 1)) :
-    1 / ((p^waringHenselLevel p k : ℕ) : ℝ)^s ≤ (waringLocalFactor k (s+1) n p).re := by
-  let B := waringHenselLevel p k
+/-- A lower bound for the normalized counts at all sufficiently high powers gives a lower bound for the local factor. -/
+theorem waringLocalFactor_re_ge_of_count {k s : ℕ} (hk : 0 < k) (hs : 2*k < s+1)
+    (n B : ℕ) (h : ∀ r, B ≤ r → (p^r / p^B)^s ≤ waringLocalCount k (s+1) (n : ZMod (p^r))) :
+    1 / ((p^B : ℕ) : ℝ)^s ≤ (waringLocalFactor k (s+1) n p).re := by
   let q := p^B
   have hlim := (Complex.continuous_re.tendsto (waringLocalFactor k (s+1) n p)).comp
     (tendsto_waringLocalCount_localFactor hk hs n p)
@@ -128,10 +134,7 @@ theorem waringLocalFactor_re_ge_of_henselLevel {k s : ℕ} (hk : 0 < k) (hs : 2*
   filter_upwards [eventually_ge_atTop B] with r hr
   let Q := p^r
   let hd : q ∣ Q := pow_dvd_pow p hr
-  have hb : 0 < waringLocalCount k s (ZMod.castHom hd (ZMod q) (n : ZMod Q) - 1) := by
-    rw [map_natCast]
-    exact hbase
-  have hcount := waringLocalCount_ge_of_unit_lifting hd k s (n : ZMod Q) hb (exists_pow_eq_of_henselLevel hk hr)
+  have hcount := h r hr
   have hq : 0 < (q:ℝ) := by have : 0 < q := pow_pos (NeZero.pos p) _; exact_mod_cast this
   have hQ : 0 < (Q:ℝ) := by have : 0 < Q := pow_pos (NeZero.pos p) _; exact_mod_cast this
   have he : (q:ℝ) * ((Q/q : ℕ) : ℝ) = Q := by exact_mod_cast Nat.mul_div_cancel' hd
@@ -143,6 +146,18 @@ theorem waringLocalFactor_re_ge_of_henselLevel {k s : ℕ} (hk : 0 < k) (hs : 2*
       rw [← mul_pow]
       rw [he]
     _ ≤ _ := by gcongr; exact_mod_cast hcount
+
+/-- A representation with a coordinate one at Hensel precision supplies a
+uniform lower bound for the limiting density. -/
+theorem waringLocalFactor_re_ge_of_henselLevel {k s : ℕ} (hk : 0 < k) (hs : 2*k < s+1)
+    (n : ℕ) (hbase : 0 < waringLocalCount k s ((n : ZMod (p^waringHenselLevel p k)) - 1)) :
+    1 / ((p^waringHenselLevel p k : ℕ) : ℝ)^s ≤ (waringLocalFactor k (s+1) n p).re := by
+  apply waringLocalFactor_re_ge_of_count hk hs n
+  intro r hr
+  let hd := pow_dvd_pow p hr
+  apply waringLocalCount_ge_of_unit_lifting hd
+  · simpa only [map_natCast] using hbase
+  · exact exists_pow_eq_of_henselLevel hk hr
 
 /-- At primes dividing the degree, a sufficient supply of zero and one
 coordinates at the starting precision gives a positive local density. -/

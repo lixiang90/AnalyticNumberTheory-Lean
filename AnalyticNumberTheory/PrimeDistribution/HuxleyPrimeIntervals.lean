@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.VinogradovKorobov
 import AnalyticNumberTheory.PrimeDistribution.HuxleyZeroSums
 import AnalyticNumberTheory.PrimeDistribution.HuxleyIntervalParameters
 
@@ -6,7 +7,7 @@ import AnalyticNumberTheory.PrimeDistribution.HuxleyIntervalParameters
 
 Huxley's density estimate and the truncated explicit formula give a
 quantitative prime number theorem in intervals just above `x^(7/12)`,
-assuming the Vinogradov–Korobov zero-free region.
+using the Vinogradov–Korobov zero-free region.
 -/
 noncomputable section
 open Filter Real Finset
@@ -139,5 +140,21 @@ theorem huxley_psi_interval_of_vinogradovKorobov (hz : VinogradovKorobovZeroFree
     apply (htri.trans (add_le_add (hbound _ (by linarith)) (hbound x le_rfl))).trans
     nlinarith only [mul_le_mul_of_nonneg_right hxh (mul_nonneg hB.le he.le)]
   exact hbig.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_max_right ..) hh0) he.le)
+
+/-- Huxley's quantitative short-interval estimate at the seven-twelfths
+threshold, with the Vinogradov–Korobov zero-free region supplied unconditionally. -/
+theorem huxley_psi_interval {a : ℝ} (ha : 1<a) :
+    ∃ c>(0:ℝ), ∃ C>(0:ℝ), ∀ᶠ x : ℝ in atTop, ∀ h : ℝ,
+      x^(7/12:ℝ)*Real.exp (huxleyIntervalCorrection a x) ≤ h →
+      |Chebyshev.psi (x+h)-Chebyshev.psi x-h| ≤
+        C*h*Real.exp (-c*(Real.log (Real.log x))^a) :=
+  huxley_psi_interval_of_vinogradovKorobov RiemannZeta.vinogradovKorobov_zero_gap ha
+
+open scoped Asymptotics in
+/-- The prime number theorem on every fixed power-length interval strictly
+above the Huxley threshold. -/
+theorem huxley_primePi_shortInterval {θ : ℝ} (hθ : 7/12<θ) (hθ' : θ<1) :
+    (fun x : ℝ => primePi (x+x^θ)-primePi x) ~[atTop] fun x => x^θ/Real.log x :=
+  huxley_primePi_shortInterval_of_superLogZeroFree RiemannZeta.superLogZeroFree hθ hθ'
 
 end AnalyticNumberTheory.PrimeDistribution

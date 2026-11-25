@@ -5,6 +5,7 @@ import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilyFourthMoment
 import AnalyticNumberTheory.DirichletLFunctions.FullFamilyFourthSampling
 import AnalyticNumberTheory.DirichletLFunctions.CharacterMomentConstants
 import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
+import AnalyticNumberTheory.DirichletLFunctions.CriticalPointwiseIntegrals
 import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
 import AnalyticNumberTheory.RiemannZeta.CriticalSecondMomentError
 import AnalyticNumberTheory.RiemannZeta.CriticalSecondMomentExpansion
@@ -68,6 +69,40 @@ file := "periodic-coefficients"
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_periodicLFunctions}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_LFunctions_of_ne}
+
+# 固定高度的特征均方与 Perron 积分
+%%%
+tag := "critical-pointwise-character-means"
+file := "pointwise-character-means"
+%%%
+
+{index}[固定模数的逐点均方]固定 $`s=1/2+it`。先在模 $`q` 的全部特征上求有限多项式的平方和。把系数按可逆剩余类分组，利用特征正交关系，再对每一类应用 Cauchy–Schwarz 不等式。长为 $`N` 的整数区间里，每类包含的项数至多为 $`1+N/q`，与区间起点无关。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.fixed_modulus_polynomial_energy}
+
+在临界线上 $`|n^{-s}|^2=1/n`，因此系数 $`a_n` 的贡献由 $`\sum_{n\le N}|a_n|^2/n` 控制。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.critical_polynomial_energy}
+
+取 $`U=1+|s|`，$`H=1+\log(qU)`，在 $`N=\lceil qU\rceil` 处应用{ref "polya-character-truncation"}[非主特征的截断估计]。对每个实高度和每个 $`q\ge2`，存在与它们无关的常数，使得
+
+$$`\sum_{\chi\bmod q,\,\chi\ne\chi_0}|L^{(j)}(s,\chi)|^2
+ \ll \varphi(q)\,U H^{2j+2}\qquad(j=0,1).`
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.nonprincipal_critical_pointwise_means}
+
+{ref "logarithmic-prime-character-sums"}[素数和的对数平滑]引入了核 $`s^{-2}`。上式开方后，对整条临界线积分可得
+
+$$`\int_{\mathbb R}
+ \left(\sum_{\chi\bmod q,\,\chi\ne\chi_0}|L^{(j)}(1/2+it,\chi)|^2\right)^{1/2}
+ \frac{dt}{|1/2+it|^2}
+ \ll \sqrt{\varphi(q)}\,(1+\log q)^{j+1}\qquad(j=0,1).`
+
+证明同时给出绝对可积性。把模数对数因子提出后，积分尾部由 $`(1+|t|)^{-5/4}` 控制。
+
+{docstring AnalyticNumberTheory.AnalyticTools.critical_line_perron_integral_bound}
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.nonprincipal_critical_perron_means}
 
 # 临界线右侧的 Hurwitz 均方
 %%%

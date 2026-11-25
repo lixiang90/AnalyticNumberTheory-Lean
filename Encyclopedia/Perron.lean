@@ -1,6 +1,7 @@
 import AnalyticNumberTheory.DirichletSeries.Perron
 import AnalyticNumberTheory.DirichletSeries.LogPerronTruncation
 import AnalyticNumberTheory.DirichletSeries.LogPerronOrdinary
+import AnalyticNumberTheory.DirichletSeries.LogPerronPolynomials
 import VersoManual
 
 open Verso.Genre Manual
@@ -56,3 +57,32 @@ $$`\sum_{n\le x}a_n\log(x/n)=\frac{1}{2\pi}\int_{\mathbb R}
 {docstring logWeightedSum_eq_integral}
 
 {docstring logWeightedSum_sub_eq_short_sum}
+
+# 带线性增长的分子与积分移线
+%%%
+tag := "log-perron-contour-shift"
+file := "contour-shift"
+%%%
+
+设 $`0<a\le b`，$`F` 在竖直带 $`a\le\Re s\le b` 上全纯。对实数 $`x>0`，记
+
+$$`\mathcal P_\sigma(F;x)=\frac{1}{2\pi}\int_{\mathbb R}
+ F(\sigma+it)\frac{x^{\sigma+it}}{(\sigma+it)^2}\,dt.`
+
+若两侧的被积函数绝对可积，且带内 $`|F(s)|\le C(1+|s|)`，则 $`\mathcal P_a(F;x)=\mathcal P_b(F;x)`。证明先在高度 $`\pm T` 之间闭合矩形。水平边长固定，分母给出的 $`T^{-2}` 抵消分子的一次增长，两条水平边的积分便随 $`T\to\infty` 消失。
+
+{docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.integral_verticalLine_eq_of_boundary_decay}
+
+{docstring logPerronIntegral_shift}
+
+若右边界上的 $`F` 是一条绝对收敛的 Dirichlet 级数，这个等式把它的有限对数加权和延续到左边界。{ref "critical-character-perron-inversion"}[非主特征的临界线反演]给出了一个例子。
+
+{docstring logWeightedSum_eq_of_logPerronContinuation}
+
+对有限多项式 $`P(s)=\sum_{n\in S}a_n n^{-s}`，每项满足 $`x^s n^{-s}=(x/n)^s`。于是只要相应的积分绝对可积，就有
+$`\mathcal P_\sigma(PF;x)=\sum_{n\in S}a_n\mathcal P_\sigma(F;x/n)`。
+令 $`F=1`，每项便获得权重 $`\max(\log(x/n),0)`，包括 $`x=n` 时的零值。
+
+{docstring logPerronIntegral_finset_mul}
+
+{docstring logPerronIntegral_finset}

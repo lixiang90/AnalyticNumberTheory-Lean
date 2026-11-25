@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.DirichletLFunctions.CharacterSums
 import AnalyticNumberTheory.DirichletLFunctions.PolyaDerivativeTruncation
+import AnalyticNumberTheory.DirichletLFunctions.CriticalLogPerron
 import VersoManual
 
 open Verso.Genre Manual
@@ -42,3 +43,24 @@ $$`|L(s,\chi)-P_M(s,\chi)|
 对有限和求导会给每个系数添上 $`-\log n`。为估计导数余项，在以 $`s` 为中心、半径 $`(4+\log(M+1))^{-1}` 的圆上使用上面的截断界。圆上 $`(M+1)^{-\Re z}` 至多为中心值的 $`e` 倍，因此 Cauchy 估计只多付出一个对数因子。{ref "critical-pointwise-character-means"}[固定高度的特征均方]将这个误差与有限多项式的均方合并。
 
 {docstring norm_deriv_LFunction_sub_polynomial_critical}
+
+# 非主特征的临界线 Perron 反演
+%%%
+tag := "critical-character-perron-inversion"
+file := "critical-perron-inversion"
+%%%
+
+设 $`\chi` 是模 $`q\ge2` 的非主特征。{ref "polya-character-truncation"}[Pólya–Vinogradov 余项]在空截断处就给出 $`|L(s,\chi)|\le16\sqrt q\log q\,|s|`，条件为 $`\Re s\ge1/4`。在半径 $`1/4` 的圆上使用 Cauchy 估计，得到 $`\Re s\ge1/2` 时 $`L` 和 $`L'` 的统一线性增长界。
+
+{docstring norm_LFunction_deriv_halfPlane_linear}
+
+令 $`s=1/2+it`。{ref "critical-pointwise-character-means"}[特征均方的绝对可积性]也控制其中每个非主特征。结合{ref "log-perron-contour-shift"}[对数 Perron 移线公式]，对每个 $`x>0` 有
+
+$$`\sum_{n\le x}\chi(n)(\log n)^j\log(x/n)=\frac1{2\pi}
+\int_{\mathbb R}(-1)^j L^{(j)}(s,\chi)\frac{x^s}{s^2}\,dt\qquad(j=0,1).`
+
+求导时 $`n^{-s}` 的导数带一个负号，因此正的 $`\log n` 权对应 $`-L'`。两式包括非原始特征，也包括 $`x<1` 时的空和。
+
+{docstring integrable_nonprincipal_critical_logPerron}
+
+{docstring nonprincipal_critical_logPerron_inversion}

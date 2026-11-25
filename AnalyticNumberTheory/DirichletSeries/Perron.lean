@@ -1990,7 +1990,8 @@ theorem norm_rieszDenom_ge {k : ℕ} (hk : 1 ≤ k) {c : ℝ} (hc : 0 < c) (t : 
     _ ≤ (‖s + (0 : ℕ)‖ * ‖s + (1 : ℕ)‖) * ∏ j ∈ Finset.Ico 2 (k + 1), ‖s + j‖ :=
       mul_le_mul_of_nonneg_left htail_ge_one (mul_nonneg (norm_nonneg _) (norm_nonneg _))
 
-private theorem integrable_inv_sq_add {c : ℝ} (hc : 0 < c) :
+/-- Integrability of the reciprocal quadratic weight on a positive vertical line. -/
+theorem integrable_inv_sq_add {c : ℝ} (hc : 0 < c) :
     Integrable fun t : ℝ ↦ (c ^ 2 + t ^ 2)⁻¹ := by
   have hint : Integrable fun t : ℝ ↦ c ^ (-2 : ℝ) * (1 + (c⁻¹ * t) ^ 2)⁻¹ :=
     (integrable_inv_one_add_mul_sq (inv_ne_zero hc.ne')).const_mul _

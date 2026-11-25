@@ -5,6 +5,7 @@ import AnalyticNumberTheory.ExponentialSums.ReciprocalTransform
 import AnalyticNumberTheory.ExponentialSums.LinearAndWeyl
 import AnalyticNumberTheory.ExponentialSums.VinogradovMeanValue
 import AnalyticNumberTheory.ExponentialSums.PrimeLinearSums
+import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
 import VersoManual
 
 open Verso.Genre Manual
@@ -62,6 +63,30 @@ $$`V(x,q)=xq^{-1/2}+x^{4/5}+\sqrt{xq}.`
 若 $`0<Q\le x^{2/5}` 且 $`Q\le q\le x/Q`，则 $`V(x,q)\le 3x/\sqrt Q`。例如取 $`Q=x^{2/5}`，所有 $`x^{2/5}\le q\le x^{3/5}` 都给出 $`P_\alpha(x)\ll x^{4/5}\log^3 x`。
 
 {docstring prime_exp_sums_balanced_bound}
+
+# 有理频率处的平滑素数和
+%%%
+tag := "logarithmic-prime-character-sums"
+file := "smoothed-prime-sums"
+%%%
+
+在{ref "linear-prime-exponential-sums"}[von Mangoldt 指数和]中加入 $`\log(x/n)`，记所得的和为 $`S_1(\alpha,x)`。在有理频率 $`\alpha=a/q`，指数相位在每个剩余类上恒定。对可逆剩余类用 Dirichlet 特征展开，得到系数 $`\tau(\overline\chi,a)/\varphi(q)`。对每个特征，相应的平滑和在 $`\sigma>1` 时等于
+
+$$`\frac1{2\pi}\int_{\mathbb R}
+    \frac{-L'(\sigma+it,\chi)}{L(\sigma+it,\chi)}
+    \frac{x^{\sigma+it}}{(\sigma+it)^2}\,dt.`
+
+这条等式由{ref "logarithmic-perron"}[对数平滑的 Perron 公式]给出，对本原和非本原特征都成立。
+
+{docstring logSmoothedPsiChar_eq_logDeriv_integral}
+
+不可逆剩余类中有贡献的项是素数底数整除 $`q` 的素数幂。截至 $`t`，它们的总权重至多为 $`(\log q/\log 2)\log t`。从 $`1` 到 $`x` 对此界关于 $`dt/t` 积分，得到平滑特征展开的总误差至多为 $`\log q\,(\log x)^2/(2\log 2)`。
+
+{docstring norm_logSmoothedPrimeExpSum_sub_characters}
+
+从 $`x` 移到 $`y>x` 时，原有各项的权重全都增加 $`\log(y/x)`。因此 $`S_1(\alpha,y)-S_1(\alpha,x)` 的主项是 $`\log(y/x)\Psi_\alpha(x)`，近似误差只取决于短区间 $`(x,y]` 的 von Mangoldt 质量，至多为 $`\log(y/x)(\psi(y)-\psi(x))`。
+
+{docstring norm_logSmoothedPrimeExpSum_difference}
 
 # 有限 Poisson 求和与倒数相位
 %%%

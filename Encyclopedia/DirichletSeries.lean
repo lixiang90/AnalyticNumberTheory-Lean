@@ -5,6 +5,7 @@ import AnalyticNumberTheory.DirichletSeries.FrequencyUniqueness
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
 import AnalyticNumberTheory.DirichletSeries.FrequencyMeanValues
 import AnalyticNumberTheory.DirichletSeries.EventualLandau
+import AnalyticNumberTheory.DirichletSeries.OrdinaryAbel
 import VersoManual
 
 open Verso.Genre Manual
@@ -58,6 +59,38 @@ $$`F(s_0+z)=z\int_{\lambda_0}^{\infty} A(u)e^{-zu}\,du.`
 一点处的有序收敛使 $`A(u)` 有界。取 $`\alpha=0` 并让 $`s_0` 趋近收敛横坐标，便知在整个开收敛半平面内，部分和局部一致收敛，和函数全纯。
 
 {docstring DirichletFrequency.analyticOnNhd_sum}
+
+# 实截点的 Abel 求和公式
+%%%
+tag := "abel-real-cutoffs"
+file := "real-cutoffs"
+%%%
+
+固定 $`s_0`，写 $`A_s(u)=\sum_{\lambda_n\le u}a_n e^{-s\lambda_n}`。两个实截点 $`x<y` 可以落在相邻指数之间，也可以恰好等于指数。和 $`A_{s_0+z}(y)-A_{s_0+z}(x)` 包含右端点处的项，左端点处的项已经被减去。有限 Abel 公式给出
+
+$$`A_{s_0+z}(y)-A_{s_0+z}(x)
+   =A_{s_0}(y)e^{-zy}-A_{s_0}(x)e^{-zx}+z\int_x^y A_{s_0}(u)e^{-zu}\,du.`
+
+{docstring DirichletFrequency.summatory_sub_eq_boundary_add_integral}
+
+在相邻指数之间，阶梯函数 $`A_{s_0}` 恒定。移动右端点时，积分新添的一段恰好补偿右边界项的变化。交换两个端点，定向积分和有限和同时变号。让实截点趋于正无穷，也得到与有序部分和相同的极限。
+
+{docstring DirichletFrequency.tendsto_summatory_iff}
+
+若 $`|A_{s_0}(u)|\le Ce^{\alpha u}` 且 $`d=\Re z-\alpha>0`，在任意 $`y\ge\lambda_0` 截断后，误差至多为 $`C(1+|z|/d)e^{-dy}`。指数中的 $`y` 可以直接取实际截点。
+
+{docstring DirichletFrequency.norm_summatory_sub_sum_le}
+
+对普通 Dirichlet 级数，截点 $`\log x` 纳入的正整数恰有 $`\lfloor x\rfloor` 个。令 $`B(t)=\sum_{1\le n\le t}a_n`，在积分中作代换 $`u=\log t`，便对所有 $`0<x<y` 得到
+
+$$`\sum_{x<n\le y}a_n n^{-s}
+   =B(y)y^{-s}-B(x)x^{-s}+s\int_x^y B(t)t^{-s-1}\,dt.`
+
+{docstring DirichletFrequency.logarithmic_count_log}
+
+{docstring dirichletPartialSum_sub_eq_coeffPartialSum_integral}
+
+取 $`x=1`、$`y=2`，即使 $`a_1\ne0`，左边也只留下 $`a_2 2^{-s}`。右边积分区间内部的 $`B(t)=a_1`，其贡献与边界项中含 $`a_1` 的部分恰好抵消。
 
 # 指数的密度与绝对收敛
 %%%

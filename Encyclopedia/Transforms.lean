@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.AnalyticTools.LaplaceJordanInversion
+import AnalyticNumberTheory.AnalyticTools.MellinJordanInversion
 import VersoManual
 
 open Verso.Genre Manual
@@ -106,3 +106,32 @@ $$`\lim_{T\to\infty}\frac1{2\pi}\int_{-T}^{T}e^{(\sigma+it)x}F(\sigma+it)\,dt
 {docstring exists_monotone_extensions_of_boundedVariation}
 
 {docstring laplace_monotone_inversion}
+
+# Fourier 与 Mellin 在跳跃点的反演
+%%%
+tag := "fourier-mellin-jordan"
+file := "fourier-mellin-jordan"
+%%%
+
+{index}[Dirichlet–Jordan 反演]设实值函数 $`f` 在实线上绝对可积，并在含 $`x` 为内点的某个闭区间上有界变差。按频率对称截断，有
+$$`\lim_{R\to\infty}\int_{-R}^{R}e^{2\pi i x\xi}\widehat f(\xi)\,d\xi
+ =\frac{f(x-)+f(x+)}2.`
+这一形式适用于 Fourier 变换不绝对可积的情形。先将 $`x` 平移到正半轴，在该点附近保留原函数，再用局部化原理消去远处的部分，就能把单边反演公式应用到实线上的任意一点。
+
+{docstring truncatedFourierInverse_eq_integral}
+
+{docstring fourier_jordan_inversion}
+
+{index}[Mellin 中点反演]对正半轴上的实值函数，设 $`\int_0^\infty t^{\sigma-1}|f(t)|\,dt<\infty`，并设 $`f` 在某个 $`[a,b]\subset(0,\infty)` 上有界变差。写 $`F(s)=\mathcal M f(s)`。当 $`a<x<b` 时，
+$$`\lim_{T\to\infty}\frac1{2\pi}\int_{-T}^{T}x^{-\sigma-it}F(\sigma+it)\,dt
+ =\frac{f(x-)+f(x+)}2.`
+
+{docstring mellin_jordan_inversion}
+
+取 $`t=e^{-u}` 后，被积函数变为 $`g(u)=e^{-\sigma u}f(e^{-u})`，反演点变为 $`-\log x`。这个代换反转了次序：$`g` 的左极限对应 $`f(x+)`，右极限对应 $`f(x-)`。相加后，权重 $`x^\sigma` 与反演式前的 $`x^{-\sigma}` 抵消。
+
+{docstring integrable_mellinLogPullback}
+
+{docstring truncatedMellinInverse_eq_fourier}
+
+例如对 $`f(t)=\mathbf 1_{(1,2)}(t)`，有 $`F(s)=(2^s-1)/s`，其中 $`F(0)=\log 2`。在两端点 $`x=1,2`，截断反演的极限都是 $`1/2`，在 $`1<x<2` 时为一。

@@ -57,4 +57,25 @@ theorem integral_verticalLine_eq_of_strip {F : ℂ → ℂ} {a b D : ℝ} (hab :
   apply mul_left_cancel₀ Complex.I_ne_zero
   linear_combination -heq
 
+/-- It suffices that the uniform quadratic decay holds at large absolute
+height. Continuity bounds the remaining compact rectangle. -/
+theorem integral_verticalLine_eq_of_strip_tail {F : ℂ → ℂ} {a b D T : ℝ} (hab : a≤b)
+    (hf : DifferentiableOn ℂ F {z : ℂ | z.re∈Icc a b}) (hD : 0≤D)
+    (hbound : ∀ x ∈ Icc a b, ∀ t : ℝ, T≤|t| → ‖F ((x:ℂ)+t*I)‖ ≤ D/(1+t^2)) :
+    (∫ t : ℝ, F ((a:ℂ)+t*I)) = ∫ t : ℝ, F ((b:ℂ)+t*I) := by
+  let K := Icc a b ×ˢ Icc (-T) T
+  let Z (p : ℝ×ℝ) := (p.1:ℂ)+(p.2:ℂ)*I
+  have hc : ContinuousOn (fun p : ℝ×ℝ => ‖F (Z p)‖*(1+p.2^2)) K :=
+    ((hf.continuousOn.comp (by dsimp [Z]; fun_prop)
+      (fun p hp => by simpa [Z] using hp.1)).norm).mul (by fun_prop)
+  obtain ⟨L,hL⟩ := (isCompact_Icc.prod isCompact_Icc).bddAbove_image hc
+  apply integral_verticalLine_eq_of_strip hab hf (hD.trans (le_max_left D L))
+  intro x hx t
+  have hpos : 0<1+t^2 := by positivity
+  by_cases ht : T≤|t|
+  · exact (hbound x hx t ht).trans (div_le_div_of_nonneg_right (le_max_left D L) hpos.le)
+  · apply (le_div_iff₀ hpos).mpr
+    have hp : (x,t)∈K := ⟨hx, (abs_le.mp (not_le.mp ht).le)⟩
+    exact (hL ⟨(x,t),hp,rfl⟩).trans (le_max_right D L)
+
 end AnalyticNumberTheory.AnalyticTools.ComplexAnalysis

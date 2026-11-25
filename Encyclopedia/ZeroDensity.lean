@@ -1,6 +1,8 @@
 import AnalyticNumberTheory.PrimeDistribution.ShortIntervalEstimates
 import AnalyticNumberTheory.PrimeDistribution.ZetaLogFreeDensity
 import AnalyticNumberTheory.PrimeDistribution.HoheiselLittlewood
+import AnalyticNumberTheory.PrimeDistribution.InghamDensity
+import AnalyticNumberTheory.PrimeDistribution.ConsecutivePrimeGaps
 import VersoManual
 
 open Verso.Genre Manual
@@ -43,6 +45,28 @@ $$`N_{\mathrm{sym}}(\sigma,T)\le C(T+2)^{A(1-\sigma)}.`
 
 {docstring chebyshev_expShortInterval}
 
+# Ingham 零密度定理
+%%%
+tag := "ingham-zeta-density"
+file := "ingham"
+%%%
+
+{index}[Ingham 零密度定理]对 $`1/2\le\sigma\le1` 与 $`T\ge2`，正高度上不同零点的个数满足
+
+$$`N(\sigma,T)\ll T^{3(1-\sigma)/(2-\sigma)}(\log T)^{11}.`
+
+隐常数与 $`\sigma,T` 无关。高度的幂次在 $`\sigma=1/2` 时为一，而对每个固定的 $`1/2<\sigma<1` 都严格小于一。例如 $`\sigma=3/4` 时为 $`3/5`。若按重数计入每个零点，相同的高度幂次配上十二次对数幂。
+
+{docstring ingham_zeroDensity}
+
+{docstring ingham_zeroDensity_with_multiplicity}
+
+证明把高度分为 $`[X,2X]`。在每个零点对截断的 Möbius 多项式使用 Riesz 核，移线到实部 $`1/2`。这样，每个零点都对应于一个有限 Dirichlet 多项式的大值，或一个临界线积分的大值。前者用离散均值估计控制，后者用{ref "critical-fourth-moment"}[ζ 的四阶矩]和 Möbius 多项式的均方共同控制。取截点 $`Y=X^{3/(4-2\sigma)}` 后，两项给出同一个高度幂次。
+
+如果再假设加强的无零区，则对每个固定的 $`2/3<\theta<1` 都有 $`\pi(x+x^\theta)-\pi(x)\sim x^\theta/\log x`。这个明确的指数范围使用下述声明里的无零区假设。下节给出指数充分接近一时的无条件结论。
+
+{docstring primePi_shortInterval_two_thirds_of_superLogZeroFree}
+
 # Hoheisel 定理与幂长短区间
 %%%
 tag := "hoheisel-prime-intervals"
@@ -70,6 +94,14 @@ $$`\pi(x+x^\theta)-\pi(x)\sim\frac{x^\theta}{\log x}.`
 证明也提供一个可复用的接口。只需无零区宽度 $`\delta(t)` 满足 $`\delta(t)\log t\to\infty`，即可压低显式公式中的零点贡献。宽度可以随高度非单调变化。
 
 {docstring hoheisel_prime_asymptotic_of_improving_width}
+
+设 $`p_n` 是按递增顺序排列的素数。把区间的左端点取为 $`p_n`，便得到 $`p_{n+1}-p_n=O(p_n^\theta)`。若 $`\theta_0<\theta<1`，可先对介于 $`\theta_0` 与 $`\theta` 之间的指数应用此界，得到 $`p_{n+1}-p_n=o(p_n^\theta)`。
+
+{docstring hoheisel_prime_gap_littleO}
+
+还有一个整次幂的推论。存在整数 $`k_0\ge2`，对每个固定的 $`k\ge k_0` 和所有充分大的 $`n`，开区间 $`(n^k,(n+1)^k)` 中都有素数。这里的 $`k_0` 来自 $`k(1-\theta_0)\ge1`。
+
+{docstring hoheisel_primes_between_powers}
 
 # Dirichlet 特征族的零点
 %%%

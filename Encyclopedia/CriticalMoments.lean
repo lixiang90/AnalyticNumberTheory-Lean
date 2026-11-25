@@ -2,6 +2,7 @@ import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
 import AnalyticNumberTheory.DirichletLFunctions.CriticalCorrelations
 import AnalyticNumberTheory.RiemannZeta.HurwitzMeanSquare
 import AnalyticNumberTheory.RiemannZeta.FourthMomentAsymptotic
+import AnalyticNumberTheory.RiemannZeta.HurwitzStripMeanSquare
 import VersoManual
 
 open Verso.Genre Manual
@@ -53,6 +54,23 @@ file := "periodic-coefficients"
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_periodicLFunctions}
 
 {docstring AnalyticNumberTheory.DirichletLFunctions.mixed_mean_LFunctions_of_ne}
+
+# 临界线右侧的 Hurwitz 均方
+%%%
+tag := "hurwitz-strip-mean"
+file := "hurwitz-strip"
+%%%
+
+{index}[Hurwitz ζ 函数的均方]对固定的实数 $`0<a\le1` 和 $`1/2<\sigma\le1`，移位 $`a` 可以是无理数。按区间长度归一化后的均方趋于一个有限常数，
+
+$$`\lim_{T\to\infty}\frac1T\int_1^T|\zeta(\sigma+it,a)|^2\,dt
+=\sum_{n=0}^{\infty}(n+a)^{-2\sigma}=\zeta(2\sigma,a).`
+
+当 $`a=1` 时，右侧为 Riemann ζ 函数的值 $`\zeta(2\sigma)`。积分从高度一开始，因此公式也包含 $`\sigma=1`。证明将长多项式在 $`\sqrt T` 附近分成两段。短段的均值给出对角和，长段的均方误差由收敛级数 $`\sum(n+a)^{-2\sigma}` 的尾项控制。临界线 $`\sigma=1/2` 时这个级数发散，前节中的因子 $`\log T` 正来自其部分和。
+
+{docstring mean_sq_hurwitzZeta_of_half_lt}
+
+{docstring hurwitzZeta_re_eq_square_diagonal}
 
 # ζ 函数的四阶矩
 %%%

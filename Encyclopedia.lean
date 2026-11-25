@@ -10,6 +10,7 @@ import Encyclopedia.BombieriVinogradov
 import Encyclopedia.PartitionAsymptotic
 import Encyclopedia.Rademacher
 import Encyclopedia.ExponentialSums
+import Encyclopedia.VinogradovMeanValues
 import Encyclopedia.Waring
 import Encyclopedia.WaringArchimedean
 import Encyclopedia.WaringLocalDensities
@@ -101,6 +102,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.BombieriVinogradov}
 
 {include 0 Encyclopedia.ExponentialSums}
+
+{include 0 Encyclopedia.VinogradovMeanValues}
 
 {include 0 Encyclopedia.Waring}
 

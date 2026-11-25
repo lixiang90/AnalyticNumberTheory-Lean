@@ -1,9 +1,5 @@
-import Mathlib.Analysis.Calculus.ParametricIntegral
-import Mathlib.Analysis.Complex.CauchyIntegral
-import Mathlib.Analysis.Analytic.IsolatedZeros
+import AnalyticNumberTheory.AnalyticTools.GammaLaplace
 import Mathlib.Analysis.Fourier.Inversion
-import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
-import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
 
 /-!
 # Laplace and Bromwich transforms for the partition series
@@ -36,63 +32,15 @@ private theorem integrable_gammaKernel {s : ℝ} (hs : 0 < s) {z : ℂ} (hz : 0 
   · unfold gammaKernel; fun_prop
   · exact (ae_restrict_mem measurableSet_Ioi).mono fun t (ht : 0 < t) => (norm_gammaKernel s z ht).le
 
-private theorem differentiableAt_gammaLaplace {s : ℝ} (hs : 0 < s) {z : ℂ} (hz : 0 < z.re) :
-    DifferentiableAt ℂ (fun w => ∫ t in Ioi (0:ℝ), gammaKernel s w t) z := by
-  let D (w : ℂ) (t : ℝ) := -(t:ℂ) * gammaKernel s w t
-  let U := {w : ℂ | z.re/2 < w.re}
-  have hU : U ∈ 𝓝 z := (isOpen_lt continuous_const Complex.continuous_re).mem_nhds (by dsimp [U]; linarith)
-  have hd (w : ℂ) (t : ℝ) : HasDerivAt (fun w => gammaKernel s w t) (D w t) w := by
-    have h := (((hasDerivAt_id w).neg.mul_const (t:ℂ)).cexp.mul_const ((t^(s-1):ℝ):ℂ))
-    convert h using 1 <;> dsimp [D, gammaKernel]; ring
-  have hint := hasDerivAt_integral_of_dominated_loc_of_deriv_le (μ := volume.restrict (Ioi 0))
-    (F := gammaKernel s) (F' := D) (bound := fun t : ℝ => t^s*Real.exp (-(z.re/2)*t)) hU
-    (Eventually.of_forall fun w => by unfold gammaKernel; fun_prop)
-    (integrable_gammaKernel hs hz) (by dsimp only [D]; unfold gammaKernel; fun_prop) ?_
-    (integrable_gammaBound (by linarith) (half_pos hz)) (ae_of_all _ fun t w _ => hd w t)
-  · exact hint.2.differentiableAt
-  · filter_upwards [ae_restrict_mem measurableSet_Ioi] with t (ht : 0 < t)
-    intro w hw
-    change ‖-(t:ℂ) * gammaKernel s w t‖ ≤ _
-    rw [norm_mul, norm_neg, Complex.norm_real, Real.norm_eq_abs, abs_of_pos ht, norm_gammaKernel _ _ ht,
-      ← mul_assoc, show t * t^(s-1) = t^s by nth_rw 1 [← Real.rpow_one t]; rw [← Real.rpow_add ht]; congr 1; ring]
-    apply mul_le_mul_of_nonneg_left _ (Real.rpow_nonneg ht.le _)
-    rw [Real.exp_le_exp]
-    change z.re/2 < w.re at hw
-    nlinarith [mul_pos (sub_pos.mpr hw) ht]
-
 /-- The gamma Laplace integral at a complex parameter with positive real part. -/
 theorem integral_gammaKernel_rightHalfPlane {s : ℝ} (hs : 0 < s) {z : ℂ} (hz : 0 < z.re) :
     (∫ t : ℝ in Ioi 0, Complex.exp (-z*t) * (t^(s-1) : ℝ)) =
       z^(-(s:ℂ)) * (Real.Gamma s : ℝ) := by
-  let f (w : ℂ) := ∫ t : ℝ in Ioi 0, gammaKernel s w t
-  let g (w : ℂ) := w^(-(s:ℂ)) * (Real.Gamma s : ℝ)
-  let U := {w : ℂ | 0 < w.re}
-  have hU : IsOpen U := isOpen_lt continuous_const Complex.continuous_re
-  have hf : AnalyticOnNhd ℂ f U := DifferentiableOn.analyticOnNhd (fun _ hw =>
-    (differentiableAt_gammaLaplace hs hw).differentiableWithinAt) hU
-  have hg : AnalyticOnNhd ℂ g U := by
-    apply DifferentiableOn.analyticOnNhd _ hU
-    intro w hw
-    exact ((differentiableAt_id.cpow_const (Or.inl hw)).mul_const _).differentiableWithinAt
-  have hreal {x : ℝ} (hx : 0 < x) : f x = g x := by
-    have h := Real.integral_rpow_mul_exp_neg_mul_Ioi (a := s) (r := x) hs hx
-    dsimp [f, g, gammaKernel]
-    rw [show (-(s:ℂ)) = ((-s:ℝ):ℂ) by push_cast; rfl, ← Complex.ofReal_cpow hx.le]
-    have he (t : ℝ) : Complex.exp (-(x:ℂ)*t) * (t^(s-1):ℝ) =
-        ((t^(s-1)*Real.exp (-(x*t)):ℝ):ℂ) := by push_cast; rw [neg_mul]; ring
-    simp_rw [he]
-    rw [integral_complex_ofReal]
-    rw [one_div, Real.inv_rpow hx.le, ← Real.rpow_neg hx.le] at h
-    exact_mod_cast h
-  apply hf.eqOn_of_preconnected_of_frequently_eq hg (convex_halfSpace_re_gt 0).isPreconnected (z₀ := 1)
-    (by simp [U]) _ hz
-  have hr : Tendsto (fun t : ℝ => (t:ℂ)) (𝓝[>] 1) (𝓝[≠] 1) := by
-    apply tendsto_nhdsWithin_iff.mpr
-    refine ⟨by simpa using (Complex.continuous_ofReal.continuousAt (x := 1)).tendsto.mono_left nhdsWithin_le_nhds, ?_⟩
-    filter_upwards [self_mem_nhdsWithin] with t (ht : 1 < t)
-    simpa using ht.ne'
-  have he : ∀ᶠ t : ℝ in 𝓝[>] 1, 1 < t := self_mem_nhdsWithin
-  exact hr.frequently (he.frequently.mono fun t ht => hreal (zero_lt_one.trans ht))
+  have h := AnalyticTools.integral_gammaLaplaceKernel_rightHalfPlane (s:=(s:ℂ)) hs hz
+  rw [←Complex.Gamma_ofReal]
+  apply Eq.trans _ h
+  refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
+  rw [Complex.ofReal_cpow ht.le,Complex.ofReal_sub,Complex.ofReal_one]
 
 /-- Absolute integrability of inverse powers on the vertical line through one. -/
 theorem integrable_vertical_cpow {s : ℝ} (hs : 2 ≤ s) :

@@ -2325,7 +2325,8 @@ private def vdcBumpDeriv2 (a b : ℤ) (t : ℝ) : ℝ :=
     quinticStep (2 * (t - ((a : ℝ) + 1 / 4))) *
       (4 * quinticStepDeriv2 (2 * (((b : ℝ) + 3 / 4) - t)))
 
-private lemma continuous_vdcBump (a b : ℤ) : Continuous (vdcBump a b) := by
+/-- Continuity of the cutoff used in truncated Poisson summation. -/
+theorem continuous_vdcBump (a b : ℤ) : Continuous (vdcBump a b) := by
   unfold vdcBump
   have hc := continuous_quinticStep
   fun_prop
@@ -2477,6 +2478,16 @@ private lemma vdcBump_props {a b : ℤ} (hab : a < b) :
           rw [h4, h8]
           gcongr
       _ = 160 := by norm_num
+
+/-- The Poisson cutoff takes values in the closed unit interval. -/
+theorem vdcBump_mem_unitInterval {a b : ℤ} (hab : a < b) (t : ℝ) :
+    0 ≤ vdcBump a b t ∧ vdcBump a b t ≤ 1 :=
+  (vdcBump_props hab).2.2.1 t
+
+/-- The Poisson cutoff equals one between its two transition intervals. -/
+theorem vdcBump_eq_one {a b : ℤ} (hab : a < b) {t : ℝ}
+    (ht : t ∈ Set.Icc ((a:ℝ)+3/4) ((b:ℝ)+1/4)) : vdcBump a b t = 1 :=
+  (vdcBump_props hab).2.1 t ht
 
 private lemma vdcBump_end_bound_left (a b : ℤ) (t : ℝ) :
     |vdcBump a b t| ≤ 128 * (t - ((a : ℝ) + 1 / 4)) ^ 2 := by

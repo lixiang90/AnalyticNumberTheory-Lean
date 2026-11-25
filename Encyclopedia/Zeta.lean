@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.RiemannSharpApproximation
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
 import AnalyticNumberTheory.RiemannZeta.SmoothedDirichletSums
 import VersoManual
@@ -29,3 +30,25 @@ file := "riemann-xi"
 {docstring riemannZeta_smoothed_functional_equation}
 
 {docstring riemannZeta_sq_smoothed_functional_equation}
+
+# 两个截断和与 Hurwitz ζ 函数
+%%%
+tag := "sharp-hurwitz-equation"
+file := "sharp-cutoffs"
+%%%
+
+{index}[近似函数方程]设 $`s=\sigma+it`，其中 $`0<\sigma<1`。取两个实截断点 $`x,y\ge 2`，使 $`2\pi xy=|t|`。对于 $`0<a\le1`，直接求和的一侧包含所有 $`m\ge0` 且 $`m+a\le x` 的项 $`(m+a)^{-s}`。另一侧按非零整数频率求和。写 $`e(u)=\exp(2\pi i u)`，便有
+
+$$`\zeta(s,a)=\sum_{0\le m\le x-a}(m+a)^{-s}+
+ \Gamma(1-s)\sum_{0<|n|\le y} e(-na)(-2\pi i n)^{s-1}+R.`
+
+复幂取主值。余项对平移参数 $`a` 一致，对正、负高度均满足
+
+$$`|R|\le256\left(1+\frac1{1-\sigma}\right)
+  \left[x^{-\sigma}\bigl(1+\log(y+2)\bigr)+\frac{x^{1-\sigma}}{\sqrt{|t|}}\right].`
+
+{docstring hurwitzZeta_sharp_afe}
+
+取 $`a=1`，所有平移因子都等于一，正、负频率合成同一个 Gamma 因子，乘以 $`\sum_{n\le y}n^{s-1}`。例如，临界线上取 $`x=y=\sqrt{|t|/(2\pi)}`，两个有限和等长，误差为 $`O(|t|^{-1/4}\log |t|)`。对有理平移按同余类求和，就得到{ref "sharp-periodic-equation"}[周期系数的对应公式]。
+
+{docstring riemannZeta_sharp_afe}

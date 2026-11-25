@@ -5904,16 +5904,41 @@ private theorem sum_divisors_moebius_squarefree {m δ : ℕ} (hm_sq : Squarefree
       exact hmδ hmk.symm
     simp [hmδ, hk1]
 
-/-- **Selberg's `Λ²` Upper-Bound Sieve for Primes in Arithmetic Progressions**:
-for `0 ≤ x`, `0 < y`, `1 ≤ q`, `Nat.Coprime a q`, and any sieve level `z ≥ 1`,
-`piAP (x + y) q a - piAP x q a ≤ z + (y / q) / G_q(z) + z ^ 2`, where
-`G_q(z) = ∑_{1 ≤ s ≤ z, s squarefree, (s, q) = 1} 1 / φ(s)`. -/
-theorem selberg_sieve_ap_upper_bound {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hy : 0 < y)
+/-- The numerator of the first absolute moment of Selberg's optimal weights. -/
+def selbergWeightMass (S : Finset ℕ) : ℝ :=
+  ∑ n ∈ S, (∑ d ∈ n.divisors, (d:ℝ)) / n.totient
+
+private theorem selbergWeightMass_identity (S : Finset ℕ) (hS : ∀ n∈S, Squarefree n)
+    (hdiv : ∀ n∈S, ∀ d, d∣n → d∈S) (G : ℝ) (hG : 0<G) :
+    (∑ d∈S, |(d:ℝ)*(((μ d:ℤ):ℝ)*(∑ n∈S with d∣n,(n.totient:ℝ)⁻¹)/G)|) = selbergWeightMass S/G := by
+  have hab (d : ℕ) (hd : d∈S) :
+      |(d:ℝ)*(((μ d:ℤ):ℝ)*(∑ n∈S with d∣n,(n.totient:ℝ)⁻¹)/G)| =
+      ((∑ n∈S with d∣n,(d:ℝ)*(n.totient:ℝ)⁻¹)/G) := by
+    have hm : |((μ d:ℤ):ℝ)|=1 := by exact_mod_cast ArithmeticFunction.abs_moebius_eq_one_of_squarefree (hS d hd)
+    rw [abs_mul,abs_of_nonneg (Nat.cast_nonneg _),abs_div,abs_mul,hm,one_mul,
+      abs_of_nonneg (by positivity : 0≤∑ n∈S with d∣n,(n.totient:ℝ)⁻¹),abs_of_pos hG,← Finset.mul_sum]
+    ring
+  rw [Finset.sum_congr rfl hab,← Finset.sum_div]
+  congr 1
+  simp_rw [Finset.sum_filter]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro n hn
+  have hf : S.filter (fun d => d∣n) = n.divisors := by
+    ext d
+    simp only [Finset.mem_filter,Nat.mem_divisors]
+    exact ⟨fun h => ⟨h.2,(hS n hn).ne_zero⟩,fun h => ⟨hdiv n hn d h.1,h.1⟩⟩
+  rw [← Finset.sum_filter,hf,← Finset.sum_mul,div_eq_mul_inv]
+
+/-- Selberg bound retaining the first absolute moment of the optimal weights in the remainder. -/
+theorem selberg_sieve_ap_upper_bound_refined {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hy : 0 < y)
     (hq : 1 ≤ q) (_ha : Nat.Coprime a q) (hz : 1 ≤ z) :
     piAP (x + y) q a - piAP x q a ≤
       z + (y / (q : ℝ)) /
         (∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q),
-          (s.totient : ℝ)⁻¹) + z ^ 2 := by
+          (s.totient : ℝ)⁻¹) +
+      min (z^2) ((selbergWeightMass ((Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q)) /
+        (∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q), (s.totient:ℝ)⁻¹))^2) := by
   have hq_pos : (0 : ℝ) < (q : ℝ) := by exact_mod_cast hq
   let S : Finset ℕ := (Finset.Icc 1 ⌊z⌋₊).filter (fun d => Squarefree d ∧ d.Coprime q)
   have hS_spec : ∀ d ∈ S, 1 ≤ d ∧ Squarefree d ∧ d.Coprime q := by
@@ -6395,30 +6420,29 @@ theorem selberg_sieve_ap_upper_bound {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (h
   let R : ℕ → ℕ → ℝ := fun d1 d2 =>
     ((N_ap.filter (fun n => Nat.lcm d1 d2 ∣ n)).card : ℝ) -
       y / (((Nat.lcm d1 d2 : ℕ) : ℝ) * (q : ℝ))
-  have hsum_R :
-      ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 * R d1 d2 ≤ z ^ 2 := by
+  let mass := ∑ d∈S, |lam d|
+  have hmass : mass=selbergWeightMass S/G :=
+    selbergWeightMass_identity S (fun n hn => (hS_spec n hn).2.1) hS_dvd G hG_pos
+  have herr : ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 * R d1 d2 ≤ mass^2 := by
+    dsimp [mass]
+    rw [sq,Finset.sum_mul]
+    refine Finset.sum_le_sum fun i hi => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun j hj => (le_abs_self _).trans ?_
+    rw [abs_mul,abs_mul]
+    exact mul_le_of_le_one_right (by positivity) (hcount_bd i hi j hj)
+  have hsum_R : ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 * R d1 d2 ≤ min (z^2) ((selbergWeightMass S/G)^2) := by
     have hS_card : (S.card : ℝ) ≤ z := by
       calc
         (S.card : ℝ) ≤ ((Finset.Icc 1 ⌊z⌋₊).card : ℝ) := by
             exact_mod_cast Finset.card_le_card (Finset.filter_subset _ _)
         _ = (⌊z⌋₊ : ℝ) := by simp
         _ ≤ z := Nat.floor_le (by linarith)
-    calc
-      ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 * R d1 d2
-          ≤ ∑ d1 ∈ S, ∑ d2 ∈ S, |lam d1 * lam d2 * R d1 d2| :=
-            Finset.sum_le_sum fun _ _ => Finset.sum_le_sum fun _ _ => le_abs_self _
-      _ ≤ ∑ d1 ∈ S, ∑ d2 ∈ S, (1 : ℝ) := by
-            refine Finset.sum_le_sum fun d1 hd1 => Finset.sum_le_sum fun d2 hd2 => ?_
-            rw [abs_mul, abs_mul]
-            have h1 := hlam_abs_le d1 hd1
-            have h2 := hlam_abs_le d2 hd2
-            have h3 := hcount_bd d1 hd1 d2 hd2
-            calc
-              |lam d1| * |lam d2| * |R d1 d2| ≤ 1 * 1 * 1 := by gcongr
-              _ = 1 := by norm_num
-      _ = (S.card : ℝ) ^ 2 := by
-            simp [sq]
-      _ ≤ z ^ 2 := by gcongr
+    rw [← hmass]
+    refine le_min (herr.trans ?_) herr
+    have htotal : mass≤(S.card:ℝ) := by
+      simpa [mass] using Finset.sum_le_sum (s:=S) (fun d hd => hlam_abs_le d hd)
+    exact pow_le_pow_left₀ (by dsimp [mass]; positivity) (htotal.trans hS_card) 2
   have hquad_split :
       ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 *
           ((N_ap.filter (fun n => Nat.lcm d1 d2 ∣ n)).card : ℝ) =
@@ -6437,17 +6461,29 @@ theorem selberg_sieve_ap_upper_bound {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (h
     rw [hnot] at hcard
     exact_mod_cast hcard.symm
   rw [hpi_diff, hP_all_card]
-  have hcomb : (P_lg.card : ℝ) ≤ (y / (q : ℝ)) / G + z ^ 2 := by
+  have hcomb : (P_lg.card : ℝ) ≤ (y / (q : ℝ)) / G + min (z^2) ((selbergWeightMass S/G)^2) := by
     calc
       (P_lg.card : ℝ) ≤ ∑ n ∈ N_ap, (∑ d ∈ S with d ∣ n, lam d) ^ 2 := hP_lg_le_quad
       _ = ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 *
             ((N_ap.filter (fun n => Nat.lcm d1 d2 ∣ n)).card : ℝ) := hquad_expand
       _ = (y / (q : ℝ)) * G⁻¹ + ∑ d1 ∈ S, ∑ d2 ∈ S, lam d1 * lam d2 * R d1 d2 := by
             rw [hquad_split, hdiag_val]
-      _ ≤ (y / (q : ℝ)) / G + z ^ 2 := by
+      _ ≤ (y / (q : ℝ)) / G + min (z^2) ((selbergWeightMass S/G)^2) := by
             rw [← div_eq_mul_inv]
             linarith [hsum_R]
   linarith [hP_sm_le, hcomb]
+
+/-- **Selberg's `Λ²` Upper-Bound Sieve for Primes in Arithmetic Progressions**:
+for `0 ≤ x`, `0 < y`, `1 ≤ q`, `Nat.Coprime a q`, and any sieve level `z ≥ 1`,
+`piAP (x + y) q a - piAP x q a ≤ z + (y / q) / G_q(z) + z ^ 2`, where
+`G_q(z) = ∑_{1 ≤ s ≤ z, s squarefree, (s, q) = 1} 1 / φ(s)`. -/
+theorem selberg_sieve_ap_upper_bound {x y z : ℝ} {q a : ℕ} (hx : 0 ≤ x) (hy : 0 < y)
+    (hq : 1 ≤ q) (_ha : Nat.Coprime a q) (hz : 1 ≤ z) :
+    piAP (x + y) q a - piAP x q a ≤
+      z + (y / (q : ℝ)) /
+        (∑ s ∈ (Finset.Icc 1 ⌊z⌋₊).filter (fun s => Squarefree s ∧ s.Coprime q),
+          (s.totient : ℝ)⁻¹) + z ^ 2 := by
+  exact (selberg_sieve_ap_upper_bound_refined hx hy hq _ha hz).trans (add_le_add_right (min_le_left ..) _)
 
 /-- **Explicit Selberg Brun–Titchmarsh Bound**:
 for `0 ≤ x`, `0 < y`, `1 ≤ q`, `Nat.Coprime a q`, and `1 < z`,

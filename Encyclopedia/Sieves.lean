@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.SieveMethods.LinearSieveEulerProducts
+import AnalyticNumberTheory.SieveMethods.LinearSievePrimeContraction
 import AnalyticNumberTheory.SieveMethods.LinearSieveMonotonicity
 import AnalyticNumberTheory.SieveMethods.DickmanFunction
 import AnalyticNumberTheory.SieveMethods.CombinatorialSieve
@@ -153,3 +155,41 @@ $$`\lim_{u\to\infty}\omega(u)=e^{-\gamma}.`
 {docstring linearSieve_bracket_one}
 
 {docstring linearSieve_factorial_error}
+
+# 一维筛的乘积比较与两步递推
+%%%
+tag := "linear-sieve-products"
+file := "euler-products"
+%%%
+
+记 $`V(t)=\prod_{p<t}(1-g(p))`。假设筛选区间内任意 $`[u,v)` 都满足
+$`-L\le\sum_{u\le p<v}g(p)\log p-\log(v/u)\le A`，且 $`0\le g(p)\le1-1/B`。分部求和给出 $`\log(V(w)/V(z))` 与 $`\log(\log z/\log w)` 的双向比较。令 $`K=(A+1)+B(A+1)(1+2(A+1))`，对于 $`2\le w\le t\le z` 有
+
+$$`\left|V(t)-V(z)\frac{\log z}{\log t}\right|
+  \le e^{2K}(L+K)\frac{V(z)\log z}{(\log w)^2}.`
+
+{docstring sieveEulerBelow_uniform_comparison}
+
+对 Rosser 下筛，连续取两层素数时，第二层满足 $`q<p` 和 $`pq^3<y`。写 $`u=\log y/\log z`。若 $`u\ge2` 并且每个子区间的乘积比较误差满足声明中的 $`\eta\le10^{-4}` 条件，则以 $`V(q)\exp[-\log(y/pq)/\log q]` 加权的两层总贡献至多为 $`(19/20)V(z)e^{-u}`。这样可在迭代中逐对控制余项。
+
+{docstring linearSieve_prime_pair_contraction}
+
+# 等差数列的 Selberg 上界
+%%%
+tag := "selberg-progression-weights"
+file := "progression-weights"
+%%%
+
+{index}[Brun–Titchmarsh 不等式]在 $`(x,x+y]` 中计数模 $`q` 的既约剩余类 $`a` 的素数。给定 $`z\ge1`，令 $`S` 为不超过 $`z` 且与 $`q` 互素的无平方因子正整数，定义
+
+$$`G=\sum_{d\in S}\frac{1}{\varphi(d)},\qquad
+ H=\sum_{d\in S}\frac{\sigma_1(d)}{\varphi(d)},\qquad \sigma_1(d)=\sum_{b\mid d}b.`
+
+用 Selberg 权估计筛余数目，分别按逐项上界与权的绝对值总和估计计数误差，得到
+
+$$`\pi(x+y;q,a)-\pi(x;q,a)\le z+\frac{y}{qG}+
+    \min\left\{z^2,\left(\frac HG\right)^2\right\}.`
+
+这里 $`z` 包含筛选时需要单独计入的小素数。保留 $`G,H` 的有限和，可以直接代入指定的筛限计算。
+
+{docstring selberg_sieve_ap_upper_bound_refined}

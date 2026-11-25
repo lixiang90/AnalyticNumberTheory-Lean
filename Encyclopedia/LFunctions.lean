@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletLFunctions.PeriodicApproximateFunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.FunctionalEquation
 import AnalyticNumberTheory.DirichletLFunctions.ZeroCounting
 import VersoManual
@@ -37,3 +38,19 @@ $$`N_\chi(T)=\frac{T}{\pi}\log\frac{fT}{2\pi e}+O(\log(fT)).`
 主特征的导子为一。由于这里上下两个半平面都计数，其结果正好等于{ref "zeta-zeros"}[黎曼 ζ 函数上半平面零点数]的两倍。
 
 {docstring zeroCountL_principal}
+
+# 周期系数的截断函数方程
+%%%
+tag := "sharp-periodic-equation"
+file := "periodic-cutoffs"
+%%%
+
+令 $`\Phi` 是模 $`q\ge1` 的周期函数，满足 $`|\Phi|\le1`。将 $`L(s,\Phi)` 展开成各个剩余类的 Hurwitz ζ 函数，对每一类应用{ref "sharp-hurwitz-equation"}[截断公式]。合并后，直接和为 $`\sum_{n\le qx}\Phi(n)n^{-s}`，另一侧有频率 $`0<|n|\le y`，其中 $`2\pi xy=|\Im s|`。对偶系数是未归一化的有限 Fourier 变换
+
+$$`\widehat{\Phi}(n)=\sum_{r=1}^q\Phi(r)\exp(-2\pi i nr/q).`
+
+在对偶和的每一项中，$`\widehat{\Phi}(n)` 乘以 $`q^{-s}\Gamma(1-s)(-2\pi i n)^{s-1}`。逐类相加给出至多为 Hurwitz 误差界 $`q^{1-\sigma}` 倍的余项，其中 $`\sigma=\Re s`。一般周期函数与任意模 $`q` 的 Dirichlet 特征都可直接使用这个估计。
+
+{docstring periodicLFunction_sharp_afe}
+
+{docstring dirichletLFunction_sharp_afe}

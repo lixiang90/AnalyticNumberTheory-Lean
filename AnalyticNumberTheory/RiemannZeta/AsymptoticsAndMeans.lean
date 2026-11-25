@@ -100,7 +100,8 @@ private lemma isPathConnected_re_gt_sdiff_one' {σ₀ : ℝ} (hσ₀ : σ₀ < 1
           linarith
     exact hpath1.trans hpath2
 
-private lemma cpow_shift_hasDerivAt {t a : ℝ} (hta : 0 < t + a) (c : ℂ) :
+/-- Derivative of a shifted Dirichlet monomial on the positive real axis. -/
+lemma cpow_shift_hasDerivAt {t a : ℝ} (hta : 0 < t + a) (c : ℂ) :
     HasDerivAt (fun u : ℝ ↦ ((u + a : ℝ) : ℂ) ^ c) (c * ((t + a : ℝ) : ℂ) ^ (c - 1)) t := by
   have hmem : ((t + a : ℝ) : ℂ) ∈ Complex.slitPlane := Complex.ofReal_mem_slitPlane.mpr hta
   have hc : HasDerivAt (fun z : ℂ ↦ z ^ c) (c * ((t + a : ℝ) : ℂ) ^ (c - 1)) ((t + a : ℝ) : ℂ) :=
@@ -323,7 +324,8 @@ private lemma integrableOn_sawtooth_shift_cpow_Ioi {a₀ a : ℝ} (ha₀ : 0 ≤
     simp only [sub_re, neg_re, one_re]
     exact mul_le_mul (sawtooth_abs_le u) le_rfl (by positivity) (by positivity)
 
-private lemma integrableOn_bernoulliKernel_two_shift_cpow_Ioi {a₀ a : ℝ} (ha₀ : 0 ≤ a₀) (ha : 0 < a)
+/-- Absolute convergence of the second Euler–Maclaurin remainder for Hurwitz zeta. -/
+lemma integrableOn_bernoulliKernel_two_shift_cpow_Ioi {a₀ a : ℝ} (ha₀ : 0 ≤ a₀) (ha : 0 < a)
     {s : ℂ} (hs : -1 < s.re) :
     IntegrableOn (fun u : ℝ ↦ (bernoulliKernel 2 u : ℂ) * ((u + a : ℝ) : ℂ) ^ (-s - 2))
       (Set.Ioi a₀) := by
@@ -894,30 +896,32 @@ private lemma bernoulliKernel_two_hasSum_cos (u : ℝ) :
     rw [harg, Real.cos_add_int_mul_two_pi]
   rw [Nat.cast_add, Nat.cast_one, hcos]
 
-private lemma bernoulliKernel_two_eq_tsum_exp (u : ℝ) :
-    (bernoulliKernel 2 u : ℂ) =
-      ∑' m : ℕ, ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) *
-        (Complex.exp ((2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I) +
-          Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I)) := by
-  have hhas := (Complex.ofRealCLM.hasSum (bernoulliKernel_two_hasSum_cos u))
-  have hsum_c : HasSum (fun m : ℕ ↦
+/-- Absolutely convergent positive and negative Fourier expansion of the second Bernoulli kernel. -/
+theorem hasSum_bernoulliKernel_two_exp (u : ℝ) : HasSum (fun m : ℕ ↦
       ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) *
         (Complex.exp ((2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I) +
           Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I)))
       (bernoulliKernel 2 u : ℂ) := by
-    refine hhas.congr_fun fun m ↦ ?_
-    simp only [Complex.ofRealCLM_apply]
-    have hcos_c : ((Real.cos (2 * Real.pi * ((m : ℝ) + 1) * u) : ℝ) : ℂ) =
+  have hhas := (Complex.ofRealCLM.hasSum (bernoulliKernel_two_hasSum_cos u))
+  refine hhas.congr_fun fun m ↦ ?_
+  simp only [Complex.ofRealCLM_apply]
+  have hcos_c : ((Real.cos (2 * Real.pi * ((m : ℝ) + 1) * u) : ℝ) : ℂ) =
+      (Complex.exp ((2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I) +
+        Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I)) / 2 := by
+    rw [Complex.ofReal_cos, Complex.cos]
+  have h12 : ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) =
+      ((1 / (2 * Real.pi ^ 2) : ℝ) : ℂ) * ((1 / ((m : ℝ) + 1) ^ 2 : ℝ) : ℂ) / 2 := by
+    push_cast; field_simp; ring
+  conv_rhs => rw [Complex.ofReal_mul, Complex.ofReal_mul, hcos_c]
+  rw [h12]
+  ring
+
+theorem bernoulliKernel_two_eq_tsum_exp (u : ℝ) :
+    (bernoulliKernel 2 u : ℂ) =
+      ∑' m : ℕ, ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) *
         (Complex.exp ((2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I) +
-          Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I)) / 2 := by
-      rw [Complex.ofReal_cos, Complex.cos]
-    have h12 : ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) =
-        ((1 / (2 * Real.pi ^ 2) : ℝ) : ℂ) * ((1 / ((m : ℝ) + 1) ^ 2 : ℝ) : ℂ) / 2 := by
-      push_cast; field_simp; ring
-    conv_rhs => rw [Complex.ofReal_mul, Complex.ofReal_mul, hcos_c]
-    rw [h12]
-    ring
-  exact hsum_c.tsum_eq.symm
+          Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I)) := by
+  exact (hasSum_bernoulliKernel_two_exp u).tsum_eq.symm
 
 private lemma oscillatory_integral_bound {N : ℕ} {a σ t ω : ℝ} (ha : 0 < a) (hσ : 0 < σ)
     (hω_gt : 0 < |ω| - |t| / ((N : ℝ) + a)) :
@@ -1279,49 +1283,40 @@ private lemma tsum_one_div_nat_add_one_cube_summable :
   refine (summable_nat_add_iff 1).mpr h |>.congr fun m ↦ ?_
   simp [Nat.cast_add, Nat.cast_one]
 
-private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
-    (hc2pi : c < 2 * Real.pi) :
-    ∃ C_b : ℝ, 0 < C_b ∧ ∀ ⦃N : ℕ⦄ ⦃a σ t : ℝ⦄, a ∈ Set.Ioc (0 : ℝ) 1 → 0 < σ →
-      |t| ≤ c * ((N : ℝ) + a) →
-        ‖(t : ℂ) ^ 2 * ∫ u in Set.Ioi (N : ℝ),
-            (bernoulliKernel 2 u : ℂ) * ((u + a : ℝ) : ℂ) ^ (-((σ : ℂ) + (t : ℂ) * I) - 2)‖ ≤
-          C_b * ((N : ℝ) + a) ^ (-σ) := by
-  let S3 : ℝ := ∑' m : ℕ, (1 : ℝ) / ((m : ℝ) + 1) ^ 3
-  have hS3_pos : 0 < S3 := by
-    have h0 := tsum_one_div_nat_add_one_cube_summable.le_tsum 0 fun m _ ↦ by positivity
-    simp only [Nat.cast_zero, zero_add, one_pow, div_one] at h0
-    linarith
-  let gap : ℝ := 2 * Real.pi - c
-  have hgap_pos : 0 < gap := sub_pos.mpr hc2pi
-  let C_b : ℝ := S3 * (c ^ 2 / (Real.pi ^ 2 * gap) + c ^ 3 / (6 * Real.pi ^ 2 * gap ^ 2))
-  have hCb_pos : 0 < C_b := by positivity
-  refine ⟨C_b, hCb_pos, fun N a σ t ha hσ ht_le ↦ ?_⟩
-  let s : ℂ := (σ : ℂ) + (t : ℂ) * I
-  let M : ℝ := (N : ℝ) + a
-  have ha_pos : 0 < a := ha.1
-  have hM_pos : 0 < M := by positivity
-  let term : ℕ → ℝ → ℂ := fun m u ↦
+/-- Paired positive and negative Fourier modes of the second Bernoulli
+remainder in the Hurwitz Euler–Maclaurin formula. -/
+noncomputable def hurwitzBernoulliMode (a : ℝ) (s : ℂ) (m : ℕ) (u : ℝ) : ℂ :=
     ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) *
       ((Complex.exp ((2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I) +
         Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I)) *
           ((u + a : ℝ) : ℂ) ^ (-s - 2))
+
+/-- The Fourier expansion of the second Bernoulli remainder may be integrated
+term by term on the infinite tail. -/
+theorem hasSum_hurwitzBernoulliMode {a σ t : ℝ} (ha_pos : 0 < a) (hσ : 0 < σ) {N : ℝ} (hN : 0≤N) :
+    let s := (σ:ℂ)+(t:ℂ)*I
+    HasSum (fun m : ℕ => ∫ u in Set.Ioi (N:ℝ), hurwitzBernoulliMode a s m u)
+      (∫ u in Set.Ioi (N:ℝ), (bernoulliKernel 2 u:ℂ)*((u+a:ℝ):ℂ)^(-s-2)) := by
+  intro s
+  let M : ℝ := (N:ℝ)+a
+  let term := hurwitzBernoulliMode a s
   have hterm_eq : ∀ u : ℝ,
       (bernoulliKernel 2 u : ℂ) * ((u + a : ℝ) : ℂ) ^ (-s - 2) = ∑' m : ℕ, term m u := by
     intro u
     rw [bernoulliKernel_two_eq_tsum_exp u, ← tsum_mul_right]
     refine tsum_congr fun m ↦ ?_
-    dsimp only [term]
+    dsimp only [term,hurwitzBernoulliMode]
     ring
   have hint_term : ∀ m : ℕ, IntegrableOn (term m) (Set.Ioi (N : ℝ)) := by
     intro m
     have hdom : IntegrableOn (fun u : ℝ ↦
         (1 / (2 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2)) * (u + a) ^ (-σ - 2)) (Set.Ioi (N : ℝ)) :=
-      (integrableOn_shift_rpow_Ioi (Nat.cast_nonneg N) ha_pos (by linarith)).const_mul _
+      (integrableOn_shift_rpow_Ioi hN ha_pos (by linarith)).const_mul _
     refine Integrable.mono' hdom ?_ ?_
     · have hc_pow : ContinuousOn (fun u : ℝ ↦ ((u + a : ℝ) : ℂ) ^ (-s - 2)) (Set.Ioi (N : ℝ)) :=
         continuousOn_of_forall_continuousAt fun u hu ↦ by
           have hu_gt : (N : ℝ) < u := hu
-          exact (cpow_shift_hasDerivAt (by linarith [Nat.cast_nonneg (α := ℝ) N, ha_pos])
+          exact (cpow_shift_hasDerivAt (by linarith [hN, ha_pos])
             (-s - 2)).continuousAt
       have hc_exp : Continuous (fun u : ℝ ↦
           ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) *
@@ -1332,13 +1327,13 @@ private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
             (Complex.exp ((2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I) +
               Complex.exp (-(2 * Real.pi * ((m : ℝ) + 1) * u : ℝ) * I))) *
             ((u + a : ℝ) : ℂ) ^ (-s - 2) := by
-        ext u; dsimp [term]; ring
+        ext u; dsimp [term,hurwitzBernoulliMode]; ring
       rw [hreord]
       exact (hc_exp.continuousOn.mul hc_pow).aestronglyMeasurable measurableSet_Ioi
     · filter_upwards [ae_restrict_mem measurableSet_Ioi] with u hu
       have hu_gt : (N : ℝ) < u := hu
-      have hua : 0 < u + a := by linarith [Nat.cast_nonneg (α := ℝ) N, ha_pos]
-      dsimp only [term]
+      have hua : 0 < u + a := by linarith [hN, ha_pos]
+      dsimp only [term,hurwitzBernoulliMode]
       rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity),
         Complex.norm_cpow_eq_rpow_re_of_pos hua, show (-s - 2).re = -σ - 2 by simp [s]]
       have hexp2 :
@@ -1363,15 +1358,15 @@ private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
     intro m
     have hdom : IntegrableOn (fun u : ℝ ↦
         (1 / (2 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2)) * (u + a) ^ (-σ - 2)) (Set.Ioi (N : ℝ)) :=
-      (integrableOn_shift_rpow_Ioi (Nat.cast_nonneg N) ha_pos (by linarith)).const_mul _
+      (integrableOn_shift_rpow_Ioi hN ha_pos (by linarith)).const_mul _
     calc
       ∫ u in Set.Ioi (N : ℝ), ‖term m u‖
           ≤ ∫ u in Set.Ioi (N : ℝ),
               (1 / (2 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2)) * (u + a) ^ (-σ - 2) := by
         refine setIntegral_mono_on (hint_term m).norm hdom measurableSet_Ioi fun u hu ↦ ?_
         have hu_gt : (N : ℝ) < u := hu
-        have hua : 0 < u + a := by linarith [Nat.cast_nonneg (α := ℝ) N, ha_pos]
-        dsimp only [term]
+        have hua : 0 < u + a := by linarith [hN, ha_pos]
+        dsimp only [term,hurwitzBernoulliMode]
         rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity),
           Complex.norm_cpow_eq_rpow_re_of_pos hua, show (-s - 2).re = -σ - 2 by simp [s]]
         have hexp2 :
@@ -1392,7 +1387,7 @@ private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
       _ = (1 / (2 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2)) *
             ∫ u in Set.Ioi (N : ℝ), (u + a) ^ (-σ - 2) := integral_const_mul _ _
       _ = (1 / (2 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2)) * (M ^ (-σ - 1) / (σ + 1)) := by
-          have hint_val := integral_shift_rpow_Ioi (Nat.cast_nonneg N) ha_pos (by linarith : 1 < σ + 2)
+          have hint_val := integral_shift_rpow_Ioi hN ha_pos (by linarith : 1 < σ + 2)
           rw [show -(σ + 2) = -σ - 2 by ring, show 1 - (σ + 2) = -σ - 1 by ring,
             show (σ + 2) - 1 = σ + 1 by ring] at hint_val
           rw [hint_val]
@@ -1408,12 +1403,32 @@ private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
       simp [Nat.cast_add, Nat.cast_one]
     exact Summable.of_nonneg_of_le (fun m ↦ integral_nonneg fun u ↦ norm_nonneg _)
       hnorm_int_le h2
-  have hint_tsum :
-      ∫ u in Set.Ioi (N : ℝ), (bernoulliKernel 2 u : ℂ) * ((u + a : ℝ) : ℂ) ^ (-s - 2) =
-        ∑' m : ℕ, ∫ u in Set.Ioi (N : ℝ), term m u := by
-    have hswap := integral_tsum_of_summable_integral_norm hint_term hsumm_norms
-    rw [hswap]
-    exact setIntegral_congr_fun measurableSet_Ioi fun u _ ↦ hterm_eq u
+  convert hasSum_integral_of_summable_integral_norm hint_term hsumm_norms using 1
+  exact setIntegral_congr_fun measurableSet_Ioi fun u _ => hterm_eq u
+
+private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
+    (hc2pi : c < 2 * Real.pi) :
+    ∃ C_b : ℝ, 0 < C_b ∧ ∀ ⦃N : ℕ⦄ ⦃a σ t : ℝ⦄, a ∈ Set.Ioc (0 : ℝ) 1 → 0 < σ →
+      |t| ≤ c * ((N : ℝ) + a) →
+        ‖(t : ℂ) ^ 2 * ∫ u in Set.Ioi (N : ℝ),
+            (bernoulliKernel 2 u : ℂ) * ((u + a : ℝ) : ℂ) ^ (-((σ : ℂ) + (t : ℂ) * I) - 2)‖ ≤
+          C_b * ((N : ℝ) + a) ^ (-σ) := by
+  let S3 : ℝ := ∑' m : ℕ, (1 : ℝ) / ((m : ℝ) + 1) ^ 3
+  have hS3_pos : 0 < S3 := by
+    have h0 := tsum_one_div_nat_add_one_cube_summable.le_tsum 0 fun m _ ↦ by positivity
+    simp only [Nat.cast_zero, zero_add, one_pow, div_one] at h0
+    linarith
+  let gap : ℝ := 2 * Real.pi - c
+  have hgap_pos : 0 < gap := sub_pos.mpr hc2pi
+  let C_b : ℝ := S3 * (c ^ 2 / (Real.pi ^ 2 * gap) + c ^ 3 / (6 * Real.pi ^ 2 * gap ^ 2))
+  have hCb_pos : 0 < C_b := by positivity
+  refine ⟨C_b, hCb_pos, fun N a σ t ha hσ ht_le ↦ ?_⟩
+  let s : ℂ := (σ : ℂ) + (t : ℂ) * I
+  let M : ℝ := (N : ℝ) + a
+  have ha_pos : 0 < a := ha.1
+  have hM_pos : 0 < M := by positivity
+  let term := hurwitzBernoulliMode a s
+  have hint_tsum := (hasSum_hurwitzBernoulliMode (t:=t) ha_pos hσ (Nat.cast_nonneg N)).tsum_eq.symm
   have hterm_bd : ∀ m : ℕ,
       ‖(t : ℂ) ^ 2 * ∫ u in Set.Ioi (N : ℝ), term m u‖ ≤
         (c ^ 2 / (Real.pi ^ 2 * gap) + c ^ 3 / (6 * Real.pi ^ 2 * gap ^ 2)) *
@@ -1479,7 +1494,7 @@ private lemma bernoulliKernel_two_oscillatory_tail_bound {c : ℝ} (hc0 : 0 < c)
           ((1 / (4 * Real.pi ^ 2 * ((m : ℝ) + 1) ^ 2) : ℝ) : ℂ) *
             (((u + a : ℝ) : ℂ) ^ (-s - 2) * Complex.exp ((ω * u : ℝ) * I) +
               ((u + a : ℝ) : ℂ) ^ (-s - 2) * Complex.exp ((-ω * u : ℝ) * I)) := by
-        ext u; dsimp [term, ω]; push_cast; ring
+        ext u; dsimp [term, hurwitzBernoulliMode, ω]; push_cast; ring
       rw [h1, integral_const_mul, integral_add hint1 hint2]
     rw [hsplit_int, norm_mul, norm_pow, Complex.norm_real, Real.norm_eq_abs, sq_abs,
       norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity)]

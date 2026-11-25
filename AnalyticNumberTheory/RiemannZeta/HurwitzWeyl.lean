@@ -55,7 +55,7 @@ private theorem hurwitz_block {a t U : ℝ} (ha : a ∈ Set.Ioc (0:ℝ) 1)
 private theorem hurwitz_finite_weyl {a t U : ℝ} (ha : a ∈ Set.Ioc (0:ℝ) 1)
     (hU : 1≤U) (ht : |-t/(2*π)| = U^6) {N K : ℕ} (hN : 1≤N)
     (hNK : N≤2^K) (hcut : (N:ℝ)≤100*U^6) :
-    ‖∑ n ∈ Icc 0 N, ((n:ℂ)+a)^(-((1/2:ℂ)+t*I))‖ ≤ (√a)⁻¹+1+K*(10000*U) := by
+    ‖(∑ n ∈ Icc 0 N, ((n:ℂ)+a)^(-((1/2:ℂ)+t*I)))-(a:ℂ)^(-((1/2:ℂ)+t*I))‖ ≤ 1+K*(10000*U) := by
   let f (n : ℕ) := ((n:ℂ)+a)^(-((1/2:ℂ)+t*I))
   have hnorm (n : ℕ) : ‖f n‖ = (√((n:ℝ)+a))⁻¹ := by
     dsimp only [f]
@@ -63,16 +63,17 @@ private theorem hurwitz_finite_weyl {a t U : ℝ} (ha : a ∈ Set.Ioc (0:ℝ) 1)
     simp [logPhaseTerm,Complex.norm_exp]
   have hsplit := sum_Icc_eq_dyadic_blocks f hN hNK
   have hs : (Icc 0 N) = insert 0 (Icc 1 N) := by ext n; simp only [mem_Icc,mem_insert]; omega
-  change ‖∑ n ∈ Icc 0 N, f n‖ ≤ _
-  rw [hs,sum_insert (by simp),hsplit,← add_assoc]
+  change ‖(∑ n ∈ Icc 0 N, f n)-_‖ ≤ _
+  rw [hs,sum_insert (by simp)]
+  have hzero : f 0=(a:ℂ)^(-((1/2:ℂ)+t*I)) := by simp [f]
+  rw [hzero,add_sub_cancel_left,hsplit]
   have h1 : ‖f 1‖ ≤ 1 := by
     rw [hnorm,Nat.cast_one]
     apply inv_le_one_of_one_le₀
     exact Real.one_le_sqrt.mpr (by linarith [ha.1])
   apply (norm_add_le ..).trans
   apply add_le_add
-  · apply (norm_add_le ..).trans
-    exact add_le_add (by simp [hnorm]) h1
+  · exact h1
   · apply (norm_sum_le ..).trans
     calc _ ≤ ∑ _j ∈ range K, 10000*U := by
               apply sum_le_sum
@@ -86,12 +87,12 @@ private theorem hurwitz_finite_weyl {a t U : ℝ} (ha : a ∈ Set.Ioc (0:ℝ) 1)
          _ = _ := by simp
 
 set_option maxHeartbeats 400000 in
-/-- Uniform Weyl subconvexity for the Hurwitz zeta function. The initial
-term `a^(-1/2)` allows the constant to be independent of the shift. -/
-theorem hurwitzZeta_weyl_bound :
+/-- Weyl subconvexity of the Hurwitz zeta function after subtracting its
+first term, uniformly down to arbitrarily small positive shifts. -/
+theorem hurwitzZeta_sub_initial_weyl_bound :
     ∃ C > 0, ∀ {a t : ℝ}, a ∈ Set.Ioc (0:ℝ) 1 → 2*π ≤ |t| →
-      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) ((1/2:ℂ)+t*I)‖ ≤
-        (√a)⁻¹+C*|t|^(1/6:ℝ)*(1+Real.log |t|) := by
+      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) ((1/2:ℂ)+t*I)-(a:ℂ)^(-((1/2:ℂ)+t*I))‖ ≤
+        C*|t|^(1/6:ℝ)*(1+Real.log |t|) := by
   obtain ⟨K,hK,H⟩ := hurwitzZeta_dirichletPoly_error zero_lt_one (by linarith [Real.two_le_pi] : (1:ℝ)<2*π)
   let D := 2+(Real.log 2)⁻¹
   have hl2 : 0<Real.log 2 := Real.log_pos (by norm_num)
@@ -131,7 +132,8 @@ theorem hurwitzZeta_weyl_bound :
     (by simpa only [one_mul] using hXN)
   let Z := HurwitzZeta.hurwitzZeta (a:UnitAddCircle) ((1/2:ℂ)+t*I)
   let P := ∑ n ∈ Icc 0 N, ((n:ℂ)+a)^(-((1/2:ℂ)+t*I))
-  change ‖Z‖ ≤ _
+  let U₀ := (a:ℂ)^(-((1/2:ℂ)+t*I))
+  change ‖Z-U₀‖ ≤ _
   simp only [Complex.ofReal_div,Complex.ofReal_one,Complex.ofReal_ofNat] at herr
   change ‖Z-P‖ ≤ ((N:ℝ)+1)^(1-1/2:ℝ)/X+K*(N:ℝ)^(-(1/2):ℝ) at herr
   have hNs : 1≤(N:ℝ) := by exact_mod_cast hN
@@ -146,11 +148,28 @@ theorem hurwitzZeta_weyl_bound :
     calc _ ≤ (D*(1+Real.log X))*(10000*X^(1/6:ℝ)) := by gcongr
          _ = _ := by ring
   have hone : 1 ≤ X^(1/6:ℝ)*(1+Real.log X) := one_le_mul_of_one_le_of_one_le (hu.trans huX) (by linarith)
-  have hadj : ‖Z‖ ≤ ‖Z-P‖+‖P‖ := by simpa only [sub_add_cancel] using norm_add_le (Z-P) P
-  change ‖P‖ ≤ _ at hpoly
-  change ‖Z‖ ≤ (√a)⁻¹+(K+4+10000*D)*X^(1/6:ℝ)*(1+Real.log X)
+  have hadj : ‖Z-U₀‖ ≤ ‖Z-P‖+‖P-U₀‖ := by simpa only [sub_add_sub_cancel] using norm_add_le (Z-P) (P-U₀)
+  change ‖P-U₀‖ ≤ _ at hpoly
+  change ‖Z-U₀‖ ≤ (K+4+10000*D)*X^(1/6:ℝ)*(1+Real.log X)
   nlinarith only [hadj,herr,hpoly,hmain,hlarge,mul_le_mul_of_nonneg_left hsmall hK.le,
     mul_le_mul_of_nonneg_left hone (by linarith : 0 ≤ K+4)]
+
+/-- Uniform Weyl subconvexity for the Hurwitz zeta function. The initial
+term `a^(-1/2)` allows the constant to be independent of the shift. -/
+theorem hurwitzZeta_weyl_bound :
+    ∃ C > 0, ∀ {a t : ℝ}, a ∈ Set.Ioc (0:ℝ) 1 → 2*π ≤ |t| →
+      ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) ((1/2:ℂ)+t*I)‖ ≤
+        (√a)⁻¹+C*|t|^(1/6:ℝ)*(1+Real.log |t|) := by
+  obtain ⟨C,hC,H⟩ := hurwitzZeta_sub_initial_weyl_bound
+  refine ⟨C,hC,fun {a t} ha ht => ?_⟩
+  let s := (1/2:ℂ)+t*I
+  have hinit : ‖(a:ℂ)^(-s)‖=(√a)⁻¹ := by
+    rw [Complex.norm_cpow_eq_rpow_re_of_pos ha.1]
+    simp [s,Real.rpow_neg ha.1.le,Real.sqrt_eq_rpow]
+  have h := norm_add_le ((a:ℂ)^(-s)) (HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-(a:ℂ)^(-s))
+  rw [add_sub_cancel,hinit] at h
+  apply h.trans
+  exact add_le_add le_rfl (H ha ht)
 
 /-- Weyl's bound on the critical line, with one logarithm. -/
 theorem riemannZeta_weyl_bound :

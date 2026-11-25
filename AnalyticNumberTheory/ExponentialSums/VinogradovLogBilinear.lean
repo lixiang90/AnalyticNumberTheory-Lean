@@ -68,10 +68,10 @@ private theorem logMoment_root_bound {C X A T l r s δ : ℝ} (hC : 0≤C) (hX :
        _ = (2*C+6000)/1764 - l*T/(70560*r^4) := by rw [hs]; field_simp; ring
        _ ≤ _ := by linarith only [hrat,hC]
 
-/-- Bilinear bound for the logarithmic Taylor coefficients. The constant
+/-- In the window `log n ≤ log N + 1`, Bilinear bound for the logarithmic Taylor coefficients. The constant
 `C` enters only through a degree-uniform `exp(C r^4)` mean-value estimate. -/
-theorem logTaylor_bilinear_saving {r s l a : ℕ} {N n t C δ : ℝ}
-    (hN : 0<N) (hX : 100≤Real.log N) (hn : N≤n) (hn' : n≤2*N)
+theorem logTaylor_bilinear_saving_of_log_le {r s l a : ℕ} {N n t C δ : ℝ}
+    (hN : 0<N) (hX : 100≤Real.log N) (hn : N≤n) (hnlog : Real.log n≤Real.log N+1)
     (ht : 0<t) (hl : 8≤l) (hlT : 2*l*Real.log N≤Real.log t)
     (hTl : Real.log t≤(2*l+2)*Real.log N)
     (hr : 4*l≤r) (hr' : r≤32*l) (hs : s=21*r^2) (ha : 0<a)
@@ -92,7 +92,7 @@ theorem logTaylor_bilinear_saving {r s l a : ℕ} {N n t C δ : ℝ}
       vinogradovLinearKernel (s*a^(j.val+1)) (logTaylorCoefficients r t n j) ≤
         (2*(s*a^(j.val+1):ℕ)+1:ℝ)^2 * Real.exp (-U) := by
     have hi : 3*l≤j.val ∧ j.val<4*l := (mem_filter.mp hj).2
-    have H := logTaylor_kernel_window j hN hX hn hn' ht (by exact_mod_cast hl : (8:ℝ)≤l)
+    have H := logTaylor_kernel_window_of_log_le j hN hX hn hnlog ht (by exact_mod_cast hl : (8:ℝ)≤l)
       hlT hTl (by exact_mod_cast (show 3*l≤j.val+1 by omega))
       (by exact_mod_cast (show j.val+1≤4*l by omega)) hs0 ha haN
     apply H.trans_eq
@@ -105,5 +105,23 @@ theorem logTaylor_bilinear_saving {r s l a : ℕ} {N n t C δ : ℝ}
   exact logMoment_root_bound hC (by linarith) (Real.log_nonneg (by exact_mod_cast ha)) haN'
     (by exact_mod_cast (show 1≤l by omega)) (by exact_mod_cast (show l≤r by omega))
     (by exact_mod_cast hr') hs' hlT hδ
+
+/-- Bilinear bound for the logarithmic Taylor coefficients. The constant
+`C` enters only through a degree-uniform `exp(C r^4)` mean-value estimate. -/
+theorem logTaylor_bilinear_saving {r s l a : ℕ} {N n t C δ : ℝ}
+    (hN : 0<N) (hX : 100≤Real.log N) (hn : N≤n) (hn' : n≤2*N)
+    (ht : 0<t) (hl : 8≤l) (hlT : 2*l*Real.log N≤Real.log t)
+    (hTl : Real.log t≤(2*l+2)*Real.log N)
+    (hr : 4*l≤r) (hr' : r≤32*l) (hs : s=21*r^2) (ha : 0<a)
+    (haN : Real.log N/3≤Real.log a) (haN' : Real.log a≤Real.log N)
+    (hC : 0≤C) (hδ : δ≤(r:ℝ)*(r+1)/2*Real.exp (-20))
+    (hJ : vinogradovJ s r a ≤ Real.exp (C*(r:ℝ)^4+
+      (2*(s:ℝ)-(r:ℝ)*(r+1)/2+δ)*Real.log a)) :
+    ‖vinogradovBilinearSum (Icc 1 (a:ℤ)) (logTaylorCoefficients r t n)‖ ≤
+      (a:ℝ)^2*Real.exp ((2*C+6000)-Real.log N/(1000000000000*(l:ℝ)^2)) := by
+  apply logTaylor_bilinear_saving_of_log_le hN hX hn _ ht hl hlT hTl hr hr' hs ha haN haN' hC hδ hJ
+  have H := Real.log_le_log (hN.trans_le hn) hn'
+  rw [Real.log_mul (by norm_num) hN.ne'] at H
+  linarith only [H,Real.log_le_sub_one_of_pos (by norm_num : 0<(2:ℝ))]
 
 end AnalyticNumberTheory.ExponentialSums

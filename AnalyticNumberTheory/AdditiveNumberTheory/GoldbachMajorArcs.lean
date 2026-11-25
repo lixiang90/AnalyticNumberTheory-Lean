@@ -113,6 +113,47 @@ theorem norm_primeExpSum_rat_sub_le {x E : ℝ} (hx : 1 ≤ x) (a : ℤ) {q : �
     simpa [w, phase, norm_mul, Complex.norm_real, Real.norm_of_nonneg (psiAP_nonneg _ _ _)]
       using sum_psiAP_nonCoprime_le hx hq
 
+/-- Discrete partial summation for a general coefficient sequence. A uniform
+bound for partial sums is multiplied by at most `1 + 2π N |β|` after shifting
+the frequency away from zero. -/
+theorem norm_expSum_le_of_partial_sums {N : ℕ} (b : ℕ → ℂ) (β : ℝ) {D : ℝ}
+    (hD : 0≤D) (hpartial : ∀ k∈Icc 1 N, ‖∑n∈Icc 1 k,b n‖≤D) :
+    ‖expSum b (Icc 1 N) β‖≤D*(1+2*Real.pi*N*|β|) := by
+  rcases Nat.eq_zero_or_pos N with rfl | hN
+  · simpa [expSum] using hD
+  let f := fun n : ℕ => e (β*n)
+  have hphase : e β = Complex.exp (Complex.I * ((2 * Real.pi * β : ℝ) : ℂ)) := by
+    unfold e
+    congr 1
+    push_cast
+    ring
+  have hstep : ‖e β - 1‖ ≤ 2 * Real.pi * |β| := by
+    rw [hphase]
+    simpa [Real.norm_eq_abs, abs_mul, abs_of_nonneg Real.pi_nonneg] using
+      (Real.norm_exp_I_mul_ofReal_sub_one_le (x := 2 * Real.pi * β))
+  have hdiff (k : ℕ) : ‖f (k + 1) - f k‖ ≤ 2 * Real.pi * |β| := by
+    simp only [f, Nat.cast_add, Nat.cast_one, mul_add, mul_one, e_add, ← mul_sub_one,
+      norm_mul, norm_e, one_mul]
+    exact hstep
+  change ‖∑n∈Icc 1 N,b n*f n‖≤_
+  rw [abel_discrete_Icc_one]
+  apply (norm_sub_le _ _).trans
+  have hlast : ‖(∑ n ∈ Icc 1 N, b n) * f N‖ ≤ D := by
+    simpa [f, norm_mul] using hpartial N (mem_Icc.mpr ⟨hN, le_rfl⟩)
+  have hsum : ‖∑ k ∈ Ico 1 N, (∑ n ∈ Icc 1 k, b n) * (f (k + 1) - f k)‖ ≤
+      (N : ℝ) * (D * (2 * Real.pi * |β|)) := by
+    apply (norm_sum_le _ _).trans
+    calc
+      _ ≤ ∑ _k ∈ Ico 1 N, D * (2 * Real.pi * |β|) := by
+        refine sum_le_sum fun k hk => ?_
+        obtain ⟨hk1, hkN⟩ := mem_Ico.mp hk
+        rw [norm_mul]
+        exact mul_le_mul (hpartial k (mem_Icc.mpr ⟨hk1, hkN.le⟩)) (hdiff k) (norm_nonneg _) hD
+      _ ≤ _ := by
+        rw [sum_const, nsmul_eq_mul, Nat.card_Ico]
+        exact mul_le_mul_of_nonneg_right (Nat.cast_le.mpr (Nat.sub_le N 1)) (by positivity)
+  exact (add_le_add hlast hsum).trans_eq (by ring)
+
 /-- Discrete partial summation transports an approximation at a single frequency to a nearby
 frequency. The error grows by at most `1 + 2π N |β|` within the shifted exponential sum. -/
 theorem norm_primeExpSum_shift_sub_main_le {N : ℕ} {α β : ℝ} {c : ℂ} {D : ℝ} (hD : 0 ≤ D)
@@ -130,36 +171,8 @@ theorem norm_primeExpSum_shift_sub_main_le {N : ℕ} {α β : ℝ} {c : ℂ} {D 
     refine sum_congr rfl fun n _ => ?_
     simp only [add_mul, e_add, b, f]
     ring
-  have hphase : e β = Complex.exp (Complex.I * ((2 * Real.pi * β : ℝ) : ℂ)) := by
-    unfold e
-    congr 1
-    push_cast
-    ring
-  have hstep : ‖e β - 1‖ ≤ 2 * Real.pi * |β| := by
-    rw [hphase]
-    simpa [Real.norm_eq_abs, abs_mul, abs_of_nonneg Real.pi_nonneg] using
-      (Real.norm_exp_I_mul_ofReal_sub_one_le (x := 2 * Real.pi * β))
-  have hdiff (k : ℕ) : ‖f (k + 1) - f k‖ ≤ 2 * Real.pi * |β| := by
-    simp only [f, Nat.cast_add, Nat.cast_one, mul_add, mul_one, e_add, ← mul_sub_one,
-      norm_mul, norm_e, one_mul]
-    exact hstep
-  rw [heq, abel_discrete_Icc_one]
-  apply (norm_sub_le _ _).trans
-  have hlast : ‖(∑ n ∈ Icc 1 N, b n) * f N‖ ≤ D := by
-    simpa [hb, f, norm_mul] using hpartial N (mem_Icc.mpr ⟨hN, le_rfl⟩)
-  have hsum : ‖∑ k ∈ Ico 1 N, (∑ n ∈ Icc 1 k, b n) * (f (k + 1) - f k)‖ ≤
-      (N : ℝ) * (D * (2 * Real.pi * |β|)) := by
-    apply (norm_sum_le _ _).trans
-    calc
-      _ ≤ ∑ _k ∈ Ico 1 N, D * (2 * Real.pi * |β|) := by
-        refine sum_le_sum fun k hk => ?_
-        obtain ⟨hk1, hkN⟩ := mem_Ico.mp hk
-        rw [norm_mul, hb]
-        exact mul_le_mul (hpartial k (mem_Icc.mpr ⟨hk1, hkN.le⟩)) (hdiff k) (norm_nonneg _) hD
-      _ ≤ _ := by
-        rw [sum_const, nsmul_eq_mul, Nat.card_Ico]
-        exact mul_le_mul_of_nonneg_right (Nat.cast_le.mpr (Nat.sub_le N 1)) (by positivity)
-  exact (add_le_add hlast hsum).trans_eq (by ring)
+  rw [heq]
+  exact norm_expSum_le_of_partial_sums b β hD (fun k hk => (hb k) ▸ hpartial k hk)
 
 /-- Major-arc approximation for a reduced fraction with a displacement `β`, assuming a
 bound for all reduced-class progression errors up to `N`. -/

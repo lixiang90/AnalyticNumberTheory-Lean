@@ -46,10 +46,10 @@ private theorem logTaylor_reciprocal {r : ℕ} (j : Fin r) {t n : ℝ} (ht : 0<t
     Real.log_div ht.ne' hp.ne',Real.log_pow,Real.log_div one_ne_zero hn.ne',Real.log_one]
   ring
 
-/-- Throughout a block `N≤n≤2N`, each degree `3l≤j+1≤4l` saves a fixed power
+/-- In the window `log n ≤ log N + 1`, Throughout a block `N≤n≤2N`, each degree `3l≤j+1≤4l` saves a fixed power
 of `t` in the symmetric linear kernel. -/
-theorem logTaylor_kernel_window {r s a : ℕ} (j : Fin r) {N n t l : ℝ}
-    (hN : 0<N) (hX : 100≤Real.log N) (hn : N≤n) (hn' : n≤2*N)
+theorem logTaylor_kernel_window_of_log_le {r s a : ℕ} (j : Fin r) {N n t l : ℝ}
+    (hN : 0<N) (hX : 100≤Real.log N) (hn : N≤n) (hnlog : Real.log n≤Real.log N+1)
     (ht : 0<t) (hl : 8≤l) (hlT : 2*l*Real.log N≤Real.log t)
     (hTl : Real.log t ≤(2*l+2)*Real.log N)
     (hm : 3*l≤(j.val+1:ℕ)) (hm' : ((j.val+1:ℕ):ℝ)≤4*l)
@@ -71,9 +71,6 @@ theorem logTaylor_kernel_window {r s a : ℕ} (j : Fin r) {N n t l : ℝ}
   change D = Real.log (2*Real.pi)+Real.log (m:ℝ)+m*Real.log n-Real.log t at hD
   have h2pi : 1≤2*Real.pi := by linarith only [Real.pi_gt_three]
   have h2log : Real.log (2:ℝ) ≤ 1 := by linarith only [Real.log_le_sub_one_of_pos (by norm_num : 0<(2:ℝ))]
-  have hnlog : Real.log n ≤ Real.log N+1 := by
-    have H := Real.log_le_log hnr hn'
-    rw [Real.log_mul (by norm_num) hN.ne'] at H; linarith
   have hlogpi := Real.log_le_sub_one_of_pos (show 0<2*Real.pi by positivity)
   have hV : (m:ℝ)*Real.log N/3 ≤ Real.log L := by
     have hR : (a:ℝ)^m ≤ L := by
@@ -116,5 +113,20 @@ theorem logTaylor_kernel_window {r s a : ℕ} (j : Fin r) {N n t l : ℝ}
   have hp := Real.rpow_pos_of_pos ht (1/20)
   field_simp
   nlinarith only [hx]
+
+/-- Throughout a block `N≤n≤2N`, each degree `3l≤j+1≤4l` saves a fixed power
+of `t` in the symmetric linear kernel. -/
+theorem logTaylor_kernel_window {r s a : ℕ} (j : Fin r) {N n t l : ℝ}
+    (hN : 0<N) (hX : 100≤Real.log N) (hn : N≤n) (hn' : n≤2*N)
+    (ht : 0<t) (hl : 8≤l) (hlT : 2*l*Real.log N≤Real.log t)
+    (hTl : Real.log t ≤(2*l+2)*Real.log N)
+    (hm : 3*l≤(j.val+1:ℕ)) (hm' : ((j.val+1:ℕ):ℝ)≤4*l)
+    (hs : 1≤s) (ha : 0<a) (haN : Real.log N/3 ≤ Real.log (a:ℝ)) :
+    vinogradovLinearKernel (s*a^(j.val+1)) (logTaylorCoefficients r t n j) ≤
+      5840*(2*(s*a^(j.val+1):ℕ)+1:ℝ)^2 * t^(-(1/20):ℝ) := by
+  apply logTaylor_kernel_window_of_log_le j hN hX hn _ ht hl hlT hTl hm hm' hs ha haN
+  have H := Real.log_le_log (hN.trans_le hn) hn'
+  rw [Real.log_mul (by norm_num) hN.ne'] at H
+  linarith only [H,Real.log_le_sub_one_of_pos (by norm_num : 0<(2:ℝ))]
 
 end AnalyticNumberTheory.ExponentialSums

@@ -112,4 +112,43 @@ theorem periodicLFunction_approx_dirichletPoly {c : ℝ} (hc : 0 < c) (hc' : c <
             exact (mul_le_mul (hΦ _) (H ha hN hσ hs1 ht hTN) (norm_nonneg _) zero_le_one).trans_eq (one_mul _)
        _ = _ := by simp only [sum_const,card_range,nsmul_eq_mul,E]; ring
 
+/-- A uniform estimate for the regular part of Hurwitz zeta transfers to
+the periodic L-function after its first period, with the factor `q^(1-Re s)`. -/
+theorem periodicLFunction_sub_first_period_le {q : ℕ} [NeZero q] (Φ : ZMod q → ℂ)
+    (hΦ : ∀ j, ‖Φ j‖≤1) (s : ℂ) {B : ℝ}
+    (H : ∀ a ∈ Set.Ioc (0:ℝ) 1, ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-(a:ℂ)^(-s)‖≤B) :
+    ‖ZMod.LFunction Φ s-dirichletPoly (fun n : ℕ => Φ n) q s‖ ≤ (q:ℝ)^(1-s.re)*B := by
+  have hq : 0<(q:ℝ) := by exact_mod_cast NeZero.pos q
+  have he := split_periodic_poly Φ 0 s
+  simp only [zero_add,mul_one,Icc_self,sum_singleton,Nat.cast_zero] at he
+  rw [ZMod.LFunction,he,←mul_sub,norm_mul,Complex.norm_natCast_cpow_of_pos (NeZero.pos q),
+    sum_residues_succ,←sum_sub_distrib,Complex.neg_re,sub_eq_add_neg (1:ℝ),Real.rpow_add hq,Real.rpow_one]
+  calc _ ≤ (q:ℝ)^(-s.re)*(∑ r ∈ range q,B) := by
+             apply mul_le_mul_of_nonneg_left _ (by positivity)
+             apply (norm_sum_le ..).trans
+             apply sum_le_sum
+             intro r hr
+             rw [←mul_sub,norm_mul,ZMod.toAddCircle_natCast]
+             have ha : ((r+1:ℕ):ℝ)/q∈Set.Ioc (0:ℝ) 1 :=
+               ⟨by positivity,(div_le_one hq).mpr (by exact_mod_cast mem_range.mp hr)⟩
+             exact (mul_le_of_le_one_left (norm_nonneg _) (hΦ _)).trans (H _ ha)
+       _ = _ := by simp; ring
+
+/-- Pointwise transfer with the elementary sum from the first complete period
+displayed explicitly. It applies to complex characters of any conductor. -/
+theorem periodicLFunction_le_of_regular_hurwitz {q : ℕ} [NeZero q] (Φ : ZMod q → ℂ)
+    (hΦ : ∀ j, ‖Φ j‖≤1) (s : ℂ) {B : ℝ}
+    (H : ∀ a ∈ Set.Ioc (0:ℝ) 1, ‖HurwitzZeta.hurwitzZeta (a:UnitAddCircle) s-(a:ℂ)^(-s)‖≤B) :
+    ‖ZMod.LFunction Φ s‖ ≤ (∑ n ∈ Icc 1 q,(n:ℝ)^(-s.re))+(q:ℝ)^(1-s.re)*B := by
+  let P := dirichletPoly (fun n : ℕ => Φ n) q s
+  have hp : ‖P‖≤∑ n ∈ Icc 1 q,(n:ℝ)^(-s.re) := by
+    apply (norm_sum_le ..).trans
+    apply sum_le_sum
+    intro n hn
+    rw [norm_mul,Complex.norm_natCast_cpow_of_pos (by have := (mem_Icc.mp hn).1; omega),Complex.neg_re]
+    exact mul_le_of_le_one_left (Real.rpow_nonneg (Nat.cast_nonneg n) _) (hΦ _)
+  have ha := norm_add_le P (ZMod.LFunction Φ s-P)
+  rw [add_sub_cancel] at ha
+  exact ha.trans (add_le_add hp (periodicLFunction_sub_first_period_le Φ hΦ s H))
+
 end AnalyticNumberTheory.DirichletLFunctions

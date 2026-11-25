@@ -50,6 +50,28 @@ theorem abs_singularSeries_sub_sum_le {M : ℕ} (hM : 1 ≤ M) (N : ℕ) :
   apply (norm_tsum_le_tsum_norm habs).trans
   simpa [v, f, apply_ite norm, Real.norm_eq_abs] using tsum_tail_abs_singularTermTernary_le hM N
 
+/-- Analytic truncation error at a single denominator, uniform up to the cutoff. -/
+theorem norm_ternary_model_truncation {q M : ℕ} (hq1 : 1≤q) (hqM : q≤M) (N : ℕ)
+    {Q : ℝ} (hQ : 2≤Q) :
+    ‖(singularTermTernary q N:ℂ)*ternarySingularIntegral N (1/(q*Q)) -
+      (singularTermTernary q N:ℂ)*((N-1).choose 2:ℕ)‖ ≤ 2*Q^2*Real.sqrt M := by
+  have hp : (0 : ℝ) < q := by exact_mod_cast hq1
+  have hden : 2 ≤ q * Q := by nlinarith [show (1 : ℝ) ≤ q by exact_mod_cast hq1]
+  have hH : 0 < 1 / (q * Q) := by positivity
+  have hhalf : 1 / (q * Q) ≤ 1 / 2 := one_div_le_one_div_of_le (by norm_num) hden
+  have ht := norm_ternarySingularIntegral_sub_choose_le N hH hhalf
+  have hw := abs_singularTermTernary_le (N := N) hq1
+  rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_eq_abs]
+  apply (mul_le_mul hw ht (norm_nonneg _) (by positivity)).trans
+  have hs : (q : ℝ) ^ (-(3 : ℝ) / 2) * (q : ℝ) ^ 2 = Real.sqrt q := by
+    rw [← Real.rpow_two, ← Real.rpow_add hp, Real.sqrt_eq_rpow]
+    norm_num
+  calc
+    _ = 2 * Q ^ 2 * ((q : ℝ) ^ (-(3 : ℝ) / 2) * (q : ℝ) ^ 2) := by
+      field_simp [hp.ne', show Q ≠ 0 by linarith]
+      ring
+    _ ≤ _ := by rw [hs]; gcongr
+
 /-- Replacing the denominator-dependent integral by the full-period count and extending the
 arithmetic sum to infinity produces two separate explicit errors. -/
 theorem norm_sum_singularTerm_mul_integral_sub_le {M : ℕ} (hM : 1 ≤ M) (N : ℕ)
@@ -67,23 +89,7 @@ theorem norm_sum_singularTerm_mul_integral_sub_le {M : ℕ} (hM : 1 ≤ M) (N : 
     calc
       _ ≤ ∑ _q ∈ Icc 1 M, 2 * Q ^ 2 * Real.sqrt M := by
         refine sum_le_sum fun q hq => ?_
-        obtain ⟨hq1, hqM⟩ := mem_Icc.mp hq
-        have hp : (0 : ℝ) < q := by exact_mod_cast hq1
-        have hden : 2 ≤ q * Q := by nlinarith [show (1 : ℝ) ≤ q by exact_mod_cast hq1]
-        have hH : 0 < 1 / (q * Q) := by positivity
-        have hhalf : 1 / (q * Q) ≤ 1 / 2 := one_div_le_one_div_of_le (by norm_num) hden
-        have ht := norm_ternarySingularIntegral_sub_choose_le N hH hhalf
-        have hw := abs_singularTermTernary_le (N := N) hq1
-        rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_eq_abs]
-        apply (mul_le_mul hw ht (norm_nonneg _) (by positivity)).trans
-        have hs : (q : ℝ) ^ (-(3 : ℝ) / 2) * (q : ℝ) ^ 2 = Real.sqrt q := by
-          rw [← Real.rpow_two, ← Real.rpow_add hp, Real.sqrt_eq_rpow]
-          norm_num
-        calc
-          _ = 2 * Q ^ 2 * ((q : ℝ) ^ (-(3 : ℝ) / 2) * (q : ℝ) ^ 2) := by
-            field_simp [hp.ne', show Q ≠ 0 by linarith]
-            ring
-          _ ≤ _ := by rw [hs]; gcongr
+        exact norm_ternary_model_truncation (mem_Icc.mp hq).1 (mem_Icc.mp hq).2 N hQ
       _ = _ := by simp [nsmul_eq_mul]; ring
   have ha : ‖A * C - (goldbachTernarySingularSeries N : ℂ) * C‖ ≤
       32 * (M : ℝ) ^ (-1 / 2 : ℝ) * ((N - 1).choose 2 : ℕ) := by
@@ -112,16 +118,13 @@ theorem norm_goldbachTernary_majorArcIntegral_sub_series_le {N M : ℕ} (hM : 1 
   exact (norm_sub_le_norm_sub_add_norm_sub _ _ _).trans
     (add_le_add h1 (norm_sum_singularTerm_mul_integral_sub_le hM N (by linarith)))
 
-/-- Full weighted three-prime count with an explicit error expressed in terms of the
-linear major-arc approximation, the two truncations and the unconditional minor arcs. -/
-theorem abs_goldbachTernaryWeighted_sub_series_le {N M : ℕ} (hN : 2 ≤ N) (hM : 1 ≤ M)
-    {Q : ℝ} (hMQ : 2 * (M : ℝ) ≤ Q) (D : ℕ → ℝ)
-    (happrox : ∀ q ∈ Icc 1 M, ∀ a ∈ coprimeResidues q, ∀ α ∈ majorArc q a Q,
-      ‖primeExpSum N α - (μ q : ℂ) / q.totient * mainExpSum N (α - a / q)‖ ≤ D q) :
+/-- Transfer a major-arc estimate to the weighted representation count. -/
+theorem abs_goldbachTernary_sub_le_of_major {N M : ℕ} (hN : 2≤N) (hM : 1≤M)
+    {Q E : ℝ} (hMQ : 2*(M:ℝ)≤Q)
+    (hmajor : ‖majorArcIntegral (fun α => primeExpSum N α ^ 3 * e (-α * N)) M Q -
+      (goldbachTernarySingularSeries N : ℂ) * ((N - 1).choose 2 : ℕ)‖ ≤ E) :
     |goldbachTernaryWeighted N - goldbachTernarySingularSeries N * ((N - 1).choose 2 : ℕ)| ≤
-      ((∑ q ∈ Icc 1 M, (q.totient : ℝ) * (D q * (43 * N ^ 2) * (2 / (q * Q)))) +
-        (2 * Q ^ 2 * M * Real.sqrt M + 32 * (M : ℝ) ^ (-1 / 2 : ℝ) * ((N - 1).choose 2 : ℕ))) +
-        10000 * (N * (M : ℝ) ^ (-(1 / 2 : ℝ)) + (N : ℝ) ^ (4 / 5 : ℝ) +
+      E + 10000 * (N * (M : ℝ) ^ (-(1 / 2 : ℝ)) + (N : ℝ) ^ (4 / 5 : ℝ) +
         (N : ℝ) ^ (1 / 2 : ℝ) * Q ^ (1 / 2 : ℝ)) * (Real.log N) ^ 4 *
         (Chebyshev.psi N * Real.log N) := by
   have hM' : (1 : ℝ) ≤ M := by exact_mod_cast hM
@@ -138,7 +141,22 @@ theorem abs_goldbachTernaryWeighted_sub_series_le {N M : ℕ} (hN : 2 ≤ N) (hM
   have h := representationIntegral_eq_majorArcIntegral_add_minorArcIntegral_of_continuous hper hcont hM' hMQ
   rw [← Real.norm_eq_abs, ← Complex.norm_real, Complex.ofReal_sub, Complex.ofReal_mul,
     Complex.ofReal_natCast, goldbachTernaryWeighted_eq_representationIntegral, h, add_sub_right_comm]
-  exact (norm_add_le _ _).trans (add_le_add (norm_goldbachTernary_majorArcIntegral_sub_series_le
-    hM hMQ D happrox) (norm_goldbachTernary_minorArcIntegral_le hN hM' hMQ))
+  exact (norm_add_le _ _).trans (add_le_add hmajor (norm_goldbachTernary_minorArcIntegral_le hN hM' hMQ))
+
+/-- Full weighted three-prime count with an explicit error expressed in terms of the
+linear major-arc approximation, the two truncations and the unconditional minor arcs. -/
+theorem abs_goldbachTernaryWeighted_sub_series_le {N M : ℕ} (hN : 2 ≤ N) (hM : 1 ≤ M)
+    {Q : ℝ} (hMQ : 2 * (M : ℝ) ≤ Q) (D : ℕ → ℝ)
+    (happrox : ∀ q ∈ Icc 1 M, ∀ a ∈ coprimeResidues q, ∀ α ∈ majorArc q a Q,
+      ‖primeExpSum N α - (μ q : ℂ) / q.totient * mainExpSum N (α - a / q)‖ ≤ D q) :
+    |goldbachTernaryWeighted N - goldbachTernarySingularSeries N * ((N - 1).choose 2 : ℕ)| ≤
+      ((∑ q ∈ Icc 1 M, (q.totient : ℝ) * (D q * (43 * N ^ 2) * (2 / (q * Q)))) +
+        (2 * Q ^ 2 * M * Real.sqrt M + 32 * (M : ℝ) ^ (-1 / 2 : ℝ) * ((N - 1).choose 2 : ℕ))) +
+        10000 * (N * (M : ℝ) ^ (-(1 / 2 : ℝ)) + (N : ℝ) ^ (4 / 5 : ℝ) +
+        (N : ℝ) ^ (1 / 2 : ℝ) * Q ^ (1 / 2 : ℝ)) * (Real.log N) ^ 4 *
+        (Chebyshev.psi N * Real.log N) := by
+  exact abs_goldbachTernary_sub_le_of_major hN hM hMQ
+    (norm_goldbachTernary_majorArcIntegral_sub_series_le hM hMQ D happrox)
+
 
 end AnalyticNumberTheory.AdditiveNumberTheory

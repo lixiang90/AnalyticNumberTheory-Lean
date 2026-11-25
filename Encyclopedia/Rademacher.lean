@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.ModularAndPartitions.PartitionAsymptoticError
+import AnalyticNumberTheory.ModularAndPartitions.RademacherUniformError
 import AnalyticNumberTheory.ModularAndPartitions.RademacherSeries
 import VersoManual
 
@@ -28,3 +30,23 @@ $$`p(n)=\sum_{k=1}^\infty \sqrt{k}\,A_k(n)\,\psi_k(n).`
 {docstring partitionCount_sub_rademacherPartialSum_le}
 
 固定 $`n` 令 $`N\to\infty` 得到这里的精确公式。固定首项再令 $`n\to\infty`，则可借助其余项的统一估计得到{ref "partition-asymptotic"}[Hardy–Ramanujan 渐近式]。
+
+# 一致截断误差与分拆数的首修正
+%%%
+tag := "rademacher-uniform-remainder"
+file := "uniform-remainder"
+%%%
+
+令 $`c=\pi\sqrt{2/3}`，并以 $`R_N(n)` 表示 Rademacher 级数的前 $`N` 项。对所有 $`n,N\ge1`，都有
+
+$$`|p(n)-R_N(n)|\le\frac{c^3}{3\pi\sqrt2}\,\frac{\exp(c\sqrt n/N)}{\sqrt N}.`
+
+{docstring partitionCount_sub_rademacherPartialSum_uniform}
+
+对 Hardy–Ramanujan 主项 $`M(n)=e^{c\sqrt n}/(4\sqrt3\,n)`，再展开第一项，可以求出相对误差的首个系数：
+
+$$`\lim_{n\to\infty}\sqrt n\left(\frac{p(n)}{M(n)}-1\right)=-\frac{c}{48}-\frac1c.`
+
+{docstring partitionCount_relative_error_isBigO}
+
+{docstring tendsto_partitionCount_first_correction}

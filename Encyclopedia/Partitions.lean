@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.ModularAndPartitions.PartitionNaturalBoundary
+import AnalyticNumberTheory.ModularAndPartitions.PartitionModularity
 import AnalyticNumberTheory.ModularAndPartitions.Partitions
 import VersoManual
 
@@ -28,3 +30,19 @@ tag := "absolute-convergence"
 对固定的 $`n\ge1`，Rademacher 级数中分母为 $`k\ge2` 的项，其绝对值至多为 $`C(n)k^{-3/2}`。证明只需指数和的平凡上界 $`|A_k(n)|\le k` 与双曲函数的三阶余项。这个论证对任意实相位函数都成立。{ref "rademacher-series"}[精确公式]通过各个有理点附近的弧积分确定这一级数的和。
 
 {docstring summable_norm_rademacherTerm}
+
+# 分拆母函数的自然边界
+%%%
+tag := "partition-unit-circle"
+file := "natural-boundary"
+%%%
+
+记 $`P(q)=\prod_{n\ge1}(1-q^n)^{-1}`。当 $`q` 在单位圆盘内沿半径趋向任一单位根时，$`|P(q)|` 趋于无穷。单位根在圆周上稠密，故每个边界点的任意邻域内，都有模任意大的母函数值。单位圆因此是解析延拓的自然边界。
+
+{docstring tendsto_norm_partitionGenFun_at_rat}
+
+{docstring partitionGenFun_unbounded_at_unitCircle}
+
+归一化的母函数等于 Dedekind η 函数的倒数。任意整数模变换下的公式由此给出，包括单位根附近所需的变换因子。
+
+{docstring partitionGenFun_SL2Z}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPageAsymptotic
 import AnalyticNumberTheory.AdditiveNumberTheory.PageMajorArcs
 import AnalyticNumberTheory.AdditiveNumberTheory.GoldbachPrimeTripleAsymptotic
 import AnalyticNumberTheory.AdditiveNumberTheory.VinogradovThreePrimes
@@ -75,3 +76,25 @@ file := "page-major-arcs"
 固定主弧分母上限 $`K`，从{ref "page-prime-progressions"}[Page 定理]选取一个可能例外的导子。对所有其余允许的分母，同时把 von Mangoldt 指数和近似为 $`\mu(q)/\varphi(q)` 乘上线性相位和。误差明确保留弧宽和分母，这使不同分母的贡献可以分别求和。
 
 {docstring page_primeExpSum_majorArc}
+
+# Page 定理与三素数渐近式
+%%%
+tag := "page-ternary-asymptotic"
+file := "page-ternary-asymptotic"
+%%%
+
+令 $`W(N)` 为 von Mangoldt 权下的有序三元表示数。取 $`M=\lfloor(\log N)^{12}\rfloor`，在所有主弧上使用{ref "page-goldbach-major-arcs"}[同一个例外导子]。分母是该导子倍数的弧仍可能有较大的点态误差。对这些弧先用短弧平方积分，再对分母求和，就能保留对数节省。
+
+$$`W(N)=\mathfrak S_3(N)\binom{N-1}{2}+O\bigl(N^2/(\log N)^{2/5}\bigr).`
+
+有限形式给出 $`\log N` 的显式下限，误差系数写成 Page 型素数分布估计中三个常数的函数。这三个常数在定理中按存在量化。
+
+{docstring page_goldbachTernary_finite}
+
+{docstring page_goldbachTernaryWeighted_asymptotic}
+
+去掉对数权后，三个奇素数的有序表示数具有主项 $`\mathfrak S_3(N)N^2/(2\log^3 N)`，误差为 $`O(N^2/(\log N)^{17/5})`。允许素数二时结论也成立。{ref "goldbach-unweighted-ternary"}[Siegel–Walfisz 路线]给出四次对数分母；这里的证明直接估计例外弧的贡献。
+
+{docstring page_goldbachTernaryOddCount_asymptotic}
+
+{docstring page_goldbachTernaryCount_asymptotic}

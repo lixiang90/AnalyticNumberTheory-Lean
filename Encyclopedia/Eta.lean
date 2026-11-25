@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.ModularAndPartitions.EtaNaturalBoundary
+import AnalyticNumberTheory.ModularAndPartitions.DedekindModThree
 import AnalyticNumberTheory.ModularAndPartitions.DedekindLogTransformation
 import AnalyticNumberTheory.ModularAndPartitions.DedekindCongruences
 import AnalyticNumberTheory.ModularAndPartitions.DedekindEta
@@ -56,3 +58,23 @@ $$`F(\gamma z)-F(z)=\tfrac12\log[-i(cz+d)]+\pi i\left(\frac{a+d}{12c}-s(d,c)\rig
 {docstring dedekindLogEta_SL2Z_of_neg}
 
 {docstring dedekindLogEta_SL2Z_of_zero}
+
+# Dedekind 和的精细同余与 η 的边界
+%%%
+tag := "eta-congruences-boundary"
+file := "congruences-and-boundary"
+%%%
+
+取互素的 $`h,k`，其中 $`k>0`。整数 $`m=12k\,s(h,k)` 满足
+
+$$`hm\equiv h^2+1\pmod{k\gcd(3,k)}.`
+
+若 $`6k\,s(h,k)` 本身为整数，则它被三整除当且仅当 $`3\nmid k`。
+
+{docstring dedekindSum_numerator_modEq_gcd_three_int}
+
+{docstring three_dvd_dedekindSum_numerator_iff_int}
+
+从上半平面沿竖线趋向任一有理点时，η 的极限为零。有理点在实轴上稠密，若 η 能在某个实点附近解析延拓，恒等定理就会迫使这个延拓在邻域内恒为零。因此整条实轴都是 η 的自然边界。
+
+{docstring eta_no_analytic_extension}

@@ -184,4 +184,22 @@ theorem page_psiAP :
   intro χ hχ
   exact hh hqQ (fun he => hnd (congrArg Sigma.fst he ▸ χ.conductor_dvd_level)) hχ hY hQY hk
 
+/-- Nonprincipal character estimates at every partial cutoff up to `N`, with
+one possible inducing pair omitted from the whole range of moduli. -/
+def PagePartialBound (N : ℕ) (K E : ℝ) (e : Σ m : ℕ,DirichletCharacter ℂ m) : Prop :=
+  ∀ {q : ℕ} [NeZero q], (q:ℝ)≤K → ∀ {χ : DirichletCharacter ℂ q},
+    (⟨χ.conductor,χ.primitiveCharacter⟩ : Σ m : ℕ,DirichletCharacter ℂ m) ≠ e → χ≠1 →
+    ∀ k∈Icc 1 N, ‖psiChar k χ‖≤E
+
+/-- A common choice of Page data for the ordinary and exceptional arcs. -/
+theorem page_partial_bound :
+    ∃ c Z : ℝ, 0<c ∧ c≤1/4 ∧ 0<Z ∧ ∀ {K : ℝ}, 2≤K →
+    ∃ e : Σ m : ℕ,DirichletCharacter ℂ m, (e.1=0 ∨ PageExceptionalCharacter K c e.2) ∧
+      ∀ {N : ℕ} {Y : ℝ}, Real.exp 16≤Y → K+2≤Real.exp (Real.sqrt (Real.log Y)) →
+      PagePartialBound N K (pagePartialError N Y c Z) e := by
+  obtain ⟨c,Z,hc,hc4,hZ,H⟩ := page_psiChar_partial
+  refine ⟨c,Z,hc,hc4,hZ,fun {K} hK => ?_⟩
+  obtain ⟨e,he,hh⟩ := H hK
+  exact ⟨e,he,fun hY hKY _ _ hq _ hne hχ _ hk => hh hq hne hχ hY hKY hk⟩
+
 end AnalyticNumberTheory.PrimeDistribution

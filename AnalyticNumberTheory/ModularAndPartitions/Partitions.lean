@@ -4045,6 +4045,71 @@ theorem rademacherPsi_eq {k n : ℕ} (hk : 1 ≤ k) (hn : 1 ≤ n) :
   rw [rademacherPsi, ← hx0_def, hderiv_val, hu_def, hc_def, hx0_def]
   ring
 
+/-- The exact ratio of the first Rademacher term to the Hardy–Ramanujan main term. -/
+theorem rademacherPsi_one_div_mainTerm {n : ℕ} (hn : 1 ≤ n) :
+    let c := Real.pi * Real.sqrt (2 / 3)
+    rademacherPsi 1 n / hardyRamanujanMainTerm n =
+          ((n : ℝ) / ((n : ℝ) - 1 / 24)) *
+            Real.exp (c * (Real.sqrt ((n : ℝ) - 1 / 24) - Real.sqrt (n : ℝ))) *
+            (1 + Real.exp (-2 * c * Real.sqrt ((n : ℝ) - 1 / 24)) -
+              (1 - Real.exp (-2 * c * Real.sqrt ((n : ℝ) - 1 / 24))) /
+                (c * Real.sqrt ((n : ℝ) - 1 / 24))) := by
+  intro c
+  have hc_pos : 0 < c := by dsimp [c]; positivity
+  have hconst : c / (4 * Real.pi * Real.sqrt 2) = 1 / (4 * Real.sqrt 3) := by
+    dsimp [c]
+    have h23 : Real.sqrt (2 / 3) = Real.sqrt 2 / Real.sqrt 3 := Real.sqrt_div (by norm_num) 3
+    rw [h23]
+    field_simp [Real.pi_ne_zero, show Real.sqrt 2 ≠ 0 by positivity, show Real.sqrt 3 ≠ 0 by positivity]
+  have hn_pos : (0 : ℝ) < n := by exact_mod_cast hn
+  have hx0 : 0 < (n : ℝ) - 1 / 24 := by
+    have : (1 : ℝ) ≤ n := by exact_mod_cast hn
+    linarith
+  set u : ℝ := Real.sqrt ((n : ℝ) - 1 / 24)
+  have hu_pos : 0 < u := Real.sqrt_pos.mpr hx0
+  have hu_sq : u ^ 2 = (n : ℝ) - 1 / 24 := Real.sq_sqrt hx0.le
+  have hpsi := rademacherPsi_eq (k := 1) (n := n) le_rfl hn
+  have hc1 : (Real.pi / ((1 : ℕ) : ℝ)) * Real.sqrt (2 / 3) = c := by simp [c]
+  rw [hc1] at hpsi
+  have hcosh : Real.cosh (c * u) = (Real.exp (c * u) + Real.exp (-(c * u))) / 2 :=
+    Real.cosh_eq _
+  have hsinh : Real.sinh (c * u) = (Real.exp (c * u) - Real.exp (-(c * u))) / 2 :=
+    Real.sinh_eq _
+  have hexp_sq : Real.exp (-(c * u)) = Real.exp (c * u) * Real.exp (-2 * c * u) := by
+    rw [← Real.exp_add]; congr 1; ring
+  have hnum : c * u * Real.cosh (c * u) - Real.sinh (c * u) =
+      (c * u / 2) * Real.exp (c * u) *
+        (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)) := by
+    rw [hcosh, hsinh, hexp_sq]
+    field_simp [hc_pos.ne', hu_pos.ne']
+  have hrhs_exp : Real.pi * Real.sqrt (2 * (n : ℝ) / 3) = c * Real.sqrt (n : ℝ) := by
+    dsimp [c]
+    rw [show 2 * (n : ℝ) / 3 = (2 / 3) * (n : ℝ) by ring, Real.sqrt_mul (by norm_num)]
+    ring
+  rw [hpsi, hnum, hardyRamanujanMainTerm, hrhs_exp]
+  have hexp_diff : Real.exp (c * u) / Real.exp (c * Real.sqrt (n : ℝ)) =
+      Real.exp (c * (u - Real.sqrt (n : ℝ))) := by
+    rw [← Real.exp_sub]; congr 1; ring
+  have hpow3 : u / u ^ 3 = 1 / u ^ 2 := by
+    field_simp [hu_pos.ne']
+  calc ((1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) *
+          ((c * u / 2) * Real.exp (c * u) *
+            (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)))) /
+        ((1 / (4 * (n : ℝ) * Real.sqrt 3)) * Real.exp (c * Real.sqrt (n : ℝ)))
+      = ((c / (4 * Real.pi * Real.sqrt 2)) / (1 / (4 * Real.sqrt 3))) *
+          ((n : ℝ) * (u / u ^ 3)) *
+          (Real.exp (c * u) / Real.exp (c * Real.sqrt (n : ℝ))) *
+          (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)) := by
+        field_simp [Real.pi_ne_zero, show Real.sqrt 2 ≠ 0 by positivity,
+          show Real.sqrt 3 ≠ 0 by positivity, hu_pos.ne', hn_pos.ne',
+          (Real.exp_pos (c * Real.sqrt (n : ℝ))).ne']
+        ring
+    _ = ((n : ℝ) / ((n : ℝ) - 1 / 24)) *
+          Real.exp (c * (u - Real.sqrt (n : ℝ))) *
+          (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)) := by
+        rw [hconst, div_self (by positivity), one_mul, hpow3, hu_sq, hexp_diff]
+        ring
+
 /-- The leading Rademacher term `rademacherPsi 1 n` is asymptotically equivalent to
 `hardyRamanujanMainTerm n` as `n → ∞`. -/
 theorem rademacherPsi_one_isEquivalent :
@@ -4052,67 +4117,14 @@ theorem rademacherPsi_one_isEquivalent :
   rw [Asymptotics.isEquivalent_iff_tendsto_one]
   · set c : ℝ := Real.pi * Real.sqrt (2 / 3)
     have hc_pos : 0 < c := by positivity
-    have hconst : c / (4 * Real.pi * Real.sqrt 2) = 1 / (4 * Real.sqrt 3) := by
-      dsimp [c]
-      have h23 : Real.sqrt (2 / 3) = Real.sqrt 2 / Real.sqrt 3 := Real.sqrt_div (by norm_num) 3
-      rw [h23]
-      field_simp [Real.pi_ne_zero, show Real.sqrt 2 ≠ 0 by positivity, show Real.sqrt 3 ≠ 0 by positivity]
     have hquot : ∀ᶠ n : ℕ in Filter.atTop,
         rademacherPsi 1 n / hardyRamanujanMainTerm n =
           ((n : ℝ) / ((n : ℝ) - 1 / 24)) *
             Real.exp (c * (Real.sqrt ((n : ℝ) - 1 / 24) - Real.sqrt (n : ℝ))) *
             (1 + Real.exp (-2 * c * Real.sqrt ((n : ℝ) - 1 / 24)) -
               (1 - Real.exp (-2 * c * Real.sqrt ((n : ℝ) - 1 / 24))) /
-                (c * Real.sqrt ((n : ℝ) - 1 / 24))) := by
-      filter_upwards [eventually_ge_atTop 1] with n hn
-      have hn_pos : (0 : ℝ) < n := by exact_mod_cast hn
-      have hx0 : 0 < (n : ℝ) - 1 / 24 := by
-        have : (1 : ℝ) ≤ n := by exact_mod_cast hn
-        linarith
-      set u : ℝ := Real.sqrt ((n : ℝ) - 1 / 24)
-      have hu_pos : 0 < u := Real.sqrt_pos.mpr hx0
-      have hu_sq : u ^ 2 = (n : ℝ) - 1 / 24 := Real.sq_sqrt hx0.le
-      have hpsi := rademacherPsi_eq (k := 1) (n := n) le_rfl hn
-      have hc1 : (Real.pi / ((1 : ℕ) : ℝ)) * Real.sqrt (2 / 3) = c := by simp [c]
-      rw [hc1] at hpsi
-      have hcosh : Real.cosh (c * u) = (Real.exp (c * u) + Real.exp (-(c * u))) / 2 :=
-        Real.cosh_eq _
-      have hsinh : Real.sinh (c * u) = (Real.exp (c * u) - Real.exp (-(c * u))) / 2 :=
-        Real.sinh_eq _
-      have hexp_sq : Real.exp (-(c * u)) = Real.exp (c * u) * Real.exp (-2 * c * u) := by
-        rw [← Real.exp_add]; congr 1; ring
-      have hnum : c * u * Real.cosh (c * u) - Real.sinh (c * u) =
-          (c * u / 2) * Real.exp (c * u) *
-            (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)) := by
-        rw [hcosh, hsinh, hexp_sq]
-        field_simp [hc_pos.ne', hu_pos.ne']
-      have hrhs_exp : Real.pi * Real.sqrt (2 * (n : ℝ) / 3) = c * Real.sqrt (n : ℝ) := by
-        dsimp [c]
-        rw [show 2 * (n : ℝ) / 3 = (2 / 3) * (n : ℝ) by ring, Real.sqrt_mul (by norm_num)]
-        ring
-      rw [hpsi, hnum, hardyRamanujanMainTerm, hrhs_exp]
-      have hexp_diff : Real.exp (c * u) / Real.exp (c * Real.sqrt (n : ℝ)) =
-          Real.exp (c * (u - Real.sqrt (n : ℝ))) := by
-        rw [← Real.exp_sub]; congr 1; ring
-      have hpow3 : u / u ^ 3 = 1 / u ^ 2 := by
-        field_simp [hu_pos.ne']
-      calc ((1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) *
-              ((c * u / 2) * Real.exp (c * u) *
-                (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)))) /
-            ((1 / (4 * (n : ℝ) * Real.sqrt 3)) * Real.exp (c * Real.sqrt (n : ℝ)))
-          = ((c / (4 * Real.pi * Real.sqrt 2)) / (1 / (4 * Real.sqrt 3))) *
-              ((n : ℝ) * (u / u ^ 3)) *
-              (Real.exp (c * u) / Real.exp (c * Real.sqrt (n : ℝ))) *
-              (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)) := by
-            field_simp [Real.pi_ne_zero, show Real.sqrt 2 ≠ 0 by positivity,
-              show Real.sqrt 3 ≠ 0 by positivity, hu_pos.ne', hn_pos.ne',
-              (Real.exp_pos (c * Real.sqrt (n : ℝ))).ne']
-            ring
-        _ = ((n : ℝ) / ((n : ℝ) - 1 / 24)) *
-              Real.exp (c * (u - Real.sqrt (n : ℝ))) *
-              (1 + Real.exp (-2 * c * u) - (1 - Real.exp (-2 * c * u)) / (c * u)) := by
-            rw [hconst, div_self (by positivity), one_mul, hpow3, hu_sq, hexp_diff]
-            ring
+                (c * Real.sqrt ((n : ℝ) - 1 / 24))) :=
+      (eventually_ge_atTop 1).mono fun _ hn => rademacherPsi_one_div_mainTerm hn
     have hsqrt_atTop : Tendsto Real.sqrt atTop atTop :=
       Filter.tendsto_atTop_atTop.mpr fun B =>
         ⟨max 0 B ^ 2, fun x hx => (le_max_right 0 B).trans (Real.le_sqrt_of_sq_le hx)⟩
@@ -4299,6 +4311,86 @@ private lemma rademacher_sinh_bound {y : ℝ} (hy : 0 ≤ y) :
   dsimp [f] at hf0 hmono_f
   linarith
 
+/-- A single Rademacher term is bounded uniformly in its index and the partition number. -/
+theorem norm_rademacherTerm_le (s : ℤ → ℕ → ℝ) {n : ℕ} (hn : 1 ≤ n) (k : ℕ+) :
+    let c := Real.pi * Real.sqrt (2 / 3)
+    ‖(Real.sqrt (k:ℝ):ℂ)*rademacherKloostermanSum s k n*(rademacherPsi k n:ℂ)‖ ≤
+      (c^3/(6*Real.pi*Real.sqrt 2))*Real.exp (c*Real.sqrt (n:ℝ)/(k:ℝ))*(k:ℝ)^(-(3/2:ℝ)) := by
+  intro c
+  have hc_pos : 0 < c := by dsimp [c]; positivity
+  have hx0 : 0 < (n : ℝ) - 1 / 24 := by
+    have : (1 : ℝ) ≤ n := by exact_mod_cast hn
+    linarith
+  set u : ℝ := Real.sqrt ((n : ℝ) - 1 / 24)
+  have hu_pos : 0 < u := Real.sqrt_pos.mpr hx0
+  have hu_le : u ≤ Real.sqrt (n : ℝ) := Real.sqrt_le_sqrt (by linarith)
+  have hkR : (0 : ℝ) < (k : ℝ) := by positivity
+  have hpsi := rademacherPsi_eq k.pos hn
+  set y : ℝ := (c / (k : ℝ)) * u
+  have hy0 : 0 ≤ y := by positivity
+  have hsb := rademacher_sinh_bound hy0
+  have hcosh_le : Real.cosh y ≤ Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) := by
+    have hy_le : y ≤ c*Real.sqrt (n:ℝ)/(k:ℝ) := by
+      dsimp [y]
+      calc (c/(k:ℝ))*u ≤ (c/(k:ℝ))*Real.sqrt (n:ℝ) := mul_le_mul_of_nonneg_left hu_le (by positivity)
+           _ = _ := by ring
+    have hcos_exp : Real.cosh y ≤ Real.exp y := by
+      rw [Real.cosh_eq]
+      have hneg : Real.exp (-y) ≤ Real.exp y := Real.exp_le_exp.mpr (by linarith)
+      linarith
+    exact hcos_exp.trans (Real.exp_le_exp.mpr hy_le)
+  have hpsi_nonneg : 0 ≤ rademacherPsi k n := by
+    rw [hpsi]
+    have hcy : ((Real.pi / (k : ℝ)) * Real.sqrt (2 / 3)) * u = y := by
+      dsimp [y, c]; ring
+    rw [hcy]
+    exact mul_nonneg (by positivity) hsb.1
+  have hpsi_le : rademacherPsi k n ≤
+      (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) / (k : ℝ) ^ 3 := by
+    rw [hpsi]
+    have hcy : ((Real.pi / (k : ℝ)) * Real.sqrt (2 / 3)) * u = y := by
+      dsimp [y, c]; ring
+    rw [hcy]
+    have h1 : (y ^ 3 / 3) * Real.cosh y ≤
+        (c ^ 3 * u ^ 3 / (3 * (k : ℝ) ^ 3)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) := by
+      have hy3 : y ^ 3 / 3 = c ^ 3 * u ^ 3 / (3 * (k : ℝ) ^ 3) := by dsimp [y]; ring
+      rw [hy3]
+      exact mul_le_mul_of_nonneg_left hcosh_le (by positivity)
+    calc (1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) * (y * Real.cosh y - Real.sinh y)
+        ≤ (1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) * ((y ^ 3 / 3) * Real.cosh y) :=
+          mul_le_mul_of_nonneg_left hsb.2 (by positivity)
+      _ ≤ (1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) *
+            ((c ^ 3 * u ^ 3 / (3 * (k : ℝ) ^ 3)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ))) :=
+          mul_le_mul_of_nonneg_left h1 (by positivity)
+      _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) / (k : ℝ) ^ 3 := by
+          field_simp [hu_pos.ne', hkR.ne', Real.pi_ne_zero, show Real.sqrt 2 ≠ 0 by positivity]
+          ring
+  have hnorm_eq :
+      ‖(Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ =
+        Real.sqrt (k : ℝ) * ‖rademacherKloostermanSum s k n‖ * rademacherPsi k n := by
+    rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+        Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hpsi_nonneg]
+  have hrpow : Real.sqrt (k : ℝ) * (k : ℝ) / (k : ℝ) ^ 3 = (k : ℝ) ^ (-(3 / 2 : ℝ)) := by
+    have h12 : Real.sqrt (k : ℝ) = (k : ℝ) ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow _
+    have hk3 : (k : ℝ) ^ (3 : ℕ) = (k : ℝ) ^ (3 : ℝ) := by
+      rw [← Real.rpow_natCast]; norm_num
+    calc Real.sqrt (k : ℝ) * (k : ℝ) / (k : ℝ) ^ 3
+        = (k : ℝ) ^ (1 / 2 : ℝ) * (k : ℝ) / (k : ℝ) ^ (3 : ℝ) := by rw [h12, hk3]
+      _ = (k : ℝ) ^ (1 / 2 : ℝ) * (k : ℝ) ^ (1 : ℝ) / (k : ℝ) ^ (3 : ℝ) := by rw [Real.rpow_one]
+      _ = (k : ℝ) ^ (1 / 2 + 1 - 3 : ℝ) := by
+          rw [← Real.rpow_add hkR, ← Real.rpow_sub hkR]
+      _ = (k : ℝ) ^ (-(3 / 2 : ℝ)) := by congr 1; norm_num
+  rw [hnorm_eq]
+  calc Real.sqrt (k : ℝ) * ‖rademacherKloostermanSum s k n‖ * rademacherPsi k n
+      ≤ Real.sqrt (k : ℝ) * (k : ℝ) *
+          ((c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) / (k : ℝ) ^ 3) :=
+        mul_le_mul (mul_le_mul_of_nonneg_left (norm_rademacherKloostermanSum_le s k n) (Real.sqrt_nonneg _))
+          hpsi_le hpsi_nonneg (by positivity)
+    _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) *
+          (Real.sqrt (k : ℝ) * (k : ℝ) / (k : ℝ) ^ 3) := by ring
+    _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / (k:ℝ)) *
+          (k : ℝ) ^ (-(3 / 2 : ℝ)) := by rw [hrpow]
+
 /-- For fixed `n ≥ 1`, the terms beyond the first are dominated by the
 summable power `k^(-3/2)`, uniformly in the real phase function. -/
 theorem norm_rademacherTerm_tail_le (s : ℤ → ℕ → ℝ) {n : ℕ} (hn : 1 ≤ n) :
@@ -4308,89 +4400,16 @@ theorem norm_rademacherTerm_tail_le (s : ℤ → ℕ → ℝ) {n : ℕ} (hn : 1 
          else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ ≤
           (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
             (k : ℝ) ^ (-(3 / 2 : ℝ)) := by
-  intro c
-  have hc_pos : 0 < c := by dsimp [c]; positivity
-  have hx0 : 0 < (n : ℝ) - 1 / 24 := by
-    have : (1 : ℝ) ≤ n := by exact_mod_cast hn
-    linarith
-  set u : ℝ := Real.sqrt ((n : ℝ) - 1 / 24)
-  have hu_pos : 0 < u := Real.sqrt_pos.mpr hx0
-  have hu_le : u ≤ Real.sqrt (n : ℝ) := Real.sqrt_le_sqrt (by linarith)
-  intro k
-  by_cases hk : k = 1
-  · subst hk; simp; positivity
+  intro c k
+  by_cases hk : k=1
+  · subst k; simp; positivity
   · simp only [hk, ↓reduceIte]
-    have hk2 : 2 ≤ (k : ℕ) := by
-      have hne1 : (k : ℕ) ≠ 1 := fun h => hk (PNat.coe_injective h)
-      have := k.pos; omega
-    have hkR : (0 : ℝ) < (k : ℝ) := by positivity
-    have hpsi := rademacherPsi_eq k.pos hn
-    set y : ℝ := (c / (k : ℝ)) * u
-    have hy0 : 0 ≤ y := by positivity
-    have hsb := rademacher_sinh_bound hy0
-    have hcosh_le : Real.cosh y ≤ Real.exp (c * Real.sqrt (n : ℝ) / 2) := by
-      have hy_le : y ≤ c * Real.sqrt (n : ℝ) / 2 := by
-        have hkR2 : (2 : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk2
-        calc (c / (k : ℝ)) * u ≤ (c / 2) * u :=
-              mul_le_mul_of_nonneg_right (div_le_div_of_nonneg_left hc_pos.le (by norm_num) hkR2) hu_pos.le
-          _ ≤ (c / 2) * Real.sqrt (n : ℝ) := mul_le_mul_of_nonneg_left hu_le (by positivity)
-          _ = c * Real.sqrt (n : ℝ) / 2 := by ring
-      have hcos_exp : Real.cosh y ≤ Real.exp y := by
-        rw [Real.cosh_eq]
-        have hneg : Real.exp (-y) ≤ Real.exp y := Real.exp_le_exp.mpr (by linarith)
-        linarith
-      exact hcos_exp.trans (Real.exp_le_exp.mpr hy_le)
-    have hpsi_nonneg : 0 ≤ rademacherPsi k n := by
-      rw [hpsi]
-      have hcy : ((Real.pi / (k : ℝ)) * Real.sqrt (2 / 3)) * u = y := by
-        dsimp [y, c]; ring
-      rw [hcy]
-      exact mul_nonneg (by positivity) hsb.1
-    have hpsi_le : rademacherPsi k n ≤
-        (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) / (k : ℝ) ^ 3 := by
-      rw [hpsi]
-      have hcy : ((Real.pi / (k : ℝ)) * Real.sqrt (2 / 3)) * u = y := by
-        dsimp [y, c]; ring
-      rw [hcy]
-      have h1 : (y ^ 3 / 3) * Real.cosh y ≤
-          (c ^ 3 * u ^ 3 / (3 * (k : ℝ) ^ 3)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) := by
-        have hy3 : y ^ 3 / 3 = c ^ 3 * u ^ 3 / (3 * (k : ℝ) ^ 3) := by dsimp [y]; ring
-        rw [hy3]
-        exact mul_le_mul_of_nonneg_left hcosh_le (by positivity)
-      calc (1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) * (y * Real.cosh y - Real.sinh y)
-          ≤ (1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) * ((y ^ 3 / 3) * Real.cosh y) :=
-            mul_le_mul_of_nonneg_left hsb.2 (by positivity)
-        _ ≤ (1 / (2 * Real.pi * Real.sqrt 2 * u ^ 3)) *
-              ((c ^ 3 * u ^ 3 / (3 * (k : ℝ) ^ 3)) * Real.exp (c * Real.sqrt (n : ℝ) / 2)) :=
-            mul_le_mul_of_nonneg_left h1 (by positivity)
-        _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) / (k : ℝ) ^ 3 := by
-            field_simp [hu_pos.ne', hkR.ne', Real.pi_ne_zero, show Real.sqrt 2 ≠ 0 by positivity]
-            ring
-    have hnorm_eq :
-        ‖(Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ =
-          Real.sqrt (k : ℝ) * ‖rademacherKloostermanSum s k n‖ * rademacherPsi k n := by
-      rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
-          Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hpsi_nonneg]
-    have hrpow : Real.sqrt (k : ℝ) * (k : ℝ) / (k : ℝ) ^ 3 = (k : ℝ) ^ (-(3 / 2 : ℝ)) := by
-      have h12 : Real.sqrt (k : ℝ) = (k : ℝ) ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow _
-      have hk3 : (k : ℝ) ^ (3 : ℕ) = (k : ℝ) ^ (3 : ℝ) := by
-        rw [← Real.rpow_natCast]; norm_num
-      calc Real.sqrt (k : ℝ) * (k : ℝ) / (k : ℝ) ^ 3
-          = (k : ℝ) ^ (1 / 2 : ℝ) * (k : ℝ) / (k : ℝ) ^ (3 : ℝ) := by rw [h12, hk3]
-        _ = (k : ℝ) ^ (1 / 2 : ℝ) * (k : ℝ) ^ (1 : ℝ) / (k : ℝ) ^ (3 : ℝ) := by rw [Real.rpow_one]
-        _ = (k : ℝ) ^ (1 / 2 + 1 - 3 : ℝ) := by
-            rw [← Real.rpow_add hkR, ← Real.rpow_sub hkR]
-        _ = (k : ℝ) ^ (-(3 / 2 : ℝ)) := by congr 1; norm_num
-    rw [hnorm_eq]
-    calc Real.sqrt (k : ℝ) * ‖rademacherKloostermanSum s k n‖ * rademacherPsi k n
-        ≤ Real.sqrt (k : ℝ) * (k : ℝ) *
-            ((c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) / (k : ℝ) ^ 3) :=
-          mul_le_mul (mul_le_mul_of_nonneg_left (norm_rademacherKloostermanSum_le s k n) (Real.sqrt_nonneg _))
-            hpsi_le hpsi_nonneg (by positivity)
-      _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
-            (Real.sqrt (k : ℝ) * (k : ℝ) / (k : ℝ) ^ 3) := by ring
-      _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
-            (k : ℝ) ^ (-(3 / 2 : ℝ)) := by rw [hrpow]
+    apply (norm_rademacherTerm_le s hn k).trans
+    have hk2 : (2:ℝ)≤(k:ℝ) := by
+      have hne : (k:ℕ)≠1 := fun h => hk (PNat.coe_injective h)
+      have h2 : 2≤(k:ℕ) := by have := k.pos; omega
+      exact_mod_cast h2
+    gcongr
 
 private theorem summable_pnat_rpow_neg_three_halves : Summable fun k : ℕ+ => (k : ℝ) ^ (-(3 / 2 : ℝ)) := by
   have hN : Summable fun k : ℕ => ((k : ℝ) ^ (3 / 2 : ℝ))⁻¹ :=
@@ -4414,6 +4433,51 @@ theorem summable_norm_rademacherTerm (s : ℤ → ℕ → ℝ) {n : ℕ} (hn : 1
   have hs := (hasSum_ite_eq (1 : ℕ+) ‖F 1‖).summable.add ht
   exact hs.congr fun k => by by_cases h : k = 1 <;> simp [h, F]
 
+/-- The sum of all Rademacher terms after the first has at most half the main exponential rate. -/
+theorem abs_partitionCount_sub_psi_one_le_of_rademacher {s : ℤ → ℕ → ℝ} (hs0 : s 0 1 = 0)
+    (hR : RademacherSeriesFormula s) {n : ℕ} (hn : 1 ≤ n) :
+    let c := Real.pi * Real.sqrt (2 / 3)
+    |(partitionCount n : ℝ) - rademacherPsi 1 n| ≤
+        (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
+          ∑' k : ℕ+, (k : ℝ) ^ (-(3 / 2 : ℝ)) := by
+  intro c
+  have hhas := hR n hn
+  have hk1 : (Real.sqrt (1 : ℝ) : ℂ) * rademacherKloostermanSum s 1 n *
+      (rademacherPsi 1 n : ℂ) = (rademacherPsi 1 n : ℂ) := by
+    simp [rademacherKloostermanSum_one s hs0 n]
+  have hsub_has : HasSum (fun k : ℕ+ =>
+      if k = 1 then (0 : ℂ)
+      else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ))
+      ((partitionCount n : ℂ) - (rademacherPsi 1 n : ℂ)) := by
+    have hsingle : HasSum (fun k : ℕ+ => if k = 1 then (rademacherPsi 1 n : ℂ) else 0)
+        (rademacherPsi 1 n : ℂ) := hasSum_ite_eq 1 _
+    have hdiff := hhas.sub hsingle
+    refine hdiff.congr_fun fun k => ?_
+    by_cases hk : k = 1
+    · subst hk; simp only [↓reduceIte, PNat.val_ofNat, Nat.cast_one]; rw [hk1, sub_self]
+    · simp [hk]
+  have hterm_bd := norm_rademacherTerm_tail_le s hn
+  have hsumm_rpow := summable_pnat_rpow_neg_three_halves
+  have hsumm_rhs := hsumm_rpow.mul_left ((c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2))
+  have hsumm_lhs : Summable fun k : ℕ+ =>
+      ‖if k = 1 then (0 : ℂ)
+       else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ :=
+    hsumm_rhs.of_nonneg_of_le (fun _ => norm_nonneg _) hterm_bd
+  have hcast : |(partitionCount n : ℝ) - rademacherPsi 1 n| =
+      ‖(partitionCount n : ℂ) - (rademacherPsi 1 n : ℂ)‖ := by
+    rw [← Complex.ofReal_natCast, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+  rw [hcast, ← hsub_has.tsum_eq]
+  calc ‖∑' k : ℕ+, if k = 1 then (0 : ℂ)
+          else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖
+      ≤ ∑' k : ℕ+, ‖if k = 1 then (0 : ℂ)
+          else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ :=
+        norm_tsum_le_tsum_norm hsumm_lhs
+    _ ≤ ∑' k : ℕ+, (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
+          (k : ℝ) ^ (-(3 / 2 : ℝ)) :=
+        hsumm_lhs.tsum_le_tsum hterm_bd hsumm_rhs
+    _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
+          ∑' k : ℕ+, (k : ℝ) ^ (-(3 / 2 : ℝ)) := tsum_mul_left
+
 /-- **Structural Bridge**: `RademacherSeriesFormula s` implies `HardyRamanujanAsymptotic` whenever
 `s 0 1 = 0`. -/
 theorem hardyRamanujanAsymptotic_of_rademacher {s : ℤ → ℕ → ℝ} (hs0 : s 0 1 = 0)
@@ -4423,44 +4487,8 @@ theorem hardyRamanujanAsymptotic_of_rademacher {s : ℤ → ℕ → ℝ} (hs0 : 
   have htail_bound : ∀ n : ℕ, 1 ≤ n →
       |(partitionCount n : ℝ) - rademacherPsi 1 n| ≤
         (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
-          ∑' k : ℕ+, (k : ℝ) ^ (-(3 / 2 : ℝ)) := by
-    intro n hn
-    have hhas := hR n hn
-    have hk1 : (Real.sqrt (1 : ℝ) : ℂ) * rademacherKloostermanSum s 1 n *
-        (rademacherPsi 1 n : ℂ) = (rademacherPsi 1 n : ℂ) := by
-      simp [rademacherKloostermanSum_one s hs0 n]
-    have hsub_has : HasSum (fun k : ℕ+ =>
-        if k = 1 then (0 : ℂ)
-        else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ))
-        ((partitionCount n : ℂ) - (rademacherPsi 1 n : ℂ)) := by
-      have hsingle : HasSum (fun k : ℕ+ => if k = 1 then (rademacherPsi 1 n : ℂ) else 0)
-          (rademacherPsi 1 n : ℂ) := hasSum_ite_eq 1 _
-      have hdiff := hhas.sub hsingle
-      refine hdiff.congr_fun fun k => ?_
-      by_cases hk : k = 1
-      · subst hk; simp only [↓reduceIte, PNat.val_ofNat, Nat.cast_one]; rw [hk1, sub_self]
-      · simp [hk]
-    have hterm_bd := norm_rademacherTerm_tail_le s hn
-    have hsumm_rpow := summable_pnat_rpow_neg_three_halves
-    have hsumm_rhs := hsumm_rpow.mul_left ((c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2))
-    have hsumm_lhs : Summable fun k : ℕ+ =>
-        ‖if k = 1 then (0 : ℂ)
-         else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ :=
-      hsumm_rhs.of_nonneg_of_le (fun _ => norm_nonneg _) hterm_bd
-    have hcast : |(partitionCount n : ℝ) - rademacherPsi 1 n| =
-        ‖(partitionCount n : ℂ) - (rademacherPsi 1 n : ℂ)‖ := by
-      rw [← Complex.ofReal_natCast, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
-    rw [hcast, ← hsub_has.tsum_eq]
-    calc ‖∑' k : ℕ+, if k = 1 then (0 : ℂ)
-            else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖
-        ≤ ∑' k : ℕ+, ‖if k = 1 then (0 : ℂ)
-            else (Real.sqrt (k : ℝ) : ℂ) * rademacherKloostermanSum s k n * (rademacherPsi k n : ℂ)‖ :=
-          norm_tsum_le_tsum_norm hsumm_lhs
-      _ ≤ ∑' k : ℕ+, (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
-            (k : ℝ) ^ (-(3 / 2 : ℝ)) :=
-          hsumm_lhs.tsum_le_tsum hterm_bd hsumm_rhs
-      _ = (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * Real.exp (c * Real.sqrt (n : ℝ) / 2) *
-            ∑' k : ℕ+, (k : ℝ) ^ (-(3 / 2 : ℝ)) := tsum_mul_left
+          ∑' k : ℕ+, (k : ℝ) ^ (-(3 / 2 : ℝ)) :=
+    fun _ hn => abs_partitionCount_sub_psi_one_le_of_rademacher hs0 hR hn
   let K : ℝ := (c ^ 3 / (6 * Real.pi * Real.sqrt 2)) * ∑' k : ℕ+, (k : ℝ) ^ (-(3 / 2 : ℝ))
   have hlittle : (fun n : ℕ => (partitionCount n : ℝ) - rademacherPsi 1 n) =o[Filter.atTop]
       hardyRamanujanMainTerm := by

@@ -23,17 +23,17 @@ private theorem logBlock_cast {N M : ℕ} (f : ℝ → ℂ) :
     have H : 0≤n := by have := (mem_Ioc.mp hn).1; omega
     congr 1; exact_mod_cast (Int.toNat_of_nonneg H).symm
 
-private theorem logBlock_trivial {N M : ℕ} (hM : M≤2*N) (t : ℝ) :
-    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log n)‖ ≤ N := by
+private theorem logBlock_trivial {N M : ℕ} (hM : M≤2*N) (t θ : ℝ) :
+    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ))‖ ≤ N := by
   apply (norm_sum_le ..).trans
   simp only [norm_e,sum_const,nsmul_eq_mul,mul_one,Int.card_Ioc]
   exact_mod_cast (show ((M:ℤ)-N).toNat≤N by omega)
 
-private theorem logBlock_fixed_height {N M : ℕ} {t κ C : ℝ} (hN : 0<N)
+private theorem logBlock_fixed_height {N M : ℕ} {t κ C θ : ℝ} (hN : 0<N)
     (hX : 100≤Real.log (N:ℝ)) (hM : M≤2*N) (hNt : (N:ℝ)≤t) (hT : t≤(N:ℝ)^16)
     (H : ∀ {M b : ℕ} {τ : ℝ}, 1≤M → b≤2*M → |τ| ≤ (M:ℝ)^16 → (M:ℝ) ≤ |τ|^2 →
-      ‖∑ n ∈ Ioc M b,e (logPhase τ 0 n)‖ ≤ C*(M:ℝ)^(1-κ)) :
-    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log n)‖ ≤
+      ‖∑ n ∈ Ioc M b,e (logPhase τ θ n)‖ ≤ C*(M:ℝ)^(1-κ)) :
+    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ))‖ ≤
       C*N*Real.exp (-κ*Real.log N) := by
   have hNr : 0<(N:ℝ) := by positivity
   have ht : 0<t := hNr.trans_le hNt
@@ -47,7 +47,7 @@ private theorem logBlock_fixed_height {N M : ℕ} {t κ C : ℝ} (hN : 0<N)
       dsimp [τ]; apply div_le_div₀ ht.le hNt (by positivity) (by linarith only [Real.pi_lt_four])
     have hsq := pow_le_pow_left₀ (by positivity) H' 2
     nlinarith only [hsq,mul_le_mul_of_nonneg_left hNbig hNr.le]
-  rw [logBlock_cast (N:=N) (M:=M) (fun x => e ((t/(2*Real.pi))*Real.log x))]
+  rw [logBlock_cast (N:=N) (M:=M) (fun x => e ((t/(2*Real.pi))*Real.log (x+θ)))]
   have Ha := H hN hM (by rw [abs_of_pos hτ]; exact hτt.trans hT)
     (by rw [abs_of_pos hτ]; exact hτN)
   apply (show _ ≤ _ from by simpa [logPhase,τ] using Ha).trans_eq
@@ -56,12 +56,12 @@ private theorem logBlock_fixed_height {N M : ℕ} {t κ C : ℝ} (hN : 0<N)
 
 /-- Vinogradov's logarithmic exponential-sum bound, uniform in the height,
 length, and upper endpoint of the dyadic interval. -/
-theorem vinogradov_logarithmic_block :
-    ∃ c : ℝ, 0<c ∧ ∃ C : ℝ, 0<C ∧ ∀ (N M : ℕ) (t : ℝ),
+theorem vinogradov_logarithmic_block_shift :
+    ∃ c : ℝ, 0<c ∧ ∃ C : ℝ, 0<C ∧ ∀ (N M : ℕ) (t θ : ℝ), θ∈Set.Icc (0:ℝ) 1 →
       1≤N → N≤M → M≤2*N → (N:ℝ)≤t → 16≤t →
-      ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log n)‖ ≤
+      ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ))‖ ≤
         C*N*Real.exp (-c*(Real.log N)^3/(Real.log t)^2) := by
-  obtain ⟨κ,C,hκ,hC,H⟩ := logarithmic_block_power_saving 16 (by norm_num)
+  obtain ⟨κ,C,hκ,hC,H⟩ := logarithmic_block_power_saving_shift 16 (by norm_num)
   let D := (1000000000000:ℝ)
   let c := min κ (1/D)
   let B := Real.exp 4265200+4
@@ -76,7 +76,7 @@ theorem vinogradov_logarithmic_block :
   have hKB : B≤K := by dsimp [K]; linarith only [hC,Real.exp_pos 100]
   have hKe : Real.exp 100≤K := by dsimp [K]; linarith only [hC,hB]
   refine ⟨c,hc,K,hC.trans_le hKC,?_⟩
-  intro N M t hN hNM hM hNt ht
+  intro N M t θ hθ hN hNM hM hNt ht
   let X := Real.log (N:ℝ)
   let T := Real.log t
   have hNr : (0:ℝ)<N := by exact_mod_cast hN
@@ -108,7 +108,7 @@ theorem vinogradov_logarithmic_block :
         nlinarith only [mul_le_mul_of_nonneg_left hs hX,
           mul_le_mul_of_nonneg_right hd (show 0≤X^3*(l:ℝ)^2 by positivity),
           mul_nonneg (pow_nonneg hX 3) (sq_nonneg (l:ℝ))]
-      have H' := vinogradov_logarithmic_block_large hN hbig hNM hM (by linarith) hl hLT hTL
+      have H' := vinogradov_logarithmic_block_large_shift hθ hN hbig hNM hM (by linarith) hl hLT hTL
       apply H'.trans
       apply mul_le_mul (mul_le_mul_of_nonneg_right hKB hNr.le) _
         (Real.exp_pos _).le (mul_nonneg (hC.trans_le hKC).le hNr.le)
@@ -118,16 +118,27 @@ theorem vinogradov_logarithmic_block :
         apply (Real.log_le_log_iff (by linarith) (pow_pos hNr 16)).mp
         rw [Real.log_pow]; change T≤(16:ℝ)*X
         linarith only [hTL,mul_le_mul_of_nonneg_right hl' hX]
-      apply (logBlock_fixed_height hN hbig hM hNt hT' H).trans
+      apply (logBlock_fixed_height hN hbig hM hNt hT' (fun hm hb ht₁ ht₂ => H hθ hm hb ht₁ ht₂)).trans
       apply mul_le_mul (mul_le_mul_of_nonneg_right hKC hNr.le) _ (Real.exp_pos _).le
         (mul_nonneg (hC.trans_le hKC).le hNr.le)
       apply Real.exp_le_exp.mpr
       change -κ*X≤-u; linarith only [hu,mul_le_mul_of_nonneg_right hcκ hX]
   · have hh : u≤100 := by linarith only [hu,mul_le_mul_of_nonneg_right hc1 hX,lt_of_not_ge hbig]
-    apply (logBlock_trivial hM t).trans
+    apply (logBlock_trivial hM t θ).trans
     have hx : 1≤Real.exp 100*Real.exp (-u) := by
       rw [←Real.exp_add,Real.one_le_exp_iff]; linarith
     have h1 := mul_le_mul_of_nonneg_right hKe (Real.exp_pos (-u)).le
     linarith only [mul_le_mul_of_nonneg_right (hx.trans h1) hNr.le]
+
+/-- Vinogradov's logarithmic exponential-sum bound, uniform in the height,
+length, and upper endpoint of the dyadic interval. -/
+theorem vinogradov_logarithmic_block :
+    ∃ c : ℝ, 0<c ∧ ∃ C : ℝ, 0<C ∧ ∀ (N M : ℕ) (t : ℝ),
+      1≤N → N≤M → M≤2*N → (N:ℝ)≤t → 16≤t →
+      ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log n)‖ ≤
+        C*N*Real.exp (-c*(Real.log N)^3/(Real.log t)^2) := by
+  obtain ⟨c,hc,C,hC,H⟩ := vinogradov_logarithmic_block_shift
+  refine ⟨c,hc,C,hC,fun N M t => ?_⟩
+  simpa only [add_zero] using H N M t 0 ⟨le_rfl,zero_le_one⟩
 
 end AnalyticNumberTheory.ExponentialSums

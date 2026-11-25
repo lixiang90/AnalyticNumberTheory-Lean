@@ -49,11 +49,11 @@ private theorem curvature_scale {A D m h p τ : ℝ} (k : ℕ) (hA : 0<A) (hD : 
     exact hL
 
 private theorem log_leaf (k : ℕ) :
-    ∃ C≥0, ∀ {M H : ℕ} {τ : ℝ}, 1≤M → 1≤H → H≤M →
+    ∃ C≥0, ∀ {M H : ℕ} {τ θ : ℝ}, θ∈Set.Icc (0:ℝ) 1 → 1≤M → 1≤H → H≤M →
       (H:ℝ)^(k+2) ≤ (2:ℝ)^(k+2)*√(M:ℝ) →
       (M:ℝ)^k*√(M:ℝ) ≤ |τ| → |τ| ≤ (M:ℝ)^(k+1)*√(M:ℝ) →
       ∀ w : Fin k → ℕ, (∀ i, 1≤w i ∧ w i≤H) → ∀ b : ℕ, b≤2*M →
-      ‖∑ n ∈ Ioc M b,e (iterForwardDiff (fun i => (w i:ℝ)) (logPhase τ 0) n)‖ ≤ C*(M:ℝ)/H := by
+      ‖∑ n ∈ Ioc M b,e (iterForwardDiff (fun i => (w i:ℝ)) (logPhase τ θ) n)‖ ≤ C*(M:ℝ)/H := by
   let K := (k:ℝ)+3
   let D := (2:ℝ)^(k+2)
   let A := ((k+1).factorial:ℝ)/K^(k+2)
@@ -63,7 +63,7 @@ private theorem log_leaf (k : ℕ) :
   let B := 20*K^(k+2)+20
   have hB : 0≤B := by dsimp [B]; positivity
   refine ⟨B*(√(A*D)+√(D/A)),by positivity,?_⟩
-  intro M H τ hm hh hhm hh' ht ht' w hw b hb
+  intro M H τ θ hθ hm hh hhm hh' ht ht' w hw b hb
   have hm' : (1:ℝ)≤M := by exact_mod_cast hm
   have hh'₁ : (1:ℝ)≤H := by exact_mod_cast hh
   have hτ : 0 < |τ| := (show 0<(M:ℝ)^k*√(M:ℝ) by positivity).trans_le ht
@@ -77,7 +77,7 @@ private theorem log_leaf (k : ℕ) :
   by_cases hmb : M<b
   · have hv := iterForwardDiff_logPhase_bound hm hmb hb (fun i => (w i:ℝ))
       (fun i => by exact_mod_cast (hw i).1) (fun i => by exact_mod_cast (hw i).2.trans hhm)
-      (a:=0) ⟨le_rfl,zero_le_one⟩ hτ
+      hθ hτ
     have he : p * |τ| * ((k+1).factorial:ℝ)/(K*M)^(k+2) = lam := by
       dsimp [lam,A]; rw [mul_pow]; field_simp <;> ring
     change _ ≤ B*(((b:ℝ)-M)*√(p * |τ| * ((k+1).factorial:ℝ)/(K*M)^(k+2))+
@@ -92,9 +92,9 @@ private theorem log_leaf (k : ℕ) :
     positivity
 
 private theorem log_window (k : ℕ) :
-    ∃ κ C : ℝ, 0<κ ∧ 0<C ∧ ∀ {M b : ℕ} {τ : ℝ}, 1≤M → b≤2*M →
+    ∃ κ C : ℝ, 0<κ ∧ 0<C ∧ ∀ {M b : ℕ} {τ θ : ℝ}, θ∈Set.Icc (0:ℝ) 1 → 1≤M → b≤2*M →
       (M:ℝ)^k*√(M:ℝ) ≤ |τ| → |τ| ≤ (M:ℝ)^(k+1)*√(M:ℝ) →
-      ‖∑ n ∈ Ioc M b,e (logPhase τ 0 n)‖ ≤ C*(M:ℝ)^(1-κ) := by
+      ‖∑ n ∈ Ioc M b,e (logPhase τ θ n)‖ ≤ C*(M:ℝ)^(1-κ) := by
   obtain ⟨C,hC,leaf⟩ := log_leaf k
   obtain ⟨D,hD,tree⟩ := iterated_forwardDiff_cancellation k C hC
   let δ := 1/(2*((k:ℝ)+2))
@@ -105,7 +105,7 @@ private theorem log_window (k : ℕ) :
     linarith [Nat.cast_nonneg (α:=ℝ) k]
   have hκ : 0<κ := by dsimp [κ]; positivity
   refine ⟨κ,D+1,hκ,by linarith,?_⟩
-  intro M b τ hm hb ht ht'
+  intro M b τ θ hθ hm hb ht ht'
   let m := (M:ℝ)
   have hm1 : 1≤m := by dsimp [m]; exact_mod_cast hm
   have hm0 : 0<m := by linarith
@@ -140,8 +140,8 @@ private theorem log_window (k : ℕ) :
            congr 1
            push_cast
            field_simp <;> ring
-  have hh := tree (logPhase τ 0) M H V hH hHM hV (hVR ▸ hHR)
-    (leaf hm hH hHM hRH ht ht') b hb
+  have hh := tree (logPhase τ θ) M H V hH hHM hV (hVR ▸ hHR)
+    (leaf hθ hm hH hHM hRH ht ht') b hb
   apply hh.trans
   have he : m/V = m^(1-κ) := by rw [Real.rpow_sub hm0,Real.rpow_one]
   change D*m/V ≤ (D+1)*m^(1-κ)
@@ -149,31 +149,44 @@ private theorem log_window (k : ℕ) :
   exact mul_le_mul_of_nonneg_right (by linarith) (Real.rpow_nonneg hm0.le _)
 
 private theorem log_height (J : ℕ) :
-    ∃ κ C : ℝ, 0<κ ∧ 0<C ∧ ∀ {M b : ℕ} {τ : ℝ}, 1≤M → b≤2*M →
+    ∃ κ C : ℝ, 0<κ ∧ 0<C ∧ ∀ {M b : ℕ} {τ θ : ℝ}, θ∈Set.Icc (0:ℝ) 1 → 1≤M → b≤2*M →
       √(M:ℝ) ≤ |τ| → |τ| ≤ (M:ℝ)^J*√(M:ℝ) →
-      ‖∑ n ∈ Ioc M b,e (logPhase τ 0 n)‖ ≤ C*(M:ℝ)^(1-κ) := by
+      ‖∑ n ∈ Ioc M b,e (logPhase τ θ n)‖ ≤ C*(M:ℝ)^(1-κ) := by
   induction J with
   | zero =>
     obtain ⟨κ,C,hκ,hC,H⟩ := log_window 0
     refine ⟨κ,C,hκ,hC,?_⟩
-    intro M b τ hm hb ht ht'
+    intro M b τ θ hθ hm hb ht ht'
     have hm' : (1:ℝ)≤M := by exact_mod_cast hm
-    apply H hm hb (by simpa using ht)
+    apply H hθ hm hb (by simpa using ht)
     apply ht'.trans
     gcongr <;> simp [hm']
   | succ J ih =>
     obtain ⟨κ,C,hκ,hC,old⟩ := ih
     obtain ⟨η,D,hη,hD,new⟩ := log_window J
     refine ⟨min κ η,max C D,lt_min hκ hη,hC.trans_le (le_max_left ..),?_⟩
-    intro M b τ hm hb ht ht'
+    intro M b τ θ hθ hm hb ht ht'
     have hm' : (1:ℝ)≤M := by exact_mod_cast hm
     by_cases h : |τ| ≤ (M:ℝ)^J*√(M:ℝ)
-    · apply (old hm hb ht h).trans
+    · apply (old hθ hm hb ht h).trans
       exact mul_le_mul (le_max_left ..) (Real.rpow_le_rpow_of_exponent_le hm'
         (sub_le_sub_left (min_le_left ..) _)) (by positivity) (hC.trans_le (le_max_left ..)).le
-    · apply (new hm hb (not_le.mp h).le ht').trans
+    · apply (new hθ hm hb (not_le.mp h).le ht').trans
       exact mul_le_mul (le_max_right ..) (Real.rpow_le_rpow_of_exponent_le hm'
         (sub_le_sub_left (min_le_right ..) _)) (by positivity) (hD.trans_le (le_max_right ..)).le
+
+/-- At any fixed polynomial height the logarithmic sums have power cancellation,
+uniformly over incomplete dyadic blocks and additive shifts in the unit interval. -/
+theorem logarithmic_block_power_saving_shift (J : ℕ) (_hJ : 1≤J) :
+    ∃ κ C : ℝ, 0<κ ∧ 0<C ∧ ∀ {M b : ℕ} {τ θ : ℝ}, θ∈Set.Icc (0:ℝ) 1 → 1≤M → b≤2*M →
+      |τ| ≤ (M:ℝ)^J → (M:ℝ) ≤ |τ|^2 →
+      ‖∑ n ∈ Ioc M b,e (logPhase τ θ n)‖ ≤ C*(M:ℝ)^(1-κ) := by
+  obtain ⟨κ,C,hκ,hC,H⟩ := log_height J
+  refine ⟨κ,C,hκ,hC,?_⟩
+  intro M b τ θ hθ hm hb ht ht'
+  have hm' : (1:ℝ)≤M := by exact_mod_cast hm
+  apply H hθ hm hb ((Real.sqrt_le_iff).mpr ⟨abs_nonneg _,ht'⟩)
+  exact ht.trans (le_mul_of_one_le_right (by positivity) ((Real.le_sqrt (by norm_num) (by positivity)).mpr (by simpa using hm')))
 
 /-- At any fixed polynomial height the logarithmic sums have power cancellation,
 uniformly over all incomplete dyadic blocks. -/
@@ -181,12 +194,8 @@ theorem logarithmic_block_power_saving (J : ℕ) (_hJ : 1≤J) :
     ∃ κ C : ℝ, 0<κ ∧ 0<C ∧ ∀ {M b : ℕ} {τ : ℝ}, 1≤M → b≤2*M →
       |τ| ≤ (M:ℝ)^J → (M:ℝ) ≤ |τ|^2 →
       ‖∑ n ∈ Ioc M b,e (logPhase τ 0 n)‖ ≤ C*(M:ℝ)^(1-κ) := by
-  obtain ⟨κ,C,hκ,hC,H⟩ := log_height J
-  refine ⟨κ,C,hκ,hC,?_⟩
-  intro M b τ hm hb ht ht'
-  have hm' : (1:ℝ)≤M := by exact_mod_cast hm
-  apply H hm hb ((Real.sqrt_le_iff).mpr ⟨abs_nonneg _,ht'⟩)
-  exact ht.trans (le_mul_of_one_le_right (by positivity) ((Real.le_sqrt (by norm_num) (by positivity)).mpr (by simpa using hm')))
+  obtain ⟨κ,C,hκ,hC,H⟩ := logarithmic_block_power_saving_shift J _hJ
+  exact ⟨κ,C,hκ,hC,fun hm hb ht ht' => H ⟨le_rfl,zero_le_one⟩ hm hb ht ht'⟩
 
 
 end AnalyticNumberTheory.ExponentialSums

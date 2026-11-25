@@ -14,6 +14,38 @@ open scoped ArithmeticFunction.Moebius
 
 namespace AnalyticNumberTheory.AdditiveNumberTheory
 
+/-- Pointwise good-arc estimate using any common choice of Page data, with
+`F` bounding the ordinary prime counting error at the intermediate cutoffs. -/
+theorem norm_primeExpSum_page_good {K E F : ℝ} {N q : ℕ} (hN : 1≤N) (hq : 0<q)
+    {e : Σ m : ℕ,DirichletCharacter ℂ m} (hdata : PagePartialBound N K E e)
+    (hK : (q:ℝ)≤K) (hnd : ¬e.1∣q) (hE : 0≤E) (hF : 0≤F)
+    (hψ : ∀ k∈Icc 1 N, |Chebyshev.psi k-k|≤F)
+    {a : ℤ} (ha : a.natAbs.Coprime q) {α R : ℝ} (hα : α∈majorArc q a R) :
+    ‖primeExpSum N α-((μ q:ℂ)/q.totient)*mainExpSum N (α-a/q)‖≤
+      (F+2*(Real.log q/Real.log 2*Real.log N)+q.totient*E)*(1+2*Real.pi*N/(q*R)) := by
+  let : NeZero q := ⟨by omega⟩
+  have hφ : (0:ℝ)<q.totient := by exact_mod_cast Nat.totient_pos.mpr hq
+  let V := Real.log q/Real.log 2*Real.log N
+  have hqlog : 0≤Real.log q/Real.log 2 :=
+    div_nonneg (Real.log_nonneg (by exact_mod_cast hq)) (by positivity)
+  have hV : 0≤V := mul_nonneg hqlog (Real.log_nonneg (by exact_mod_cast hN))
+  let B := (F+V)/q.totient+E
+  have hB : 0≤B := by dsimp [B]; positivity
+  have hp : ∀ k∈Icc 1 N, ∀ r∈coprimeResidues q, |psiAP k q r-k/q.totient|≤B := by
+    intro k hk r hr
+    have hk1 : (1:ℝ)≤k := by exact_mod_cast (mem_Icc.mp hk).1
+    have hqk (χ : DirichletCharacter ℂ q) (hχ : χ≠1) : ‖psiChar k χ‖≤E :=
+      hdata hK (fun he => hnd (congrArg Sigma.fst he ▸ χ.conductor_dvd_level)) hχ k hk
+    apply (abs_psiAP_sub_main_le_of_uniform_char hk1 hE hq (mem_filter.mp hr).2 hqk).trans
+    exact add_le_add (div_le_div_of_nonneg_right (add_le_add (hψ k hk)
+      (mul_le_mul_of_nonneg_left (Real.log_le_log (by linarith) (by exact_mod_cast (mem_Icc.mp hk).2)) hqlog))
+      hφ.le) le_rfl
+  apply (norm_primeExpSum_sub_le_of_mem_majorArc hN hq ha hα hB hp).trans_eq
+  congr 1
+  change (q.totient:ℝ)*((F+V)/q.totient+E)+V=F+2*V+q.totient*E
+  field_simp [hφ.ne']
+  ring
+
 /-- Uniform major-arc error in terms of the Page region and the ordinary
 prime number theorem. The parameter `K` bounds the entire modulus range;
 `R` determines the arc width. -/

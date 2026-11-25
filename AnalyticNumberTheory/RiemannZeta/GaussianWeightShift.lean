@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.Gamma.VerticalDecay
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.VerticalLineShift
 import AnalyticNumberTheory.RiemannZeta.GaussianWeights
 import Mathlib.Analysis.Real.Pi.Bounds
@@ -12,17 +13,9 @@ displacements therefore define the same weight.
 
 open Complex Real Set Filter MeasureTheory
 open scoped Topology
-open AnalyticNumberTheory.AnalyticTools.ComplexAnalysis
+open AnalyticNumberTheory.AnalyticTools AnalyticNumberTheory.AnalyticTools.ComplexAnalysis
 
 namespace AnalyticNumberTheory.RiemannZeta
-
-private theorem norm_Gamma_le_real {z : ℂ} (hz : 0 < z.re) : ‖Complex.Gamma z‖ ≤ Real.Gamma z.re := by
-  rw [Complex.Gamma_eq_integral hz,Complex.GammaIntegral,Real.Gamma_eq_integral hz]
-  apply (norm_integral_le_integral_norm _).trans_eq
-  apply integral_congr_ae
-  filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
-  rw [norm_mul,Complex.norm_of_nonneg (Real.exp_pos _).le,Complex.norm_cpow_eq_rpow_re_of_pos hx]
-  simp
 
 private theorem completionFactor_polynomial_strip {a b : ℝ} (ha : 0 < a) (hab : a ≤ b) :
     ∃ C : ℝ, 0 < C ∧ ∀ z : ℂ, z.re ∈ Icc a b → ‖xiCompletionFactor z‖ ≤ C*(1+‖z‖)^2 := by

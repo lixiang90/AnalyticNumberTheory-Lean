@@ -78,27 +78,28 @@ theorem bilinear_shift_average (f : ℤ → ℂ) (hf : ∀ n, ‖f n‖≤1)
 
 /-- Uniform reduction of a logarithmic block to polynomial bilinear sums.
 The error terms come from the translated endpoints and the Taylor tail. -/
-theorem logarithmic_block_bilinear_reduction (k : ℕ) (t : ℝ) {N M a : ℕ}
+theorem logarithmic_block_bilinear_reduction_shift (k : ℕ) (t θ : ℝ) (hθ : 0≤θ) {N M a : ℕ}
     (hN : 0<N) (hNM : N≤M) (ha : 0<a) (hsmall : (a:ℝ)^2/N ≤ 1/2) :
-    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log n)‖ ≤
-      (∑ n∈Ioc (N:ℤ) M, ‖vinogradovBilinearSum (Icc 1 (a:ℤ)) (logTaylorCoefficients k t n)‖)/(a:ℝ)^2 +
+    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ))‖ ≤
+      (∑ n∈Ioc (N:ℤ) M, ‖vinogradovBilinearSum (Icc 1 (a:ℤ)) (logTaylorCoefficients k t ((n:ℝ)+θ))‖)/(a:ℝ)^2 +
       2*(a:ℝ)^2 + ((M:ℝ)-N)*(2*|t| *((a:ℝ)^2/N)^(k+1)) := by
   let B := Icc 1 (a:ℤ)
   let P := B ×ˢ B
   let E := 2*|t| *((a:ℝ)^2/N)^(k+1)
-  let f (n : ℤ) := e ((t/(2*Real.pi))*Real.log n)
+  let f (n : ℤ) := e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ))
   have hc : (P.card:ℝ)=(a:ℝ)^2 := by simp [P,B,Int.card_Icc,sq]
   have hcard : ((Ioc (N:ℤ) M).card:ℝ)=(M:ℝ)-N := by
     rw [Int.card_Ioc]
     exact_mod_cast (Int.toNat_of_nonneg (show 0≤(M:ℤ)-N by omega))
   have ht (n : ℤ) (hn : n∈Ioc (N:ℤ) M) :
       ‖∑ p∈P,f (n+p.1*p.2)‖ ≤
-      ‖vinogradovBilinearSum B (logTaylorCoefficients k t n)‖+(a:ℝ)^2*E := by
-    have hnN : (N:ℝ)≤n := by exact_mod_cast (mem_Ioc.mp hn).1.le
+      ‖vinogradovBilinearSum B (logTaylorCoefficients k t ((n:ℝ)+θ))‖+(a:ℝ)^2*E := by
+    have hnN : (N:ℝ)≤(n:ℝ)+θ := by
+      linarith only [hθ,show (N:ℝ)≤n by exact_mod_cast (mem_Ioc.mp hn).1.le]
     have hNr : 0<(N:ℝ) := by exact_mod_cast hN
-    have hnr : 0<(n:ℝ) := lt_of_lt_of_le hNr hnN
-    let g (p : ℤ×ℤ) := e ((t/(2*Real.pi))*Real.log n) *
-      diagonalBilinearChar (logTaylorCoefficients k t n) (vinogradovCurve k p.2) (vinogradovCurve k p.1)
+    have hnr : 0<(n:ℝ)+θ :=  lt_of_lt_of_le hNr hnN
+    let g (p : ℤ×ℤ) := e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ)) *
+      diagonalBilinearChar (logTaylorCoefficients k t ((n:ℝ)+θ)) (vinogradovCurve k p.2) (vinogradovCurve k p.1)
     have happrox (p : ℤ×ℤ) (hp : p∈P) : ‖f (n+p.1*p.2)-g p‖≤E := by
       obtain ⟨hx,hy⟩ := mem_product.mp hp
       have hx' := mem_Icc.mp hx
@@ -108,23 +109,23 @@ theorem logarithmic_block_bilinear_reduction (k : ℕ) (t : ℝ) {N M a : ℕ}
       have hxy : 0≤(p.2:ℝ)*p.1 := by exact_mod_cast mul_nonneg hy0 hx0
       have hxy' : (p.2:ℝ)*p.1≤(a:ℝ)^2 := by
         rw [sq]; exact_mod_cast mul_le_mul hy'.2 hx'.2 hx0 (Int.natCast_nonneg _)
-      have hb : (p.2:ℝ)*p.1/n ≤ (a:ℝ)^2/N := div_le_div₀ (sq_nonneg _) hxy' hNr hnN
-      have hlog : Real.log ((n:ℝ)+(p.1:ℝ)*p.2) = Real.log n+Real.log (1+(p.2:ℝ)*p.1/n) := by
+      have hb : (p.2:ℝ)*p.1/((n:ℝ)+θ) ≤ (a:ℝ)^2/N := div_le_div₀ (sq_nonneg _) hxy' hNr hnN
+      have hlog : Real.log (((n:ℝ)+(p.1:ℝ)*p.2)+θ) = Real.log ((n:ℝ)+θ)+Real.log (1+(p.2:ℝ)*p.1/((n:ℝ)+θ)) := by
         rw [←Real.log_mul hnr.ne' (by positivity)]
-        congr 1; field_simp
+        congr 1; field_simp [hnr.ne']; ring
       dsimp only [f,g]; push_cast; rw [hlog,mul_add,e_add,←mul_sub,norm_mul,norm_e,one_mul]
       apply (logTaylor_character_error k t hnr hxy (hb.trans hsmall)).trans
       exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (div_nonneg hxy hnr.le) hb _) (by positivity)
     have H := norm_sum_sub_approx P (fun p => f (n+p.1*p.2)) g E happrox
-    have hg : (∑ p∈P,g p) = e ((t/(2*Real.pi))*Real.log n)*
-        vinogradovBilinearSum B (logTaylorCoefficients k t n) := by
+    have hg : (∑ p∈P,g p) = e ((t/(2*Real.pi))*Real.log ((n:ℝ)+θ))*
+        vinogradovBilinearSum B (logTaylorCoefficients k t ((n:ℝ)+θ)) := by
       simp only [P,g,←mul_sum,sum_product,vinogradovBilinearSum,vinogradovTorusSum,
         torusCharSum,diagonalBilinearChar]
     simpa only [hg,norm_mul,norm_e,one_mul,hc] using H
   have A := bilinear_shift_average f (fun n => (norm_e _).le) (by exact_mod_cast hNM : (N:ℤ)≤M) a
   have H := sum_le_sum ht
   rw [sum_add_distrib,sum_const,nsmul_eq_mul,hcard] at H
-  let W := ∑ n∈Ioc (N:ℤ) M, ‖vinogradovBilinearSum B (logTaylorCoefficients k t n)‖
+  let W := ∑ n∈Ioc (N:ℤ) M, ‖vinogradovBilinearSum B (logTaylorCoefficients k t ((n:ℝ)+θ))‖
   change _ ≤ W/(a:ℝ)^2 + 2*(a:ℝ)^2 + ((M:ℝ)-N)*E
   have ha0 : 0<(a:ℝ) := by exact_mod_cast ha
   have H' : (a:ℝ)^2*‖∑ n∈Ioc (N:ℤ) M, f n‖ ≤ W+((M:ℝ)-N)*((a:ℝ)^2*E)+2*(a:ℝ)^4 :=
@@ -132,5 +133,14 @@ theorem logarithmic_block_bilinear_reduction (k : ℕ) (t : ℝ) {N M a : ℕ}
   rw [←le_div_iff₀' (sq_pos_of_pos ha0)] at H'
   apply H'.trans_eq
   field_simp; ring
+
+/-- Uniform reduction of a logarithmic block to polynomial bilinear sums.
+The error terms come from the translated endpoints and the Taylor tail. -/
+theorem logarithmic_block_bilinear_reduction (k : ℕ) (t : ℝ) {N M a : ℕ}
+    (hN : 0<N) (hNM : N≤M) (ha : 0<a) (hsmall : (a:ℝ)^2/N ≤ 1/2) :
+    ‖∑ n∈Ioc (N:ℤ) M, e ((t/(2*Real.pi))*Real.log n)‖ ≤
+      (∑ n∈Ioc (N:ℤ) M, ‖vinogradovBilinearSum (Icc 1 (a:ℤ)) (logTaylorCoefficients k t n)‖)/(a:ℝ)^2 +
+      2*(a:ℝ)^2 + ((M:ℝ)-N)*(2*|t| *((a:ℝ)^2/N)^(k+1)) := by
+  simpa only [add_zero] using logarithmic_block_bilinear_reduction_shift k t 0 le_rfl hN hNM ha hsmall
 
 end AnalyticNumberTheory.ExponentialSums

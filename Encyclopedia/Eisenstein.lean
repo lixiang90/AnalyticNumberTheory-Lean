@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.ModularAndPartitions.EisensteinConePoles
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinZeroWeight
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinHankel
 import AnalyticNumberTheory.ModularAndPartitions.EisensteinTiltedContour
@@ -143,3 +144,13 @@ $$`2\pi i\left(\frac{j+j^{-1}}{12c}-s(d,c)-\frac14\right).`
 {docstring eisensteinConeContinuation_limit_zero_dedekind}
 
 {docstring eisensteinHankel_zero}
+
+在全部可去点填入解析极限后，锥级数在 $`s\ne 1,2` 解析；在 $`\Re s>2` 的整个区域，它与原双重级数逐点相等。这一表述也覆盖正整数权。
+
+{docstring analyticAt_eisensteinConeRegularized}
+
+{docstring eisensteinConeRegularized_eq_sum}
+
+当模变换矩阵的左下元素为正，权重一和二处的留数均非零，因而这两点的极点阶数都恰为一。
+
+{docstring analyticAt_eisensteinConeRegularized_iff}

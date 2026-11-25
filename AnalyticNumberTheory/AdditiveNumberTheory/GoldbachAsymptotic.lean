@@ -19,21 +19,22 @@ open scoped Classical Topology ArithmeticFunction.Moebius
 open AnalyticNumberTheory.PrimeDistribution
 namespace AnalyticNumberTheory.AdditiveNumberTheory
 
-/-- With complementary parameters `M Q = N`, a common approximation error `D` on the major arcs
-gives an explicit bound, normalized by the natural scale `N²`. -/
-theorem abs_goldbachTernary_normalized_le {N M : ℕ} (hM : 1 ≤ M)
-    (hNM : 2 * (M : ℝ) ^ 2 ≤ N) {D : ℝ} (hD : 0 ≤ D)
-    (happrox : ∀ q ∈ Icc 1 M, ∀ a ∈ coprimeResidues q, ∀ α ∈ majorArc q a ((N : ℝ) / M),
-      ‖primeExpSum N α - (μ q : ℂ) / q.totient * mainExpSum N (α - a / q)‖ ≤ D) :
+/-- Normalize the circle-method error while retaining an additional major-arc contribution. -/
+theorem abs_goldbachTernary_normalized_le_of_major {N M : ℕ} (hM : 1 ≤ M)
+    (hNM : 2 * (M : ℝ) ^ 2 ≤ N) {D E : ℝ} (hD : 0 ≤ D)
+    (hmajorIntegral : ‖majorArcIntegral (fun α => primeExpSum N α^3*e (-α*N)) M ((N:ℝ)/M) -
+      (goldbachTernarySingularSeries N:ℂ)*((N-1).choose 2:ℕ)‖ ≤
+      ((∑ q∈Icc 1 M, (q.totient:ℝ)*(D*(43*N^2)*(2/(q*((N:ℝ)/M))))) +
+        (2*((N:ℝ)/M)^2*M*Real.sqrt M+32*(M:ℝ)^(-1/2:ℝ)*((N-1).choose 2:ℕ))) + E) :
     |goldbachTernaryWeighted N - goldbachTernarySingularSeries N * ((N - 1).choose 2 : ℕ)| / (N : ℝ) ^ 2 ≤
       86 * M ^ 2 * (D / N) + 34 / Real.sqrt M +
-        70000 * (2 / Real.sqrt M + (N : ℝ) ^ (-(1 / 5 : ℝ))) * (Real.log N) ^ 5 := by
+        70000 * (2 / Real.sqrt M + (N : ℝ) ^ (-(1 / 5 : ℝ))) * (Real.log N) ^ 5 + E/(N:ℝ)^2 := by
   have hm : (1 : ℝ) ≤ M := by exact_mod_cast hM
   have hm0 : (0 : ℝ) < M := by linarith
   have hn2 : (2 : ℝ) ≤ N := by nlinarith
   have hn : (0 : ℝ) < N := by linarith
   have hMQ : 2 * (M : ℝ) ≤ N / M := (le_div_iff₀ hm0).mpr (by nlinarith)
-  have h := abs_goldbachTernaryWeighted_sub_series_le (by exact_mod_cast hn2) hM hMQ (fun _ => D) happrox
+  have h := abs_goldbachTernary_sub_le_of_major (by exact_mod_cast hn2) hM hMQ hmajorIntegral
   have hmajor : (∑ q ∈ Icc 1 M, (q.totient : ℝ) * (D * (43 * N ^ 2) * (2 / (q * ((N : ℝ) / M))))) ≤
       86 * (N : ℝ) * M ^ 2 * D := by
     calc
@@ -77,8 +78,22 @@ theorem abs_goldbachTernary_normalized_le {N M : ℕ} (hM : 1 ≤ M)
   apply (div_le_iff₀ (sq_pos_of_pos hn)).mpr
   apply h.trans
   calc
-    _ ≤ _ := add_le_add (add_le_add hmajor htrunc) hminor
-    _ = _ := by field_simp [hn.ne', hMs.ne']
+    _ ≤ _ := add_le_add (add_le_add (add_le_add hmajor htrunc) (le_refl E)) hminor
+    _ = _ := by field_simp [hn.ne', hMs.ne'] <;> ring
+
+/-- With complementary parameters `M Q = N`, a common approximation error `D` on the major arcs
+gives an explicit bound, normalized by the natural scale `N²`. -/
+theorem abs_goldbachTernary_normalized_le {N M : ℕ} (hM : 1 ≤ M)
+    (hNM : 2 * (M : ℝ) ^ 2 ≤ N) {D : ℝ} (hD : 0 ≤ D)
+    (happrox : ∀ q ∈ Icc 1 M, ∀ a ∈ coprimeResidues q, ∀ α ∈ majorArc q a ((N : ℝ) / M),
+      ‖primeExpSum N α - (μ q : ℂ) / q.totient * mainExpSum N (α - a / q)‖ ≤ D) :
+    |goldbachTernaryWeighted N - goldbachTernarySingularSeries N * ((N - 1).choose 2 : ℕ)| / (N : ℝ) ^ 2 ≤
+      86 * M ^ 2 * (D / N) + 34 / Real.sqrt M +
+        70000 * (2 / Real.sqrt M + (N : ℝ) ^ (-(1 / 5 : ℝ))) * (Real.log N) ^ 5 := by
+  have hpos : 0<(M:ℝ) := by exact_mod_cast hM
+  have hMQ : 2*(M:ℝ)≤N/M := (le_div_iff₀ hpos).mpr (by nlinarith only [hNM])
+  have H := norm_goldbachTernary_majorArcIntegral_sub_series_le hM hMQ (fun _ => D) happrox
+  simpa using abs_goldbachTernary_normalized_le_of_major hM hNM hD (E:=0) (by simpa using H)
 
 /-- Any fixed power of the logarithm, even after scaling, is eventually bounded by a positive power. -/
 theorem eventually_const_log_pow_le_rpow (C : ℝ) (k : ℕ) {b : ℝ} (hb : 0 < b) :
@@ -270,6 +285,18 @@ theorem abs_goldbachTernarySingularSeries_le (N : ℕ) : |goldbachTernarySingula
   simp only [Icc_self, sum_singleton, singularTermTernary_one, Nat.cast_one, Real.one_rpow, mul_one] at h
   exact abs_le.mpr ⟨by linarith [(abs_le.mp h).1], by linarith [(abs_le.mp h).2]⟩
 
+/-- Replacing the exact number of compositions by its quadratic leading term
+costs at most a linear error, uniformly in the singular series. -/
+theorem goldbachTernary_composition_error {N : ℕ} (hN : 2≤N) :
+    |goldbachTernarySingularSeries N * ((N-1).choose 2:ℕ) -
+      goldbachTernarySingularSeries N * (N:ℝ)^2/2| ≤ 66*(N:ℝ) := by
+  have hNR : (2:ℝ)≤N := by exact_mod_cast hN
+  have hcount : |(((N - 1).choose 2 : ℕ) : ℝ) - (N : ℝ) ^ 2 / 2| ≤ 2 * (N : ℝ) := by
+    rw [Nat.cast_choose_two, Nat.cast_sub (by omega : 1 ≤ N), Nat.cast_one]
+    exact abs_le.mpr ⟨by nlinarith, by nlinarith⟩
+  rw [mul_div_assoc,←mul_sub,abs_mul]
+  exact (mul_le_mul (abs_goldbachTernarySingularSeries_le N) hcount (abs_nonneg _) (by norm_num)).trans_eq (by ring)
+
 /-- Classical three-prime asymptotic formula for the von Mangoldt weighted count under
 Siegel–Walfisz, with an arbitrary logarithmic saving. -/
 theorem ternaryGoldbach_asymptotic (hSW : SiegelWalfiszBound) (A : ℕ) :
@@ -289,13 +316,9 @@ theorem ternaryGoldbach_asymptotic (hSW : SiegelWalfiszBound) (A : ℕ) :
   change 1 * L ^ A ≤ (N : ℝ) ^ (1 : ℝ) at hslow
   rw [one_mul, Real.rpow_one] at hslow
   rw [Real.norm_eq_abs, Real.norm_of_nonneg (show 0 ≤ (N : ℝ) ^ 2 / L ^ A by positivity)] at h ⊢
-  have hcount : |(((N - 1).choose 2 : ℕ) : ℝ) - (N : ℝ) ^ 2 / 2| ≤ 2 * (N : ℝ) := by
-    rw [Nat.cast_choose_two, Nat.cast_sub (by omega : 1 ≤ N), Nat.cast_one]
-    exact abs_le.mpr ⟨by nlinarith, by nlinarith⟩
   have hdiff : |goldbachTernarySingularSeries N * ((N - 1).choose 2 : ℕ) -
       goldbachTernarySingularSeries N * (N : ℝ) ^ 2 / 2| ≤ 66 * ((N : ℝ) ^ 2 / L ^ A) := by
-    rw [mul_div_assoc, ← mul_sub, abs_mul]
-    apply (mul_le_mul (abs_goldbachTernarySingularSeries_le N) hcount (abs_nonneg _) (by norm_num)).trans
+    apply (goldbachTernary_composition_error hN).trans
     have hNp : (N : ℝ) ≤ (N : ℝ) ^ 2 / L ^ A :=
       (le_div_iff₀ (pow_pos hL A)).mpr (by nlinarith [mul_le_mul_of_nonneg_left hslow hnpos.le])
     linarith

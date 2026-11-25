@@ -1,3 +1,6 @@
+import AnalyticNumberTheory.DirichletLFunctions.CharacterFamilySecondMoment
+import AnalyticNumberTheory.RiemannZeta.HurwitzCriticalSecondMoment
+import AnalyticNumberTheory.RiemannZeta.CriticalSecondMomentError
 import AnalyticNumberTheory.RiemannZeta.CriticalSecondMomentExpansion
 import AnalyticNumberTheory.RiemannZeta.ReflectedSecondMoment
 import AnalyticNumberTheory.RiemannZeta.CriticalMeanSquare
@@ -161,3 +164,35 @@ $$`I(T)=T\log\frac{T}{2\pi}+(2\gamma-1)T+O\!\left(T^{3/4}\sqrt{\log(T+2)}\right)
 {docstring riemannZeta_critical_second_moment_expansion}
 
 {docstring riemannZeta_critical_second_moment_remainder}
+
+保留首修正项对平方积分的振荡贡献，可以进一步把余项压到 $`O(\sqrt T\log T)`。证明在截点 $`\lfloor\sqrt{t/(2\pi)}\rfloor` 不变的各段上积分，并用首修正系数的一致导数界控制振幅。
+
+{docstring riemannZeta_critical_second_moment_sharp}
+
+{docstring riemannZeta_critical_second_moment_sharp_remainder}
+
+# Hurwitz ζ 的移位与第二主项
+%%%
+tag := "hurwitz-critical-second-term"
+file := "hurwitz-critical-second-term"
+%%%
+
+固定实数 $`0<a\le1`。Hurwitz ζ 函数在临界线上的平方积分满足
+
+$$`\int_1^T|\zeta(1/2+it,a)|^2\,dt
+=T\log(T/(2\pi))+(\gamma-\psi(a)-1)T
++O_a\!\left(T^{3/4}\sqrt{\log(T+2)}\right).`
+
+这里 $`\psi(a)=\Gamma'(a)/\Gamma(a)`。随高度移动的截断点产生两个对角和，其中移位调和和的常数项为 $`-\psi(a)`。异频项的振荡估计与近似函数方程的余项合在一起，给出上式的误差。取 $`a=1` 时，$`\psi(1)=-\gamma`，线性项与 Riemann ζ 的公式一致。
+
+{docstring hurwitz_critical_diagonal_expansion}
+
+{docstring hurwitz_critical_second_moment_expansion}
+
+对固定模数，把临界线上所有 Dirichlet 特征的平方模相加。特征正交性将其化为既约剩余类对应的 Hurwitz 平方模之和。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.character_family_critical_energy}
+
+对高度积分后，这一全特征族的二阶矩中，$`T\log(T/(2\pi))` 的系数为 $`\varphi(q)^2/q`，线性项系数由既约剩余类上的移位常数给出。误差常数允许依赖固定模数。
+
+{docstring AnalyticNumberTheory.DirichletLFunctions.character_family_critical_second_moment}

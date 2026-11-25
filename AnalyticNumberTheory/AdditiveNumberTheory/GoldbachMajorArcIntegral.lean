@@ -87,6 +87,32 @@ private theorem norm_ternaryModel_diff {q N : ℕ} (hq : 0 < q) (a : ℤ) (α : 
       gcongr
     _ = _ := by ring
 
+/-- Cubic error integrated over the reduced numerators of one fixed denominator. -/
+theorem norm_ternary_arc_denominator_error {q : ℕ} (hq1 : 1 ≤ q) (N : ℕ) {Q D : ℝ}
+    (hQ : 0<Q) (happrox : ∀ a ∈ coprimeResidues q, ∀ α ∈ majorArc q a Q,
+      ‖primeExpSum N α - (μ q : ℂ) / q.totient * mainExpSum N (α-a/q)‖ ≤ D) :
+    ‖(∑ a ∈ coprimeResidues q, ∫ α in majorArc q a Q, primeExpSum N α^3*e (-α*N)) -
+      (singularTermTernary q N : ℂ)*ternarySingularIntegral N (1/(q*Q))‖ ≤
+      (q.totient:ℝ)*(D*(43*N^2)*(2/(q*Q))) := by
+  rw [← sum_setIntegral_ternaryModel hq1 N hQ, ← sum_sub_distrib]
+  apply (norm_sum_le _ _).trans
+  calc
+    _ ≤ ∑ _a ∈ coprimeResidues q, D * (43 * N ^ 2) * (2 / (q * Q)) := by
+      refine sum_le_sum fun a ha => ?_
+      have hf : IntegrableOn (fun α : ℝ => primeExpSum N α ^ 3 * e (-α * N)) (majorArc q a Q) :=
+        (continuous_ternaryIntegrand N).continuousOn.integrableOn_Icc
+      have hg : IntegrableOn (ternaryModel N q a) (majorArc q a Q) :=
+        (continuous_ternaryModel N q a).continuousOn.integrableOn_Icc
+      rw [← integral_sub hf hg]
+      have hmeas : volume (majorArc q a Q) < ⊤ := by rw [volume_majorArc hq1 _ hQ]; simp
+      have hb := norm_setIntegral_le_of_norm_le_const hmeas
+        (fun α hα => (norm_ternaryModel_diff hq1 a α).trans (mul_le_mul_of_nonneg_right
+          (by simpa using happrox a ha α hα) (by positivity)))
+      simpa [Measure.real, volume_majorArc hq1 _ hQ, ENNReal.toReal_ofReal (by positivity :
+        (0 : ℝ) ≤ 2 / (q * Q))] using hb
+    _ = _ := by
+      simp [coprimeResidues, Nat.totient_eq_card_coprime, Nat.coprime_comm, nsmul_eq_mul]
+
 /-- Cubing the major-arc approximations and integrating gives the truncated singular series,
 with its singular integral at each arc width. The error `D q` bounds the linear
 approximation pointwise on all major arcs of denominator `q`. -/
@@ -103,24 +129,7 @@ theorem norm_goldbachTernary_majorArcIntegral_sub_le (N : ℕ) {P Q : ℝ} (hP :
   apply (norm_sum_le _ _).trans
   refine sum_le_sum fun q hq => ?_
   have hq1 : 1 ≤ q := (mem_Icc.mp hq).1
-  rw [← sum_setIntegral_ternaryModel hq1 N hQ, ← sum_sub_distrib]
-  apply (norm_sum_le _ _).trans
-  calc
-    _ ≤ ∑ _a ∈ coprimeResidues q, D q * (43 * N ^ 2) * (2 / (q * Q)) := by
-      refine sum_le_sum fun a ha => ?_
-      have hf : IntegrableOn (fun α : ℝ => primeExpSum N α ^ 3 * e (-α * N)) (majorArc q a Q) :=
-        (continuous_ternaryIntegrand N).continuousOn.integrableOn_Icc
-      have hg : IntegrableOn (ternaryModel N q a) (majorArc q a Q) :=
-        (continuous_ternaryModel N q a).continuousOn.integrableOn_Icc
-      rw [← integral_sub hf hg]
-      have hmeas : volume (majorArc q a Q) < ⊤ := by rw [volume_majorArc hq1 _ hQ]; simp
-      have hb := norm_setIntegral_le_of_norm_le_const hmeas
-        (fun α hα => (norm_ternaryModel_diff hq1 a α).trans (mul_le_mul_of_nonneg_right
-          (by simpa using happrox q hq a ha α hα) (by positivity)))
-      simpa [Measure.real, volume_majorArc hq1 _ hQ, ENNReal.toReal_ofReal (by positivity :
-        (0 : ℝ) ≤ 2 / (q * Q))] using hb
-    _ = _ := by
-      simp [coprimeResidues, Nat.totient_eq_card_coprime, Nat.coprime_comm, nsmul_eq_mul]
+  exact norm_ternary_arc_denominator_error hq1 N hQ (happrox q hq)
 
 /-- Integrated major-arc approximation with errors expressed wholly in terms of
 Chebyshev progression estimates up to `N`. -/

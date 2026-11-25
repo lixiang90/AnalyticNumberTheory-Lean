@@ -23,6 +23,10 @@ $$`|\zeta(1/2+it)|\ll |t|^{1/6}(1+\log |t|),\qquad |t|\ge2\pi.`
 
 {docstring hurwitzZeta_weyl_bound}
 
+直接从函数中减去首项后，其余部分在整个移位区间上一致满足同一个 Weyl 界。
+
+{docstring hurwitzZeta_sub_initial_weyl_bound}
+
 将有限和按 $`M<n\le2M` 分段，考察对数相位 $`\tau\log(n+a)`，其中 $`\tau=-t/(2\pi)`。在中等长度的块上，取约 $`M/|\tau|^{1/3}` 个平均平移，前向差的二阶导数大小约为 $`|\tau|r/M^3`。用{ref "exponential-sums"}[van der Corput 方法]估计这些差分，再用分部求和乘回 $`(n+a)^{-1/2}`，每块贡献 $`O(|t|^{1/6})`。块的个数给出最后的对数因子。
 
 {docstring logPhase_weyl_block}

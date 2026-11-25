@@ -15,7 +15,8 @@ open Real Complex Finset
 open scoped ComplexConjugate
 namespace AnalyticNumberTheory.RiemannZeta
 
-private theorem hardyUnit_mul_dualGamma {t : ℝ} (ht : t≠0) :
+/-- On the critical line Hardy's unit intertwines the reciprocal gamma factor with complex conjugation. -/
+theorem hardyUnit_mul_dualGamma {t : ℝ} (ht : t≠0) :
     hardyGammaUnit t*riemannDualGamma (1/2+(t:ℂ)*I)=conj (hardyGammaUnit t) := by
   let s := (1/2:ℂ)+(t:ℂ)*I
   have hi : s.im=t := by simp [s]

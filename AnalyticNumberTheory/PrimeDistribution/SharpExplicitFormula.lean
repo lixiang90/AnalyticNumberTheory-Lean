@@ -66,6 +66,24 @@ private theorem right_integral (x T : ℝ) :
   simp only [Complex.ofReal_ofNat]
   rw [zetaPerronIntegrand, LSeries_vonMangoldt_eq (by simp : 1 < ((2 : ℂ)+t*I).re), logDeriv_apply, neg_div]
 
+/-- The full rectangle solved for the nontrivial-zero sum, with the ordinary
+Perron integral on the right line and the remaining three oriented edge integrals. -/
+theorem sharpZetaZeroSum_eq_contour {x T : ℝ} (hx : 0 < x) (hT : 0 < T) (R : ℝ)
+    (hoff : ∀ z ∈ nontrivialZerosUpTo T, |z.im| ≠ T) :
+    sharpZetaZeroSum x T = (x : ℂ) - Complex.log (2*(Real.pi : ℂ)) -
+      (∑ n ∈ range ⌈R⌉₊, (x : ℂ)^(trivialZetaZero n)/trivialZetaZero n) -
+      dirichletContourIntegral (fun n => (Λ n : ℂ)) x 2 T +
+      (zetaPerronHorizontal x R T - zetaPerronHorizontal x R (-T) +
+        I*zetaPerronLeft x R T)/(2*Real.pi*I) := by
+  have h := rectangleBoundary_zetaPerron hx hT ⌈R⌉₊ hoff
+  change zetaPerronHorizontal x R (-T) - zetaPerronHorizontal x R T +
+    I*(∫ t : ℝ in (-T)..T, zetaPerronIntegrand x ((2 : ℂ)+t*I)) - I*zetaPerronLeft x R T =
+      (2*Real.pi*I)*((x : ℂ)-Complex.log (2*(Real.pi : ℂ))-sharpZetaZeroSum x T-_) at h
+  rw [right_integral] at h
+  have hπ := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  field_simp [hπ, Complex.I_ne_zero]
+  linear_combination h
+
 /-- The finite sums over negative even zeros converge to the elementary trivial-zero term
 with the same complex-power convention as the sharp contour. -/
 theorem hasSum_cpow_trivialZetaZero_div {x : ℝ} (hx : 1 < x) :
@@ -88,8 +106,6 @@ theorem tendsto_sharpZetaZeroSum_midpointPsi {x : ℝ} (hx : 1<x) :
   have hUt : Tendsto U atTop atTop :=
     tendsto_atTop_mono' atTop (hU.mono fun R h => h.1.le) (tendsto_pow_atTop (by decide : 2 ≠ 0))
   let a (n : ℕ) : ℂ := Λ n
-  let A : ℂ := 2*Real.pi*I
-  have hA : A ≠ 0 := mul_ne_zero (mul_ne_zero two_ne_zero (Complex.ofReal_ne_zero.mpr Real.pi_ne_zero)) Complex.I_ne_zero
   let D := dirichletContourIntegral a x 2
   let J (R : ℝ) := ∑ n ∈ range ⌈R⌉₊, (x : ℂ)^(trivialZetaZero n)/trivialZetaZero n
   let l := (Real.log (1-(x^2)⁻¹) : ℂ)/2
@@ -98,24 +114,14 @@ theorem tendsto_sharpZetaZeroSum_midpointPsi {x : ℝ} (hx : 1<x) :
   have hd : Tendsto (fun R => D (U R)) atTop (𝓝 (midpointPsi x : ℂ)) := by
     rw [← midpointPartialSum_vonMangoldt]
     exact (tendsto_dirichletContourIntegral_midpointPartialSum (zero_lt_one.trans hx) (by norm_num : (0 : ℝ)<2) hsum).comp hUt
-  have hexact : ∀ᶠ R : ℝ in atTop, sharpZetaZeroSum x (U R) =
-      (A*((x : ℂ)-Complex.log (2*(Real.pi : ℂ))-J R-D (U R))-
-        zetaPerronHorizontal x R (-U R)+zetaPerronHorizontal x R (U R)+I*zetaPerronLeft x R (U R))/A := by
-    filter_upwards [hU] with R hh
-    have h := rectangleBoundary_zetaPerron (zero_lt_one.trans hx) ((sq_nonneg R).trans_lt hh.1) ⌈R⌉₊ hh.2.2
-    change zetaPerronHorizontal x R (-U R)-zetaPerronHorizontal x R (U R)+
-      I*(∫ t : ℝ in (-U R)..U R, zetaPerronIntegrand x ((2 : ℂ)+t*I))-I*zetaPerronLeft x R (U R) =
-        A*((x : ℂ)-Complex.log (2*(Real.pi : ℂ))-sharpZetaZeroSum x (U R)-J R) at h
-    rw [right_integral] at h
-    apply (eq_div_iff hA).mpr
-    dsimp only [A,D,a] at h ⊢
-    linear_combination h
   have hg : Tendsto (fun R => sharpZetaZeroSum x (U R)) atTop
       (𝓝 ((x : ℂ)-Complex.log (2*(Real.pi : ℂ))-l-(midpointPsi x : ℂ))) := by
-    have hmain := (((tendsto_const_nhds (x := (x : ℂ)-Complex.log (2*(Real.pi : ℂ)))).sub hj).sub hd).const_mul A
-    have hfin := (((hmain.sub hbot).add htop).add (hleft.const_mul I)).div_const A
-    apply (by simpa only [sub_zero,add_zero,mul_zero,mul_div_cancel_left₀ _ hA] using hfin :
-      Tendsto _ atTop (𝓝 ((x : ℂ)-Complex.log (2*(Real.pi : ℂ))-l-(midpointPsi x : ℂ)))).congr' (hexact.mono fun _ h => h.symm)
+    have hm := ((tendsto_const_nhds (x := (x : ℂ)-Complex.log (2*(Real.pi : ℂ)))).sub hj).sub hd
+    have he := ((htop.sub hbot).add (hleft.const_mul I)).div_const (2*(Real.pi : ℂ)*I)
+    apply (by simpa only [sub_zero,add_zero,mul_zero,zero_div] using hm.add he :
+      Tendsto _ atTop (𝓝 ((x : ℂ)-Complex.log (2*(Real.pi : ℂ))-l-(midpointPsi x : ℂ)))).congr'
+    filter_upwards [hU] with R hh
+    exact (sharpZetaZeroSum_eq_contour (zero_lt_one.trans hx) ((sq_nonneg R).trans_lt hh.1) R hh.2.2).symm
   obtain ⟨C,_,hstep⟩ := sharpZetaZeroSum_unit_variation
   have hgap : Tendsto (fun T : ℝ => sharpZetaZeroSum x (U (Real.sqrt T))-sharpZetaZeroSum x T) atTop (𝓝 0) := by
     apply tendsto_zero_iff_norm_tendsto_zero.mpr

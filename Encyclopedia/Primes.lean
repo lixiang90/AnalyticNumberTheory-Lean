@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannCountingSharp
 import AnalyticNumberTheory.PrimeDistribution.SharpExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.FullPerronContour
 import AnalyticNumberTheory.PrimeDistribution.TrivialZeroTerm
@@ -322,3 +323,39 @@ $$`\psi_0(x)=x-\lim_{T\to\infty}\sum_{|\Im\rho|\le T}
 {docstring hasSum_cpow_trivialZetaZero_div}
 
 {docstring tendsto_sharpZetaZeroSum_midpointPsi}
+
+# 素数幂计数的区间显式公式
+%%%
+tag := "sharp-prime-power-interval"
+file := "sharp-prime-power-interval"
+%%%
+
+{index}[Riemann 素数幂计数的区间公式]给定 $`1<a\le b`，$`J_0(b)-J_0(a)` 把开区间中的 $`p^k` 计为 $`1/k`，把两个不同端点上的素数幂各计为 $`1/(2k)`。例如 $`(4,8)` 内只有素数幂 $`5,7`，两端还有 $`2^2,2^3`，所以 $`J_0(8)-J_0(4)=2+\tfrac14+\tfrac16=\tfrac{29}{12}`。
+
+记 $`L_\rho(a,b)=\int_a^b t^{\rho-1}\,dt/\log t`。将非平凡零点按纵坐标绝对值截断，并保留解析重数，有
+
+$$`J_0(b)-J_0(a)=\int_a^b\frac{dt}{\log t}
+-\lim_{T\to\infty}\sum_{|\Im\rho|\le T}m_\rho L_\rho(a,b)
+-\int_a^b\frac{dt}{t(t^2-1)\log t}.`
+
+{docstring sharpZeroLogIntegral}
+
+{docstring trivialZeroLogIntegral}
+
+{docstring tendsto_riemannPrimeCounting_interval_explicit_formula}
+
+在 $`[a,b]` 上对{ref "sharp-chebyshev-explicit-formula"}[Chebyshev 显式公式]作带权分部积分，权函数取 $`w(t)=1/\log t`。边界项用 $`\psi_0(a),\psi_0(b)`。积分中的 $`\psi_0` 与通常的 $`\psi` 几乎处处相等，所以两者给出同一个积分。
+
+{docstring riemannPrimeCounting_midpoint_abel}
+
+极限移入积分需要对 $`t` 和高度的联合控制。对 $`a\le t\le b`，Perron 核的一致界先控制右边的围道积分，再由另外三条边的估计控制整个零点部分和。这样即使区间含有跳跃点，仍可以使用支配收敛定理。
+
+{docstring eventually_norm_sharpZetaZeroSum_le_on_Icc}
+
+{docstring AnalyticNumberTheory.DirichletSeries.norm_dirichletContourIntegral_le}
+
+{docstring AnalyticNumberTheory.AnalyticTools.Summation.tendsto_weighted_derivatives_of_bounded_primitives}
+
+最后一项来自平凡零点。对 $`\tfrac12\log(1-t^{-2})` 求导，得到正密度 $`1/[t(t^2-1)]`；它在计数公式中带负号。
+
+{docstring hasDerivAt_trivialZeroLog}

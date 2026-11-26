@@ -21,7 +21,8 @@ private theorem norm_integrand {x : ℝ} (hx : 0 < x) (s : ℂ) :
     ‖zetaPerronIntegrand x s‖ = ‖logDeriv riemannZeta s‖ * x^s.re / ‖s‖ := by
   rw [zetaPerronIntegrand, norm_div, norm_mul, norm_neg, Complex.norm_cpow_eq_rpow_re_of_pos hx]
 
-private theorem norm_horizontal {x R T y C : ℝ} (hx : 1<x) (hR : 3 ≤ R) (hT : R^2 < T)
+/-- Uniform bound for either horizontal edge in an expanding good-height rectangle. -/
+theorem norm_zetaPerronHorizontal_le {x R T y C : ℝ} (hx : 1<x) (hR : 3 ≤ R) (hT : R^2 < T)
     (hy : |y|=T) (hC : 0 < C) (hbound : ∀ σ ∈ Icc (perronLeftEdge R) 2,
       ‖logDeriv riemannZeta ((σ : ℂ)+y*I)‖ ≤ C*(Real.log R)^2) :
     ‖zetaPerronHorizontal x R y‖ ≤ (6*C*x^2)*((Real.log R)^2/R) := by
@@ -48,7 +49,8 @@ private theorem norm_horizontal {x R T y C : ℝ} (hx : 1<x) (hR : 3 ≤ R) (hT 
     _ ≤ C*(Real.log R)^2*x^2/R^2*(6*R) := mul_le_mul_of_nonneg_left hwidth (by positivity)
     _ = _ := by field_simp
 
-private theorem norm_left {x R T C : ℝ} (hx : 1<x) (hR : 3 ≤ R) (hT₀ : 0<T) (hT : T<R^2+1)
+/-- Exponential decay on a negative odd left edge, with explicit dependence on the cutoff. -/
+theorem norm_zetaPerronLeft_le {x R T C : ℝ} (hx : 1<x) (hR : 3 ≤ R) (hT₀ : 0<T) (hT : T<R^2+1)
     (hC : 0<C) (hbound : ∀ t : ℝ, |t|≤T →
       ‖logDeriv riemannZeta ((perronLeftEdge R : ℂ)+t*I)‖ ≤ C*Real.log R) :
     ‖zetaPerronLeft x R T‖ ≤ (4*C)*(R^3*Real.exp (-(R*Real.log x))) := by
@@ -100,7 +102,7 @@ theorem exists_tendsto_zetaPerron_edges :
     apply tendsto_zero_iff_norm_tendsto_zero.mpr
     apply squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) _ (by simpa using hlim.const_mul (6*C*x^2))
     filter_upwards [hy, H, eventually_ge_atTop 3] with R he hh hR
-    exact norm_horizontal hx hR hh.1 he hC (fun σ hσ => hh.2.2.2.1 σ hσ _ he)
+    exact norm_zetaPerronHorizontal_le hx hR hh.1 he hC (fun σ hσ => hh.2.2.2.1 σ hσ _ he)
   have hpos : ∀ᶠ R in atTop, 0<U R := H.mono fun R hh => (sq_nonneg R).trans_lt hh.1
   refine ⟨hhor U (hpos.mono fun R h => abs_of_pos h),
     hhor (fun R => -U R) (hpos.mono fun R h => by rw [abs_neg,abs_of_pos h]), ?_⟩
@@ -115,6 +117,6 @@ theorem exists_tendsto_zetaPerron_edges :
   apply tendsto_zero_iff_norm_tendsto_zero.mpr
   apply squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) _ (by simpa using hv.const_mul (4*C))
   filter_upwards [H, hpos, eventually_ge_atTop 3] with R hh hp hR
-  exact norm_left hx hR hp hh.2.1 hC hh.2.2.2.2
+  exact norm_zetaPerronLeft_le hx hR hp hh.2.1 hC hh.2.2.2.2
 
 end AnalyticNumberTheory.PrimeDistribution

@@ -42,7 +42,8 @@ private theorem continuousOn_powerKernel (ρ : ℂ) {a b : ℝ} (ha : 0 < a) :
     ContinuousOn (fun t : ℝ => (t : ℂ) ^ (ρ-1)) (Set.Icc a b) :=
   fun _ ht => (Complex.continuousAt_ofReal_cpow_const _ _ (Or.inr (ha.trans_le ht.1).ne')).continuousWithinAt
 
-private theorem integral_truncated_zero_sum (T : ℝ) {a b : ℝ} (ha : 1 < a) (hab : a ≤ b) :
+/-- Integrating each of finitely many zero densities against the inverse logarithm gives its logarithmic integral. -/
+theorem integral_one_sub_zeroPowers_invLog (T : ℝ) {a b : ℝ} (ha : 1 < a) (hab : a ≤ b) :
     (∫ t in a..b, (1 - ∑ ρ ∈ nontrivialZerosUpTo T, (zeroMultiplicity ρ : ℂ) *
       (t : ℂ) ^ (ρ-1)) * (↑((Real.log t)⁻¹) : ℂ)) =
       zeroLogIntegral 1 a b - ∑ ρ ∈ nontrivialZerosUpTo T,
@@ -131,7 +132,7 @@ theorem riemannPrimeCounting_interval_zero_formula :
   rw [hsum] at H
   change ‖_ - (∫ t in a..b, (1 - ∑ ρ ∈ nontrivialZerosUpTo T, (zeroMultiplicity ρ : ℂ) *
     (t : ℂ) ^ (ρ-1)) * (↑((Real.log t)⁻¹) : ℂ))‖ ≤ _ at H
-  rw [integral_truncated_zero_sum T ha hab] at H
+  rw [integral_one_sub_zeroPowers_invLog T ha hab] at H
   exact H.trans_eq (by dsimp [M, w]; ring)
 
 /-- On any interval with `2 ≤ T ≤ a ≤ b ≤ 2a`, the error in the truncated logarithmic

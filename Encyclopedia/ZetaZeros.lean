@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.LogDerivativeLeft
 import AnalyticNumberTheory.RiemannZeta.CenteredPartialFractions
 import AnalyticNumberTheory.RiemannZeta.IntegratedArgument
 import AnalyticNumberTheory.RiemannZeta.ZeroCounting
@@ -92,3 +93,28 @@ $$`-\frac{\zeta'}{\zeta}(s)=-\log(2\pi)+K_1(s)
 {docstring neg_logDeriv_riemannZeta_zero}
 
 {docstring exists_centered_logDeriv_riemannZeta}
+
+# ζ 对数导数在左半平面的增长
+%%%
+tag := "zeta-left-log-derivative"
+file := "left-log-derivative"
+%%%
+
+{index}[ζ 对数导数的反射]记 $`D=\zeta'/\zeta`，$`\psi_\Gamma=\Gamma'/\Gamma`。实无穷位的因子为
+$`\Gamma_{\mathbb R}(s)=\pi^{-s/2}\Gamma(s/2)`。对其取对数导数，再对完成的 ζ 函数使用函数方程，就得到在 $`\Re s<0` 且避开负偶整数时成立的反射公式
+
+$$`D(s)=\log\pi-D(1-s)-\tfrac12\psi_\Gamma(s/2)-\tfrac12\psi_\Gamma((1-s)/2).`
+
+{docstring AnalyticNumberTheory.AnalyticTools.Gamma.logDeriv_gammaReal}
+
+{docstring logDeriv_zeta_reflect_gamma}
+
+在 $`\Re s\le-1/2` 内，反射点满足 $`\Re(1-s)\ge3/2`，此时 $`D(1-s)` 由绝对收敛的 von Mangoldt 级数一致控制。若 $`s` 与所有非正偶整数的距离至少为 $`d>0`，则存在同一个绝对常数 $`C`，使得
+
+$$`|D(s)|\le d^{-1}+5\log(|s|+3)+C.`
+
+{docstring norm_logDeriv_zeta_left_le_inv_add_log}
+
+取 $`|\Im s|\ge1` 时可用 $`d=1`。取 $`\Re s=-1,-3,-5,\ldots` 时也可用 $`d=1`，即使 $`\Im s=0`。这些水平线和竖线可用作往左移动 Perron 积分时的矩形边界。
+
+{docstring norm_logDeriv_zeta_left_edges}

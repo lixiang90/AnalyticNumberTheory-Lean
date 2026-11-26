@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.TrivialZeroTerm
 import AnalyticNumberTheory.PrimeDistribution.SymmetricExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.IntegratedExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingZeroSum
@@ -223,3 +224,36 @@ K_h(\omega,x)=\frac{x^\omega\sinh(\omega h)}{h\omega^2}.`
 {docstring summable_symmetric_nontrivial}
 
 {docstring summable_symmetric_trivial}
+
+# 平凡零点求和与对称极限
+%%%
+tag := "trivial-zero-term"
+file := "trivial-zero-term"
+%%%
+
+{index}[平凡零点的对数项]在 $`x>1` 时，负偶整数对显式公式的贡献可以直接求和。令 $`u=\log x`，在单位圆内的对数幂级数给出
+
+$$`\sum_{m\ge1}\frac{x^{-2m}}{-2m}
+=\tfrac12\log(1-x^{-2}).`
+
+右边为负数。由于每个零点在 $`-\zeta'/\zeta` 中的符号为负，平凡零点对 $`\psi_0(x)` 的总贡献为 $`-\tfrac12\log(1-x^{-2})`。
+
+{docstring hasSum_exp_trivialZetaZero_div}
+
+对{ref "integrated-explicit-formula"}[一次积分公式]中负偶整数的级数，可以在任一 $`u>0` 处逐项求导。在 $`v>u/2` 上，各导数的模都被可求和的等比级数 $`e^{-mu}` 控制。于是{ref "symmetric-explicit-formula"}[对称差分]中平凡零点的级数也有同一个极限。
+
+{docstring hasDerivAt_tsum_integrated_trivialZetaZero}
+
+{docstring tendsto_tsum_symmetric_trivialZetaZero}
+
+对非平凡零点，先固定 $`h>0` 求和，再令 $`h\downarrow0`，所得极限为
+
+$$`\lim_{h\downarrow0}\sum_\rho
+ \frac{x^\rho\sinh(\rho h)}{h\rho^2}
+=x-\log(2\pi)-\tfrac12\log(1-x^{-2})-\psi_0(x).`
+
+例如 $`x=2` 时，右边的最后一项为 $`-(\log 2)/2`。这个极限指定了宽度 $`h` 与无穷求和的次序。
+
+{docstring AnalyticNumberTheory.AnalyticTools.tendsto_symmetricPole}
+
+{docstring exists_tendsto_symmetric_nontrivial_midpointPsi}

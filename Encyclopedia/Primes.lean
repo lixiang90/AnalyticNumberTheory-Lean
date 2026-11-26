@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannCountingZeroSum
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingMellin
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimeCounting
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
@@ -124,3 +125,34 @@ $$`J_0(x)=\lim_{T\to\infty}\frac{1}{2\pi}\int_{-T}^{T}
 {docstring tendsto_logZetaPerronIntegral_riemannPrimeCounting}
 
 {docstring norm_logZetaPerronIntegral_sub_riemannPrimeCounting_le}
+
+# 用有限零点和计算区间内的素数幂质量
+%%%
+tag := "riemann-counting-zero-sum"
+file := "riemann-counting-zero-sum"
+%%%
+
+{index}[素数幂计数的截断显式公式]区间 $`(a,b]` 内的素数幂质量为 $`J(b)-J(a)`。固定高度 $`T`，对每个指数 $`\rho` 记
+
+$$`L_\rho(a,b)=\int_a^b \frac{t^{\rho-1}}{\log t}\,dt.`
+
+当 $`a>1` 时，积分沿实轴正向进行。$`L_1(a,b)` 是普通的对数积分差。对于非平凡零点，$`L_\rho` 直接给出该零点在两个端点间的贡献。
+
+{docstring zeroLogIntegral}
+
+{docstring zeroLogIntegral_one}
+
+对所有 $`2\le T\le a\le b`，存在同一个绝对常数使
+
+$$`J(b)-J(a)=L_1(a,b)-\sum_{|\Im\rho|\le T}m_\rho L_\rho(a,b)
++O\,\left(\frac{b\log^2 b/T+\log b}{\log a}\right).`
+
+和遍及临界带内不同的非平凡零点，$`m_\rho` 是解析重数。如果 $`b\le 2a`，分母消去一个对数因子，误差成为 $`O(b\log b/T+1)`。例如在 $`(a,2a]` 内取 $`T=a`，误差为 $`O(\log a)`。
+
+{docstring riemannPrimeCounting_interval_zero_formula}
+
+{docstring riemannPrimeCounting_dyadic_zero_formula}
+
+证明对 Chebyshev 函数的截断显式公式作分部求和，权重取 $`w(t)=1/\log t`。若离散部分和与光滑函数 $`F` 的差在 $`[a,b]` 上至多为 $`M`，单调权把区间加权和同 $`\int_a^b w(t)F'(t)\,dt` 的差控制在 $`2Mw(a)` 以内。这个估计也覆盖恰好落在端点的素数幂。
+
+{docstring AnalyticNumberTheory.AnalyticTools.Summation.norm_weighted_sum_sub_integral_of_partial_sums}

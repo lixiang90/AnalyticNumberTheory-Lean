@@ -2607,7 +2607,8 @@ theorem argumentSApprox_abs_le_log :
         _ ≤ ((1 / Real.pi) * (Real.pi / Real.log 2 + (3 / 2) * C_ld + Real.pi * C_j) + 1) *
               Real.log T := mul_le_mul_of_nonneg_right h1 hlogT_pos.le
 
-private lemma exists_right_nhd_no_zero_ordinate (T : ℝ) :
+/-- Local finiteness of the zero ordinates gives a right-hand interval free of them at every height. -/
+theorem exists_right_nhd_no_zero_ordinate (T : ℝ) :
     ∃ δ : ℝ, 0 < δ ∧ ∀ t ∈ Set.Ioo T (T + δ), ¬ IsZeroOrdinate t := by
   classical
   let S : Finset ℂ :=
@@ -2720,7 +2721,8 @@ theorem zeroCountUpTo_eq_stirling_add_argumentS {T : ℝ} (hT : 0 < T) :
   dsimp only [mainTerm] at hS_eq
   linarith
 
-private lemma argumentSApprox_tendsto_argumentS {T : ℝ} (hT : 0 < T) :
+/-- The horizontal argument integral converges from the right to the value of S at every positive height. -/
+theorem argumentSApprox_tendsto_argumentS {T : ℝ} (hT : 0 < T) :
     Tendsto argumentSApprox (𝓝[>] T) (𝓝 (argumentS T)) := by
   let mainTerm : ℝ → ℝ := fun t ↦
     (1 / Real.pi) * ((-1 / 2 : ℂ) + (t : ℂ) * I).arg +

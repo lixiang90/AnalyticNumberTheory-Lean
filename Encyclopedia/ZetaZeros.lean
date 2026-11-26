@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.LittlewoodArgument
 import AnalyticNumberTheory.PrimeDistribution.SelbergLocalExpansion
 import AnalyticNumberTheory.PrimeDistribution.SelbergZeroWindows
 import AnalyticNumberTheory.PrimeDistribution.ShiftedMangoldtMean
@@ -200,6 +201,31 @@ $$`\frac{\zeta'}{\zeta}(s)=
 在参考点及其右侧，{ref "inverse-loglog-zero-window"}[Selberg 估计]给出对数大小的上界。利用 ξ 的泛函方程可将右半边的估计反射到左半边。最后从 ξ 换回 ζ，Gamma 因子带来的对数导数修正一致为 $`O(\log|t|)`。
 
 {docstring norm_logDeriv_xi_sub_zeta_le}
+
+# 黎曼猜想下的辐角及其积分
+%%%
+tag := "littlewood-zeta-argument"
+file := "littlewood-argument"
+%%%
+
+{index}[Littlewood 辐角估计]令 $`S(t)` 为从 $`2` 经 $`2+it` 到 $`\tfrac12+it` 的 ζ 函数连续辐角除以 $`\pi`，令 $`S_1(t)=\int_0^t S(v)\,dv`。在黎曼猜想下，对所有充分大的正高度都有
+$$`S(t)=O\!\left(\frac{\log t}{\log\log t}\right),\qquad
+S_1(t)=O\!\left(\frac{\log t}{(\log\log t)^2}\right).`
+这里沿用{ref "integrated-zeta-argument"}[辐角积分]中的约定，在零点高度给 $`S(t)` 取右极限。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.argumentS_isBigO_log_div_loglog_of_rh}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.integratedArgument_isBigO_log_div_loglog_sq_of_rh}
+
+取 $`u=\tfrac14\log\log t`，在 $`\sigma=\tfrac12+2/u` 处分开水平积分。在靠近临界线的一段，{ref "selberg-local-log-derivative"}[对数导数展开]给出有限个极点。每个极点的虚部积分都是两个反正切之差，绝对值至多为 $`\pi`。窗口内按重数计有 $`O(\log t/u)` 个零点。
+
+{docstring AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.abs_integral_im_horizontal_pole_le}
+
+对 $`S_1`，水平对数均值的分部积分引入权重 $`\sigma-\tfrac12`。单个极点满足 $`|(\sigma-\tfrac12)\Re(1/(s-\rho))|\le1`，再乘以这段的长度 $`2/u`，就多出一个 $`1/u` 因子。在右边一段，指数衰减项的零阶和一阶矩分别至多为 $`1/u` 和 $`1/u^2`。水平对数均值在零点高度仍连续，因而积分辐角的界也延伸到这些高度。
+
+{docstring horizontalLogMean_zeta_eq_real_moment}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.selberg_horizontal_logDeriv_integrals}
 
 # ζ 对数导数在左半平面的增长
 %%%

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.LogModulusDerivative
 import AnalyticNumberTheory.RiemannZeta.ZetaLogMean
 import AnalyticNumberTheory.RiemannZeta.ZeroCounting
 import Mathlib.Analysis.Calculus.ParametricIntervalIntegral
@@ -18,20 +19,9 @@ private theorem hasDerivAt_vertical_log_norm {f : ℂ → ℂ} {x t : ℝ}
   have hlin : HasDerivAt (fun w : ℂ => (x:ℂ)+w*I) I (t:ℂ) :=
     (((hasDerivAt_id _).mul_const I).const_add _).congr_deriv (by simp)
   have hg : HasDerivAt g (deriv f z * I) (t:ℂ) := hd.hasDerivAt.comp (t:ℂ) hlin
-  have hratio := hg.comp_ofReal.div_const (f z)
-  have he : g (t:ℂ) / f z = 1 := div_self hn
-  have hlog := hratio.clog_real (by rw [he]; exact Complex.one_mem_slitPlane)
-  have hr := (Complex.reCLM.hasFDerivAt.comp_hasDerivAt t hlog).add_const (Real.log ‖f z‖)
-  have hge : ∀ᶠ u : ℝ in 𝓝 t, g (u:ℂ) ≠ 0 := hg.comp_ofReal.continuousAt.eventually_ne hn
-  have hfun : (fun u : ℝ => Real.log ‖f ((x:ℂ)+(u:ℂ)*I)‖) =ᶠ[𝓝 t]
-      (fun u : ℝ => (Complex.log (g (u:ℂ)/f z)).re + Real.log ‖f z‖) := by
-    filter_upwards [hge] with u hu
-    change Real.log ‖g (u:ℂ)‖ = _
-    rw [Complex.log_re,norm_div,Real.log_div (norm_ne_zero_iff.mpr hu) (norm_ne_zero_iff.mpr hn)]
-    ring
-  apply (hr.congr_of_eventuallyEq hfun).congr_deriv
-  change (((deriv f z*I/f z) / (g (t:ℂ)/f z))).re = _
-  rw [he, div_one, mul_div_right_comm, Complex.mul_I_re]
+  have hnorm := hasDerivAt_real_log_norm hg.comp_ofReal hn
+  apply hnorm.congr_deriv
+  rw [mul_div_right_comm, Complex.mul_I_re]
 
 private theorem hasDerivAt_rectangle_integral {F D : ℝ → ℝ → ℝ} {T a b : ℝ} {J : Set ℝ}
     (hab : a≤b) (hj : J∈𝓝 T) (hc : IsCompact J)

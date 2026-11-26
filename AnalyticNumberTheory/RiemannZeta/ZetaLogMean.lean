@@ -7,6 +7,17 @@ open Complex Set Metric
 open AnalyticNumberTheory.AnalyticTools.ComplexAnalysis
 namespace AnalyticNumberTheory.RiemannZeta
 
+/-- On the line Re(s)=2 the zeta modulus lies between one half and two,
+so the absolute logarithm of the modulus is bounded by log 2. -/
+theorem abs_log_norm_zeta_two_le (t : ℝ) :
+    |Real.log ‖riemannZeta ((2 : ℂ)+(t : ℂ)*I)‖| ≤ Real.log 2 := by
+  have hlo : (2:ℝ)⁻¹ ≤ ‖riemannZeta ((2 : ℂ)+(t : ℂ)*I)‖ := by
+    convert norm_riemannZeta_ge_of_one_lt_re (by norm_num : (1:ℝ)<2) t using 1 <;> norm_num
+  have hhi : ‖riemannZeta ((2 : ℂ)+(t : ℂ)*I)‖ ≤ 2 := by
+    convert norm_riemannZeta_le_of_one_lt_re (by norm_num : (1:ℝ)<2) t using 1 <;> norm_num
+  exact abs_le.mpr ⟨(Real.log_inv _).symm.le.trans (Real.log_le_log (by norm_num) hlo),
+    Real.log_le_log (by linarith) hhi⟩
+
 private theorem logMean_disk_geometry {T : ℝ} {z : ℂ}
     (hz : z ∈ closedBall (2+(T:ℂ)*I) (7/4)) :
     1/4 ≤ z.re ∧ T-7/4 ≤ z.im ∧ z.im ≤ T+7/4 := by
@@ -88,14 +99,7 @@ theorem zeta_horizontalLogMean_bound :
   have H := HC (f:=riemannZeta) (T:=T) (M:=K*(T+4))
     (one_le_mul_of_one_le_of_one_le hK (by linarith))
     (analyticOnNhd_zeta_logMean hT) (riemannZeta_ne_zero_of_one_lt_re (by simp)) (HK hT) hsep
-  have hcl : (2:ℝ)⁻¹ ≤ ‖riemannZeta c‖ := by
-    convert norm_riemannZeta_ge_of_one_lt_re (by norm_num : (1:ℝ)<2) T using 1 <;> norm_num [c]
-  have hcu : ‖riemannZeta c‖ ≤ 2 := by
-    convert norm_riemannZeta_le_of_one_lt_re (by norm_num : (1:ℝ)<2) T using 1 <;> norm_num [c]
-  have hlogc : |Real.log ‖riemannZeta c‖| ≤ Real.log 2 := by
-    apply abs_le.mpr
-    exact ⟨(Real.log_inv _).symm.le.trans (Real.log_le_log (by norm_num) hcl),
-      Real.log_le_log (by linarith) hcu⟩
+  have hlogc : |Real.log ‖riemannZeta c‖| ≤ Real.log 2 := abs_log_norm_zeta_two_le T
   change |horizontalLogMean riemannZeta T| ≤ C*(|Real.log ‖riemannZeta c‖|+Real.log (K*(T+4))) at H
   rw [Real.log_mul hk₀.ne' (by linarith)] at H
   have htlog := Real.log_nonneg (by linarith : 1 ≤ T+4)

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.GrosswaldError
 import AnalyticNumberTheory.PrimeDistribution.GoldstonTruncation
 import AnalyticNumberTheory.PrimeDistribution.GoldstonShortIntervals
 import AnalyticNumberTheory.PrimeDistribution.ChebyshevMeanSquare
@@ -602,6 +603,31 @@ $$`\sum_{|\Im\rho|\le T}\frac{m_\rho}{|\rho|}\ll(\log T)^2.`
 $$`\mathrm{RH}\quad\Longleftrightarrow\quad\psi(x)=x+O\!\left(\sqrt{x}(\log x)^2\right).`
 
 {docstring riemannHypothesisProp_iff_psi_error_isBigO_sqrt_log_sq}
+
+# 零点实部上确界处的 Grosswald 估计
+%%%
+tag := "grosswald-prime-error"
+file := "grosswald-error"
+%%%
+
+{index}[Grosswald 误差估计]设 $`\Theta` 为 ζ 函数非平凡零点实部的上确界。只要 $`\Theta>\tfrac12`，对所有实数 $`x\ge2` 就有
+$$`|\psi(x)-x|\le C x^\Theta.`
+与{ref "von-koch-error"}[von Koch 的误差界]相比，两个对数因子都可以去掉。这里假设的是 $`\Theta` 严格大于 $`\tfrac12`。
+
+{docstring grosswald_abs_psi_sub_id_le}
+
+{docstring psi_error_isBigO_zetaSupRe_of_half_lt}
+
+取 $`\tfrac12<a<\Theta`，按实部将显式公式中的零点分开。由{ref "ingham-zeta-density"}[Ingham 密度定理]，$`\Re\rho\ge a` 的零点计数至多为 $`C_a T^{3(1-a)/(2-a)}(\log T)^8`。幂指数严格小于一，因此把高度分成 $`[2^j,2^{j+1}]` 后，带权 $`1/|\rho|` 的各段有可求和的几何上界。这给出计入重数的绝对收敛
+$$`\sum_{\Re\rho\ge a}\frac{m_\rho}{|\rho|}<\infty.`
+
+{docstring summable_zeroMultiplicity_div_norm_right}
+
+{docstring AnalyticNumberTheory.AnalyticTools.Summation.reciprocal_height_sum_le_of_sublinear}
+
+对这些较靠右的零点，逐项用 $`|x^\rho|\le x^\Theta`。其余零点满足 $`|x^\rho|\le x^a`，总贡献为 $`O(x^a(\log x)^2)=O(x^\Theta)`。再结合振荡定理给出的反向约束，$`\Theta` 本身就是素数定理误差所容许的最小幂次。
+
+{docstring isLeast_psi_error_exponents_of_half_lt}
 
 # 普通素数计数的平方根误差
 %%%

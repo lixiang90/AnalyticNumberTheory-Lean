@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.LogPowerBounds
 import AnalyticNumberTheory.DirichletSeries.Uniqueness
 import AnalyticNumberTheory.DirichletSeries.Operations
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
@@ -94,47 +95,6 @@ private def mellinKernel (g : ℝ → ℝ) (k : ℕ) (z : ℂ) (t : ℝ) : ℂ :
 private def mellinIntegralK (g : ℝ → ℝ) (x₀ : ℝ) (k : ℕ) (z : ℂ) : ℂ :=
   ∫ t in Set.Ioi x₀, mellinKernel g k z t
 
-private lemma log_pow_le_rpow_mul_const (k : ℕ) {δ : ℝ} (hδ : 0 < δ) {t : ℝ} (ht : 1 ≤ t) :
-    (Real.log t) ^ k ≤ ((k : ℝ) / δ) ^ k * t ^ δ := by
-  have hlog : 0 ≤ Real.log t := Real.log_nonneg ht
-  rcases Nat.eq_zero_or_pos k with rfl | hk
-  · simpa using Real.one_le_rpow ht hδ.le
-  · set y := δ * Real.log t
-    have hy : 0 ≤ y := mul_nonneg hδ.le hlog
-    have hkpos : (0 : ℝ) < k := Nat.cast_pos.mpr hk
-    set u := y / (k : ℝ)
-    have hu : 0 ≤ u := div_nonneg hy hkpos.le
-    have hexp_u : u ≤ Real.exp u := by linarith [Real.add_one_le_exp u]
-    have hpow : u ^ k ≤ (Real.exp u) ^ k := pow_le_pow_left₀ hu hexp_u k
-    have hrexp : (Real.exp u) ^ k = Real.exp y := by
-      rw [← Real.exp_nat_mul]
-      congr 1
-      dsimp [u]
-      field_simp [hkpos.ne']
-    have hyk : y ^ k ≤ (k : ℝ) ^ k * Real.exp y := by
-      calc
-        y ^ k = ((k : ℝ) * u) ^ k := by
-          congr 1
-          dsimp [u]
-          field_simp [hkpos.ne']
-        _ = (k : ℝ) ^ k * u ^ k := mul_pow _ _ _
-        _ ≤ (k : ℝ) ^ k * Real.exp y :=
-          mul_le_mul_of_nonneg_left (hpow.trans_eq hrexp) (pow_nonneg hkpos.le _)
-    calc
-      (Real.log t) ^ k = (y / δ) ^ k := by
-        congr 1
-        dsimp [y]
-        field_simp [hδ.ne']
-      _ = y ^ k / δ ^ k := div_pow _ _ _
-      _ ≤ ((k : ℝ) ^ k * Real.exp y) / δ ^ k :=
-        div_le_div_of_nonneg_right hyk (pow_nonneg hδ.le _)
-      _ = ((k : ℝ) / δ) ^ k * Real.exp (δ * Real.log t) := by
-        rw [div_pow]
-        dsimp [y]
-        ring
-      _ = ((k : ℝ) / δ) ^ k * t ^ δ := by
-        rw [Real.rpow_def_of_pos (lt_of_lt_of_le zero_lt_one ht), mul_comm (Real.log t) δ]
-
 private lemma norm_mellinKernel_le {x₀ : ℝ} (hx₀ : 0 < x₀) {g : ℝ → ℝ}
     (hg_nonneg : ∀ t ∈ Set.Ioi x₀, 0 ≤ g t) (k : ℕ)
     {σ₁ σ₂ v : ℝ} (hv : 0 < v) {w : ℂ} (hw₁ : σ₁ + v ≤ w.re) (hw₂ : w.re ≤ σ₂)
@@ -159,7 +119,7 @@ private lemma norm_mellinKernel_le {x₀ : ℝ} (hx₀ : 0 < x₀) {g : ℝ → 
   by_cases ht1 : 1 ≤ t
   · have hlog : |Real.log t| ^ k ≤ ((k : ℝ) / v) ^ k * t ^ v := by
       rw [abs_of_nonneg (Real.log_nonneg ht1)]
-      exact log_pow_le_rpow_mul_const k hv ht1
+      exact AnalyticNumberTheory.AnalyticTools.log_pow_le_rpow_mul_const k hv ht1
     have hrpow : t ^ (-w.re - 1) ≤ t ^ (-(σ₁ + v) - 1) :=
       Real.rpow_le_rpow_of_exponent_le ht1 (by linarith)
     have hsplit : t ^ v * t ^ (-(σ₁ + v) - 1) = t ^ (-σ₁ - 1) := by

@@ -38,7 +38,9 @@ theorem exponentialSeries_mul_conj {ι κ : Type*}
   rw [map_mul, ← character_mul_conj]
   ring
 
-private lemma tsum_equal_frequency {ι : Type*} (ω : ι → ℝ) (hω : Function.Injective ω)
+/-- For an injective frequency, the sum over equal-frequency pairs reduces
+to the diagonal sum, under absolute summability of the pair weights. -/
+theorem tsum_equal_frequency {ι : Type*} (ω : ι → ℝ) (hω : Function.Injective ω)
     (P : ι × ι → ℂ) (hP : Summable (fun p => ‖P p‖)) :
     (∑' p : ι × ι, if ω p.1 - ω p.2 = 0 then P p else 0) = ∑' j, P (j,j) := by
   let f (p : ι × ι) : ℂ := if ω p.1 - ω p.2 = 0 then P p else 0

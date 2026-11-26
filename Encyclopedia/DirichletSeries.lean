@@ -257,6 +257,41 @@ $$`\lim_{T\to\infty}\frac{1}{2T}\int_{-T}^{T}|F(\sigma+it)|^2\,dt
 
 {docstring DirichletFrequency.tendsto_vertical_mean_square}
 
+# 移动区间上的系数反演与混合均值
+%%%
+tag := "moving-vertical-means"
+file := "moving-vertical-means"
+%%%
+
+在{ref "general-dirichlet-vertical-means"}[竖直均值公式]中，积分区间可以随参数移动。设 $`L=Y-X>0`、$`m=(X+Y)/2`。单个频率的平均为
+
+$$`\frac1L\int_X^Y e^{irt}\,dt=e^{irm}\operatorname{sinc}(rL/2).`
+
+其中 $`\operatorname{sinc} v=\sin(v)/v`，在零点取值为 $`1`。平移只改变模长为一的相位。只要 $`Y-X\to\infty`，每个非零频率的均值都趋于零。因此以下公式可以用于 $`[T^2,T^2+T]`，也可以用于对称区间。
+
+{docstring AnalyticNumberTheory.AnalyticTools.intervalMean_exp}
+
+{docstring AnalyticNumberTheory.AnalyticTools.tendsto_intervalMean_expansion}
+
+若 $`A(s)=\sum_n a_ne^{-\lambda_n s}` 在 $`\Re s=\sigma` 上绝对收敛，令 $`s=\sigma+it`，则 $`A(s)e^{\lambda_k s}` 的移动区间均值趋于 $`a_k`。换成序列以外的实频率，均值趋于零。
+
+{docstring DirichletFrequency.tendsto_vertical_interval_frequency_mean}
+
+{docstring DirichletFrequency.tendsto_vertical_interval_coefficient}
+
+再取 $`B(s)=\sum_j b_je^{-\mu_j s}`，它在 $`\Re s=\tau` 上绝对收敛。乘积 $`A(\sigma+it)B(\tau-it)` 中的高度频率为 $`\mu_j-\lambda_n`，于是
+
+$$`\frac1L\int_X^Y A(\sigma+it)B(\tau-it)\,dt
+ \longrightarrow \sum_{\lambda_n=\mu_j}a_n b_j e^{-(\sigma+\tau)\lambda_n}.`
+
+两个指数集合互不相交时，极限为零。若两列指数相同，严格递增性使 $`\lambda_n=\lambda_j` 等价于 $`n=j`，右侧化为单一对角和。取第二列系数为第一列系数的复共轭且 $`\tau=\sigma`，便得到 $`|A(\sigma+it)|^2` 的均值。
+
+{docstring DirichletFrequency.tendsto_vertical_interval_matching_mean}
+
+{docstring DirichletFrequency.tendsto_vertical_interval_bilinear_mean}
+
+{docstring DirichletFrequency.tendsto_vertical_interval_mean_square}
+
 # 广义 Dirichlet 级数的逐项微分
 %%%
 tag := "general-dirichlet-derivatives"

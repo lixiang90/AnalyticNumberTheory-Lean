@@ -35,7 +35,9 @@ theorem symmetricMean_exp {T : ℝ} (hT : T ≠ 0) (r : ℝ) :
     push_cast
     field_simp [Complex.ofReal_ne_zero.mpr hr,hTc]
 
-private lemma sinc_frequency_limit (r : ℝ) :
+/-- The sinc factor in a symmetric frequency average tends to the indicator
+of the zero frequency. -/
+theorem tendsto_sinc_frequency (r : ℝ) :
     Tendsto (fun T : ℝ => (Real.sinc (r*T) : ℂ)) atTop (𝓝 (if r=0 then 1 else 0)) := by
   split_ifs with hr
   · simp [hr]
@@ -48,25 +50,17 @@ private lemma sinc_frequency_limit (r : ℝ) :
     simpa [div_eq_mul_inv, mul_comm] using
       div_le_div_of_nonneg_right (Real.abs_sin_le_one (r*T)) (mul_pos (abs_pos.mpr hr) hT).le
 
-/-- A symmetric mean retains precisely the total coefficient at frequency
-zero. The index can be any countable type, and equal frequencies may occur. -/
-theorem tendsto_symmetricMean_expansion {ι : Type*} [Countable ι] (c : ι → ℂ) (ω : ι → ℝ)
-    (hc : Summable (fun j => ‖c j‖)) :
-    Tendsto (symmetricMean (exponentialSeries c ω)) atTop
-      (𝓝 (∑' j, if ω j = 0 then c j else 0)) := by
-  have hlim (j : ι) : Tendsto (fun T : ℝ => c j * (Real.sinc (ω j*T) : ℂ)) atTop
-      (𝓝 (if ω j=0 then c j else 0)) := by
-    simpa only [mul_ite, mul_one, mul_zero] using (sinc_frequency_limit (ω j)).const_mul (c j)
-  have hsum := tendsto_tsum_of_dominated_convergence hc hlim (.of_forall fun T j => by
-    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
-    exact mul_le_of_le_one_right (norm_nonneg _) (Real.abs_sinc_le_one _))
-  apply hsum.congr'
-  filter_upwards [eventually_gt_atTop (0 : ℝ)] with T hT
+/-- An absolutely summable exponential expansion may be integrated term by term
+on any finite oriented interval. Repeated frequencies are allowed. -/
+theorem integral_exponentialSeries {ι : Type*} [Countable ι] (c : ι → ℂ) (ω : ι → ℝ)
+    (hc : Summable (fun j => ‖c j‖)) (x y : ℝ) :
+    (∫ t : ℝ in x..y, exponentialSeries c ω t) =
+      ∑' j, c j * ∫ t : ℝ in x..y, Complex.exp ((ω j*t : ℝ) * I) := by
   let f (j : ι) (t : ℝ) := c j * Complex.exp ((ω j*t : ℝ) * I)
   have hnorm (j : ι) (t : ℝ) : ‖f j t‖ = ‖c j‖ := by
     dsimp only [f]
     rw [norm_mul,Complex.norm_exp_ofReal_mul_I,mul_one]
-  have H : HasSum (fun j => ∫ t : ℝ in -T..T, f j t) (∫ t : ℝ in -T..T, ∑' j, f j t) := by
+  have H : HasSum (fun j => ∫ t : ℝ in x..y, f j t) (∫ t : ℝ in x..y, ∑' j, f j t) := by
     apply intervalIntegral.hasSum_integral_of_dominated_convergence (fun j _ => ‖c j‖)
     · intro j
       exact (by dsimp [f]; fun_prop : Continuous (f j)).aestronglyMeasurable
@@ -75,13 +69,28 @@ theorem tendsto_symmetricMean_expansion {ι : Type*} [Countable ι] (c : ι → 
     · exact .of_forall fun _ _ => hc
     · exact intervalIntegrable_const
     · exact .of_forall fun t _ => (hc.of_norm_bounded fun j => (hnorm j t).le).hasSum
+  change (∫ t : ℝ in x..y, ∑' j, f j t) = _
+  rw [← H.tsum_eq]
+  exact tsum_congr fun j => intervalIntegral.integral_const_mul (c j) _
+
+/-- A symmetric mean retains precisely the total coefficient at frequency
+zero. The index can be any countable type, and equal frequencies may occur. -/
+theorem tendsto_symmetricMean_expansion {ι : Type*} [Countable ι] (c : ι → ℂ) (ω : ι → ℝ)
+    (hc : Summable (fun j => ‖c j‖)) :
+    Tendsto (symmetricMean (exponentialSeries c ω)) atTop
+      (𝓝 (∑' j, if ω j = 0 then c j else 0)) := by
+  have hlim (j : ι) : Tendsto (fun T : ℝ => c j * (Real.sinc (ω j*T) : ℂ)) atTop
+      (𝓝 (if ω j=0 then c j else 0)) := by
+    simpa only [mul_ite, mul_one, mul_zero] using (tendsto_sinc_frequency (ω j)).const_mul (c j)
+  have hsum := tendsto_tsum_of_dominated_convergence hc hlim (.of_forall fun T j => by
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    exact mul_le_of_le_one_right (norm_nonneg _) (Real.abs_sinc_le_one _))
+  apply hsum.congr'
+  filter_upwards [eventually_gt_atTop (0 : ℝ)] with T hT
   change (∑' j, c j * (Real.sinc (ω j*T) : ℂ)) = _
-  unfold symmetricMean
-  change _ = (∫ t : ℝ in -T..T, ∑' j, f j t) / (2*(T : ℂ))
-  rw [← H.tsum_eq, ← tsum_div_const]
+  rw [symmetricMean, integral_exponentialSeries c ω hc, ← tsum_div_const]
   apply tsum_congr
   intro j
-  unfold f
-  rw [intervalIntegral.integral_const_mul, mul_div_assoc, ← symmetricMean, symmetricMean_exp hT.ne']
+  rw [mul_div_assoc, ← symmetricMean, symmetricMean_exp hT.ne']
 
 end AnalyticNumberTheory.AnalyticTools

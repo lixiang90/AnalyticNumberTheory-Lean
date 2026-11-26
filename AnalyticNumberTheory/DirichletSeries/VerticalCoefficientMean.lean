@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.AnalyticTools.ExponentialMeans
+import AnalyticNumberTheory.AnalyticTools.IntervalMeans
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
 
 /-! # Coefficient recovery by vertical means of general Dirichlet series -/
@@ -28,11 +28,13 @@ theorem AbsConvergesAt.vertical_expansion (h : F.AbsConvergesAt a (σ : ℂ)) (u
   push_cast
   ring
 
-/-- The symmetric vertical mean at an arbitrary real frequency `u` recovers
-the matching coefficient and vanishes when `u` is outside the frequency sequence. -/
-theorem tendsto_vertical_frequency_mean (h : F.AbsConvergesAt a (σ : ℂ)) (u : ℝ) :
-    Tendsto (symmetricMean (fun t : ℝ =>
-      F.sum a ((σ : ℂ) + t * I) * Complex.exp (((σ : ℂ) + t * I) * u))) atTop
+/-- On any sequence or family of growing intervals, the vertical mean at a
+frequency recovers its coefficient and vanishes at an absent frequency. -/
+theorem tendsto_vertical_interval_frequency_mean {α : Type*} {l : Filter α}
+    (h : F.AbsConvergesAt a (σ : ℂ)) (u : ℝ) (x y : α → ℝ)
+    (hlen : Tendsto (fun k => y k - x k) l atTop) :
+    Tendsto (fun k => intervalMean (fun t : ℝ =>
+      F.sum a ((σ : ℂ) + t * I) * Complex.exp (((σ : ℂ) + t * I) * u)) (x k) (y k)) l
       (𝓝 (∑' n, if F n = u then a n else 0)) := by
   let c (n : ℕ) := a n * (Real.exp (σ * (u-F n)) : ℂ)
   let ω (n : ℕ) := u - F n
@@ -44,7 +46,7 @@ theorem tendsto_vertical_frequency_mean (h : F.AbsConvergesAt a (σ : ℂ)) (u :
       mul_assoc, ← Real.exp_add]
     congr 2
     ring
-  have H := tendsto_symmetricMean_expansion c ω hc
+  have H := tendsto_intervalMean_expansion c ω hc x y hlen
   have hg : (∑' n, if ω n = 0 then c n else 0) = (∑' n, if F n = u then a n else 0) := by
     apply tsum_congr
     intro n
@@ -57,6 +59,28 @@ theorem tendsto_vertical_frequency_mean (h : F.AbsConvergesAt a (σ : ℂ)) (u :
     exact h.vertical_expansion u t
   rw [hfun]
   exact H
+
+/-- Bohr's formula for a specified coefficient on intervals with arbitrary
+endpoints whose difference tends to infinity. -/
+theorem tendsto_vertical_interval_coefficient {α : Type*} {l : Filter α}
+    (h : F.AbsConvergesAt a (σ : ℂ)) (n : ℕ) (x y : α → ℝ)
+    (hlen : Tendsto (fun k => y k - x k) l atTop) :
+    Tendsto (fun k => intervalMean (fun t : ℝ =>
+      F.sum a ((σ : ℂ) + t * I) * Complex.exp (((σ : ℂ) + t * I) * F n)) (x k) (y k)) l (𝓝 (a n)) := by
+  simpa only [F.strictMono.injective.eq_iff, tsum_ite_eq] using
+    tendsto_vertical_interval_frequency_mean h (F n) x y hlen
+
+/-- The symmetric vertical mean at an arbitrary real frequency `u` recovers
+the matching coefficient and vanishes when `u` is outside the frequency sequence. -/
+theorem tendsto_vertical_frequency_mean (h : F.AbsConvergesAt a (σ : ℂ)) (u : ℝ) :
+    Tendsto (symmetricMean (fun t : ℝ =>
+      F.sum a ((σ : ℂ) + t * I) * Complex.exp (((σ : ℂ) + t * I) * u))) atTop
+      (𝓝 (∑' n, if F n = u then a n else 0)) := by
+  have hlen : Tendsto (fun T : ℝ => T - -T) atTop atTop := by
+    simpa only [id_eq, sub_neg_eq_add, two_mul] using
+      (tendsto_id.const_mul_atTop (by norm_num : (0 : ℝ) < 2))
+  simpa only [id_eq, intervalMean_neg_self] using
+    tendsto_vertical_interval_frequency_mean h u (fun T => -T) id hlen
 
 /-- Bohr's coefficient formula on every line of absolute convergence,
 including a boundary line if the series is absolutely convergent there. -/

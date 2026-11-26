@@ -318,6 +318,39 @@ private lemma differentiableOn_mellinIntegral {x₀ : ℝ} (hx₀ : 0 < x₀) {g
     DifferentiableOn ℂ (mellinIntegralK g x₀ 0) {z : ℂ | σ₀ < z.re} :=
   fun _ hz => (hasDerivAt_mellinIntegralK hx₀ hg_nonneg hg_int 0 hz).differentiableAt.differentiableWithinAt
 
+/-- The Mellin integral of a signed measurable density is holomorphic in the
+open half-plane where all of its real absolute moments converge. -/
+theorem differentiableOn_mellin_of_abs_integrable {a σ₀ : ℝ} (ha : 0 < a) {g : ℝ → ℝ}
+    (hm : Measurable g) (hi : ∀ σ : ℝ, σ₀ < σ →
+      IntegrableOn (fun x : ℝ => |g x| * x^(-σ-1)) (Ioi a)) :
+    DifferentiableOn ℂ (fun s : ℂ => ∫ x in Ioi a, (g x:ℂ)*(x:ℂ)^(-s-1))
+      {s : ℂ | σ₀ < s.re} := by
+  let p (x : ℝ) := |g x|
+  let q (x : ℝ) := |g x|-g x
+  have hq (x : ℝ) : 0 ≤ q x := sub_nonneg.mpr (le_abs_self _)
+  have hqi (σ : ℝ) (hσ : σ₀ < σ) : IntegrableOn (fun x : ℝ => q x*x^(-σ-1)) (Ioi a) := by
+    apply ((hi σ hσ).const_mul 2).mono'
+      ((((continuous_abs.measurable.comp hm).sub hm).mul (measurable_id.pow_const (-σ-1))).aestronglyMeasurable)
+    filter_upwards [ae_restrict_mem (μ := volume) measurableSet_Ioi] with x hx
+    have hx₀ := ha.trans hx
+    change |q x*x^(-σ-1)| ≤ 2*(|g x| * x^(-σ-1))
+    rw [abs_of_nonneg (mul_nonneg (hq x) (Real.rpow_nonneg hx₀.le _))]
+    dsimp only [q]
+    have hn : -g x ≤ |g x| := neg_le_abs _
+    nlinarith [mul_le_mul_of_nonneg_right hn (Real.rpow_nonneg hx₀.le (-σ-1))]
+  have hp := differentiableOn_mellinIntegral (g := p) ha (fun x _ => abs_nonneg _) hi
+  have hn := differentiableOn_mellinIntegral (g := q) ha (fun x _ => hq x) hqi
+  apply (hp.sub hn).congr
+  intro s hs
+  have ip := integrableOn_mellinKernel (g := p) ha (fun x _ => abs_nonneg _) hi 0 hs
+  have iq := integrableOn_mellinKernel (g := q) ha (fun x _ => hq x) hqi 0 hs
+  change _ = (∫ x in Ioi a, mellinKernel p 0 s x) - ∫ x in Ioi a, mellinKernel q 0 s x
+  rw [←integral_sub ip iq]
+  apply setIntegral_congr_fun measurableSet_Ioi
+  intro x _
+  simp only [mellinKernel,p,q,pow_zero,mul_one,Complex.ofReal_sub]
+  ring
+
 private lemma iteratedDeriv_mellinIntegral {x₀ : ℝ} (hx₀ : 0 < x₀) {g : ℝ → ℝ}
     (hg_nonneg : ∀ t ∈ Set.Ioi x₀, 0 ≤ g t) {σ₀ : ℝ}
     (hg_int : ∀ σ : ℝ, σ₀ < σ →
@@ -2752,6 +2785,35 @@ theorem psi_sub_id_omega_supRe :
 def mertensM (x : ℝ) : ℝ :=
   ∑ n ∈ Finset.Icc 1 ⌊x⌋₊, (ArithmeticFunction.moebius n : ℝ)
 
+/-- For Re(s) > 1 the absolutely convergent Mellin integral of M(x) equals 1/(sζ(s)). -/
+theorem mertensM_mellin_of_one_lt : ∀ s : ℂ, 1 < s.re →
+      IntegrableOn (fun t : ℝ => (mertensM t : ℂ) * (t : ℂ) ^ (-s - 1)) (Set.Ioi 1) ∧
+        IntegrableOn (fun t : ℝ => |mertensM t| * t ^ (-s.re - 1)) (Set.Ioi 1) ∧
+        ∫ t in Set.Ioi (1 : ℝ), (mertensM t : ℂ) * (t : ℂ) ^ (-s - 1) =
+          (s * riemannZeta s)⁻¹ := by
+  have hμ_sum : ∀ s : ℂ, 1 < s.re →
+      LSeriesSummable (fun n => ((ArithmeticFunction.moebius n : ℝ) : ℂ)) s := by
+    intro s hs
+    have hμ := LSeriesSummable_moebius_iff.mpr hs
+    exact hμ.congr fun n => by simp [LSeries.term]
+  have hμ0 : (ArithmeticFunction.moebius 0 : ℝ) = 0 := by simp
+  intro s hs
+  have hm := mellin_partialSum_eq_LSeries_div hμ0 (by linarith) (hμ_sum s hs)
+  refine ⟨hm.1, hm.2.1, ?_⟩
+  have hm2 := hm.2.2
+  have hls : LSeries (fun n => ((ArithmeticFunction.moebius n : ℝ) : ℂ)) s =
+      LSeries (fun n => ((ArithmeticFunction.moebius n : ℤ) : ℂ)) s := by
+    simp
+  rw [hls] at hm2
+  have hinv := LSeries_moebius_eq_inv_riemannZeta hs
+  have hM_eq : ∫ t in Set.Ioi (1 : ℝ), (mertensM t : ℂ) * (t : ℂ) ^ (-s - 1) =
+      ∫ t in Set.Ioi (1 : ℝ),
+        ((∑ n ∈ Finset.Icc 1 ⌊t⌋₊, (ArithmeticFunction.moebius n : ℝ) : ℝ) : ℂ) * (t : ℂ) ^ (-s - 1) := rfl
+  rw [hM_eq, hm2]
+  change LSeries (fun n => ((ArithmeticFunction.moebius n : ℤ) : ℂ)) s / s = (s * riemannZeta s)⁻¹
+  rw [show LSeries (fun n => ((ArithmeticFunction.moebius n : ℤ) : ℂ)) s = (riemannZeta s)⁻¹ from hinv]
+  rw [div_eq_mul_inv, mul_inv, mul_comm]
+
 private lemma mertensM_one_side {ρ : ℂ} (hρ : riemannZeta ρ = 0)
     (hre0 : 0 < ρ.re) (hre1 : ρ.re < 1)
     {C : ℝ} (hC : 0 < C) (hC_lt : C * (‖ρ‖ * ‖deriv riemannZeta ρ‖) < 1)
@@ -2771,33 +2833,7 @@ private lemma mertensM_one_side {ρ : ℂ} (hρ : riemannZeta ρ = 0)
     intro t ht
     dsimp [g]
     linarith [hX₀_bound t ht.le]
-  have hμ_sum : ∀ s : ℂ, 1 < s.re →
-      LSeriesSummable (fun n => ((ArithmeticFunction.moebius n : ℝ) : ℂ)) s := by
-    intro s hs
-    have hμ := LSeriesSummable_moebius_iff.mpr hs
-    exact hμ.congr fun n => by simp [LSeries.term]
-  have hμ0 : (ArithmeticFunction.moebius 0 : ℝ) = 0 := by simp
-  have hM_mellin : ∀ s : ℂ, 1 < s.re →
-      IntegrableOn (fun t : ℝ => (mertensM t : ℂ) * (t : ℂ) ^ (-s - 1)) (Set.Ioi 1) ∧
-        IntegrableOn (fun t : ℝ => |mertensM t| * t ^ (-s.re - 1)) (Set.Ioi 1) ∧
-        ∫ t in Set.Ioi (1 : ℝ), (mertensM t : ℂ) * (t : ℂ) ^ (-s - 1) =
-          (s * riemannZeta s)⁻¹ := by
-    intro s hs
-    have hm := mellin_partialSum_eq_LSeries_div hμ0 (by linarith) (hμ_sum s hs)
-    refine ⟨hm.1, hm.2.1, ?_⟩
-    have hm2 := hm.2.2
-    have hls : LSeries (fun n => ((ArithmeticFunction.moebius n : ℝ) : ℂ)) s =
-        LSeries (fun n => ((ArithmeticFunction.moebius n : ℤ) : ℂ)) s := by
-      simp
-    rw [hls] at hm2
-    have hinv := LSeries_moebius_eq_inv_riemannZeta hs
-    have hM_eq : ∫ t in Set.Ioi (1 : ℝ), (mertensM t : ℂ) * (t : ℂ) ^ (-s - 1) =
-        ∫ t in Set.Ioi (1 : ℝ),
-          ((∑ n ∈ Finset.Icc 1 ⌊t⌋₊, (ArithmeticFunction.moebius n : ℝ) : ℝ) : ℂ) * (t : ℂ) ^ (-s - 1) := rfl
-    rw [hM_eq, hm2]
-    change LSeries (fun n => ((ArithmeticFunction.moebius n : ℤ) : ℂ)) s / s = (s * riemannZeta s)⁻¹
-    rw [show LSeries (fun n => ((ArithmeticFunction.moebius n : ℤ) : ℂ)) s = (riemannZeta s)⁻¹ from hinv]
-    rw [div_eq_mul_inv, mul_inv, mul_comm]
+  have hM_mellin := @mertensM_mellin_of_one_lt
   have hg_int_sigma : ∀ {σ : ℝ}, 1 < σ →
       IntegrableOn (fun t : ℝ => g t * t ^ (-σ - 1)) (Set.Ioi 1) := by
     intro σ hσ

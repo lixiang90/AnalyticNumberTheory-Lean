@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.RiemannZeta.MoebiusDirichletSeries
+import AnalyticNumberTheory.PrimeDistribution.WeakMertensZeros
 import AnalyticNumberTheory.RiemannZeta.OneLineUnderRH
 import VersoManual
 
@@ -128,3 +129,29 @@ file := "moebius-series"
 {docstring tendsto_moebiusDirichletPartialSum_of_rh}
 
 {docstring moebiusDirichletSeries_conditionally_convergent_of_rh}
+
+# 弱 Mertens 假设与单零点
+%%%
+tag := "weak-mertens-zeros"
+file := "weak-mertens"
+%%%
+
+{index}[弱 Mertens 假设]设 $`M(x)=\sum_{n\le x}\mu(n)`。弱 Mertens 假设要求
+$$`\int_1^X\left(\frac{M(x)}{x}\right)^2\,dx=O(\log X).`
+令 $`x=e^u`，左边就是归一化函数 $`e^{-u/2}M(e^u)` 在 $`[0,\log X]` 上的平方积分。这一均方界蕴含黎曼猜想，而且每个非平凡零点的解析重数都等于一。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.WeakMertensHypothesis}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.WeakMertensHypothesis.riemannHypothesis}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.WeakMertensHypothesis.simple_zeros}
+
+令 $`H(s)=\int_1^\infty M(x)x^{-s-1}\,dx`。均方假设先给出 $`\int_1^X |M(x)|x^{-3/2}\,dx=O(1+\log X)`。乘上递减权 $`x^{-\delta}` 后，积分第二中值定理给出统一常数 $`B,C>0`，使对每个 $`\delta>0` 都有
+$$`\int_1^\infty |M(x)|x^{-3/2-\delta}\,dx\le B+\frac{C}{\delta}.`
+因此 $`H` 在 $`\Re s>1/2` 全纯。由 $`\Re s>1` 上的 Möbius 级数恒等式和解析延拓，$`s\zeta(s)H(s)=1` 在这个半平面中除极点 $`1` 外处处成立。这就排除了临界线右侧的零点。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.WeakMertensHypothesis.absolute_mellin_bound}
+
+设 $`\rho` 是非平凡零点。从右侧令 $`s=\rho+\delta` 趋于 $`\rho`，有 $`\zeta(\rho+\delta)/\delta\to\zeta'(\rho)`，而 $`\delta|H(\rho+\delta)|\le B\delta+C`。在乘积恒等式中取极限，得到 $`1\le C|\rho\zeta'(\rho)|`。同一个常数适用于所有零点，因此每个零点的导数都非零。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.WeakMertensHypothesis.uniform_deriv_lower_bound}

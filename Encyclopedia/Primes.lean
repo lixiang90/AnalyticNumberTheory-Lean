@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.FullPerronContour
 import AnalyticNumberTheory.PrimeDistribution.TrivialZeroTerm
 import AnalyticNumberTheory.PrimeDistribution.SymmetricExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.IntegratedExplicitFormula
@@ -257,3 +258,33 @@ $$`\lim_{h\downarrow0}\sum_\rho
 {docstring AnalyticNumberTheory.AnalyticTools.tendsto_symmetricPole}
 
 {docstring exists_tendsto_symmetric_nontrivial_midpointPsi}
+
+# 完整 Perron 矩形中的极点和零点
+%%%
+tag := "full-zeta-perron-contour"
+file := "full-zeta-perron-contour"
+%%%
+
+{index}[ζ 函数的完整 Perron 矩形]取 $`x>0`，沿左右边界为 $`-2N-1` 和 $`2`、上下边界为 $`\pm T` 的矩形正向积分。假定 $`T>0` 与非平凡零点的纵坐标绝对值都不相等。矩形内有极点 $`1`、原点、前 $`N` 个负偶整数，以及 $`|\Im\rho|\le T` 的所有非平凡零点。
+
+{docstring zetaRectangleZeros}
+
+{docstring mem_zetaRectangleZeros_iff}
+
+对 $`F_x(s)=-(\zeta'/\zeta)(s)x^s/s` 应用{ref "rectangular-simple-residues"}[矩形留数定理]，得
+
+$$`\frac1{2\pi i}\int_{\partial R}F_x(s)\,ds=x-\log(2\pi)
+-\sum_{|\Im\rho|\le T}m_\rho\frac{x^\rho}{\rho}
+-\sum_{m=1}^N\frac{x^{-2m}}{-2m}.`
+
+{docstring rectangleBoundary_zetaPerron}
+
+第一项来自 $`s=1`，第二项来自 Perron 核在 $`s=0` 的极点。非平凡零点按解析重数计数，负偶整数都是单零点。例如把左边界从 $`-3` 移到 $`-5` 时，新收入的零点是 $`-4`，归一化围道积分因它增加 $`x^{-4}/4`。这个有限等式允许独立选择 $`x,T,N`。
+
+{docstring zetaPerron_principalPart_one}
+
+{docstring zetaPerron_principalPart_zero}
+
+{docstring zetaPerron_principalPart_at_zero}
+
+{docstring zeroMultiplicity_trivialZetaZero}

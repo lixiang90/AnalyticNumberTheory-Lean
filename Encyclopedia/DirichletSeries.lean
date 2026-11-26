@@ -3,6 +3,8 @@ import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.FrequencyUniqueness
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
+import AnalyticNumberTheory.DirichletSeries.CahenPrefixes
+import AnalyticNumberTheory.DirichletSeries.CahenTails
 import AnalyticNumberTheory.DirichletSeries.FrequencyMeanValues
 import AnalyticNumberTheory.DirichletSeries.EventualLandau
 import AnalyticNumberTheory.DirichletSeries.OrdinaryAbel
@@ -91,6 +93,42 @@ $$`\sum_{x<n\le y}a_n n^{-s}
 {docstring dirichletPartialSum_sub_eq_coeffPartialSum_integral}
 
 取 $`x=1`、$`y=2`，即使 $`a_1\ne0`，左边也只留下 $`a_2 2^{-s}`。右边积分区间内部的 $`B(t)=a_1`，其贡献与边界项中含 $`a_1` 的部分恰好抵消。
+
+# Cahen 公式与收敛横坐标
+%%%
+tag := "cahen-convergence-abscissa"
+file := "cahen-convergence-abscissa"
+%%%
+
+怎样从系数直接读出{ref "general-dirichlet-convergence"}[收敛横坐标]？设 $`0\le\lambda_0<\lambda_1<\cdots` 且 $`\lambda_n\to\infty`，令 $`P_n=\sum_{k=0}^n a_k`。当系数级数 $`\sum a_k` 发散时，{index}[Cahen 公式]给出
+
+$$`\sigma_c=\limsup_{n\to\infty}\frac{\log|P_n|}{\lambda_n}.`
+
+部分和包含第 $`n` 项，所以分母是最后纳入的指数 $`\lambda_n`。增长率取扩展实数值，并约定零项的对数为 $`-\infty`。当增长率为 $`+\infty` 时，级数在每个复数点都发散。
+
+{docstring DirichletFrequency.exponentialRate}
+
+{docstring DirichletFrequency.abscissa_eq_exponentialRate_prefix}
+
+若系数级数收敛到 $`S`，取余项 $`R_n=S-\sum_{k<n}a_k`。此时分母取第一个遗漏的指数，即使相邻指数的间距很大，公式仍为
+
+$$`\sigma_c=\limsup_{n\to\infty}\frac{\log|R_n|}{\lambda_n}.`
+
+例如取 $`\lambda_n=n+1`、$`a_n=2^{-n-1}`，则 $`S=1`、$`R_n=2^{-n}`，上式给出 $`\sigma_c=-\log 2`。若系数只有有限个非零项，余项最终恒为零，横坐标为 $`-\infty`。
+
+{docstring DirichletFrequency.abscissa_eq_exponentialRate_tail}
+
+余项估计来自带常数项的 Abel 公式。固定 $`s_0`，写 $`A(u)=\sum_{\lambda_n\le u}a_ne^{-s_0\lambda_n}`。若 $`|A(u)-M|\le Ce^{\alpha u}`，则在 $`\Re z>\alpha` 时，
+
+$$`F(s_0+z)=M e^{-z\lambda_0}+z\int_{\lambda_0}^{\infty}(A(u)-M)e^{-zu}\,du.`
+
+取 $`s_0=0`、$`M=S` 和 $`\alpha<0`，就得到原点左侧的收敛。反过来，若在实数 $`r<0` 处的部分和被 $`C` 控制，让实截点从左侧趋近 $`\lambda_n`，可得 $`|R_n|\le 2Ce^{r\lambda_n}`（$`n\ge1`）。这一步说明了余项公式中指数的位置。
+
+{docstring DirichletFrequency.tendsto_partialSum_centered_integral}
+
+{docstring DirichletFrequency.norm_summatory_sub_sum_le_centered}
+
+{docstring DirichletFrequency.norm_tail_le_of_bounded_left}
 
 # 指数的密度与绝对收敛
 %%%

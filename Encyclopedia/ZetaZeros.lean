@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.SelbergZeroWindows
 import AnalyticNumberTheory.PrimeDistribution.ShiftedMangoldtMean
 import AnalyticNumberTheory.PrimeDistribution.ZeroTailAsymptotic
 import AnalyticNumberTheory.RiemannZeta.PoissonZeroAsymptotic
@@ -146,6 +147,33 @@ $$`F(s)=\Re\frac{\zeta'}{\zeta}(s)+\frac12\log\frac{|t|}{2\pi}
 {docstring poissonMass_sub_re_logDeriv_estimate}
 
 {docstring AnalyticNumberTheory.AnalyticTools.Gamma.abs_re_digamma_sub_log_height_le}
+
+# 临界线附近短区间中的零点数
+%%%
+tag := "inverse-loglog-zero-window"
+file := "short-zero-windows"
+%%%
+
+{index}[短区间中的零点数]在黎曼猜想下，高度 $`T` 附近宽度为 $`2/\log\log T` 的区间里有多少个零点？令 $`L=\log\log T`，则对一切充分大的实数 $`T` 有
+$$`N(T+1/L)-N(T-1/L)\ll\frac{\log T}{L}.`
+计数按解析重数进行，右端点恰为零点纵坐标时也照常计入。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.zeroCountUpTo_inverse_loglog_window_of_rh}
+
+取 $`s=\tfrac12+\delta+it` 和对数截断参数 $`u\ge1`。若 $`\delta u\ge2`，{ref "selberg-log-derivative"}[Selberg 平滑公式]中所有非平凡零点的总贡献至多为 $`e^{-\delta u}F(s)`，其中 $`F(s)` 是{ref "critical-line-poisson-mass"}[Poisson 零点和]。有限素数幂和由 Chebyshev 的上界控制。把两式结合，由 $`e^{-\delta u}\le e^{-2}` 可将含 $`F(s)` 的项移到同一边，得到
+$$`F(s)\ll e^{2u}+\log|t|,\qquad
+\left|\frac{\zeta'}{\zeta}(s)\right|\ll e^{2u}+e^{-\delta u}\log|t|.`
+估计对 $`\tfrac12<\Re s\le2`、$`|t|\ge2` 一致。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.norm_selberg_zero_sum_le}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.selberg_poissonMass_and_logDeriv_le}
+
+每个满足 $`|\gamma-t|\le\delta` 的零点在 $`F(s)` 中至少贡献 $`1/(2\delta)`。取 $`u=L/4`、$`\delta=8/L`，则 $`\delta u=2`，且 $`e^{2u}=\sqrt{\log T}`。将窗口内的每一项相加，便得到开头的零点数上界。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.sum_multiplicity_le_poissonMass}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.zeroCountUpTo_sub_le_poissonMass}
 
 # ζ 对数导数在左半平面的增长
 %%%

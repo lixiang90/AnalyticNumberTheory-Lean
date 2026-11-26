@@ -2,6 +2,8 @@ import AnalyticNumberTheory.DirichletSeries.RamachandraPolarDecay
 import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.FrequencyUniqueness
+import AnalyticNumberTheory.DirichletSeries.SpectrumUniqueness
+import AnalyticNumberTheory.DirichletSeries.SpectrumEquivalence
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
 import AnalyticNumberTheory.DirichletSeries.AbscissaExamples
 import AnalyticNumberTheory.DirichletSeries.OrdinaryCahen
@@ -216,6 +218,34 @@ $$`a_n=\lim_{t\to+\infty}e^{t\lambda_n}
 {docstring DirichletFrequency.ConvergesAt.real_remainder}
 
 {docstring DirichletFrequency.eq_of_sum_eq_on_seq}
+
+# 不同指数列的唯一性
+%%%
+tag := "uniqueness-of-exponents"
+file := "uniqueness-of-exponents"
+%%%
+
+设 $`A(s)=\sum_n a_ne^{-\lambda_n s}` 和 $`B(s)=\sum_m b_me^{-\mu_m s}` 各自至少在一个实数点有序收敛。和函数能确定哪些指数和系数？对每个实数 $`u`，将 $`c_A(u)` 定义成指数 $`u` 处的系数。若 $`u` 没有出现在指数列中，则取 $`c_A(u)=0`。
+
+{docstring DirichletFrequency.coefficientAt}
+
+若存在实数列 $`t_k\to+\infty`，使得充分大的 $`k` 满足 $`A(t_k)=B(t_k)`，则每个实数 $`u` 都满足 $`c_A(u)=c_B(u)`。若两个展开列出的系数全部非零，由于指数严格递增，两列指数和系数便逐项相同。
+
+{docstring DirichletFrequency.coefficientAt_eq_of_sum_eq}
+
+{docstring DirichletFrequency.exponents_and_coefficients_eq_of_nonzero}
+
+证明时固定截点 $`U`，合并两列中不超过 $`U` 的有限多个指数。若系数有差异，记其中最小的指数为 $`v`。两式之差乘以 $`e^{vt}` 后，更大指数的项趋于零。截点以上的余项也趋于零，因为每列第一个遗漏的指数都严格大于 $`U`。这样取得的极限既等于零，又等于 $`c_A(v)-c_B(v)`，得到矛盾。
+
+{docstring DirichletFrequency.ConvergesAt.tendsto_scaled_cutoff_remainder}
+
+例如 $`\sum_{n\ge1}e^{-2ns}` 可以用所有正整数作指数，并在奇数处填零。两种写法在每个实截点纳入的项数可以不同，截断和始终相等。一般地，实指数上的系数函数相同，两种表示就有相同的收敛点、和函数、有序收敛横坐标与绝对收敛横坐标。
+
+{docstring DirichletFrequency.summatory_eq_of_coefficientAt_eq}
+
+{docstring DirichletFrequency.convergesAt_iff_of_coefficientAt_eq}
+
+{docstring DirichletFrequency.abscissae_eq_of_coefficientAt_eq}
 
 # 竖直线上的系数反演与二次均值
 %%%

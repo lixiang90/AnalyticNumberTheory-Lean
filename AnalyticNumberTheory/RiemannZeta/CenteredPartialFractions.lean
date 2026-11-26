@@ -33,7 +33,8 @@ theorem trivialZetaZero_ne_zero (n : ℕ) : trivialZetaZero n ≠ 0 := by
   rw [norm_trivialZetaZero]
   positivity
 
-private theorem finite_trivialZetaZero_norm_le (R : ℝ) : {n | ‖trivialZetaZero n‖ ≤ R}.Finite := by
+/-- Only finitely many trivial zeros lie in any bounded disk. -/
+theorem finite_trivialZetaZero_norm_le (R : ℝ) : {n | ‖trivialZetaZero n‖ ≤ R}.Finite := by
   apply (Set.finite_Iic ⌈R⌉₊).subset
   intro n hn
   change ‖trivialZetaZero n‖ ≤ R at hn

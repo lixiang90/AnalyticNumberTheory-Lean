@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.ShiftedMangoldtMean
 import AnalyticNumberTheory.PrimeDistribution.ZeroTailAsymptotic
 import AnalyticNumberTheory.RiemannZeta.LogDerivativeLeft
 import AnalyticNumberTheory.RiemannZeta.CenteredPartialFractions
@@ -94,6 +95,31 @@ $$`-\frac{\zeta'}{\zeta}(s)=-\log(2\pi)+K_1(s)
 {docstring neg_logDeriv_riemannZeta_zero}
 
 {docstring exists_centered_logDeriv_riemannZeta}
+
+# Selberg 平滑公式
+%%%
+tag := "selberg-log-derivative"
+file := "selberg-explicit-formula"
+%%%
+
+{index}[Selberg 平滑公式]取 $`x>1`。给 $`n\le x` 的系数以权重一，给 $`x<n\le x^2` 的系数以权重 $`\log(x^2/n)/\log x`，其余系数的权重为零。记这些权重为 $`w_x(n)`。以 $`x=2` 为例，$`n=2` 的权重是一，$`n=3` 的权重是 $`\log(4/3)/\log2`，$`n=4` 的权重是零。这个有限和可以从两个截断处的{ref "integrated-explicit-formula"}[对数加权和]相减得到。
+
+{docstring AnalyticNumberTheory.DirichletSeries.logTaperedSum_eq_difference}
+
+取 $`s\ne 1` 且 $`\zeta(s)\ne0`。将{ref "centered-zeta-partial-fractions"}[对数导数的部分分式展开]平移到 $`s`，新中心处的常数就是 $`-\zeta'(s)/\zeta(s)`。对平移后的展开作 Laplace 反演，得到系数 $`\Lambda(n)n^{-s}` 的对数加权和。
+
+{docstring neg_logDeriv_riemannZeta_translate}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.logWeightedSum_shifted_vonMangoldt}
+
+写 $`K_x(z)=(x^{2z}-x^z)/(z^2\log x)`。在 $`x` 和 $`x^2` 处取差、除以 $`\log x`，便得到
+$$`-\frac{\zeta'}{\zeta}(s)=\sum_{n\le x^2}\frac{\Lambda(n)w_x(n)}{n^s}
+-K_x(1-s)+\sum_\rho K_x(\rho-s)+\sum_{m\ge1}K_x(-2m-s).`
+其中 $`\rho` 遍历所有非平凡零点，按重数计入。两个零点级数都绝对收敛。这个恒等式无需假设黎曼猜想。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.selberg_logDeriv_explicit_formula}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.summable_selberg_zero_slopes}
 
 # ζ 对数导数在左半平面的增长
 %%%

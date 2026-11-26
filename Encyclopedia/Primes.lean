@@ -181,7 +181,7 @@ $$`\Psi_1(x)=x-1-\log(2\pi)\log x
 
 {docstring exists_integrated_explicit_formula_psi}
 
-为得到这个公式，先将{ref "centered-partial-fractions"}[以原点为基点的部分分式]除以 $`s^2`。在对数坐标 $`u=\log x\ge0` 下，极点 $`\omega` 对应的逆变换是 $`(e^{\omega u}-1)/\omega^2`。这个核对整个零点族给出可逐项积分的共同上界。
+为得到这个公式，先将{ref "centered-zeta-partial-fractions"}[以原点为基点的部分分式]除以 $`s^2`。在对数坐标 $`u=\log x\ge0` 下，极点 $`\omega` 对应的逆变换是 $`(e^{\omega u}-1)/\omega^2`。这个核对整个零点族给出可逐项积分的共同上界。
 
 {docstring AnalyticNumberTheory.AnalyticTools.integratedPole}
 

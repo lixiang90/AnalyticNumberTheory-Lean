@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.RiemannZeta.MertensCancellation
+import AnalyticNumberTheory.RiemannZeta.MoebiusBoundary
 import AnalyticNumberTheory.DirichletSeries.RamachandraPolarDecay
 import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
@@ -454,3 +454,27 @@ $`|M(x)|\le Cx\exp(-\gamma\sqrt{\log x})`。这个估计来自 ζ 函数的经�
 {docstring AnalyticNumberTheory.RiemannZeta.riemannZetaInv_eq_div_zetaOne}
 
 {ref "rh-moebius-series"}[Möbius 级数的普通收敛]进一步给出收敛横坐标与黎曼猜想的关系。
+
+分部求和把上面的消去估计带到直线 $`\Re s=1`。由指数衰减，对每个固定的自然数 $`m`，充分大的 $`x` 都满足 $`|M(x)|\le x/(\log x)^m`。取 $`m=2`，便能对任意 $`s=1+it` 使用{ref "ordinary-abel-boundary"}[边界收敛准则]。部分和的极限为 ζ 函数的正则倒数。这条直线上的每一点都是条件收敛点。
+
+{docstring AnalyticNumberTheory.RiemannZeta.tendsto_moebiusDirichletPartialSum_of_re_eq_one}
+
+{docstring AnalyticNumberTheory.RiemannZeta.moebius_conditionally_converges_of_re_eq_one}
+
+具体取 $`t=0`，便得到按自然顺序求和的恒等式 $`\sum_{n=1}^{\infty}\mu(n)/n=0`。
+
+{docstring AnalyticNumberTheory.RiemannZeta.tendsto_sum_moebius_div_natCast}
+
+# Dirichlet 级数在收敛边界上的 Abel 极限
+%%%
+tag := "ordinary-abel-boundary"
+file := "abel-boundary"
+%%%
+
+{index}[Abel 边界定理]设 $`\sum a_n n^{-s}` 在点 $`s_0` 按自然次序收敛，和为 $`F(s_0)`。在其右侧沿满足 $`|s-s_0|\le K\Re(s-s_0)` 的任意固定扇形趋近 $`s_0`，都有 $`F(s)\to F(s_0)`。分部求和把右侧部分和的尾项控制在边界点尾项的 $`K` 倍以内，而有限部分和在 $`s_0` 连续。
+
+{docstring DirichletConvergesAt.tendsto_dirichletSum_of_sector}
+
+如何判断普通收敛能否到达边界？设 $`A(x)=\sum_{n\le x}a_n`。若 $`|A(x)|\le Cx/(\log x)^2` 对充分大的 $`x` 成立，分部求和的边界项 $`A(x)x^{-s}` 在 $`\Re s=1` 上趋于零，余下的积分由可积函数 $`C/(x(\log x)^2)` 控制。因此该直线的每一点都有普通收敛。
+
+{docstring dirichletConvergesAt_of_coeffPartialSum_log_sq}

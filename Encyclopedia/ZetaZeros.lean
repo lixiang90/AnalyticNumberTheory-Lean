@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.ZeroTailAsymptotic
 import AnalyticNumberTheory.RiemannZeta.LogDerivativeLeft
 import AnalyticNumberTheory.RiemannZeta.CenteredPartialFractions
 import AnalyticNumberTheory.RiemannZeta.IntegratedArgument
@@ -118,3 +119,32 @@ $$`|D(s)|\le d^{-1}+5\log(|s|+3)+C.`
 取 $`|\Im s|\ge1` 时可用 $`d=1`。取 $`\Re s=-1,-3,-5,\ldots` 时也可用 $`d=1`，即使 $`\Im s=0`。这些水平线和竖线可用作往左移动 Perron 积分时的矩形边界。
 
 {docstring norm_logDeriv_zeta_left_edges}
+
+# 正纵坐标的平方倒数尾和
+%%%
+tag := "positive-zero-reciprocal-tail"
+file := "reciprocal-square-tail"
+%%%
+
+记 $`\rho=\beta+i\gamma`，每个非平凡零点按重数计。正纵坐标超过 $`T\ge2` 的零点满足精确的分部求和公式
+
+$$`\sum_{\gamma>T}\frac{1}{\gamma^2}
+=\int_T^\infty \frac{2(N(u)-N(T))}{u^3}\,du.`
+
+对于 $`\gamma>T`，单个零点对积分的贡献是从 $`u=\gamma` 起累积的，恰为 $`1/\gamma^2`。这个写法也适用于 $`T` 本身是零点纵坐标的情形。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.positiveZeroReciprocalSquareTail_eq_integral}
+
+将 Riemann–von Mangoldt 公式代入，得到
+
+$$`\sum_{\gamma>T}\frac{1}{\gamma^2}
+=\frac{\log(T/(2\pi))+1}{2\pi T}
++O\!\left(\frac{\log T}{T^2}\right).`
+
+{docstring AnalyticNumberTheory.PrimeDistribution.positiveZeroReciprocalSquareTail_two_term}
+
+计入所有 $`\gamma=T` 的零点，只会增加该高度的总重数除以 $`T^2`。单位高度区间的零点计数为 $`O(\log T)`，所以两项展开和误差界都保留。取首项就得到 $`\sum_{\gamma\ge T}\gamma^{-2}=(\log T)/(2\pi T)+O(1/T)`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.tsum_positiveZero_div_im_sq_two_term}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.tsum_positiveZero_div_im_sq_main_term}

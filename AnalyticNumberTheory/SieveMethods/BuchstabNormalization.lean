@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.SieveMethods.BuchstabLaplace
-import Mathlib.NumberTheory.Harmonic.GammaDeriv
+import AnalyticNumberTheory.AnalyticTools.ExponentialIntegralReal
 
 /-!
 # Normalization of Buchstab's function and the linear sieve
@@ -13,66 +13,10 @@ open Filter Set MeasureTheory Real
 open scoped Topology
 namespace AnalyticNumberTheory.SieveMethods
 
-private theorem log_exp_integrable : IntegrableOn (fun t : ℝ => log t*exp (-t)) (Ioi 0) := by
-  apply Integrable.of_integral_ne_zero
-  intro hz
-  have he := Real.eulerMascheroniConstant_eq_neg_integral_log
-  rw [hz] at he
-  linarith [Real.one_half_lt_eulerMascheroniConstant]
-
-private theorem log_tail_parts {s : ℝ} (hs : 0<s) :
-    log s+(∫t in Ioi s,exp (-t)/t)=
-      (∫t in Ioi s,log t*exp (-t))+(1-exp (-s))*log s := by
-  let U := Real.log
-  let V := fun t : ℝ => exp (-t)
-  have hU (t : ℝ) (ht : t∈Ioi s) : HasDerivAt U t⁻¹ t := Real.hasDerivAt_log (hs.trans ht).ne'
-  have hV (t : ℝ) : HasDerivAt V (-exp (-t)) t := by simpa [V] using! (hasDerivAt_id' t).neg.exp
-  have h₁ : IntegrableOn (U*(fun t => -exp (-t))) (Ioi s) := by
-    simpa only [U,Pi.mul_def,mul_neg] using! (log_exp_integrable.mono_set (Ioi_subset_Ioi hs.le)).neg
-  have h₂ : IntegrableOn ((fun t : ℝ => t⁻¹)*V) (Ioi s) := by
-    apply ((integrableOn_exp_neg_Ioi s).const_mul s⁻¹).mono' (by dsimp [V,Pi.mul_def]; fun_prop)
-    filter_upwards [ae_restrict_mem (μ:=volume) measurableSet_Ioi] with t ht
-    change ‖t⁻¹*exp (-t)‖≤s⁻¹*exp (-t)
-    rw [Real.norm_eq_abs,abs_of_nonneg (by positivity [hs.trans ht])]
-    exact mul_le_mul_of_nonneg_right (inv_anti₀ hs ht.le) (exp_pos _).le
-  have hzero : Tendsto (U*V) (𝓝[>] s) (𝓝 (log s*exp (-s))) :=
-    ((Real.continuousAt_log hs.ne').mul (by fun_prop : ContinuousAt V s)).tendsto.mono_left nhdsWithin_le_nhds
-  have htop : Tendsto (U*V) atTop (𝓝 0) := by
-    apply squeeze_zero' _ _ (tendsto_rpow_mul_exp_neg_mul_atTop_nhds_zero 1 1 zero_lt_one)
-    · filter_upwards [eventually_ge_atTop (1:ℝ)] with t ht
-      exact mul_nonneg (Real.log_nonneg ht) (exp_pos _).le
-    · filter_upwards [eventually_ge_atTop (1:ℝ)] with t ht
-      change log t*exp (-t)≤t^(1:ℝ)*exp (-1*t)
-      rw [Real.rpow_one,neg_one_mul]; gcongr; linarith [Real.log_le_sub_one_of_pos (zero_lt_one.trans_le ht)]
-  have hip := integral_Ioi_mul_deriv_eq_deriv_mul hU (fun t _ => hV t) h₁ h₂ hzero htop
-  dsimp [U,V] at hip
-  simp only [mul_neg,integral_neg,←div_eq_inv_mul] at hip
-  linarith only [hip]
-
-/-- The constant term of the exponential integral at zero is −γ. -/
+/-- The small-argument Euler normalization of the exponential integral used in Buchstab's transform. -/
 theorem tendsto_log_add_expIntegral :
-    Tendsto (fun s : ℝ => log s+∫t in Ioi s,exp (-t)/t) (𝓝[>] 0) (𝓝 (-eulerMascheroniConstant)) := by
-  let f := fun t : ℝ => log t*exp (-t)
-  have hcover : AECover (volume.restrict (Ioi (0:ℝ))) (𝓝[>] 0) (fun s : ℝ => Ioi s) :=
-    aecover_Ioi_of_Ioi (tendsto_id.mono_left nhdsWithin_le_nhds)
-  have hlim : Tendsto (fun s : ℝ => ∫t in Ioi s,f t) (𝓝[>] 0) (𝓝 (-eulerMascheroniConstant)) := by
-    have h := hcover.integral_tendsto_of_countably_generated log_exp_integrable
-    rw [Real.eulerMascheroniConstant_eq_neg_integral_log,neg_neg]
-    apply h.congr'
-    filter_upwards [self_mem_nhdsWithin] with s hs
-    rw [Measure.restrict_restrict measurableSet_Ioi,inter_eq_left.mpr (Ioi_subset_Ioi (mem_Ioi.mp hs).le)]
-  have hr : Tendsto (fun s : ℝ => (1-exp (-s))*log s) (𝓝[>] 0) (𝓝 0) := by
-    apply squeeze_zero_norm' _ ((tendsto_log_mul_rpow_nhdsGT_zero (r:=1) zero_lt_one).norm)
-    filter_upwards [self_mem_nhdsWithin] with s (hs : 0<s)
-    simp only [Real.norm_eq_abs,abs_mul,Real.rpow_one]
-    have hnon : 0≤1-exp (-s) := sub_nonneg.mpr (Real.exp_le_one_iff.mpr (by linarith))
-    rw [abs_of_nonneg hnon,abs_of_pos hs,mul_comm]
-    gcongr; linarith [Real.add_one_le_exp (-s)]
-  have hh := hlim.add hr
-  apply (show Tendsto (fun s : ℝ => (∫t in Ioi s,f t)+(1-exp (-s))*log s) (𝓝[>] 0)
-    (𝓝 (-eulerMascheroniConstant)) by simpa using! hh).congr'
-  filter_upwards [self_mem_nhdsWithin] with s hs using (log_tail_parts hs).symm
-
+    Tendsto (fun s : ℝ => log s+∫t in Ioi s,exp (-t)/t) (𝓝[>] 0) (𝓝 (-eulerMascheroniConstant)) :=
+  AnalyticNumberTheory.AnalyticTools.tendsto_log_add_eOne
 
 private theorem abelian_buchstab {L : ℝ} (hL : Tendsto buchstab atTop (𝓝 L)) :
     Tendsto (fun s : ℝ => s*buchstabLaplace s) (𝓝[>] 0) (𝓝 L) := by

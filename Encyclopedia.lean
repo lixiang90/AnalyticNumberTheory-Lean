@@ -24,6 +24,7 @@ import Encyclopedia.LatticePoints
 import Encyclopedia.DirichletPolynomials
 import Encyclopedia.Transforms
 import Encyclopedia.Gamma
+import Encyclopedia.ExponentialIntegrals
 import Encyclopedia.ComplexBounds
 import Encyclopedia.PowerSums
 import Encyclopedia.EntireFunctions
@@ -59,6 +60,8 @@ tag := "encyclopedia-home"
 {include 0 Encyclopedia.Summation}
 
 {include 0 Encyclopedia.Gamma}
+
+{include 0 Encyclopedia.ExponentialIntegrals}
 
 {include 0 Encyclopedia.ComplexBounds}
 

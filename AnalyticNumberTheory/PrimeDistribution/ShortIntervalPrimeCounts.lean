@@ -44,6 +44,28 @@ theorem theta_interval_primePi_comparison {x y : ℝ} (hx : 0<x) (hxy : x≤y) :
     sum_le_sum (fun p hp => Real.log_le_log (hx.trans (intervalPrimeSet_mem hx.le hxy hp).2.1)
       (intervalPrimeSet_mem hx.le hxy hp).2.2)⟩
 
+/-- On any interval of length at most x the difference between the
+increments of θ and ψ is O(√x), uniformly in the length. -/
+theorem shortInterval_theta_sub_psi_isBigO_sqrt {h : ℝ → ℝ}
+    (hh : ∀ᶠ x in atTop, h x ≤ x) :
+    (fun x : ℝ => (Chebyshev.theta (x+h x)-Chebyshev.theta x)-
+      (Chebyshev.psi (x+h x)-Chebyshev.psi x)) =O[atTop] Real.sqrt := by
+  let C := (log 4+4)*3
+  have hC : 0≤C := by dsimp [C]; positivity
+  apply IsBigO.of_bound (C*(√2+1))
+  filter_upwards [hh,eventually_ge_atTop (1:ℝ)] with x hy hx
+  have hx' : 0≤x := by linarith
+  have hroot : √(x+h x)≤√2*√x := by rw [←Real.sqrt_mul zero_le_two]; exact Real.sqrt_le_sqrt (by linarith)
+  have hl := abs_psi_sub_theta_le_mul_sqrt (x+h x)
+  have hr := abs_psi_sub_theta_le_mul_sqrt x
+  rw [Real.norm_eq_abs,Real.norm_of_nonneg (Real.sqrt_nonneg x)]
+  rw [show Chebyshev.theta (x+h x)-Chebyshev.theta x-(Chebyshev.psi (x+h x)-Chebyshev.psi x) =
+    (Chebyshev.psi x-Chebyshev.theta x)-(Chebyshev.psi (x+h x)-Chebyshev.theta (x+h x)) by ring]
+  apply (abs_sub _ _).trans
+  change |Chebyshev.psi x-Chebyshev.theta x|+|Chebyshev.psi (x+h x)-Chebyshev.theta (x+h x)|≤_
+  change _≤C*√(x+h x) at hl; change _≤C*√x at hr
+  nlinarith only [hl,hr,mul_le_mul_of_nonneg_left hroot hC]
+
 /-- In power-length intervals above the square-root scale, replacing ψ
 by θ incurs an error of smaller order than the interval length. -/
 theorem shortInterval_theta_sub_psi_isLittleO {θ : ℝ} (hθ : 1/2<θ) (hθ' : θ≤1) :
@@ -54,24 +76,10 @@ theorem shortInterval_theta_sub_psi_isLittleO {θ : ℝ} (hθ : 1/2<θ) (hθ' : 
     apply (tendsto_rpow_neg_atTop (show 0<θ-1/2 by linarith)).congr'
     filter_upwards [eventually_gt_atTop (0:ℝ)] with x hx
     rw [Real.sqrt_eq_rpow,←Real.rpow_sub hx]; congr 1; ring
-  let C := (log 4+4)*3
-  have hC : 0≤C := by dsimp [C]; positivity
   apply IsBigO.trans_isLittleO _ hs
-  apply IsBigO.of_bound (C*(√2+1))
+  apply shortInterval_theta_sub_psi_isBigO_sqrt
   filter_upwards [eventually_ge_atTop (1:ℝ)] with x hx
-  have hx' : 0≤x := by linarith
-  have hy := Real.rpow_le_rpow_of_exponent_le hx hθ'
-  rw [Real.rpow_one] at hy
-  have hroot : √(x+x^θ)≤√2*√x := by rw [←Real.sqrt_mul zero_le_two]; exact Real.sqrt_le_sqrt (by linarith)
-  have hl := abs_psi_sub_theta_le_mul_sqrt (x+x^θ)
-  have hr := abs_psi_sub_theta_le_mul_sqrt x
-  rw [Real.norm_eq_abs,Real.norm_of_nonneg (Real.sqrt_nonneg x)]
-  rw [show Chebyshev.theta (x+x^θ)-Chebyshev.theta x-(Chebyshev.psi (x+x^θ)-Chebyshev.psi x) =
-    (Chebyshev.psi x-Chebyshev.theta x)-(Chebyshev.psi (x+x^θ)-Chebyshev.theta (x+x^θ)) by ring]
-  apply (abs_sub _ _).trans
-  change |Chebyshev.psi x-Chebyshev.theta x|+|Chebyshev.psi (x+x^θ)-Chebyshev.theta (x+x^θ)|≤_
-  change _≤C*√(x+x^θ) at hl; change _≤C*√x at hr
-  nlinarith only [hl,hr,mul_le_mul_of_nonneg_left hroot hC]
+  simpa only [Real.rpow_one] using Real.rpow_le_rpow_of_exponent_le hx hθ'
 
 /-- A short-interval asymptotic for ψ implies the corresponding
 short-interval asymptotic for θ. -/
@@ -123,53 +131,63 @@ theorem eventually_exists_prime_interval_of_psi_lower {θ c : ℝ} (hθ : 1/2<θ
   obtain ⟨p,hp⟩ := Finset.card_pos.mp (by exact_mod_cast hpos)
   exact ⟨p,intervalPrimeSet_mem hxp.le hxy hp⟩
 
-/-- A short-interval asymptotic for θ gives the prime-counting asymptotic
-with main term equal to the interval length divided by log x. -/
-theorem primePi_shortInterval_of_theta_equivalent {θ : ℝ} (hθ : θ≤1)
-    (hp : (fun x : ℝ => Chebyshev.theta (x+x^θ)-Chebyshev.theta x) ~[atTop] fun x : ℝ => x^θ) :
-    (fun x : ℝ => primePi (x+x^θ)-primePi x) ~[atTop] fun x : ℝ => x^θ/log x := by
-  let A (x : ℝ) := (Chebyshev.theta (x+x^θ)-Chebyshev.theta x)/x^θ
-  let L (x : ℝ) := log (x+x^θ)/log x
+/-- Transfer a θ asymptotic for arbitrary positive interval lengths at most x
+to an ordinary prime-counting asymptotic with main term h(x)/log x. -/
+theorem primePi_variableInterval_of_theta_equivalent {h : ℝ → ℝ}
+    (hh : ∀ᶠ x in atTop, 0 < h x ∧ h x ≤ x)
+    (hp : (fun x => Chebyshev.theta (x+h x)-Chebyshev.theta x) ~[atTop] h) :
+    (fun x => primePi (x+h x)-primePi x) ~[atTop] fun x => h x/log x := by
+  let A (x : ℝ) := (Chebyshev.theta (x+h x)-Chebyshev.theta x)/h x
+  let L (x : ℝ) := log (x+h x)/log x
   have hA : Tendsto A atTop (𝓝 1) := (isEquivalent_iff_tendsto_one (by
-    filter_upwards [eventually_gt_atTop (0:ℝ)] with x hx; exact (Real.rpow_pos_of_pos hx θ).ne')).mp hp
+    filter_upwards [hh] with x hsize; exact hsize.1.ne')).mp hp
   have hL : Tendsto L atTop (𝓝 1) := by
     have hsmall := Real.tendsto_log_atTop.inv_tendsto_atTop.const_mul (log 2)
     have hu : Tendsto (fun x : ℝ => 1+log 2*(log x)⁻¹) atTop (𝓝 1) := by
       simpa using tendsto_const_nhds.add hsmall
     apply tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hu
-    · filter_upwards [eventually_gt_atTop (1:ℝ)] with x hx
+    · filter_upwards [hh,eventually_gt_atTop (1:ℝ)] with x hsize hx
       dsimp only [L]; rw [one_le_div (Real.log_pos hx)]
-      exact Real.log_le_log (zero_lt_one.trans hx) (le_add_of_nonneg_right (Real.rpow_nonneg (by linarith) _))
-    · filter_upwards [eventually_gt_atTop (1:ℝ)] with x hx
+      exact Real.log_le_log (zero_lt_one.trans hx) (le_add_of_nonneg_right hsize.1.le)
+    · filter_upwards [hh,eventually_gt_atTop (1:ℝ)] with x hsize hx
       dsimp only [L]; rw [div_le_iff₀ (Real.log_pos hx)]
-      have hy := Real.rpow_le_rpow_of_exponent_le hx.le hθ
-      rw [Real.rpow_one] at hy
-      have hl := Real.log_le_log (show 0<x+x^θ by positivity [zero_lt_one.trans hx])
-          (show x+x^θ≤2*x by linarith)
+      have hy := hsize.2
+      have hl := Real.log_le_log (show 0<x+h x from add_pos (zero_lt_one.trans hx) hsize.1)
+          (show x+h x≤2*x by linarith)
       rw [Real.log_mul (by norm_num) (zero_lt_one.trans hx).ne'] at hl
       rw [add_mul,one_mul,mul_assoc,inv_mul_cancel₀ (Real.log_pos hx).ne',mul_one]
       linarith
   apply isEquivalent_of_tendsto_one
   have hlow : Tendsto (A/L) atTop (𝓝 1) := by simpa using hA.div hL one_ne_zero
   apply tendsto_of_tendsto_of_tendsto_of_le_of_le' hlow hA
-  · filter_upwards [eventually_gt_atTop (1:ℝ)] with x hx
-    let y := x+x^θ
+  · filter_upwards [hh,eventually_gt_atTop (1:ℝ)] with x hsize hx
+    let y := x+h x
     have hxp := zero_lt_one.trans hx
-    have hxy : x≤y := le_add_of_nonneg_right (Real.rpow_nonneg hxp.le _)
+    have hxy : x≤y := le_add_of_nonneg_right hsize.1.le
     have hl : 0<log x := Real.log_pos hx
     have hl' : 0<log y := Real.log_pos (hx.trans_le hxy)
     have hp' := (div_le_iff₀ hl').mpr (theta_interval_primePi_comparison hxp hxy).2
-    change ((Chebyshev.theta y-Chebyshev.theta x)/x^θ)/(log y/log x) ≤ (primePi y-primePi x)/(x^θ/log x)
-    calc _ = ((Chebyshev.theta y-Chebyshev.theta x)/log y)*log x/x^θ := by
+    change ((Chebyshev.theta y-Chebyshev.theta x)/h x)/(log y/log x) ≤ (primePi y-primePi x)/(h x/log x)
+    calc _ = ((Chebyshev.theta y-Chebyshev.theta x)/log y)*log x/h x := by
               simp only [div_eq_mul_inv,mul_inv_rev,inv_inv]; ring
-         _ ≤ (primePi y-primePi x)*log x/x^θ := by gcongr
+         _ ≤ (primePi y-primePi x)*log x/h x := by gcongr <;> exact hsize.1.le
          _ = _ := by simp only [div_eq_mul_inv,mul_inv_rev,inv_inv]; ring
-  · filter_upwards [eventually_gt_atTop (1:ℝ)] with x hx
-    let y := x+x^θ
+  · filter_upwards [hh,eventually_gt_atTop (1:ℝ)] with x hsize hx
+    let y := x+h x
     have hxp := zero_lt_one.trans hx
-    have hxy : x≤y := le_add_of_nonneg_right (Real.rpow_nonneg hxp.le _)
-    change (primePi y-primePi x)/(x^θ/log x) ≤ (Chebyshev.theta y-Chebyshev.theta x)/x^θ
+    have hxy : x≤y := le_add_of_nonneg_right hsize.1.le
+    change (primePi y-primePi x)/(h x/log x) ≤ (Chebyshev.theta y-Chebyshev.theta x)/h x
     rw [div_div_eq_mul_div]
-    exact div_le_div_of_nonneg_right (theta_interval_primePi_comparison hxp hxy).1 (Real.rpow_nonneg hxp.le _)
+    exact div_le_div_of_nonneg_right (theta_interval_primePi_comparison hxp hxy).1 hsize.1.le
+
+/-- A short-interval asymptotic for θ gives the prime-counting asymptotic
+with main term equal to the interval length divided by log x. -/
+theorem primePi_shortInterval_of_theta_equivalent {θ : ℝ} (hθ : θ≤1)
+    (hp : (fun x : ℝ => Chebyshev.theta (x+x^θ)-Chebyshev.theta x) ~[atTop] fun x : ℝ => x^θ) :
+    (fun x : ℝ => primePi (x+x^θ)-primePi x) ~[atTop] fun x : ℝ => x^θ/log x := by
+  apply primePi_variableInterval_of_theta_equivalent _ hp
+  filter_upwards [eventually_ge_atTop (1:ℝ)] with x hx
+  refine ⟨Real.rpow_pos_of_pos (zero_lt_one.trans_le hx) _,?_⟩
+  simpa only [Real.rpow_one] using Real.rpow_le_rpow_of_exponent_le hx hθ
 
 end AnalyticNumberTheory.PrimeDistribution

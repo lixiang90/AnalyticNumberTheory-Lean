@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.GoldstonTruncation
+import AnalyticNumberTheory.PrimeDistribution.GoldstonShortIntervals
 import AnalyticNumberTheory.PrimeDistribution.GoldstonZeroSum
 import AnalyticNumberTheory.PrimeDistribution.CramerPrimeGaps
 import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
@@ -716,3 +717,30 @@ $$`\psi(x)=x-\sum_{|\Im\rho|\le T}\frac{x^\rho}{\rho}+O(\sqrt{x}\log x).`
 {docstring sharp_explicit_formula_high_truncation}
 
 {docstring goldston_truncation_sqrt_log_of_rh}
+
+# 长度超过平方根对数尺度的短区间
+%%%
+tag := "rh-variable-short-intervals"
+file := "rh-short-intervals"
+%%%
+
+{index}[短区间素数定理]设 $`h=h(x)` 是实值函数，充分大时满足 $`0<h(x)\le x`。假设{ref "riemann-hypothesis"}[黎曼猜想]，并且 $`h(x)/(\sqrt{x}\log x)\to\infty`，则
+$$`\psi(x+h)-\psi(x)\sim h,\qquad \theta(x+h)-\theta(x)\sim h,\qquad \pi(x+h)-\pi(x)\sim\frac{h}{\log x}.`
+例如可取 $`h(x)=\sqrt{x}\log x\log\log x`。条件允许区间长度随 $`x` 起伏。{ref "cramer-prime-gaps"}[Cramér 的间隔定理]在固定的充分大常数倍 $`\sqrt{x}\log x` 处保证区间含有素数，这里的条件则给出区间内素数个数的渐近值。
+
+{docstring psi_variable_shortInterval_of_rh}
+
+{docstring theta_variable_shortInterval_of_rh}
+
+{docstring primePi_variable_shortInterval_of_rh}
+
+在 $`x` 与 $`x+h` 处用同一高度 $`T=\sqrt{x}/\log x` 写出{ref "goldston-truncation"}[Goldston 截断公式]。取 $`g\ge1` 满足 $`T/g\ge2`，在高度 $`U=T/g` 处分割零点。低处逐项估计 $`((x+h)^\rho-x^\rho)/\rho`，借助零点计数得到 $`O(h/g)`。高处分别估计两个端点，用分部求和控制倒数权重，得到
+$$`\sum_{U<|\Im\rho|\le T}\frac{m_\rho}{|\Im\rho|}\ll\log T\,(1+\log(T/U)).`
+
+{docstring reciprocal_zero_window_bound}
+
+由此，若 $`x\ge e^2` 且 $`0\le h\le x`，便有一致估计
+$$`|\psi(x+h)-\psi(x)-h|\ll\frac{h}{g}+\sqrt{x}\log x\,(1+\log g).`
+给定精度，先选定足够大的 $`g`，再令 $`x\to\infty`，右边与 $`h` 的比值就能任意小。去掉高次素数幂损失 $`O(\sqrt{x})`，区间内素数的对数权重介于 $`\log x` 和 $`\log(2x)` 之间，因而依次得到 $`\theta` 和 $`\pi` 的结论。
+
+{docstring psi_interval_goldston_bound_of_rh}

@@ -12,7 +12,9 @@ open Complex Real Finset
 open AnalyticNumberTheory.DirichletSeries AnalyticNumberTheory.RiemannZeta
 namespace AnalyticNumberTheory.PrimeDistribution
 
-private theorem short_interval_cpow_bound {x h : ℝ} {ρ : ℂ}
+/-- Moving the endpoint through [x,x+h] changes each zero term by at most
+h times x raised to the real part of the zero minus one. -/
+theorem short_interval_cpow_bound {x h : ℝ} {ρ : ℂ}
     (hx : 0<x) (hh : 0≤h) (h₀ : 0<ρ.re) (h₁ : ρ.re<1) :
     ‖((x+h:ℝ):ℂ)^ρ/ρ-(x:ℂ)^ρ/ρ‖ ≤ h*x^(ρ.re-1) := by
   have hr : ρ≠0 := fun he => by simp [he] at h₀

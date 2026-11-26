@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.MoebiusDirichletSeries
 import AnalyticNumberTheory.RiemannZeta.OneLineUnderRH
 import VersoManual
 
@@ -105,3 +106,25 @@ $$`\left|\frac{\zeta'(s)}{\zeta(s)}\right|\ll\log\log|t|.`
 $$`|\zeta(1+it)|\ll\log\log|t|,\qquad |1/\zeta(1+it)|\ll\log\log|t|.`
 
 {docstring norm_riemannZeta_one_and_inv_le_log_log}
+
+# Möbius 级数的普通收敛
+%%%
+tag := "rh-moebius-series"
+file := "moebius-series"
+%%%
+
+{index}[Möbius 级数]按自然次序取部分和 $`F_N(s)=\sum_{n\le N}\mu(n)n^{-s}`。黎曼猜想成立的充要条件是，对每个 $`\Re s>1/2`，数列 $`F_N(s)` 都收敛。等价地，该级数的普通收敛横坐标恰好等于 $`1/2`。
+
+{docstring riemannHypothesisProp_iff_moebiusDirichletConverges}
+
+{docstring riemannHypothesisProp_iff_moebiusAbscissa_eq_half}
+
+记 $`F` 为收敛半平面中的和函数。由 Euler 乘积和解析延拓，整个开收敛半平面中都有 $`F(s)((s-1)\zeta(s))=s-1`，其中括号内的函数在 $`s=1` 处取值 $`1`。如果非平凡零点落在这个开半平面内，等式两侧在该点矛盾。因此每个非平凡零点的实部都给出收敛横坐标的下界，{ref "hardy-critical-zeros"}[Hardy 定理]使这个下界至少为 $`1/2`。
+
+{docstring moebiusDirichletSum_mul_zetaOne}
+
+在黎曼猜想下，$`\Re s>1/2` 时的极限是 $`1/\zeta(s)` 的全纯延拓，在极点 $`s=1` 处极限为零。在 $`1/2<\Re s\le1` 的带内，这是条件收敛。绝对收敛半平面仍为 $`\Re s>1`。
+
+{docstring tendsto_moebiusDirichletPartialSum_of_rh}
+
+{docstring moebiusDirichletSeries_conditionally_convergent_of_rh}

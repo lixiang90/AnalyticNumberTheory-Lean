@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.PrimeCountingExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingSharp
 import AnalyticNumberTheory.PrimeDistribution.SharpExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.FullPerronContour
@@ -359,3 +360,29 @@ $$`J_0(b)-J_0(a)=\int_a^b\frac{dt}{\log t}
 最后一项来自平凡零点。对 $`\tfrac12\log(1-t^{-2})` 求导，得到正密度 $`1/[t(t^2-1)]`；它在计数公式中带负号。
 
 {docstring hasDerivAt_trivialZeroLog}
+
+# 用零点计算单点素数幂计数与素数计数
+%%%
+tag := "prime-counting-explicit-formula"
+file := "prime-counting-explicit-formula"
+%%%
+
+{index}[素数计数函数的显式公式]在 $`1<a<2` 中任选一个基点，例如 $`a=3/2`。因为第一个素数幂是 $`2`，所以 $`J_0(a)=0`。将{ref "sharp-prime-power-interval"}[区间显式公式]右边截到高度 $`T`，记为 $`E_T(a,x)`。改变积分方向时三个贡献同时变号，因此无论 $`x` 在基点的哪一侧，只要 $`x>1`，都有 $`J_0(x)=\lim_{T\to\infty}E_T(a,x)`。
+
+{docstring riemannExplicitIncrement}
+
+{docstring riemannExplicitIncrement_swap}
+
+{docstring tendsto_riemannExplicitIncrement_midpoint}
+
+再用有限 Möbius 反演。取正整数 $`N\ge\lfloor\log x/\log 2\rfloor`，在所有根 $`x^{1/d}` 处使用同一个高度，则
+
+$$`\pi_0(x)=\lim_{T\to\infty}\sum_{d=1}^{N}\frac{\mu(d)}{d}\,E_T(a,x^{1/d}).`
+
+{docstring tendsto_primePi_midpoint_explicit_formula}
+
+例如 $`x=8` 时，$`J_0(8)=14/3`、$`J_0(\sqrt 8)=1`、$`J_0(2)=1/2`，反演给出 $`\pi_0(8)=14/3-1/2-1/6=4`。普通的素数计数 $`\pi(x)` 在素数端点比 $`\pi_0(x)` 多半项。高次素数幂处，$`J_0` 的端点修正已经在反演中抵消。
+
+{docstring primePi_eq_midpoint_add_endpoint}
+
+{docstring tendsto_primePi_explicit_formula}

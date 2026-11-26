@@ -2,6 +2,7 @@ import AnalyticNumberTheory.AnalyticTools.SecondPoleDifference
 import AnalyticNumberTheory.DirichletSeries.PositiveLogMean
 import AnalyticNumberTheory.PrimeDistribution.IntegratedExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
+import AnalyticNumberTheory.RiemannZeta.TrivialZeroBounds
 
 /-!
 # A triangular explicit formula for short intervals
@@ -73,29 +74,19 @@ theorem exists_triangularMangoldtSum_explicit_formula :
 to a triangular mean is bounded by four times the squared logarithmic step. -/
 theorem norm_tsum_secondPoleDifference_trivial_le {u h : ℝ} (hu : 1 ≤ u) (hh : 0 ≤ h) :
     ‖∑' n, secondPoleDifference (trivialZetaZero n) u h‖ ≤ 4*h^2 := by
-  let q := Real.exp (-2*u)
-  have hq : q ≤ 1/2 := by
-    rw [show q = (Real.exp (2*u))⁻¹ by dsimp [q]; rw [←Real.exp_neg]; congr 1; ring,
-      inv_eq_one_div]
-    exact one_div_le_one_div_of_le two_pos (by linarith [Real.add_one_le_exp (2*u)])
   have hg := ((hasSum_geometric_of_lt_one (by norm_num : (0:ℝ) ≤ 1/2) (by norm_num)).mul_right (1/2)).mul_left (4*h^2)
   apply (tsum_of_norm_bounded hg ?_).trans_eq (by ring)
   intro n
-  have hpow : Real.exp ((trivialZetaZero n).re*u) = q^(n+1) := by
-    rw [show q = Real.exp (-2*u) from rfl,←Real.exp_nat_mul]
-    congr 1
-    simp [trivialZetaZero,Complex.mul_re]
-    ring
   have H := norm_secondPoleDifference_le_step (trivialZetaZero_ne_zero n) u hh
-  rw [hpow,mul_pow] at H
+  rw [mul_pow] at H
   have hsmall : (Real.exp ((trivialZetaZero n).re*h)+1)^2 ≤ 4 := by
     have he := Real.exp_le_one_iff.mpr (mul_nonpos_of_nonpos_of_nonneg (re_trivial_le n) hh)
     nlinarith [sq_nonneg (Real.exp ((trivialZetaZero n).re*h)), Real.exp_pos ((trivialZetaZero n).re*h),
       mul_nonneg (sub_nonneg.mpr he) (by positivity : 0 ≤ 3+Real.exp ((trivialZetaZero n).re*h))]
   calc
-    _ ≤ q^(n+1)*(h^2*4) := H.trans (by gcongr)
+    _ ≤ Real.exp ((trivialZetaZero n).re*u)*(h^2*4) := H.trans (by gcongr)
     _ ≤ (1/2:ℝ)^(n+1)*(h^2*4) :=
-      mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (Real.exp_pos _).le hq _) (by positivity)
+      mul_le_mul_of_nonneg_right (exp_re_trivialZetaZero_le_half_pow n hu) (by positivity)
     _ = _ := by rw [pow_succ]; ring
 
 /-- RH lower bound for the von Mangoldt mass in a multiplicative interval.

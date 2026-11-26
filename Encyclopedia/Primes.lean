@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.GoldstonTruncation
 import AnalyticNumberTheory.PrimeDistribution.GoldstonZeroSum
 import AnalyticNumberTheory.PrimeDistribution.CramerPrimeGaps
 import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
@@ -697,3 +698,21 @@ $$`\left|\sum_\rho D_\rho(u,h)-\sum_{|\Im\rho|\le T}\frac{x^\rho}{\rho}\right|\l
 {docstring AnalyticNumberTheory.AnalyticTools.norm_logarithmicPoleSlope_sub_residue_le}
 
 {docstring norm_tsum_logarithmicPoleSlope_sub_sharp_le_of_rh}
+
+对同一 $`x` 分别向左、向右取对数差商。由于 $`\Lambda(n)\ge0`，通常的 $`\psi(x)` 夹在两个实数差商之间，素数幂处也成立。把两侧各自的显式公式与同一个截断零点和比较，得到
+$$`\left|\psi(x)-x+\sum_{|\Im\rho|\le T}\frac{x^\rho}{\rho}\right|\ll \frac{x}{T}+\sqrt{x}\log T\qquad(x\ge e^2,\ T\ge2).`
+第一项来自极点 $`1` 的差商近似，第二项来自非平凡零点。负偶零点的贡献有绝对常数界。
+
+{docstring logarithmicMangoldtSlope_brackets}
+
+{docstring exists_logarithmicMangoldtSlope_explicit_formula}
+
+{docstring goldston_truncated_explicit_formula_of_rh}
+
+{index}[Goldston 截断高度]当 $`T\ge\sqrt{x}/\log x` 时，第一项已至多为 $`\sqrt{x}\log x`。对于 $`T\le x^8`，第二项也有同阶上界。对于 $`T\ge x^8`，再用无条件的 Perron 矩形估计，整个截断误差只有 $`O(\log x)`。合并两段，在黎曼猜想下，对充分大的 $`x` 和每个 $`T\ge\sqrt{x}/\log x` 一致地有
+$$`\psi(x)=x-\sum_{|\Im\rho|\le T}\frac{x^\rho}{\rho}+O(\sqrt{x}\log x).`
+这一截断高度见 [Goldston 的原文](https://doi.org/10.4064/aa-40-3-263-271)。
+
+{docstring sharp_explicit_formula_high_truncation}
+
+{docstring goldston_truncation_sqrt_log_of_rh}

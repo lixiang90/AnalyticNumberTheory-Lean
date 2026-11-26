@@ -10,6 +10,7 @@ import AnalyticNumberTheory.DirichletSeries.OrdinaryCahen
 import AnalyticNumberTheory.DirichletSeries.CahenPrefixes
 import AnalyticNumberTheory.DirichletSeries.CahenTails
 import AnalyticNumberTheory.DirichletSeries.FrequencyMeanValues
+import AnalyticNumberTheory.DirichletSeries.FrequencyVerticalOrder
 import AnalyticNumberTheory.DirichletSeries.EventualLandau
 import AnalyticNumberTheory.DirichletSeries.OrdinaryAbel
 import VersoManual
@@ -321,6 +322,46 @@ $$`\frac1L\int_X^Y A(\sigma+it)B(\tau-it)\,dt
 {docstring DirichletFrequency.tendsto_vertical_interval_bilinear_mean}
 
 {docstring DirichletFrequency.tendsto_vertical_interval_mean_square}
+
+# 竖直增长阶与右半平面的无零性
+%%%
+tag := "general-vertical-growth"
+file := "general-vertical-growth"
+%%%
+
+设 $`A(s)=\sum_{n\ge0}a_ne^{-\lambda_n s}` 的有序收敛横坐标是 $`\sigma_c`。固定 $`\beta>\sigma_c`。对每个 $`\varepsilon>0`，存在只依赖于级数、$`\beta` 和 $`\varepsilon` 的高度 $`T`，使得
+
+$$`\Re s\ge\beta,\quad |\Im s|\ge T \quad\Longrightarrow\quad |A(s)|\le\varepsilon|\Im s|.`
+
+实部可以随高度一起变化。证明先在 $`\sigma_c<r<\beta` 处作 Abel 求和，用 $`K(1+|\Im s|)e^{-(\beta-r)\lambda_n}` 控制余项。先选取截断位置使指数因子足够小，再提高 $`T`，有限部分和对高度的贡献就可忽略。
+
+{docstring DirichletFrequency.ConvergesAt.uniform_vertical_remainder}
+
+{docstring DirichletFrequency.uniform_sublinear_vertical_growth}
+
+在竖直线 $`\Re s=\sigma` 上，把满足 $`A(\sigma+it)=O((|t|+2)^u)` 的非负指数 $`u` 的下确界记作 $`\mu(\sigma)`。在 $`\sigma>\sigma_c` 上，$`0\le\mu(\sigma)\le1`。对竖直带应用 Phragmén–Lindelöf 定理得到凸性，因此增长阶连续。在右侧无界的区间上，有上界的凸函数必定单调不增。凡是绝对收敛的竖直线都有 $`\mu(\sigma)=0`，其中也包括恰好绝对收敛的边界线。
+
+{docstring DirichletFrequency.verticalOrder_sum_le_one}
+
+{docstring DirichletFrequency.convexOn_verticalOrder_sum}
+
+{docstring DirichletFrequency.continuousOn_verticalOrder_sum}
+
+{docstring DirichletFrequency.antitoneOn_verticalOrder_sum}
+
+{docstring DirichletFrequency.verticalOrder_sum_eq_zero}
+
+若级数在某点绝对收敛，记 $`P_n(s)=\sum_{j<n}a_je^{-\lambda_j s}`。当 $`\Re s\to+\infty` 时，$`e^{\lambda_n s}(A(s)-P_n(s))\to a_n`，虚部可以任意变化。若 $`a_k` 是首个非零系数，则在某个右半平面内有
+
+$$`|A(s)|\ge \tfrac12 |a_k|e^{-\lambda_k\Re s}>0.`
+
+例如 $`A(s)=\zeta(s)-1` 的首项是 $`2^{-s}`，所以在实部充分大时，所有高度都满足 $`|\zeta(s)-1|\ge 2^{-\Re s}/2`。
+
+{docstring DirichletFrequency.AbsConvergesAt.tendsto_scaled_remainder_re_atTop}
+
+{docstring DirichletFrequency.AbsConvergesAt.exists_halfPlane_lower_bound}
+
+{docstring DirichletFrequency.AbsConvergesAt.exists_zeroFree_halfPlane}
 
 # 广义 Dirichlet 级数的逐项微分
 %%%

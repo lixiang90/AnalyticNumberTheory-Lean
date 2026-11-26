@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.CramerPrimeGaps
 import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
 import AnalyticNumberTheory.PrimeDistribution.PrimeCountingError
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimePowerFormula
@@ -646,3 +647,32 @@ $$`\sum_{|\Im\rho|\ge T}\frac{m_\rho}{(\Im\rho)^2}\ll\frac{\log T}{T}\qquad(T\ge
 {docstring sum_norm_secondPoleDifference_le_of_rh}
 
 {docstring norm_tsum_secondPoleDifference_le_of_rh}
+
+# Cramér 的素数间隔界
+%%%
+tag := "cramer-prime-gaps"
+file := "cramer-prime-gaps"
+%%%
+
+{index}[Cramér 素数间隔定理]令 $`p_n` 为第 $`n` 个素数。在{ref "riemann-hypothesis"}[黎曼猜想]下，
+$$`p_{n+1}-p_n\ll\sqrt{p_n}\log p_n.`
+更一般地，存在常数 $`K>0`，使每个充分大的实数 $`x` 右侧的区间 $`(x,x+K\sqrt{x}\log x]` 都含有素数。取 $`x=p_n`，区间内的第一个素数就是 $`p_{n+1}`。
+
+{docstring cramer_prime_gap_of_rh}
+
+{docstring eventually_exists_prime_sqrt_log_of_rh}
+
+取 $`u=\log x`，在 $`u,u+h,u+2h` 处对积分显式公式作二阶差分，记所得的三角加权和为 $`W`。权重非负，最大值为 $`h`，因此
+$$`0\le W\le h\big(\psi(xe^{2h})-\psi(x)\big).`
+极点 $`1` 给出 $`x(e^h-1)^2\ge xh^2`。所有负偶零点合起来至多贡献 $`4h^2`（$`u\ge1`），{ref "triangular-zero-sums"}[非平凡零点的总贡献]在黎曼猜想下为 $`O(\sqrt{x}\,h\log(1/h))`。
+
+{docstring exists_triangularMangoldtSum_explicit_formula}
+
+{docstring triangularMangoldtSum_re_bounds}
+
+{docstring exists_lower_bound_triangular_psi_of_rh}
+
+取 $`h=D\log x/\sqrt{x}`，其中 $`D` 为充分大的固定常数。去掉高次素数幂只损失 $`O(\sqrt{x})` 的对数质量。于是还得到比区间含有素数更定量的结论
+$$`\theta(x+K\sqrt{x}\log x)-\theta(x)\ge\sqrt{x}\log x.`
+
+{docstring exists_theta_shortInterval_lower_sqrt_log_of_rh}

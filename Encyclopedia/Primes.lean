@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.SharpExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.FullPerronContour
 import AnalyticNumberTheory.PrimeDistribution.TrivialZeroTerm
 import AnalyticNumberTheory.PrimeDistribution.SymmetricExplicitFormula
@@ -288,3 +289,36 @@ $$`\frac1{2\pi i}\int_{\partial R}F_x(s)\,ds=x-\log(2\pi)
 {docstring zetaPerron_principalPart_at_zero}
 
 {docstring zeroMultiplicity_trivialZetaZero}
+
+# 按零点高度截断的 Chebyshev 显式公式
+%%%
+tag := "sharp-chebyshev-explicit-formula"
+file := "sharp-chebyshev-explicit-formula"
+%%%
+
+{index}[von Mangoldt 显式公式]给定 $`x>1`，记 $`\psi_0(x)` 为在素数幂处取左右极限平均的 Chebyshev 函数。将非平凡零点按 $`|\Im\rho|\le T` 截断，每个不同的零点乘以它的解析重数 $`m_\rho`。对任意趋于无穷的实高度，von Mangoldt 显式公式给出
+
+$$`\psi_0(x)=x-\lim_{T\to\infty}\sum_{|\Im\rho|\le T}
+ m_\rho\frac{x^\rho}{\rho}-\log(2\pi)-\tfrac12\log(1-x^{-2}).`
+
+{docstring sharpZetaZeroSum}
+
+{docstring tendsto_explicit_formula_midpointPsi}
+
+若 $`x` 不是素数幂，就可以把左端写成通常的 $`\psi(x)`。例如从 $`7` 到 $`8` 时，$`\psi` 增加 $`\log 2`，故在 $`x=8` 处级数给出 $`\psi(7)+(\log 2)/2`。
+
+{docstring midpointPsi_eq_psi_of_not_primePower}
+
+从{ref "full-zeta-perron-contour"}[有限矩形的留数等式]出发，令左边界取负奇整数 $`-2\lceil R\rceil-1`，再于 $`(R^2,R^2+1)` 中选一个避开零点的高度 $`U`。当 $`R\to\infty` 时，上、下两条水平边和左边的积分均趋于零。右边的积分由 Perron 反演给出半权值，负偶整数的贡献由{ref "trivial-zero-term"}[对数幂级数]求和。
+
+{docstring exists_expandingPerron_heights}
+
+{docstring exists_tendsto_zetaPerron_edges}
+
+最后令 $`R=\sqrt T`。把截断从 $`T` 移到 $`U`，最多增加一个单位高度带内的零点；对 $`T\ge 2`，它们的总贡献至多为 $`Cx\log T/T`。这一步也处理了 $`T` 恰好等于某个零点纵坐标绝对值的情形。
+
+{docstring sharpZetaZeroSum_unit_variation}
+
+{docstring hasSum_cpow_trivialZetaZero_div}
+
+{docstring tendsto_sharpZetaZeroSum_midpointPsi}

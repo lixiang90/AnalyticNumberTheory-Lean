@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.ShiftedZeroFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingNormalization
 import AnalyticNumberTheory.PrimeDistribution.RiemannPolarNormalization
 import AnalyticNumberTheory.PrimeDistribution.RiemannEiZeroSum
@@ -495,3 +496,41 @@ $$`\lim_{R\to\infty}\int_0^R
 {docstring tendsto_riemannZeta_ofReal_atTop}
 
 {docstring tendsto_integral_riemannPolar_sub_logDeriv}
+
+# 第一个素数之前的平移公式
+%%%
+tag := "real-shift-before-first-prime"
+file := "real-shift-before-first-prime"
+%%%
+
+{index}[显式公式的实平移]在区间 $`1<x<2` 内，各个素数幂的 von Mangoldt 权重和为零。这使我们可以在这一段上比较不同实平移的留数。记 $`u=\log x`，设 $`y>0` 且 $`y\ne1`。单个极点 $`\omega` 的平移留数可拆为
+$$`A_y(\omega)=\frac{e^{(\omega-y)u}}{\omega-y}
+=e^{-yu}\frac{e^{\omega u}}{\omega}
+ + K_y(\omega),\qquad
+K_y(\omega)=\frac{y e^{(\omega-y)u}}{\omega(\omega-y)}.`
+这里对同一族零点只需处理一次按高度求和的首项。修正项 $`K_y` 多出一个分母，因而可以按绝对收敛级数处理。
+
+{docstring AnalyticNumberTheory.AnalyticTools.shiftedPoleResidue_eq_damped_add}
+
+{docstring AnalyticNumberTheory.AnalyticTools.hasSum_shiftedPoleCorrection}
+
+具体地，设 $`L(x)=\lim_{T\to\infty}\sum_{|\Im\rho|\le T}m_\rho x^\rho/\rho`。把平移后的留数按非平凡零点 $`\rho` 和平凡零点 $`-2m` 求和，得到
+$$`A_y(1)-\frac{\zeta'(y)}{\zeta(y)}
+=e^{-yu}L(x)+\sum_\rho m_\rho K_y(\rho)+\sum_{m=1}^{\infty}A_y(-2m).`
+这把{ref "riemann-counting-normalization"}[极点与对数导数的积分]同两族零点联系起来。
+
+{docstring sharpZetaZeroSumLimit}
+
+{docstring sharpZetaZeroSumLimit_eq}
+
+{docstring shifted_explicit_formula_of_lt_two}
+
+推导时先对{ref "integrated-explicit-formula"}[一次积分的显式公式]作分部积分。对满足 $`F(0)=0` 的原函数，所得表达式为 $`y e^{-yu}F(u)+y^2\int_0^u e^{-yt}F(t)\,dt`。在首个素数之前，算术端的 $`F` 恒为零。零点端可以逐项平移，且把同一个零点的不同出现合并后，权重就是该点的解析重数。
+
+{docstring AnalyticNumberTheory.AnalyticTools.hasSum_exponentialShiftOfPrimitive_integratedPole}
+
+{docstring AnalyticNumberTheory.RiemannZeta.ZetaZeroEnumeration.hasSum_distinct}
+
+{docstring integratedZetaZeroSum_eq_logWeightedSum}
+
+{docstring AnalyticNumberTheory.RiemannZeta.neg_logDeriv_riemannZeta_eq_distinct_centered}

@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.AdditiveNumberTheory.CircleMethod
+import AnalyticNumberTheory.AdditiveNumberTheory.LinearPhaseIntegral
 import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
 
@@ -49,11 +49,6 @@ private theorem norm_weighted_derivative_le {a b : ℝ} (hab : a ≤ b)
     _ ≤ ‖(g b : ℂ) * f b - (g a : ℂ) * f a‖ + ‖∫ x in a..b, (g' x : ℂ) * f x‖ := norm_sub_le _ _
     _ ≤ (‖(g b : ℂ) * f b‖ + ‖(g a : ℂ) * f a‖) + (g a - g b) := add_le_add (norm_sub_le _ _) hdiff
     _ = _ := by simp [hfn, abs_of_nonneg (hgn a left_mem_uIcc), abs_of_nonneg (hgn b right_mem_uIcc)]; ring
-
-private theorem hasDerivAt_e (u : ℝ) :
-    HasDerivAt e ((2 * Real.pi * Complex.I) * e u) u := by
-  have h := ((Complex.ofRealCLM.hasDerivAt (x := u)).const_mul ((2 : ℂ) * Real.pi)).mul_const Complex.I
-  exact h.cexp.congr_deriv (by simp [e]; ring)
 
 /-- Over `[1,B]` the integral with unit-sized frequency has a bound independent of `B`.
 The weight `x^(-m)` cancels the derivative of the power phase `x^(m+1)`. -/

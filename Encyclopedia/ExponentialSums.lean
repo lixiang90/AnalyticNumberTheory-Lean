@@ -10,6 +10,7 @@ import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
 import AnalyticNumberTheory.ExponentialSums.PrimeContourWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeTotientBound
 import AnalyticNumberTheory.AdditiveNumberTheory.GaussCoefficientBounds
+import AnalyticNumberTheory.AdditiveNumberTheory.PageCharacterFourierFormula
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -345,6 +346,40 @@ $$`|\Psi_\alpha(y)|\ll WL^3\qquad(0\le y\le x,\ x\ge1).`
 {docstring unweightedPrimeExpSum_contour}
 
 {docstring prime_sums_contour_balanced}
+
+# 例外实零点的傅里叶主项
+%%%
+tag := "exceptional-fourier-term"
+file := "exceptional-fourier-term"
+%%%
+
+{index}[例外实零点的傅里叶积分]在{ref "exceptional-character-main-term"}[小模数的特征显式公式]中，单实零点 $`\beta` 的贡献是 $`-(y^\beta-1)/\beta`。把和中的每一项乘以 $`e(zn)=\exp(2\pi i zn)` 后，对应的主项变为 $`-I_\beta(y,z)`，其中
+
+$$`I_\beta(y,z)=\int_1^y t^{\beta-1}e(zt)\,dt,\qquad
+\lvert I_\beta(y,z)\rvert\le\frac{2y}{1+y\lvert z\rvert}\quad(y\ge1,\ \beta\le1).`
+
+这个界在 $`z=0` 和 $`\beta=1` 时也成立。线性相位的原函数在非零频率处给出与 $`1/\lvert z\rvert` 成正比的界，再对递减的实幂权作分部积分即可。
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.powerWeightFourierIntegral}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_integral_e_linear}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_powerWeightFourierIntegral_le}
+
+设算术序列的部分和在 $`[1,y]` 上与可微函数 $`F` 相差至多 $`E`，且 $`F(1)=0`、$`F'` 连续。连续 Abel 求和给出
+
+$$`\left\lvert\sum_{n\le y,\ n\ge1}a_n e(zn)-\int_1^y F'(t)e(zt)\,dt\right\rvert
+\le E(1+2\pi y\lvert z\rvert).`
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_expSum_sub_integral_of_partial_sums}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_expSum_sub_powerWeightFourierIntegral}
+
+对 $`q\le\exp(\kappa\sqrt{\log x})` 的非主特征，可以取 $`E=Cx\exp(-(\kappa/2)\sqrt{\log x})`。同一个例外本原特征适用于整批模数；对它诱导的每个特征，零点 $`\beta` 的选择同时适用于 $`1\le y\le x` 和所有实频率 $`z`。
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.characterPrimeSum_sub_powerWeight}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.page_characterPrimeSum_explicit}
 
 # 有限 Poisson 求和与倒数相位
 %%%

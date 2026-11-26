@@ -1,0 +1,59 @@
+import AnalyticNumberTheory.DirichletSeries.Perron
+
+/-!
+# Pointwise sharp Perron inversion
+
+On a positive line of absolute convergence, symmetric truncations recover the partial sum at
+every positive cutoff, with half the coefficient at a jump. At a fixed cutoff and abscissa
+the error is bounded by a constant times the reciprocal of the truncation height.
+-/
+
+noncomputable section
+
+open Finset Filter
+open scoped Topology
+
+namespace AnalyticNumberTheory.DirichletSeries
+
+/-- The positive-index partial sum with half the last coefficient if `x` is an integer. -/
+def midpointPartialSum (a : ℕ → ℂ) (x : ℝ) : ℂ :=
+  ∑ n ∈ Icc 1 ⌊x⌋₊, if (n : ℝ) = x then (1/2 : ℂ) * a n else a n
+
+/-- Sharp Perron inversion has a reciprocal-height error at each fixed cutoff, including
+an integer cutoff. The constant may depend on the coefficients, the line and the cutoff. -/
+theorem norm_dirichletContourIntegral_sub_midpointPartialSum_le {a : ℕ → ℂ} {x c : ℝ}
+    (hx : 0 < x) (hc : 0 < c) (ha : LSeriesSummable a (c : ℂ)) :
+    ∃ C : ℝ, ∀ T : ℝ, 0 < T →
+      ‖dirichletContourIntegral a x c T - midpointPartialSum a x‖ ≤ C / T := by
+  let A := x ^ c / (Real.pi * Real.log 2) * ∑' n : ℕ, ‖LSeries.term a (c : ℂ) n‖
+  let B := ∑ n ∈ Icc 1 ⌊2*x⌋₊, if x/2 ≤ n ∧ (n : ℝ) ≠ x then
+    ‖a n‖ * ((x / n) ^ c / (Real.pi * |Real.log (x / n)|)) else 0
+  let D := ∑ n ∈ Icc 1 ⌊2*x⌋₊, if (n : ℝ) = x then ‖a n‖ * (c / Real.pi) else 0
+  refine ⟨A + B + D, fun T hT => (perron_truncated_sum_with_half hx hc hT ha).trans_eq ?_⟩
+  simp only [A, B, D, add_div, sum_div]
+  refine congrArg₂ (· + ·) (congrArg₂ (· + ·) ?_ ?_) ?_
+  · simp only [div_eq_mul_inv, mul_inv_rev]
+    ring
+  · refine sum_congr rfl fun n _ => ?_
+    split_ifs <;> simp [div_eq_mul_inv, mul_inv_rev]
+    ring
+  · refine sum_congr rfl fun n _ => ?_
+    split_ifs <;> simp [div_eq_mul_inv, mul_inv_rev]
+    ring
+
+/-- Symmetric vertical truncations of the sharp Perron integral converge to the midpoint
+partial sum for every `x > 0` on any positive line of absolute convergence. -/
+theorem tendsto_dirichletContourIntegral_midpointPartialSum {a : ℕ → ℂ} {x c : ℝ}
+    (hx : 0 < x) (hc : 0 < c) (ha : LSeriesSummable a (c : ℂ)) :
+    Tendsto (dirichletContourIntegral a x c) atTop (𝓝 (midpointPartialSum a x)) := by
+  obtain ⟨C, hC⟩ := norm_dirichletContourIntegral_sub_midpointPartialSum_le hx hc ha
+  rw [Metric.tendsto_nhds]
+  intro ε hε
+  filter_upwards [eventually_gt_atTop (max 0 (C / ε))] with T hT
+  have hT0 := (le_max_left 0 _).trans_lt hT
+  rw [dist_eq_norm]
+  apply (hC T hT0).trans_lt
+  rw [div_lt_iff₀ hT0, mul_comm ε]
+  exact (div_lt_iff₀ hε).mp ((le_max_right 0 _).trans_lt hT)
+
+end AnalyticNumberTheory.DirichletSeries

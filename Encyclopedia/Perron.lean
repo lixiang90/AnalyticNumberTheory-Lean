@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.DirichletSeries.SharpPerron
 import AnalyticNumberTheory.DirichletSeries.Perron
 import AnalyticNumberTheory.DirichletSeries.LogPerronTruncation
 import AnalyticNumberTheory.DirichletSeries.LogPerronOrdinary
@@ -122,3 +123,19 @@ $`\mathcal P_\sigma(PF;x)=\sum_{n\in S}a_n\mathcal P_\sigma(F;x/n)`。
 {docstring logPerronIntegral_finset_mul}
 
 {docstring logPerronIntegral_finset}
+
+# 对称截断恢复带半权的部分和
+%%%
+tag := "sharp-perron-partial-sums"
+file := "sharp-perron-partial-sums"
+%%%
+
+设普通 Dirichlet 级数 $`F(s)=\sum_{n\ge1}a_n n^{-s}` 在 $`c>0` 这条线上绝对收敛。固定 $`x>0`，沿这条直线把 $`F(s)x^s/s` 积分到高度 $`\pm T`。当 $`T` 趋于无穷时，极限是 $`\sum_{1\le n<x}a_n`，若 $`x` 恰是正整数，再加上 $`a_x/2`。
+
+{docstring midpointPartialSum}
+
+{docstring tendsto_dirichletContourIntegral_midpointPartialSum}
+
+对固定 $`x,c`，误差满足 $`|E(T)|\le C/T`。常数由三部分组成：远离 $`x` 的项用绝对收敛控制，靠近 $`x` 的有限项保留各自的 $`|\log(x/n)|`，当 $`n=x` 时直接使用核在 $`1` 处的估计。把 $`F` 取为 $`\log\zeta`，就得到{ref "riemann-counting-mellin"}[Riemann 半权素数幂计数的反演]。
+
+{docstring norm_dirichletContourIntegral_sub_midpointPartialSum_le}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannCountingMellin
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimeCounting
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
 import AnalyticNumberTheory.PrimeDistribution.LeastPrime
@@ -100,3 +101,26 @@ $$`\pi(x)=\sum_{1\le d\le L}\frac{\mu(d)}d\,J(x^{1/d}).`
 {docstring riemannPrimeCounting_eq_sum_primePiWithEndpoint}
 
 {docstring primePiWithEndpoint_eq_sum_moebius_riemannPrimeCounting}
+
+# 素数幂计数与 zeta 对数的 Mellin 变换
+%%%
+tag := "riemann-counting-mellin"
+file := "riemann-counting-mellin"
+%%%
+
+{index}[素数幂计数的 Mellin 变换]在 $`\Re s>1` 内，取由 Euler 乘积确定的解析对数 $`\log\zeta(s)`。它的 Dirichlet 系数是 $`\Lambda(n)/\log n`。对系数求部分和便是{ref "riemann-prime-counting"}[Riemann 的素数幂计数] $`J`，从而
+
+$$`\log\zeta(s)=s\int_1^\infty J(t)\,t^{-s-1}\,dt.`
+
+{docstring logZeta_eq_mellin_riemannPrimeCounting}
+
+反过来，任取 $`c>1`，将 $`\log\zeta(s)x^s/s` 沿 $`\Re s=c` 对称截断。{ref "sharp-perron-partial-sums"}[Perron 反演]给出
+
+$$`J_0(x)=\lim_{T\to\infty}\frac{1}{2\pi}\int_{-T}^{T}
+       \log\zeta(c+it)\frac{x^{c+it}}{c+it}\,dt \qquad (x>0).`
+
+在 $`x=p^k` 处，最后一项贡献 $`1/(2k)`。例如 $`x=8` 时，不论把积分线放在 $`c=2` 还是 $`c=3`，都恢复 $`14/3`。对固定的 $`x,c`，截断高度为 $`T` 的误差至多是 $`C(x,c)/T`。
+
+{docstring tendsto_logZetaPerronIntegral_riemannPrimeCounting}
+
+{docstring norm_logZetaPerronIntegral_sub_riemannPrimeCounting_le}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.MertensCancellation
 import AnalyticNumberTheory.DirichletSeries.RamachandraPolarDecay
 import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
@@ -436,3 +437,20 @@ file := "polar-remainder"
 {docstring gammaSmoothingResidue_rapid_decay}
 
 {docstring ramachandra_smoothed_functional_equation_error}
+
+# Möbius 部分和的无条件估计
+%%%
+tag := "mertens-unconditional-cancellation"
+file := "mertens-cancellation"
+%%%
+
+{index}[Mertens 函数]令 $`M(x)=\sum_{n\le x}\mu(n)`。存在绝对常数 $`C,\gamma>0`，使得对充分大的实数 $`x` 有
+$`|M(x)|\le Cx\exp(-\gamma\sqrt{\log x})`。这个估计来自 ζ 函数的经典无零区，对零点是否都在临界线上没有要求。
+
+{docstring AnalyticNumberTheory.RiemannZeta.mertensM_exp_sqrt_log_bound}
+
+在 $`\Re s>1`，Möbius 级数的和为 $`1/\zeta(s)`。将它写成 $`(s-1)/((s-1)\zeta(s))`，在 $`s=1` 处可直接读出解析延拓的值为零。对半整数截点使用{ref "perron-half-integer-rectangles"}[Perron 截断和矩形移线]，再取 $`T=\exp(\sqrt{\log x})`，左侧积分和截断误差便同时得到指数衰减因子。对一般实数截点，取 $`\lfloor x\rfloor+1/2` 即可保留同一组求和项。
+
+{docstring AnalyticNumberTheory.RiemannZeta.riemannZetaInv_eq_div_zetaOne}
+
+{ref "rh-moebius-series"}[Möbius 级数的普通收敛]进一步给出收敛横坐标与黎曼猜想的关系。

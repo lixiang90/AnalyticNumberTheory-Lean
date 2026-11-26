@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.DirichletSeries.HalfIntegerPerron
+import AnalyticNumberTheory.DirichletSeries.PerronRectangle
 import AnalyticNumberTheory.DirichletSeries.SharpPerron
 import AnalyticNumberTheory.DirichletSeries.Perron
 import AnalyticNumberTheory.DirichletSeries.LogPerronTruncation
@@ -139,3 +141,17 @@ file := "sharp-perron-partial-sums"
 对固定 $`x,c`，误差满足 $`|E(T)|\le C/T`。常数由三部分组成：远离 $`x` 的项用绝对收敛控制，靠近 $`x` 的有限项保留各自的 $`|\log(x/n)|`，当 $`n=x` 时直接使用核在 $`1` 处的估计。把 $`F` 取为 $`\log\zeta`，就得到{ref "riemann-counting-mellin"}[Riemann 半权素数幂计数的反演]。
 
 {docstring norm_dirichletContourIntegral_sub_midpointPartialSum_le}
+
+# 半整数截断与矩形移线
+%%%
+tag := "perron-half-integer-rectangles"
+file := "half-integer-rectangles"
+%%%
+
+当 $`x=N+1/2` 时，最近的整数与 $`x` 相距半个单位。设 $`|a_n|\le A` 对 $`n\le 2x` 成立。在 $`1<c\le2` 的积分线上，逐项累加距离的倒数，靠近 $`x` 的项对截断误差的总贡献为 $`O(Ax\log(2x)/T)`。远处各项由 $`\sum |a_n|n^{-c}` 控制。
+
+{docstring perron_halfInteger_error_le}
+
+若级数在整个矩形上有全纯延拓，先把积分左移到 $`\sigma_0>0`。设左边的函数界为 $`B_v`，上下边的函数界为 $`B_h`。左边的积分贡献至多为 $`(\sqrt{2}/\pi)B_v x^{\sigma_0}\log(1+T/\sigma_0)`，两条水平边合起来至多为 $`(c-\sigma_0)B_h x^c/(\pi T)`。
+
+{docstring norm_dirichletContourIntegral_le_of_rectangle}

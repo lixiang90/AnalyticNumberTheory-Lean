@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.RiemannZeta.CenteredPartialFractions
 import AnalyticNumberTheory.RiemannZeta.IntegratedArgument
 import AnalyticNumberTheory.RiemannZeta.ZeroCounting
 import AnalyticNumberTheory.RiemannZeta.ZeroFreeRegion
@@ -57,3 +58,37 @@ $$`|S_1(T)|\le C\log T\qquad(T\ge8).`
 {docstring abs_integral_arg_riemannZeta_two_le}
 
 {docstring integratedArgument_increment}
+
+# 分离 ζ 对数导数的全部极点
+%%%
+tag := "centered-zeta-partial-fractions"
+file := "centered-partial-fractions"
+%%%
+
+{index}[对数导数的部分分式展开]对一个非零位置 $`\omega`，先从 $`1/(s-\omega)` 减去它在原点的值，得到
+
+$$`K_\omega(s)=\frac1{s-\omega}+\frac1\omega
+              =\frac{s}{\omega(s-\omega)}.`
+
+这样每个分式在 $`s=0` 消失。当 $`|\omega|\ge 2|s|` 时，它的模至多是 $`2|s|/|\omega|^2`。因此临界带内非平凡零点的倒平方和就足以保证绝对收敛。在原点附近，各项可以使用同一个可求和的上界。
+
+{docstring AnalyticNumberTheory.AnalyticTools.EntireFunctions.centeredPole_eq}
+
+{docstring AnalyticNumberTheory.AnalyticTools.EntireFunctions.norm_centeredPole_le}
+
+{docstring AnalyticNumberTheory.AnalyticTools.EntireFunctions.tendsto_tsum_centeredPole_zero}
+
+在 $`s\ne 1` 且 $`\zeta(s)\ne0` 时，完整公式为
+
+$$`-\frac{\zeta'}{\zeta}(s)=-\log(2\pi)+K_1(s)
+       -\sum_{\rho}K_{\rho}(s)-\sum_{k=1}^\infty K_{-2k}(s).`
+
+每个非平凡零点按解析重数重复，负偶整数各出现一次。$`s=1` 是 ζ 的极点，在负对数导数中留数为 $`+1`；每个零点则贡献其重数的负值。取 $`s=0`，两个无穷级数与 $`K_1` 都消失，所以常数恰是 $`-\log(2\pi)`。
+
+{docstring ZetaZeroEnumeration.summable_centered}
+
+{docstring summable_centered_trivialZetaZero}
+
+{docstring neg_logDeriv_riemannZeta_zero}
+
+{docstring exists_centered_logDeriv_riemannZeta}

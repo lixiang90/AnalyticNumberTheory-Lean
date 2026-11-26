@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.VonKoch
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimePowerFormula
 import AnalyticNumberTheory.PrimeDistribution.ShiftedZeroFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingNormalization
@@ -567,3 +568,31 @@ $$`J_0(x)=\operatorname{Ei}(\log x)
 对 $`x^{1/d}` 作{ref "prime-counting-explicit-formula"}[有限 Möbius 反演]可恢复通常的 $`\pi(x)`。例如 $`J_0(4)=1+1+1/4=9/4`，而 $`J_0(2)=1/2`，所以 $`\pi(4)=9/4-(1/2)(1/2)=2`。当 $`x` 本身是素数时，在反演所得的中点值上再加 $`1/2`。
 
 {docstring primePi_eq_moebius_principalEi_formula}
+
+# 素数定理的误差与零点实部
+%%%
+tag := "von-koch-error"
+file := "von-koch-error"
+%%%
+
+{index}[von Koch 判别法]令 $`\Theta` 为 ζ 函数所有非平凡零点实部的上确界。对每个实数 $`x\ge2`，都有
+$$`|\psi(x)-x|\le C x^{\Theta}(\log x)^2.`
+这里 $`\psi(x)=\sum_{n\le x}\Lambda(n)` 在素数幂处计入整个跳跃。估计对 $`x` 的位置没有额外限制。
+
+{docstring abs_psi_sub_id_le_zetaSupRe_log_sq}
+
+在截断高度 $`T=x` 的显式公式中，每个零点满足 $`|x^\rho|=x^{\Re\rho}\le x^\Theta`。再把零点按高度分组，利用计重数的零点计数 $`N(T)\ll T\log T`，得到
+$$`\sum_{|\Im\rho|\le T}\frac{m_\rho}{|\rho|}\ll(\log T)^2.`
+
+{docstring sum_zeroMultiplicity_div_norm_le}
+
+反过来，若一个固定幂次 $`a` 满足 $`\psi(x)-x=O(x^a)`，则 $`\Theta\le a`。这是因为更靠右的零点会迫使误差沿一列趋于无穷的 $`x` 超过这个幂界。于是，对任意 $`a`，$`\Theta\le a` 当且仅当每个 $`\varepsilon>0` 都给出误差 $`O(x^{a+\varepsilon})`。换言之，$`\Theta` 是所有可用幂次的下确界。
+
+{docstring zetaSupRe_le_iff_psi_error_isBigO}
+
+{docstring zetaSupRe_eq_sInf_psi_error_exponents}
+
+由函数方程的对称性，$`\Theta=1/2` 与{ref "riemann-hypothesis"}[黎曼猜想]等价。代入上面的上界，再用逆推论，便得到 von Koch 判别法
+$$`\mathrm{RH}\quad\Longleftrightarrow\quad\psi(x)=x+O\!\left(\sqrt{x}(\log x)^2\right).`
+
+{docstring riemannHypothesisProp_iff_psi_error_isBigO_sqrt_log_sq}

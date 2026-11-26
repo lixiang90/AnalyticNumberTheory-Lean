@@ -19,6 +19,8 @@ file := "riemann-hypothesis"
 
 {docstring riemannHypothesisProp_iff_mertensM_isBigO}
 
+另一个算术等价命题来自素数计数。{ref "von-koch-error"}[von Koch 判别法]表明，黎曼猜想等价于 $`\psi(x)-x=O(\sqrt{x}(\log x)^2)`。
+
 黎曼猜想还蕴含 Lindelöf 猜想，即 ζ 函数在临界线上满足任意正幂的增长上界。下面的 Lean 声明显式接受黎曼猜想作为前提。
 
 {docstring riemannHypothesisProp_implies_lindelof}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.SelbergLocalLogarithm
 import AnalyticNumberTheory.PrimeDistribution.LittlewoodArgument
 import AnalyticNumberTheory.PrimeDistribution.SelbergLocalExpansion
 import AnalyticNumberTheory.PrimeDistribution.SelbergZeroWindows
@@ -226,6 +227,33 @@ S_1(t)=O\!\left(\frac{\log t}{(\log\log t)^2}\right).`
 {docstring horizontalLogMean_zeta_eq_real_moment}
 
 {docstring AnalyticNumberTheory.PrimeDistribution.selberg_horizontal_logDeriv_integrals}
+
+# ζ 对数的局部零点展开
+%%%
+tag := "selberg-local-logarithm"
+file := "local-logarithm"
+%%%
+
+{index}[ζ 对数的局部零点展开]在黎曼猜想下，令 $`s=\sigma+it`、$`L=\log\log|t|`。当 $`|t|` 充分大、$`\tfrac12\le\sigma\le2` 且 $`\zeta(s)\ne0` 时，有一致估计
+$$`\log\zeta(s)=\sum_{|\gamma-t|<1/L}\log(s-\rho)
++O\!\left(\frac{\log|t|\,\log L}{L}\right).`
+零点按重数计入。左边从 $`2+it` 处的 Euler 对数沿水平线延拓，右边每一项取主值对数。这个约定也给出了临界线上每个正则点的值，适用于正、负两种高度。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.horizontalLogZeta_local_inverse_loglog_of_rh}
+
+{docstring horizontalLogZeta}
+
+{docstring exp_horizontalLogZeta}
+
+在 $`\sigma>\tfrac12` 时，水平延拓与{ref "rh-zeta-logarithm"}[Euler 乘积确定的全纯分支]相同。为估计误差，取 $`u=L/4` 和 $`b=\max(\sigma,\tfrac12+2/u)`。对{ref "selberg-local-log-derivative"}[对数导数的局部展开]从 $`\sigma` 积到 $`b`，每个极点给出 $`\log(s-\rho)-\log(b+it-\rho)`，剩余误差为 $`O(\log|t|/L)`。从 $`b` 再积到 $`2`，Selberg 估计给出同阶的界。
+
+{docstring horizontalLogZeta_eq_slitLogZeta}
+
+{docstring AnalyticNumberTheory.PrimeDistribution.horizontalLogZeta_sub_normalized_window_le_of_rh}
+
+窗口内至多有 $`O(\log|t|/L)` 个零点。参考点与其中每个零点的距离介于 $`1/L` 和 $`3` 之间，因而 $`|\log(b+it-\rho)|=O(\log L)`。将这些参考值逐项加回，就得到绝对误差中的 $`\log L=\log\log\log|t|`。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.selberg_horizontalLogZeta_and_window_le}
 
 # ζ 对数导数在左半平面的增长
 %%%

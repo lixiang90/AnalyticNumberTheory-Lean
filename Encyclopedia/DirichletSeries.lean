@@ -3,6 +3,8 @@ import AnalyticNumberTheory.DirichletSeries.Ramachandra
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.FrequencyUniqueness
 import AnalyticNumberTheory.DirichletSeries.FrequencyDensity
+import AnalyticNumberTheory.DirichletSeries.AbscissaExamples
+import AnalyticNumberTheory.DirichletSeries.OrdinaryCahen
 import AnalyticNumberTheory.DirichletSeries.CahenPrefixes
 import AnalyticNumberTheory.DirichletSeries.CahenTails
 import AnalyticNumberTheory.DirichletSeries.FrequencyMeanValues
@@ -129,6 +131,46 @@ $$`F(s_0+z)=M e^{-z\lambda_0}+z\int_{\lambda_0}^{\infty}(A(u)-M)e^{-zu}\,du.`
 {docstring DirichletFrequency.norm_summatory_sub_sum_le_centered}
 
 {docstring DirichletFrequency.norm_tail_le_of_bounded_left}
+
+# 绝对收敛横坐标与普通 Dirichlet 级数
+%%%
+tag := "absolute-and-ordinary-cahen"
+file := "absolute-and-ordinary-cahen"
+%%%
+
+把 $`a_n` 换成 $`|a_n|` 后，原级数的绝对收敛横坐标等于新级数的有序收敛横坐标。因而{ref "cahen-convergence-abscissa"}[Cahen 公式]可以直接用来计算 $`\sigma_a`。
+
+{docstring DirichletFrequency.absoluteAbscissa_eq_abscissa_norm}
+
+若 $`\sum_n |a_n|=\infty`，取 $`U_n=\sum_{k\le n}|a_k|`。若总和有限，取 $`V_n=\sum_{k\ge n}|a_k|`。分别有
+
+$$`\sigma_a=\limsup_{n\to\infty}\frac{\log U_n}{\lambda_n},
+\qquad
+\sigma_a=\limsup_{n\to\infty}\frac{\log V_n}{\lambda_n}.`
+
+{docstring DirichletFrequency.absoluteAbscissa_eq_exponentialRate_prefix}
+
+{docstring DirichletFrequency.absoluteAbscissa_eq_exponentialRate_tail}
+
+对于普通 Dirichlet 级数 $`\sum_{k\ge1} a_k k^{-s}`，令 $`A_N=\sum_{k=1}^N a_k`。若系数级数发散，分子用 $`\log|A_N|`，分母用 $`\log N`。若系数级数收敛到 $`S`，则余项 $`S-A_N` 从 $`N+1` 开始，分母用 $`\log(N+1)`。绝对收敛的对应公式同样从正整数 $`1` 起算。
+
+{docstring abscissaOfConvergence_eq_prefix_rate}
+
+{docstring abscissaOfConvergence_eq_tail_rate}
+
+{docstring abscissaOfAbsConv_eq_prefix_rate}
+
+{docstring abscissaOfAbsConv_eq_tail_rate}
+
+取 $`\lambda_n=n+1`、$`a_n=e^{b(n+1)}`，所得几何级数的公比是 $`e^{b-s}`。任取实数 $`b`，它的两个横坐标都等于 $`b`。特别地，取 $`b=-\log 2` 就得到前一条目中的例子。
+
+{docstring DirichletFrequency.geometric_abscissae}
+
+两个无穷端点也有具体例子。Dirichlet 多项式在整个复平面绝对收敛。相反，对任意频率序列取 $`a_n=e^{\lambda_n^2}`，在任一固定 $`s` 处，单项的模是 $`e^{\lambda_n(\lambda_n-\Re s)}`，无法趋于零。
+
+{docstring DirichletFrequency.abscissae_eq_bot_of_eventually_zero}
+
+{docstring DirichletFrequency.superexponential_abscissae}
 
 # 指数的密度与绝对收敛
 %%%

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.IntegratedExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingZeroSum
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingMellin
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimeCounting
@@ -156,3 +157,38 @@ $$`J(b)-J(a)=L_1(a,b)-\sum_{|\Im\rho|\le T}m_\rho L_\rho(a,b)
 证明对 Chebyshev 函数的截断显式公式作分部求和，权重取 $`w(t)=1/\log t`。若离散部分和与光滑函数 $`F` 的差在 $`[a,b]` 上至多为 $`M`，单调权把区间加权和同 $`\int_a^b w(t)F'(t)\,dt` 的差控制在 $`2Mw(a)` 以内。这个估计也覆盖恰好落在端点的素数幂。
 
 {docstring AnalyticNumberTheory.AnalyticTools.Summation.norm_weighted_sum_sub_integral_of_partial_sums}
+
+# Chebyshev 函数的一次积分与全部零点
+%%%
+tag := "integrated-explicit-formula"
+file := "integrated-explicit-formula"
+%%%
+
+{index}[Chebyshev 函数的积分显式公式]把 $`\Psi_1(x)=\int_1^x\psi(t)\,dt/t` 写成有限和，每个 $`n\le x` 的权重为 $`\log(x/n)`。例如 $`x=4` 时，$`n=4` 的权重恰为零，
+$`\Psi_1(4)=(\log 2)^2+\log 3\log(4/3)`。
+
+{docstring logWeightedSum_vonMangoldt_eq_integral_psi}
+
+对每个 $`x\ge1` 有精确等式
+
+$$`\Psi_1(x)=x-1-\log(2\pi)\log x
+-\sum_\rho\frac{x^\rho-1}{\rho^2}
+-\sum_{m=1}^\infty\frac{x^{-2m}-1}{4m^2}.`
+
+第一组和遍及临界带内所有非平凡零点，按解析重数计数。对固定的 $`x`，分子 $`|x^\rho-1|\le x+1`，而 $`\sum_\rho|\rho|^{-2}<\infty`。第二组和遍及负偶整数，也绝对收敛。取 $`x=1` 时，两个级数的每一项和等式的两边都是零。
+
+{docstring exists_integrated_explicit_formula_psi}
+
+为得到这个公式，先将{ref "centered-partial-fractions"}[以原点为基点的部分分式]除以 $`s^2`。在对数坐标 $`u=\log x\ge0` 下，极点 $`\omega` 对应的逆变换是 $`(e^{\omega u}-1)/\omega^2`。这个核对整个零点族给出可逐项积分的共同上界。
+
+{docstring AnalyticNumberTheory.AnalyticTools.integratedPole}
+
+{docstring AnalyticNumberTheory.AnalyticTools.summable_integratedPole}
+
+{docstring AnalyticNumberTheory.AnalyticTools.laplaceTransform_tsum_integratedPole}
+
+极点 $`1` 给出 $`x-1`，常数 $`-\log(2\pi)` 给出线性项 $`-\log(2\pi)\log x`。在 $`\Re s>1` 上求和后作 Bromwich 反演，得到同一个有限 von Mangoldt 加权和。
+
+{docstring exists_laplaceTransform_integratedZetaZeroSum}
+
+{docstring exists_logWeightedSum_vonMangoldt_eq_integratedZetaZeroSum}

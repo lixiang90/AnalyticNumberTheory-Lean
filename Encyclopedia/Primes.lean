@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannExponentialIntegral
 import AnalyticNumberTheory.PrimeDistribution.PrimeCountingExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingSharp
 import AnalyticNumberTheory.PrimeDistribution.SharpExplicitFormula
@@ -386,3 +387,38 @@ $$`\pi_0(x)=\lim_{T\to\infty}\sum_{d=1}^{N}\frac{\mu(d)}{d}\,E_T(a,x^{1/d}).`
 {docstring primePi_eq_midpoint_add_endpoint}
 
 {docstring tendsto_primePi_explicit_formula}
+
+# 指数积分与 Riemann 的零点项
+%%%
+tag := "riemann-exponential-integral"
+file := "riemann-exponential-integral"
+%%%
+
+{index}[指数积分与非平凡零点]在正实轴上，指数积分的归一化为
+$$`\operatorname{Ei}(z)=\gamma+\log z+\sum_{n=1}^{\infty}\frac{z^n}{n\,n!}.`
+使用复对数的主支就将它延拓到沿非正实轴割开的复平面。幂级数部分处处绝对收敛，逐项微分给出 $`\operatorname{Ei}'(z)=e^z/z`。[NIST DLMF 的正实轴公式](https://dlmf.nist.gov/6.6.E1)
+
+{docstring AnalyticNumberTheory.AnalyticTools.principalExponentialIntegral}
+
+{docstring AnalyticNumberTheory.AnalyticTools.summable_exponentialIntegralRemainder}
+
+{docstring AnalyticNumberTheory.AnalyticTools.hasDerivAt_principalExponentialIntegral}
+
+对 $`\Re\rho>0` 与 $`t>1`，点 $`\rho\log t` 始终在开右半平面内。链式法则给出 $`\frac{d}{dt}\operatorname{Ei}(\rho\log t)=t^{\rho-1}/\log t`，于是
+$$`L_\rho(a,b)=\operatorname{Ei}(\rho\log b)-\operatorname{Ei}(\rho\log a).`
+当 $`\rho=1` 时，它给出通常的对数积分差；对于 ζ 的每个非平凡零点，同一条等式给出相应的零点项。
+
+{docstring hasDerivAt_exponentialIntegral_log}
+
+{docstring zeroLogIntegral_eq_exponentialIntegral_sub}
+
+记 $`S_T(x)=\sum_{|\Im\rho|\le T}m_\rho\operatorname{Ei}(\rho\log x)`。取 $`1<a<2` 为基点，在同一个高度 $`T` 计算 $`S_T(x)-S_T(a)` 后再取极限。这给出{ref "prime-counting-explicit-formula"}[单点计数公式]的指数积分写法。
+$$`J_0(x)=\operatorname{Ei}(\log x)-\operatorname{Ei}(\log a)
+-\lim_{T\to\infty}(S_T(x)-S_T(a))
+-\int_a^x\frac{dt}{t(t^2-1)\log t}.`
+
+{docstring sharpZetaEiSum}
+
+{docstring sharpZeroLogIntegral_eq_EiSum_sub}
+
+{docstring tendsto_exponentialIntegral_zero_formula}

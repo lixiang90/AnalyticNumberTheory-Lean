@@ -1,4 +1,5 @@
 import AnalyticNumberTheory.DirichletSeries.LogPerron
+import AnalyticNumberTheory.DirichletSeries.HigherPerron
 import AnalyticNumberTheory.DirichletSeries.OrdinaryAbel
 import AnalyticNumberTheory.AnalyticTools.Summation.Abel
 
@@ -16,22 +17,33 @@ series. An integer at the cutoff has weight zero. -/
 def logWeightedSum (a : ℕ → ℂ) (x : ℝ) : ℂ :=
   ∑ n ∈ Icc 1 ⌊x⌋₊, a n * (Real.log (x/n) : ℂ)
 
-/-- Ordinary logarithmic Perron inversion, with kernel `x^s / s²`. -/
-theorem logWeightedSum_eq_perron {a : ℕ → ℂ} {x σ : ℝ} (hx : 0 < x) (hσ : 0 < σ)
-    (h : LSeriesSummable a (σ : ℂ)) :
-    logWeightedSum a x =
-      (∫ t : ℝ, LSeries a ((σ : ℂ)+t*I) * (x : ℂ)^((σ : ℂ)+t*I) / (((σ : ℂ)+t*I)^2))/(2*Real.pi) := by
+/-- The logarithmic Riesz mean of integral order `k` of arithmetic coefficients. -/
+def powerLogWeightedSum (k : ℕ) (a : ℕ → ℂ) (x : ℝ) : ℂ :=
+  ∑ n ∈ Icc 1 ⌊x⌋₊, a n * ((Real.log (x/n) : ℂ)^k / k.factorial)
+
+@[simp] theorem powerLogWeightedSum_one (a : ℕ → ℂ) (x : ℝ) :
+    powerLogWeightedSum 1 a x = logWeightedSum a x := by
+  simp [powerLogWeightedSum, logWeightedSum]
+
+/-- An ordinary logarithmic mean of any positive order is the absolute
+vertical integral against `x^s/s^(k+1)`, for every positive real cutoff. -/
+theorem powerLogWeightedSum_eq_perron {k : ℕ} (hk : 0 < k) {a : ℕ → ℂ} {x σ : ℝ}
+    (hx : 0 < x) (hσ : 0 < σ) (h : LSeriesSummable a (σ : ℂ)) :
+    powerLogWeightedSum k a x =
+      (∫ t : ℝ, LSeries a ((σ : ℂ)+t*I) * (x : ℂ)^((σ : ℂ)+t*I) / (((σ : ℂ)+t*I)^(k+1))) /
+        (2*Real.pi) := by
   let F := DirichletFrequency.logarithmic
-  have H := F.logPerron_formula (fun n => a (n+1)) hσ ((DirichletFrequency.logarithmic_absConvergesAt a _).mpr h) (Real.log x)
+  have H := F.powerLogPerron_formula (fun n => a (n+1)) hk hσ
+    ((DirichletFrequency.logarithmic_absConvergesAt a _).mpr h) (Real.log x)
   have hi (t : ℝ) :
-      F.sum (fun n => a (n+1)) ((σ : ℂ)+t*I) * logPerronKernel σ (Real.log x) t =
-        LSeries a ((σ : ℂ)+t*I) * (x : ℂ)^((σ : ℂ)+t*I) / (((σ : ℂ)+t*I)^2) := by
+      F.sum (fun n => a (n+1)) ((σ : ℂ)+t*I) * powerLogPerronKernel k σ (Real.log x) t =
+        LSeries a ((σ : ℂ)+t*I) * (x : ℂ)^((σ : ℂ)+t*I) / (((σ : ℂ)+t*I)^(k+1)) := by
     have ht : LSeriesSummable a ((σ : ℂ)+t*I) := h.of_re_le_re (by simp)
-    rw [DirichletFrequency.logarithmic_sum, ht.dirichletSum_eq_LSeries, logPerronKernel,
+    rw [DirichletFrequency.logarithmic_sum, ht.dirichletSum_eq_LSeries, powerLogPerronKernel,
       Complex.cpow_def_of_ne_zero (Complex.ofReal_ne_zero.mpr hx.ne'), ← Complex.ofReal_log hx.le,
       mul_comm ((σ : ℂ)+t*I), mul_div_assoc]
-  have hS (N : ℕ) : ∑ n ∈ range N, a (n+1) * ((Real.log x-F n : ℝ) : ℂ) =
-      ∑ n ∈ Icc 1 N, a n * (Real.log (x/n) : ℂ) := by
+  have hS (N : ℕ) : ∑ n ∈ range N, a (n+1) * (((Real.log x-F n : ℝ) : ℂ)^k / k.factorial) =
+      ∑ n ∈ Icc 1 N, a n * ((Real.log (x/n) : ℂ)^k / k.factorial) := by
     induction N with
     | zero => simp
     | succ N ih =>
@@ -40,6 +52,13 @@ theorem logWeightedSum_eq_perron {a : ℕ → ℂ} {x σ : ℝ} (hx : 0 < x) (h�
   dsimp only [F] at H hi hS
   rw [DirichletFrequency.logarithmic_count_log hx, hS, integral_congr_ae (ae_of_all _ hi)] at H
   exact H.symm
+
+/-- Ordinary logarithmic Perron inversion, with kernel `x^s / s²`. -/
+theorem logWeightedSum_eq_perron {a : ℕ → ℂ} {x σ : ℝ} (hx : 0 < x) (hσ : 0 < σ)
+    (h : LSeriesSummable a (σ : ℂ)) :
+    logWeightedSum a x =
+      (∫ t : ℝ, LSeries a ((σ : ℂ)+t*I) * (x : ℂ)^((σ : ℂ)+t*I) / (((σ : ℂ)+t*I)^2))/(2*Real.pi) := by
+  simpa only [powerLogWeightedSum_one] using powerLogWeightedSum_eq_perron (k := 1) (by decide) hx hσ h
 
 /-- The first logarithmic mean is the integral of the inclusive coefficient
 sum against `dt/t`. This finite identity holds even at integer endpoints. -/

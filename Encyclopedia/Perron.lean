@@ -58,6 +58,42 @@ $$`\sum_{n\le x}a_n\log(x/n)=\frac{1}{2\pi}\int_{\mathbb R}
 
 {docstring logWeightedSum_sub_eq_short_sum}
 
+# 任意阶的对数权与 Riesz 权
+%%%
+tag := "higher-perron-means"
+file := "higher-perron-means"
+%%%
+
+设 $`k\ge1` 是整数，$`s=\sigma+it` 且 $`\sigma>0`。在{ref "logarithmic-perron"}[一阶对数平滑]中，$`s^2` 给出一次权。将分母换成 $`s^{k+1}`，得到正部的 $`k` 次幂
+
+$$`\frac1{2\pi}\int_{\mathbb R}\frac{e^{sv}}{s^{k+1}}\,dt
+=\frac{(\max(v,0))^k}{k!}.`
+
+这是正半轴上 $`v^k/k!` 的 Laplace 反演。$`k\ge1` 使零延拓在原点连续，而且积分沿整条直线绝对收敛。
+
+{docstring integrable_powerLogPerronKernel}
+
+{docstring integral_powerLogPerronKernel}
+
+令 $`A(s)=\sum_n a_n e^{-\lambda_n s}` 在选定的直线上绝对收敛。每一项的指数因子把核的自变量从 $`u` 平移到 $`u-\lambda_n`。若反演所得的权 $`w(v)` 在 $`v<0` 时消失，积分便只留下有限和 $`\sum_{\lambda_n\le u}a_n w(u-\lambda_n)`。
+
+{docstring DirichletFrequency.smoothedPerron_formula}
+
+对重复因子 $`s^{k+1}` 和连续平移的因子 $`s(s+1)\cdots(s+k)`，令 $`v=u-\lambda_n\ge0`。它们分别给出
+
+$$`w_{\log}(v)=\frac{v^k}{k!},\qquad
+w_{\mathrm R}(v)=\frac{(1-e^{-v})^k}{k!}.`
+
+两种权在截点 $`\lambda_n=u` 都取零。这两个公式都允许积分线位于实际绝对收敛的边界。
+
+{docstring DirichletFrequency.powerLogPerron_formula}
+
+{docstring DirichletFrequency.rieszPerron_formula}
+
+对于普通 Dirichlet 级数，取 $`u=\log x` 和 $`\lambda_n=\log n`，两种权分别变成 $`(\log(x/n))^k/k!` 与 $`(1-n/x)^k/k!`。例如在 $`x=4`、$`k=2` 时，$`n=1` 的两种权分别是 $`(\log 4)^2/2` 和 $`9/32`。
+
+{docstring powerLogWeightedSum_eq_perron}
+
 # 带线性增长的分子与积分移线
 %%%
 tag := "log-perron-contour-shift"

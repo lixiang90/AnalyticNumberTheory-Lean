@@ -130,6 +130,7 @@ import AnalyticNumberTheory.DirichletSeries.Uniqueness
 import AnalyticNumberTheory.DirichletSeries.Operations
 import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.Perron
+import AnalyticNumberTheory.DirichletSeries.HigherPerron
 import AnalyticNumberTheory.DirichletSeries.VerticalOrder
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
 import AnalyticNumberTheory.RiemannZeta.PoleAndBounds

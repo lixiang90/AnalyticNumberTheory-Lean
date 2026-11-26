@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.ExponentialIntegralShifts
 import AnalyticNumberTheory.AnalyticTools.ExponentialIntegralAsymptotic
 import AnalyticNumberTheory.AnalyticTools.ExponentialIntegralReal
 import VersoManual
@@ -66,3 +67,26 @@ $$`\left|\operatorname{Ei}(z)-P(y)-\frac{e^z}{z}\right|
 {docstring principalExponentialIntegral_eq_left_add_phase}
 
 {docstring tendsto_leftExponentialIntegral_neg_add_im}
+
+# 平移留数的水平积分
+%%%
+tag := "ei-shifted-residues"
+file := "shifted-residues"
+%%%
+
+固定 $`u>0`，若 $`z` 在非负实轴之外，沿水平射线积分有
+$$`\int_0^\infty\frac{e^{(z-y)u}}{z-y}\,dy=H(zu),\qquad
+H(w)=\gamma+\log(-w)+\sum_{n\ge1}\frac{w^n}{n\,n!}.`
+在该射线上，$`H` 的导数是 $`e^w/w`，它在向左趋于无穷时衰减到零。对非实 $`z`，从主支 $`\operatorname{Ei}(zu)` 减去{ref "exponential-integral-phase"}[上、下半平面的相位]就得到 $`H(zu)`。
+
+{docstring integrableOn_shiftedPoleResidue}
+
+{docstring integral_Ioi_shiftedPoleResidue}
+
+将共同的首项 $`e^{-yu}e^{zu}/z` 提出后，修正项为 $`K_y(z)=y e^{(z-y)u}/[z(z-y)]`。当 $`\Re z\le1` 且 $`\Im z\ne0` 时，有
+$$`|K_y(z)|\le \frac{e^u}{(\Im z)^2}\, y e^{-uy}\qquad(y\ge0).`
+右边把高度和积分变量分开。用于{ref "riemann-prime-power-formula"}[Riemann 素数幂公式]时，纵坐标的平方倒数按解析重数可和，$`y e^{-uy}` 在正实轴上可积。
+
+{docstring norm_shiftedPoleCorrection_le}
+
+{docstring integral_Ioi_shiftedPoleCorrection}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannPrimePowerFormula
 import AnalyticNumberTheory.PrimeDistribution.ShiftedZeroFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingNormalization
 import AnalyticNumberTheory.PrimeDistribution.RiemannPolarNormalization
@@ -534,3 +535,35 @@ $$`A_y(1)-\frac{\zeta'(y)}{\zeta(y)}
 {docstring integratedZetaZeroSum_eq_logWeightedSum}
 
 {docstring AnalyticNumberTheory.RiemannZeta.neg_logDeriv_riemannZeta_eq_distinct_centered}
+
+# Riemann 的素数幂显式公式
+%%%
+tag := "riemann-prime-power-formula"
+file := "riemann-prime-power-formula"
+%%%
+
+{index}[Riemann 的素数幂显式公式]对每个实数 $`x>1`，令 $`J_0(x)` 在 $`p^k<x` 时计入 $`1/k`，在 $`p^k=x` 时计入 $`1/(2k)`。则有
+$$`J_0(x)=\operatorname{Ei}(\log x)
+-\lim_{T\to\infty}\sum_{|\Im\rho|\le T}m_\rho\operatorname{Ei}(\rho\log x)
+-\log 2+\int_x^\infty\frac{dt}{t(t^2-1)\log t}.`
+这里 $`\rho` 遍历 ζ 函数在开临界带内的不同零点，$`m_\rho` 是解析重数。指数积分取{ref "exponential-integrals"}[主支]，正负虚部共用同一个截断高度。等式对每个端点无条件成立。
+
+{docstring riemannPrimeCounting_explicit_formula}
+
+{docstring tendsto_riemannPrimeCounting_principalEi_formula}
+
+常数来自第一个素数之前的零计数。固定 $`1<a<2`，对{ref "real-shift-before-first-prime"}[平移公式]的两边沿 $`0<y<\infty` 积分。非平凡零点的首项有共同的因子 $`e^{-y\log a}`，其余项可以{ref "ei-shifted-residues"}[在积分内求和]。负偶数零点给出平凡零点尾积分的相反数。极点与 ζ 的对数导数组合后，由 $`\zeta(0)=-1/2` 得到 $`\operatorname{Ei}(\log a)-\log2`。这就确定了{ref "riemann-counting-normalization"}[对所有端点相同的常数]。
+
+{docstring integral_shiftedNontrivialZeroContribution}
+
+{docstring shiftedTrivialZeroContribution_eq_integral}
+
+{docstring integral_shiftedTrivialZeroContribution}
+
+{docstring riemannEiZeroSum_sub_tail_of_lt_two}
+
+{docstring riemannCountingConstant_eq_neg_log_two}
+
+对 $`x^{1/d}` 作{ref "prime-counting-explicit-formula"}[有限 Möbius 反演]可恢复通常的 $`\pi(x)`。例如 $`J_0(4)=1+1+1/4=9/4`，而 $`J_0(2)=1/2`，所以 $`\pi(4)=9/4-(1/2)(1/2)=2`。当 $`x` 本身是素数时，在反演所得的中点值上再加 $`1/2`。
+
+{docstring primePi_eq_moebius_principalEi_formula}

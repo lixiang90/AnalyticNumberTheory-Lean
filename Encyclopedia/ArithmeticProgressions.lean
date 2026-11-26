@@ -1,5 +1,5 @@
 import AnalyticNumberTheory.PrimeDistribution.PageProgressions
-import AnalyticNumberTheory.PrimeDistribution.RightmostCharacterZeros
+import AnalyticNumberTheory.PrimeDistribution.PageExceptionalExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.SiegelWalfisz
 import VersoManual
 
@@ -131,3 +131,34 @@ $$`\left\lvert\psi(y,\chi)+R_\chi(y;\sigma,T)\right\rvert
 在整个范围 $`q\le Q` 内取公共边界 $`1-c/\log((Q+2)(T+2))`，{ref "page-prime-progressions"}[Page 定理]还保证：至多只有一个本原特征所诱导的特征能留下零点。这个本原特征的选择与 $`T` 无关。
 
 {docstring page_nonprincipalDensityFinset_empty}
+
+# 小模数特征和的例外主项
+%%%
+tag := "exceptional-character-main-term"
+file := "exceptional-character-main-term"
+%%%
+
+{index}[例外特征和的主项]存在绝对正常数 $`\kappa,C`。给定 $`x\ge2`，置 $`u=\sqrt{\log x}`，考虑模数 $`q\le e^{\kappa u}` 的所有非主特征。除了可能由同一个本原实特征诱导的特征以外，任意 $`1\le y\le x` 都满足
+
+$$`\lvert\psi(y,\chi)\rvert\le Cx e^{-\kappa u/2}.`
+
+若在无零区域中保留了一个零点，它是单实零点 $`1/2\le\beta<1`。这时对上述每一个 $`y` 都有
+
+$$`\left\lvert\psi(y,\chi)+\frac{y^\beta-1}{\beta}\right\rvert
+\le Cx e^{-\kappa u/2}.`
+
+例外本原特征的选择对这批模数同时有效。实零点的贡献保留了符号；在 $`y=1` 处它等于零。
+
+{docstring page_psi_exceptional_explicit}
+
+在{ref "rightmost-character-zeros"}[只保留右侧零点的公式]中，若 $`T^2x^\sigma\le x`，则被删去零点的总贡献可并入 Perron 截断误差。取 $`\sigma=1-2\log T/\log x` 时恰好有 $`T^2x^\sigma=x`。
+
+{docstring nonprincipal_psi_balanced_explicit}
+
+{docstring height_sq_mul_rpow_balanced}
+
+取 $`T=e^{\kappa u}` 后，实部边界变成 $`1-2\kappa/u`。对充分小的绝对常数 $`\kappa`，它同时落在经典无零区域和 Page 的公共无零区域内。余项中的对数因子可以用 $`e^{\kappa u/2}` 吸收。
+
+{docstring sqrtLog_zeroFreeThreshold}
+
+{docstring nonprincipal_psi_sqrtLog_explicit}

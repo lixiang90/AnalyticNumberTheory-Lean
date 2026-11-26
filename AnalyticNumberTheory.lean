@@ -135,6 +135,7 @@ import AnalyticNumberTheory.DirichletSeries.EulerProduct
 import AnalyticNumberTheory.DirichletSeries.Perron
 import AnalyticNumberTheory.DirichletSeries.HigherPerron
 import AnalyticNumberTheory.DirichletSeries.VerticalOrder
+import AnalyticNumberTheory.DirichletSeries.PositiveMajorant
 import AnalyticNumberTheory.RiemannZeta.FunctionalEquation
 import AnalyticNumberTheory.RiemannZeta.PoleAndBounds
 import AnalyticNumberTheory.RiemannZeta.AsymptoticsAndMeans
@@ -154,6 +155,8 @@ import AnalyticNumberTheory.RiemannZeta.ZeroCounting
 import AnalyticNumberTheory.RiemannZeta.ZeroFreeRegion
 import AnalyticNumberTheory.RiemannZeta.RiemannHypothesis
 import AnalyticNumberTheory.RiemannZeta.LogarithmUnderRH
+import AnalyticNumberTheory.RiemannZeta.EulerLogBounds
+import AnalyticNumberTheory.RiemannZeta.LogarithmicGrowthUnderRH
 import AnalyticNumberTheory.DirichletLFunctions.Characters
 import AnalyticNumberTheory.DirichletLFunctions.GaussSums
 import AnalyticNumberTheory.DirichletLFunctions.CharacterSums

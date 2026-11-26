@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.RiemannZeta.LogarithmUnderRH
+import AnalyticNumberTheory.RiemannZeta.LogarithmicGrowthUnderRH
 import VersoManual
 
 open Verso.Genre Manual
@@ -54,3 +54,31 @@ $$`L(s)=G(s)-\operatorname{Log}(s-1)`
 {docstring slitLogZeta_eq_logZeta}
 
 {docstring tendsto_slitLogZeta_add_log_at_one}
+
+# 临界线右侧的对数增长界
+%%%
+tag := "rh-logarithmic-growth"
+file := "logarithmic-growth"
+%%%
+
+{index}[Littlewood 对数估计]设黎曼猜想成立，取定 $`1/2<\sigma_0\le1` 和 $`\varepsilon>0`。设 $`L(s)` 是从 Euler 乘积延拓来的{ref "rh-zeta-logarithm"}[对数分支]。对所有 $`s=\sigma+it` 满足 $`\sigma_0\le\sigma\le1`、$`|t|\ge2`，有
+$$`|L(\sigma+it)|\le C_{\sigma_0,\varepsilon}(\log |t|)^{2-2\sigma+\varepsilon}.`
+这个估计中的常数对整条闭带一致。越接近 $`\sigma=1`，允许的对数幂次越小。
+
+{docstring norm_slitLogZeta_le_log_rpow}
+
+证明在同心圆上比较 $`L` 的大小。内圆完全落在 $`\Re s\ge a>1` 内。这里 Dirichlet 级数的系数 $`\Lambda(n)/\log n` 非负，所以 $`|L(s)|\le\log\zeta(a)`。在外圆上，$`\Re L(s)=\log|\zeta(s)|`；Borel–Carathéodory 定理把实部的上界转化为整个对数的上界 $`O(\log |t|)`。
+
+{docstring norm_logZeta_le_log_norm_riemannZeta}
+
+{docstring norm_slitLogZeta_on_closedBall}
+
+取小量 $`\delta>0`，令圆心为 $`r+1+\delta+it`，内外圆半径分别为 $`r` 和 $`r+1/2`。点 $`\sigma+it` 到圆心的距离是 $`r+a`，其中 $`a=1+\delta-\sigma`。Hadamard 三圆定理给出对数幂次
+$$`\frac{\log(1+a/r)}{\log(1+1/(2r))}\le 2a+\frac{a}{r}.`
+选取足够小的 $`\delta` 和足够大的 $`r` 就得到所需的指数。
+
+固定 $`\sigma_0>1/2` 后，可以取 $`\varepsilon` 使整条带上的指数严格小于一。因此 $`L(s)=o(\log|t|)`，而 $`\zeta(s)=e^{L(s)}` 及其倒数对任意 $`\eta>0` 在充分大高度均至多为 $`|t|^\eta`。
+
+{docstring norm_slitLogZeta_le_mul_log_of_large_height}
+
+{docstring norm_riemannZeta_and_inv_le_rpow_of_large_height}

@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.GoldstonZeroSum
 import AnalyticNumberTheory.PrimeDistribution.CramerPrimeGaps
 import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
 import AnalyticNumberTheory.PrimeDistribution.PrimeCountingError
@@ -676,3 +677,23 @@ $$`0\le W\le h\big(\psi(xe^{2h})-\psi(x)\big).`
 $$`\theta(x+K\sqrt{x}\log x)-\theta(x)\ge\sqrt{x}\log x.`
 
 {docstring exists_theta_shortInterval_lower_sqrt_log_of_rh}
+
+# 平滑零点和与 Goldston 截断
+%%%
+tag := "goldston-truncation"
+file := "goldston-truncation"
+%%%
+
+{index}[Goldston 截断]令 $`x=e^u`，对积分显式公式在 $`u` 和 $`u+h` 处取差商。零点 $`\rho` 的新权重是
+$$`D_\rho(u,h)=e^{\rho u}\frac{e^{\rho h}-1}{h\rho^2}.`
+这里 $`h` 可以取正值或负值。只要两个端点的对数都非负，差商就可以与绝对收敛的零点级数交换。
+
+{docstring AnalyticNumberTheory.AnalyticTools.hasSum_logarithmicPoleSlope}
+
+在{ref "riemann-hypothesis"}[黎曼猜想]下取 $`|h|=1/(2T)`，其中 $`T\ge2`，则
+$$`\left|\sum_\rho D_\rho(u,h)-\sum_{|\Im\rho|\le T}\frac{x^\rho}{\rho}\right|\ll\sqrt{x}\log T.`
+两边都按重数求和。低处零点满足 $`|\rho h|\le1`，用指数函数的一阶展开替换每个权重，引入的误差至多为 $`\sqrt{x}|h|`。高处零点仍用平滑权重，其和由{ref "triangular-zero-sums"}[零点倒数平方的尾和]控制。
+
+{docstring AnalyticNumberTheory.AnalyticTools.norm_logarithmicPoleSlope_sub_residue_le}
+
+{docstring norm_tsum_logarithmicPoleSlope_sub_sharp_le_of_rh}

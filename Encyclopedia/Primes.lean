@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.SymmetricExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.IntegratedExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingZeroSum
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingMellin
@@ -192,3 +193,33 @@ $$`\Psi_1(x)=x-1-\log(2\pi)\log x
 {docstring exists_laplaceTransform_integratedZetaZeroSum}
 
 {docstring exists_logWeightedSum_vonMangoldt_eq_integratedZetaZeroSum}
+
+# 半权 Chebyshev 函数的对称差分公式
+%%%
+tag := "symmetric-explicit-formula"
+file := "symmetric-explicit-formula"
+%%%
+
+{index}[Chebyshev 函数的对称差分]写 $`u=\log x`，在跳跃点把 $`\psi` 的左右极限平均，记为 $`\psi_0`。例如 $`\psi_0(8)=\psi(7)+(\log 2)/2`。在对数坐标中，每个算术系数 $`a_n` 对一次对数平均的贡献为 $`a_n\max(u-\log n,0)`。对称取 $`u-h,u+h` 两点作差再除以 $`2h`，恰好经过折点的那一项给出 $`a_n/2`。
+
+{docstring midpointPsi}
+
+{docstring midpointPsi_nat_succ}
+
+{docstring AnalyticNumberTheory.DirichletSeries.eventually_symmetric_logWeightedSum}
+
+对 $`x>1`，固定 $`x` 后取充分小的 $`h>0`，使 $`(xe^{-h},xe^h)` 内只能含有等于 $`x` 的整数。将{ref "integrated-explicit-formula"}[一次积分显式公式]在两端相减，立刻得到精确等式
+
+$$`\psi_0(x)=K_h(1,x)-\log(2\pi)-\sum_\rho K_h(\rho,x)
+-\sum_{m\ge1}K_h(-2m,x),\qquad
+K_h(\omega,x)=\frac{x^\omega\sinh(\omega h)}{h\omega^2}.`
+
+{docstring AnalyticNumberTheory.AnalyticTools.symmetricPole}
+
+{docstring exists_symmetric_explicit_formula_midpointPsi}
+
+每个这样的宽度都给出同一个半权值。固定 $`h` 时，两组级数分别绝对收敛，因而可以把取差运算移入级数。$`h` 趋于零时，单个核趋向 $`x^\omega/\omega`；此时非平凡零点的求和还需要指定取极限的方式。
+
+{docstring summable_symmetric_nontrivial}
+
+{docstring summable_symmetric_trivial}

@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.PrimeDistribution.VonKoch
+import AnalyticNumberTheory.PrimeDistribution.PrimeCountingError
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimePowerFormula
 import AnalyticNumberTheory.PrimeDistribution.ShiftedZeroFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingNormalization
@@ -596,3 +596,29 @@ $$`\sum_{|\Im\rho|\le T}\frac{m_\rho}{|\rho|}\ll(\log T)^2.`
 $$`\mathrm{RH}\quad\Longleftrightarrow\quad\psi(x)=x+O\!\left(\sqrt{x}(\log x)^2\right).`
 
 {docstring riemannHypothesisProp_iff_psi_error_isBigO_sqrt_log_sq}
+
+# 普通素数计数的平方根误差
+%%%
+tag := "prime-counting-rh-error"
+file := "rh-prime-counting-error"
+%%%
+
+{index}[素数计数的平方根误差]记 $`\pi(x)=\#\{p\le x\}`、$`\operatorname{Li}_2(x)=\int_2^x dt/\log t`。黎曼猜想等价于
+$$`\pi(x)=\operatorname{Li}_2(x)+O(\sqrt{x}\log x).`
+同一判别法以 $`\theta(x)=\sum_{p\le x}\log p` 表示时，误差为 $`O(\sqrt{x}(\log x)^2)`。
+
+{docstring riemannHypothesisProp_iff_primePi_error_isBigO_sqrt_log}
+
+{docstring riemannHypothesisProp_iff_theta_error_isBigO_sqrt_log_sq}
+
+这一个对数因子的差别来自分部求和。设 $`\Theta` 是非平凡零点实部的上确界。从{ref "von-koch-error"}[对 $`\psi` 的无条件误差界]中去掉高次素数幂，得到 $`|\theta(x)-x|\ll x^\Theta(\log x)^2`。把 $`\theta(x)-x` 除以 $`\log x` 后，分部求和的余项由 $`\int_2^x t^{\Theta-1}dt` 控制。因此对所有 $`x\ge2` 有 $`|\pi(x)-\operatorname{Li}_2(x)|\ll x^\Theta\log x`。
+
+{docstring abs_theta_sub_id_le_zetaSupRe_log_sq}
+
+{docstring abs_primePi_sub_logIntegral_le_zetaSupRe_log}
+
+逆向论证有一个端点常数。令 $`E(x)=\pi(x)-\operatorname{Li}_2(x)`，则
+$$`\theta(x)-x=E(x)\log x-\int_2^x\frac{E(t)}{t}\,dt-2.`
+这里的 $`-2` 来自对数积分的下端点。若 $`E(x)=O(\sqrt{x}\log x)`，右边给出 $`\theta(x)-x=O(\sqrt{x}(\log x)^2)`，从而由 von Koch 判别法推出黎曼猜想。
+
+{docstring theta_sub_id_eq_primePi_error_abel}

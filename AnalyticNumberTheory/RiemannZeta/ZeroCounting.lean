@@ -1365,7 +1365,9 @@ theorem riemannZeta_two_add_mul_I_re_ge (y : ℝ) :
   rw [h1_re]
   linarith
 
-private lemma xi_logDeriv_one_sub_star (z : ℂ) (hz : xi z ≠ 0) :
+/-- Reflection in the critical line sends the logarithmic derivative of ξ to the
+negative of its complex conjugate. -/
+theorem xi_logDeriv_one_sub_star (z : ℂ) (hz : xi z ≠ 0) :
     deriv xi (1 - star z) / xi (1 - star z) = -star (deriv xi z / xi z) := by
   have hstar_ne : xi (star z) ≠ 0 := by
     change xi (starRingEnd ℂ z) ≠ 0
@@ -1681,6 +1683,19 @@ theorem zeroCountUpTo_eq_contour_halved {T : ℝ} (hT : 0 < T) (hno : ¬ IsZeroO
   rw [← h_eq]
   field_simp [Real.pi_pos.ne']
 
+/-- Away from zero, the negative even integers, the pole, and the zeta zeros,
+the logarithmic derivative of ξ splits into the pole, Gamma, and ζ terms. -/
+theorem xi_logDeriv_eq_parts_of_ne_neg_even {s : ℂ} (hs : ∀ m : ℕ, s ≠ -2*(m : ℂ))
+    (hs₁ : s ≠ 1) (hζ : riemannZeta s ≠ 0) :
+    deriv xi s / xi s = 1/(s-1) - (1/2 : ℂ)*(Real.log Real.pi : ℂ) +
+      (1/2 : ℂ)*AnalyticNumberTheory.AnalyticTools.Gamma.digamma (s/2+1) +
+        deriv riemannZeta s / riemannZeta s := by
+  obtain ⟨a, B, _, _, _, _, _, H⟩ := exists_hadamard_factorization_xi
+  have hs₀ : s ≠ 0 := by simpa only [Nat.cast_zero, mul_zero] using hs 0
+  rw [H s hs₀ (fun he => hζ (xi_eq_zero_iff.mp he).1),
+    logDeriv_riemannZeta_eq_partial_fractions_of_xi H hs hs₁ hζ]
+  ring
+
 /-- In the right half-plane the logarithmic derivative of the completed zeta function
 splits into its pole, conductor, shifted digamma, and zeta contributions. -/
 theorem xi_logDeriv_eq_parts {s : ℂ} (hs_re : 0 < s.re) (hs1 : s ≠ 1)
@@ -1689,88 +1704,11 @@ theorem xi_logDeriv_eq_parts {s : ℂ} (hs_re : 0 < s.re) (hs1 : s ≠ 1)
       1 / (s - 1) - (1 / 2 : ℂ) * (Real.log Real.pi : ℂ) +
         (1 / 2 : ℂ) * AnalyticNumberTheory.AnalyticTools.Gamma.digamma (s / 2 + 1) +
         deriv riemannZeta s / riemannZeta s := by
-  have hs0 : s ≠ 0 := fun h ↦ by simp [h] at hs_re
-  have hs_ne1 : s - 1 ≠ 0 := sub_ne_zero.mpr hs1
-  have hπ_ne : (Real.pi : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
-  have hs_half_ne : ∀ m : ℕ, s / 2 + 1 ≠ -(m : ℂ) := by
-    intro m hm
-    have hre := congrArg Complex.re hm
-    simp only [Complex.add_re, Complex.div_re, Complex.re_ofNat, Complex.im_ofNat, Complex.one_re,
-      Complex.neg_re, Complex.natCast_re, mul_zero] at hre
-    norm_num [Complex.normSq] at hre
-    have hm_nonneg : (0 : ℝ) ≤ m := Nat.cast_nonneg m
-    linarith
-  have hG_ne : Complex.Gamma (s / 2 + 1) ≠ 0 := Complex.Gamma_ne_zero hs_half_ne
-  have hev_eq : xi =ᶠ[𝓝 s] fun z : ℂ ↦
-      (z - 1) * (Real.pi : ℂ) ^ (-z / 2) * Complex.Gamma (z / 2 + 1) * riemannZeta z := by
-    let r : ℝ := min (s.re / 2) (‖s - 1‖ / 2)
-    have hr_pos : 0 < r := lt_min (half_pos hs_re) (half_pos (norm_pos_iff.mpr hs_ne1))
-    filter_upwards [Metric.ball_mem_nhds s hr_pos] with z hz_ball
-    have hz_dist : ‖z - s‖ < r := by simpa [Metric.mem_ball, dist_eq_norm] using hz_ball
-    have hz_re : 0 < z.re := by
-      have h1 : |z.re - s.re| ≤ ‖z - s‖ := Complex.abs_re_le_norm (z - s)
-      have h2 := hz_dist.trans_le (min_le_left _ _)
-      linarith [(abs_le.mp (h1.trans h2.le)).1]
-    have hz1 : z ≠ 1 := by
-      intro h; subst h
-      have h2 := hz_dist.trans_le (min_le_right _ _)
-      rw [norm_sub_rev] at h2
-      linarith [norm_pos_iff.mpr hs_ne1]
-    have hz0 : z / 2 ≠ 0 := div_ne_zero (fun h ↦ by simp [h] at hz_re) two_ne_zero
-    rw [xi_eq_formula_of_re_pos hz_re hz1, Complex.Gamma_add_one (z / 2) hz0]
-    ring
-  have hd1 : HasDerivAt (fun z : ℂ ↦ z - 1) 1 s := (hasDerivAt_id s).sub_const 1
-  have hlogπ : Complex.log (Real.pi : ℂ) = (Real.log Real.pi : ℂ) :=
-    (Complex.ofReal_log Real.pi_pos.le).symm
-  have hd2 : HasDerivAt (fun z : ℂ ↦ (Real.pi : ℂ) ^ (-z / 2))
-      ((Real.pi : ℂ) ^ (-s / 2) * (-(1 / 2 : ℂ) * (Real.log Real.pi : ℂ))) s := by
-    have hexp : HasDerivAt (fun z : ℂ ↦ -z / 2) (-(1 / 2 : ℂ)) s := by
-      have h := ((hasDerivAt_id s).neg).div_const (2 : ℂ)
-      exact h.congr_deriv (by ring)
-    have hc := HasDerivAt.const_cpow hexp (Or.inl hπ_ne)
-    refine hc.congr_deriv ?_
-    rw [hlogπ]
-    ring
-  have hd3 : HasDerivAt (fun z : ℂ ↦ Complex.Gamma (z / 2 + 1))
-      (deriv Complex.Gamma (s / 2 + 1) * (1 / 2 : ℂ)) s := by
-    have hG_diff : DifferentiableAt ℂ Complex.Gamma (s / 2 + 1) :=
-      Complex.differentiableAt_Gamma _ hs_half_ne
-    have hlin : HasDerivAt (fun z : ℂ ↦ z / 2 + 1) (1 / 2 : ℂ) s := by
-      have h := ((hasDerivAt_id s).div_const (2 : ℂ)).add_const (1 : ℂ)
-      exact h.congr_deriv (by ring)
-    exact (hG_diff.hasDerivAt).comp s hlin
-  have hd4 : HasDerivAt riemannZeta (deriv riemannZeta s) s :=
-    (differentiableAt_riemannZeta hs1).hasDerivAt
-  have hd_all : HasDerivAt (fun z : ℂ ↦
-      (z - 1) * (Real.pi : ℂ) ^ (-z / 2) * Complex.Gamma (z / 2 + 1) * riemannZeta z)
-      (((1 * (Real.pi : ℂ) ^ (-s / 2) + (s - 1) * ((Real.pi : ℂ) ^ (-s / 2) *
-          (-(1 / 2 : ℂ) * (Real.log Real.pi : ℂ)))) *
-          Complex.Gamma (s / 2 + 1) +
-        ((s - 1) * (Real.pi : ℂ) ^ (-s / 2)) *
-          (deriv Complex.Gamma (s / 2 + 1) * (1 / 2 : ℂ))) * riemannZeta s +
-      ((s - 1) * (Real.pi : ℂ) ^ (-s / 2) * Complex.Gamma (s / 2 + 1)) *
-        deriv riemannZeta s) s :=
-    (((hd1.mul hd2).mul hd3).mul hd4)
-  have hderiv_xi : deriv xi s =
-      (1 * (Real.pi : ℂ) ^ (-s / 2) + (s - 1) * ((Real.pi : ℂ) ^ (-s / 2) *
-          (-(1 / 2 : ℂ) * (Real.log Real.pi : ℂ)))) *
-        Complex.Gamma (s / 2 + 1) * riemannZeta s +
-      (s - 1) * (Real.pi : ℂ) ^ (-s / 2) * (deriv Complex.Gamma (s / 2 + 1) * (1 / 2 : ℂ)) *
-        riemannZeta s +
-      (s - 1) * (Real.pi : ℂ) ^ (-s / 2) * Complex.Gamma (s / 2 + 1) * deriv riemannZeta s := by
-    rw [hev_eq.deriv_eq, hd_all.deriv]
-    ring
-  have hxi_eq_prod : xi s =
-      (s - 1) * (Real.pi : ℂ) ^ (-s / 2) * Complex.Gamma (s / 2 + 1) * riemannZeta s :=
-    hev_eq.eq_of_nhds
-  have hπ_pow_ne : (Real.pi : ℂ) ^ (-s / 2) ≠ 0 :=
-    Complex.cpow_ne_zero_iff.mpr (Or.inl hπ_ne)
-  rw [hderiv_xi, hxi_eq_prod, AnalyticNumberTheory.AnalyticTools.Gamma.digamma_def]
-  set G := Complex.Gamma (s / 2 + 1)
-  set G' := deriv Complex.Gamma (s / 2 + 1)
-  have hG_ne' : G ≠ 0 := hG_ne
-  field_simp [hs_ne1, hπ_pow_ne, hG_ne', hs_zeta]
-  ring
+  apply xi_logDeriv_eq_parts_of_ne_neg_even _ hs1 hs_zeta
+  intro m he
+  have h := congrArg Complex.re he
+  simp [Complex.mul_re] at h
+  linarith [Nat.cast_nonneg (α := ℝ) m]
 
 private lemma hasDerivAt_im_log_zeta_two_add_mul_I (y : ℝ) :
     HasDerivAt (fun t : ℝ ↦ (Complex.log (riemannZeta ((2 : ℂ) + (t : ℂ) * I))).im)

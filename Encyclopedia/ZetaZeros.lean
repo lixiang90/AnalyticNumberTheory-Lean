@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.SelbergLocalExpansion
 import AnalyticNumberTheory.PrimeDistribution.SelbergZeroWindows
 import AnalyticNumberTheory.PrimeDistribution.ShiftedMangoldtMean
 import AnalyticNumberTheory.PrimeDistribution.ZeroTailAsymptotic
@@ -174,6 +175,31 @@ $$`F(s)\ll e^{2u}+\log|t|,\qquad
 {docstring AnalyticNumberTheory.PrimeDistribution.sum_multiplicity_le_poissonMass}
 
 {docstring AnalyticNumberTheory.PrimeDistribution.zeroCountUpTo_sub_le_poissonMass}
+
+# ζ 对数导数的局部零点展开
+%%%
+tag := "selberg-local-log-derivative"
+file := "local-log-derivative"
+%%%
+
+{index}[ζ 对数导数的局部零点展开]设黎曼猜想成立，$`s=\sigma+it`，$`L=\log\log|t|`。在 $`-1\le\sigma\le2` 内，对所有充分大的 $`|t|` 和满足 $`\zeta(s)\ne0` 的点，一致有
+$$`\frac{\zeta'}{\zeta}(s)=
+\sum_{|\gamma-t|<1/L}\frac1{s-(\tfrac12+i\gamma)}+O(\log|t|).`
+求和窗口是开区间，零点按重数计入。这一展开在逼近某个零点时仍然有效，因为该零点的极点项已单独写出。
+
+{docstring AnalyticNumberTheory.PrimeDistribution.logDeriv_zeta_local_inverse_loglog_strip_of_rh}
+
+{docstring ZetaZeroEnumeration.ordinateWindow}
+
+令 $`\delta=8/L`，取参考点 $`w=\tfrac12+\delta+it`。当 $`|\sigma-\tfrac12|\le\delta` 时，把 ξ 对数导数在 $`s` 和 $`w` 处的展开相减。对于窗口外的零点，$`|w-\rho|\le9|s-\rho|`，所以差值可由 $`\delta/|w-\rho|^2` 的常数倍控制。在窗口内，扣掉 $`1/(s-\rho)` 后留下 $`-1/(w-\rho)`，同样可以求和。两部分的总误差至多为参考点处{ref "critical-line-poisson-mass"}[Poisson 和]的十八倍。
+
+{docstring AnalyticNumberTheory.AnalyticTools.EntireFunctions.norm_centeredPole_sub_window_le}
+
+{docstring ZetaZeroEnumeration.norm_logDeriv_xi_sub_window_le}
+
+在参考点及其右侧，{ref "inverse-loglog-zero-window"}[Selberg 估计]给出对数大小的上界。利用 ξ 的泛函方程可将右半边的估计反射到左半边。最后从 ξ 换回 ζ，Gamma 因子带来的对数导数修正一致为 $`O(\log|t|)`。
+
+{docstring norm_logDeriv_xi_sub_zeta_le}
 
 # ζ 对数导数在左半平面的增长
 %%%

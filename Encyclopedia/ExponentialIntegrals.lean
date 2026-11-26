@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.ExponentialIntegralAsymptotic
 import AnalyticNumberTheory.AnalyticTools.ExponentialIntegralReal
 import VersoManual
 
@@ -38,3 +39,30 @@ Lean 的复对数在 $`-x` 处选取辐角 $`\pi`。因此，对 $`x>0`，把这
 {docstring principalExponentialIntegral_neg_real}
 
 {docstring tendsto_principalExponentialIntegral_neg_real}
+
+# 非实方向的相位与余项
+%%%
+tag := "exponential-integral-phase"
+file := "phase-and-remainder"
+%%%
+
+{index}[指数积分的复渐近式]在上半平面取 $`P(y)=i\pi`，在下半平面取 $`P(y)=-i\pi`，其中 $`y=\Im z`。当 $`y\ne0` 时，有带显式常数的估计
+
+$$`\left|\operatorname{Ei}(z)-P(y)-\frac{e^z}{z}\right|
+ \le \frac{e^{\Re z}}{y^2}.`
+
+例如在虚轴上，$`\operatorname{Ei}(iy)` 与 $`P(y)+e^{iy}/(iy)` 相差至多 $`1/y^2`。共轭的一对自变量具有相反的常数相位。
+
+{docstring exponentialIntegralPhase}
+
+{docstring exponentialIntegralPhase_neg}
+
+{docstring norm_principalExponentialIntegral_sub_phase_sub_le}
+
+为了得到积分常数，在穿过负实轴的分支上使用 $`\log(-z)`。这个分支在固定水平直线的左端趋于零。沿直线对它与 $`e^z/z` 的差积分，导数为 $`e^z/z^2`。分母的模至少为 $`y^2`，而 $`\int_{-\infty}^{\Re z} e^t\,dt=e^{\Re z}`，由此得到上界。
+
+{docstring leftExponentialIntegral}
+
+{docstring principalExponentialIntegral_eq_left_add_phase}
+
+{docstring tendsto_leftExponentialIntegral_neg_add_im}

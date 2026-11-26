@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannEiZeroSum
 import AnalyticNumberTheory.PrimeDistribution.RiemannExponentialIntegral
 import AnalyticNumberTheory.PrimeDistribution.PrimeCountingExplicitFormula
 import AnalyticNumberTheory.PrimeDistribution.RiemannCountingSharp
@@ -422,3 +423,33 @@ $$`J_0(x)=\operatorname{Ei}(\log x)-\operatorname{Ei}(\log a)
 {docstring sharpZeroLogIntegral_eq_EiSum_sub}
 
 {docstring tendsto_exponentialIntegral_zero_formula}
+
+# 单个端点的 Ei 零点和
+%%%
+tag := "individual-ei-zero-sum"
+file := "individual-ei-zero-sum"
+%%%
+
+{index}[按高度收敛的 Ei 零点和]固定 $`x>1`，再让高度趋于正无穷，单个端点的和
+$$`S(x)=\lim_{T\to\infty}\sum_{|\Im\rho|\le T}m_\rho\operatorname{Ei}(\rho\log x)`
+存在。于是{ref "riemann-exponential-integral"}[基点归一化的 Riemann 公式]中可以分别求出 $`S(x)` 和 $`S(a)`，再作差。
+
+{docstring riemannEiZeroSum}
+
+{docstring tendsto_sharpZetaEiSum}
+
+{docstring riemannPrimeCounting_eq_Ei_sub_zeroSum}
+
+在每个有限高度，零点 $`\rho,\overline{\rho}` 的解析重数相同。它们在{ref "exponential-integral-phase"}[指数积分的渐近式]中的相位恰好抵消。剩下的首项之和，是{ref "sharp-chebyshev-explicit-formula"}[Chebyshev 零点和]除以 $`\log x`。
+
+{docstring sum_zeroMultiplicity_eq_zero_of_conj_odd}
+
+{docstring sharpZetaEiSum_eq_leading_add_remainder}
+
+单个余项的模至多为 $`x/((\log x)^2(\Im\rho)^2)`。单位高度带的零点计数估计保证这些余项按解析重数绝对可和，这就把单端点的收敛问题归结为已知的 Chebyshev 公式。
+
+{docstring norm_riemannEiZeroRemainder_le}
+
+{docstring summable_riemannEiZeroRemainder}
+
+{docstring tendsto_sum_nontrivialZerosUpTo_of_summable}

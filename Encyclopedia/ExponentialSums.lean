@@ -10,7 +10,7 @@ import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
 import AnalyticNumberTheory.ExponentialSums.PrimeContourWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeTotientBound
 import AnalyticNumberTheory.AdditiveNumberTheory.GaussCoefficientBounds
-import AnalyticNumberTheory.AdditiveNumberTheory.PageCharacterFourierFormula
+import AnalyticNumberTheory.ExponentialSums.SmallDenominatorExpansion
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -380,6 +380,34 @@ $$`\left\lvert\sum_{n\le y,\ n\ge1}a_n e(zn)-\int_1^y F'(t)e(zt)\,dt\right\rvert
 {docstring AnalyticNumberTheory.AdditiveNumberTheory.characterPrimeSum_sub_powerWeight}
 
 {docstring AnalyticNumberTheory.AdditiveNumberTheory.page_characterPrimeSum_explicit}
+
+# 小分母有理频率附近的两项估计
+%%%
+tag := "small-denominator-expansion"
+file := "small-denominator-expansion"
+%%%
+
+{index}[小分母与实频移]设 $`q\le e^{\kappa\sqrt{\log x}}`，$`\gcd(a,q)=1`，$`1\le y\le x`，$`x\ge2`。对任意实数 $`z`，von Mangoldt 加权指数和 $`S(y,\alpha)=\sum_{n\le y}\Lambda(n)e(\alpha n)` 满足
+
+$$`\left\lvert S\!\left(y,\frac aq+z\right)\right\rvert
+\ll \frac{\log\log(10q)}{\sqrt q}\frac{y}{1+y\lvert z\rvert}
++qx e^{-b\sqrt{\log x}}(1+2\pi y\lvert z\rvert).`
+
+这里 $`b,\kappa` 均为绝对正常数。第一项来自{ref "principal-uniform-main-term"}[主特征的线性主项]和{ref "exceptional-fourier-term"}[可能的例外实零点]。两个主项都具有同样的频率衰减。第二项控制其余特征以及各主项的部分求和误差。
+
+{docstring primeExpSum_small_denominator_expansion}
+
+对固定的模数，导子和诱导它的本原特征唯一确定原来的特征。因此，在正交展开里，至多两个系数需要乘以第一项中的傅里叶积分界；其余项只累积一致误差。
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.character_inducingPair_injective}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_sum_rationalCharacterCoefficient_exceptional}
+
+在与 $`q` 互素的指标上，有限特征反演精确恢复有理加法相位；在其余指标上，展开等于零。给每项再乘以 $`e(zn)` 保持其模，因而丢弃的素数幂对任何实数 $`z` 的总误差仍至多为 $`(\log q)(\log y)/\log 2`。
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.sum_rationalCharacterCoefficient_mul_char}
+
+{docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_primeExpSum_shift_sub_character_expansion}
 
 # 有限 Poisson 求和与倒数相位
 %%%

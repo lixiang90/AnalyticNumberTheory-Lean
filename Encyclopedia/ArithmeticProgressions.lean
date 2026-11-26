@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.PrimeDistribution.PageProgressions
 import AnalyticNumberTheory.PrimeDistribution.PageExceptionalExplicitFormula
+import AnalyticNumberTheory.PrimeDistribution.PrincipalCharacterMainTerm
 import AnalyticNumberTheory.PrimeDistribution.SiegelWalfisz
 import VersoManual
 
@@ -162,3 +163,27 @@ $$`\left\lvert\psi(y,\chi)+\frac{y^\beta-1}{\beta}\right\rvert
 {docstring sqrtLog_zeroFreeThreshold}
 
 {docstring nonprincipal_psi_sqrtLog_explicit}
+
+# 主特征和的统一端点误差
+%%%
+tag := "principal-uniform-main-term"
+file := "principal-uniform-main-term"
+%%%
+
+给定 $`x\ge2`，对所有 $`1\le y\le x` 和 $`1\le q\le x`，模 $`q` 的主特征 $`\chi_0` 同时满足
+
+$$`\lvert\psi(y,\chi_0)-(y-1)\rvert\le Cx e^{-b\sqrt{\log x}},`
+
+其中 $`b,C` 为绝对正常数。选用 $`y-1` 作主项使它在左端点等于零，导数恒为一。这使{ref "exceptional-fourier-term"}[傅里叶部分求和]可直接用于主特征。
+
+{docstring principal_psi_sub_linear_uniform_exp}
+
+证明先统一普通 $`\psi(y)-y` 的误差。在 $`y\le 2\sqrt{x}` 时用 Chebyshev 的初等估计；在其余区间应用素数定理，利用 $`\log y\ge(\log x)/2` 把指数误差移到同一尺度。由 $`\psi(y)` 换到主特征时，被删去的素数幂总权至多为 $`(\log q)(\log y)/\log 2`。
+
+{docstring abs_psi_sub_id_uniform_exp}
+
+{docstring log_modulus_partial_le_sqrt}
+
+对任意实数 $`b`，配方给出 $`\sqrt{x}\le e^{b^2/2}xe^{-b\sqrt{\log x}}`，所以平方根量级的误差可吸收进上述余项。
+
+{docstring sqrt_le_exp_sqrtLog_error}

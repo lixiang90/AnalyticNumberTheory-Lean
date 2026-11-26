@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.AnalyticTools.Gamma.Stirling
 import AnalyticNumberTheory.AnalyticTools.Gamma.StirlingSectorBounds
+import AnalyticNumberTheory.AnalyticTools.Gamma.DigammaBounds
 import VersoManual
 
 open Verso.Genre Manual
@@ -69,3 +70,29 @@ $$`I_{j,q}(s)=\int_0^\infty\frac{b_j(u)}{(s+u)^q}\,du
 {docstring stirlingBernoulliIntegral_step}
 
 {docstring norm_stirlingBernoulliIntegral_le}
+
+# digamma 函数与最近的极点
+%%%
+tag := "digamma-pole-distance"
+file := "digamma-pole-distance"
+%%%
+
+记 $`\psi(s)=\Gamma'(s)/\Gamma(s)`，并令 $`d(s)=\min_{n\ge0}|s+n|`。在每个极点以外，$`d(s)>0`，而且最小值总由某个非正整数实现。对所有这些 $`s`，有统一估计
+
+$$`|\psi(s)|\le\frac1{d(s)}+5\log(|s|+2)+\pi+6+\log 2.`
+
+例如在 $`s=-7+it`、$`t\ne0` 时，最近的极点是 $`-7`，距离项恰为 $`1/|t|`。在右半平面 $`\Re s\ge1`，由{ref "all-orders-stirling"}[Stirling 公式]直接得到 $`|\psi(s)|\le\log|s|+\pi+2`。
+
+{docstring exists_poleDistance_eq_norm}
+
+{docstring norm_digamma_le_log_of_one_le_re}
+
+{docstring norm_digamma_le_poleDistance_inv_add_log}
+
+为把右半平面的结果传回 $`s`，取 $`N=\lceil |s|+1\rceil`，使用递推式 $`\psi(s+N)-\psi(s)=\sum_{j=0}^{N-1}(s+j)^{-1}`。在这段有限和里挑出距离最近的一项 $`k`。由三角不等式，其他每项都有 $`|j-k|\le 2|s+j|`。分别对 $`k` 的左右两侧求和，得到
+
+$$`\sum_{j=0}^{N-1}\frac1{|s+j|}\le\frac1{d(s)}+4H_N,\qquad H_N=\sum_{j=1}^N\frac1j.`
+
+这也解释了全平面估计中距离项的系数为何可以取一。
+
+{docstring AnalyticNumberTheory.AnalyticTools.sum_inv_norm_add_nat_le}

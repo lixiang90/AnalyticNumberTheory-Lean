@@ -108,6 +108,7 @@ import AnalyticNumberTheory.AnalyticTools.Gamma.InfiniteProducts
 import AnalyticNumberTheory.AnalyticTools.Gamma.Basic
 import AnalyticNumberTheory.AnalyticTools.Gamma.Stirling
 import AnalyticNumberTheory.AnalyticTools.Gamma.StirlingSectorBounds
+import AnalyticNumberTheory.AnalyticTools.Gamma.DigammaBounds
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.Jensen
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.BorelCaratheodory
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.HadamardThreeCircles

@@ -1,3 +1,5 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannCountingNormalization
+import AnalyticNumberTheory.PrimeDistribution.RiemannPolarNormalization
 import AnalyticNumberTheory.PrimeDistribution.RiemannEiZeroSum
 import AnalyticNumberTheory.PrimeDistribution.RiemannExponentialIntegral
 import AnalyticNumberTheory.PrimeDistribution.PrimeCountingExplicitFormula
@@ -453,3 +455,43 @@ $$`S(x)=\lim_{T\to\infty}\sum_{|\Im\rho|\le T}m_\rho\operatorname{Ei}(\rho\log x
 {docstring summable_riemannEiZeroRemainder}
 
 {docstring tendsto_sum_nontrivialZerosUpTo_of_summable}
+
+# 平凡零点的尾积分与归一化常数
+%%%
+tag := "riemann-counting-normalization"
+file := "riemann-counting-normalization"
+%%%
+
+{index}[Riemann 公式的归一化]记 $`S(x)` 为{ref "individual-ei-zero-sum"}[按高度收敛的零点和]。把平凡零点的贡献从 $`x` 积到无穷远，得到
+$$`B(x)=\int_x^\infty\frac{dt}{t(t^2-1)\log t},\qquad
+0\le B(x)\le\frac{1}{x(x-1)\log x}.`
+由于 $`B(a)-B(x)` 恰好等于区间 $`[a,x]` 上的积分，原先依赖两个端点的计数公式可以写成
+$$`J_0(x)=\operatorname{Ei}(\log x)-S(x)+B(x)+C \qquad (x>1).`
+取 $`a=3/2`，此时还没有素数幂，故 $`C=S(a)-\operatorname{Ei}(\log a)-B(a)`。这个常数对所有 $`x` 相同，素数幂端点仍然取半权。
+
+{docstring riemannTrivialZeroTail}
+
+{docstring integrableOn_riemannTrivialZeroTail}
+
+{docstring riemannTrivialZeroTail_bounds}
+
+{docstring tendsto_riemannTrivialZeroTail_atTop}
+
+{docstring trivialZeroLogIntegral_eq_tail_sub}
+
+{docstring riemannCountingConstant}
+
+{docstring riemannPrimeCounting_eq_Ei_zeroSum_tail_constant}
+
+令 $`u>0`。沿实变量 $`y` 平移时，极点项和 ζ 的对数导数各自在 $`y=1` 发散，两者的差却有可去奇点。设 $`P(z)=\sum_{n\ge1}z^n/(n\,n!)`，将 $`\zeta_1(y)=(y-1)\zeta(y)` 连续延拓至 $`1`，则 $`-P((1-y)u)-\log\zeta_1(y)` 是这个差的原函数。由 $`\zeta_1(0)=1/2`、$`\zeta(y)\to1` 和{ref "eone-euler-normalization"}[实指数积分的衰减]，得到
+$$`\lim_{R\to\infty}\int_0^R
+\left(\frac{e^{(1-y)u}}{1-y}-\frac{\zeta'(y)}{\zeta(y)}\right)dy
+=\operatorname{Ei}(u)-\log 2.`
+
+{docstring riemannZeta₁_zero_eq_half}
+
+{docstring riemannZeta₁_re_pos_of_nonneg}
+
+{docstring tendsto_riemannZeta_ofReal_atTop}
+
+{docstring tendsto_integral_riemannPolar_sub_logDeriv}

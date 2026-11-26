@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.RiemannPrimeCounting
 import AnalyticNumberTheory.PrimeDistribution.PrimeNumberTheorem
 import AnalyticNumberTheory.PrimeDistribution.LeastPrime
 import AnalyticNumberTheory.PrimeDistribution.LeastPrimeSubexponential
@@ -63,3 +64,39 @@ $$`\frac{n}{\varphi(n)}\le
 取 $`y=\log(10n)`，大素因子的总贡献便被绝对常数控制。于是对包括 $`n=1` 在内的所有正整数都有 $`n/\varphi(n)\ll\log\log(10n)`。这一估计直接用于{ref "smoothed-rational-prime-bound"}[有理频率的 Gauss 系数]。
 
 {docstring div_totient_le_loglog}
+
+# Riemann 素数幂计数与 Möbius 反演
+%%%
+tag := "riemann-prime-counting"
+file := "riemann-prime-counting"
+%%%
+
+{index}[Riemann 素数幂计数函数]令 $`J(x)=\sum_{1<n\le x}\Lambda(n)/\log n`。素数 $`p` 的贡献为 $`1`，平方 $`p^2` 的贡献为 $`1/2`，一般的 $`p^k` 贡献 $`1/k`。按指数重新求和，得到
+
+$$`J(x)=\sum_{1\le k\le L}\frac{\pi(x^{1/k})}{k},\qquad L=\lfloor\log x/\log 2\rfloor.`
+
+{docstring riemannPrimeCounting}
+
+{docstring riemannPrimeCounting_eq_sum_primePi}
+
+对于 $`x\ge2`，Möbius 反演恢复通常的素数计数：
+
+$$`\pi(x)=\sum_{1\le d\le L}\frac{\mu(d)}d\,J(x^{1/d}).`
+
+展开右边后，指数乘积 $`m=dj` 的系数为 $`m^{-1}\sum_{d\mid m}\mu(d)`。除了 $`m=1`，所有系数都为零。有限倍数和形式的同一个反演对任意环值函数成立。
+
+{docstring primePi_eq_sum_moebius_riemannPrimeCounting}
+
+{docstring AnalyticNumberTheory.AnalyticTools.Summation.sum_moebius_mul_sum_multiples}
+
+在跳跃点取左右极限的平均值，就得到 $`J_0` 和 $`\pi_0`。例如在 $`x=8`，普通计数给出 $`J(8)=4+1/2+1/3=29/6`，而半权计数给出 $`J_0(8)=4+1/2+1/6=14/3`。用 $`J_0` 反演时，三次根恰好是素数 $`2`，所以 $`J_0(2)=1/2`。由此 $`\pi_0(8)=14/3-1/2-1/6=4`。
+
+{docstring riemannPrimeCounting_half_succ}
+
+{docstring primePiWithEndpoint_half_succ}
+
+在 Lean 中，参数 $`c` 指定截点处的权重。取 $`c=0,1/2,1` 分别得到严格计数、半权计数与包含端点的计数。两道反演公式只需要把原数与各次根的截点权重取成同一个 $`c`。
+
+{docstring riemannPrimeCounting_eq_sum_primePiWithEndpoint}
+
+{docstring primePiWithEndpoint_eq_sum_moebius_riemannPrimeCounting}

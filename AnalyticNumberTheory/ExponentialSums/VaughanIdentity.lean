@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.Summation.DivisorSums
 import AnalyticNumberTheory.AnalyticTools.Summation.Abel
 import AnalyticNumberTheory.PrimeDistribution.Chebyshev
 import Mathlib.Algebra.Order.Chebyshev
@@ -274,43 +275,6 @@ theorem vaughan_identity_pointwise_of_gt {U V n : ℕ} (hn : V < n) :
   have h := vaughan_identity_pointwise U V n
   simp only [not_le.mpr hn, ↓reduceIte, zero_add] at h
   exact h
-
-private theorem sum_Icc_divisors_mul (N M : ℕ) (g : ℕ → ℕ → ℂ) :
-    ∑ n ∈ Finset.Icc 1 N, ∑ d ∈ n.divisors with d ≤ M, g d (n / d) =
-      ∑ d ∈ Finset.Icc 1 M, ∑ m ∈ Finset.Icc 1 (N / d), g d m := by
-  rw [Finset.sum_sigma' (Finset.Icc 1 N) (fun n => n.divisors.filter (· ≤ M))
-    (fun n d => g d (n / d)),
-    Finset.sum_sigma' (Finset.Icc 1 M) (fun d => Finset.Icc 1 (N / d)) (fun d m => g d m)]
-  refine Finset.sum_bij (fun p _ => (⟨p.2, p.1 / p.2⟩ : Σ _ : ℕ, ℕ)) ?_ ?_ ?_ ?_
-  · intro ⟨n, d⟩ hp
-    simp only [Finset.mem_sigma, Finset.mem_Icc, Finset.mem_filter, Nat.mem_divisors] at hp
-    have hn_pos : 0 < n := hp.1.1
-    have hd_dvd : d ∣ n := hp.2.1.1
-    have hd_pos : 0 < d := Nat.pos_of_dvd_of_pos hd_dvd hn_pos
-    have hd_le_n : d ≤ n := Nat.le_of_dvd hn_pos hd_dvd
-    exact Finset.mem_sigma.mpr ⟨Finset.mem_Icc.mpr ⟨hd_pos, hp.2.2⟩,
-      Finset.mem_Icc.mpr ⟨Nat.div_pos hd_le_n hd_pos, Nat.div_le_div_right hp.1.2⟩⟩
-  · intro ⟨n₁, d₁⟩ hp₁ ⟨n₂, d₂⟩ hp₂ heq
-    simp only [Finset.mem_sigma, Finset.mem_Icc, Finset.mem_filter, Nat.mem_divisors] at hp₁ hp₂
-    have hd : d₁ = d₂ := congrArg Sigma.fst heq
-    have hq : n₁ / d₁ = n₂ / d₂ := congrArg Sigma.snd heq
-    have hn : n₁ = n₂ := by
-      calc n₁ = d₁ * (n₁ / d₁) := (Nat.mul_div_cancel' hp₁.2.1.1).symm
-        _ = d₂ * (n₂ / d₂) := by rw [hq, hd]
-        _ = n₂ := Nat.mul_div_cancel' hp₂.2.1.1
-    cases hn; cases hd; rfl
-  · intro ⟨d, m⟩ hdm
-    simp only [Finset.mem_sigma, Finset.mem_Icc] at hdm
-    have hd_pos : 0 < d := hdm.1.1
-    have hm_pos : 0 < m := hdm.2.1
-    have hdm_le : d * m ≤ N := (Nat.mul_le_mul_left d hdm.2.2).trans (Nat.mul_div_le N d)
-    refine ⟨⟨d * m, d⟩, Finset.mem_sigma.mpr ⟨Finset.mem_Icc.mpr ⟨Nat.mul_pos hd_pos hm_pos, hdm_le⟩,
-      Finset.mem_filter.mpr ⟨Nat.mem_divisors.mpr ⟨dvd_mul_right d m, (Nat.mul_pos hd_pos hm_pos).ne'⟩,
-        hdm.1.2⟩⟩, ?_⟩
-    dsimp only
-    rw [Nat.mul_div_cancel_left m hd_pos]
-  · intro _ _
-    rfl
 
 /-- Exact Vaughan sum identity in `ℂ` for any `x : ℝ`, parameters `U, V : ℕ` (`1 ≤ V`), and
 arbitrary weight function `f : ℕ → ℂ`. -/

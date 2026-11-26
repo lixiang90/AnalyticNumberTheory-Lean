@@ -1,4 +1,4 @@
-import AnalyticNumberTheory.RiemannZeta.LogarithmicGrowthUnderRH
+import AnalyticNumberTheory.RiemannZeta.OneLineUnderRH
 import VersoManual
 
 open Verso.Genre Manual
@@ -82,3 +82,24 @@ $$`\frac{\log(1+a/r)}{\log(1+1/(2r))}\le 2a+\frac{a}{r}.`
 {docstring norm_slitLogZeta_le_mul_log_of_large_height}
 
 {docstring norm_riemannZeta_and_inv_le_rpow_of_large_height}
+
+# 直线 Re s = 1 上的 Littlewood 估计
+%%%
+tag := "rh-littlewood-one-line"
+file := "littlewood-one-line"
+%%%
+
+{index}[Littlewood 在实部一上的估计]在 $`\sigma=1` 处，{ref "rh-logarithmic-growth"}[对数幂估计]对每个固定的 $`\varepsilon>0` 给出 $`O_\varepsilon((\log|t|)^\varepsilon)`。假设黎曼猜想，沿高度 $`t` 的一段短水平线积分，可以保留更精确的主项系数。对充分大的 $`|t|`，Euler 乘积延拓来的分支满足
+$$`|\log\zeta(1+it)|\le \log\log\log|t|+A.`
+
+{docstring norm_slitLogZeta_one_le_log_log_log}
+
+令 $`m=\log\log|t|`、$`\delta=1/m`。在 $`\Re s\ge1+\delta`，非负的 von Mangoldt 系数给出 $`|\zeta'(s)/\zeta(s)|\ll1/\delta`。在圆心 $`2+it`、半径 $`5/4` 的圆上，Cauchy 导数估计给出 $`O(\log|t|)`。应用三圆定理，在 $`|\Re s-1|\le\delta` 内得到
+$$`\left|\frac{\zeta'(s)}{\zeta(s)}\right|\ll\log\log|t|.`
+
+{docstring norm_logDeriv_riemannZeta_near_one_of_rh}
+
+从 $`1+\delta+it` 到 $`1+it` 的距离恰好为 $`1/m`，所以对数在这段路上只变化 $`O(1)`。右端的 Euler 级数给出 $`|\log\zeta(1+\delta+it)|\le\log\zeta(1+\delta)\le\log(2/\delta)`。这就得到上面的三重对数估计。分别对 $`\Re\log\zeta` 和它的相反数取指数，得到
+$$`|\zeta(1+it)|\ll\log\log|t|,\qquad |1/\zeta(1+it)|\ll\log\log|t|.`
+
+{docstring norm_riemannZeta_one_and_inv_le_log_log}

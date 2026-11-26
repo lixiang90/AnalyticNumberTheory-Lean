@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
 import AnalyticNumberTheory.PrimeDistribution.PrimeCountingError
 import AnalyticNumberTheory.PrimeDistribution.RiemannPrimePowerFormula
 import AnalyticNumberTheory.PrimeDistribution.ShiftedZeroFormula
@@ -622,3 +623,26 @@ $$`\theta(x)-x=E(x)\log x-\int_2^x\frac{E(t)}{t}\,dt-2.`
 这里的 $`-2` 来自对数积分的下端点。若 $`E(x)=O(\sqrt{x}\log x)`，右边给出 $`\theta(x)-x=O(\sqrt{x}(\log x)^2)`，从而由 von Koch 判别法推出黎曼猜想。
 
 {docstring theta_sub_id_eq_primePi_error_abel}
+
+# 对数短区间的三角权与零点尾和
+%%%
+tag := "triangular-zero-sums"
+file := "triangular-zero-sums"
+%%%
+
+{index}[三角权]取 $`x=e^u`，在 $`u,u+h,u+2h` 三点对{ref "integrated-explicit-formula"}[积分显式公式]作二阶差分。对一个极点或零点 $`\omega`，相应的核为
+$$`D_\omega(u,h)=e^{\omega u}\left(\frac{e^{\omega h}-1}{\omega}\right)^2.`
+二阶差分消去常数项和线性项。算术一侧，它将 von Mangoldt 权重集中到区间 $`(x,xe^{2h})`，在对数中点 $`u+h` 达到最大权重 $`h`。
+
+{docstring AnalyticNumberTheory.AnalyticTools.integratedPole_second_difference}
+
+令 $`m_\rho` 为零点的解析重数。无条件的零点计数 $`N(T)\ll T\log T` 给出尾和
+$$`\sum_{|\Im\rho|\ge T}\frac{m_\rho}{(\Im\rho)^2}\ll\frac{\log T}{T}\qquad(T\ge2).`
+
+{docstring tsum_zeroMultiplicity_div_im_sq_tail_le}
+
+假设{ref "riemann-hypothesis"}[黎曼猜想]，取 $`0<h\le1/2`。高度低于 $`1/h` 的每个零点贡献 $`O(\sqrt{x}\,h^2)`，更高零点的贡献为 $`O(\sqrt{x}/(\Im\rho)^2)`。在这个高度分割，两段各自都不超过常数乘 $`\sqrt{x}\,h\log(1/h)`。此界对任意有限零点集成立，完整零点级数也绝对收敛。
+
+{docstring sum_norm_secondPoleDifference_le_of_rh}
+
+{docstring norm_tsum_secondPoleDifference_le_of_rh}

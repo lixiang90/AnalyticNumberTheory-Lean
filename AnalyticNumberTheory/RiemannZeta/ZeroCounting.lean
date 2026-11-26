@@ -1681,7 +1681,9 @@ theorem zeroCountUpTo_eq_contour_halved {T : ℝ} (hT : 0 < T) (hno : ¬ IsZeroO
   rw [← h_eq]
   field_simp [Real.pi_pos.ne']
 
-private lemma xi_logDeriv_eq_parts {s : ℂ} (hs_re : 0 < s.re) (hs1 : s ≠ 1)
+/-- In the right half-plane the logarithmic derivative of the completed zeta function
+splits into its pole, conductor, shifted digamma, and zeta contributions. -/
+theorem xi_logDeriv_eq_parts {s : ℂ} (hs_re : 0 < s.re) (hs1 : s ≠ 1)
     (hs_zeta : riemannZeta s ≠ 0) :
     deriv xi s / xi s =
       1 / (s - 1) - (1 / 2 : ℂ) * (Real.log Real.pi : ℂ) +

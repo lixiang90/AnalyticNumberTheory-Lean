@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.PrimeDistribution.ShiftedMangoldtMean
 import AnalyticNumberTheory.PrimeDistribution.ZeroTailAsymptotic
+import AnalyticNumberTheory.RiemannZeta.PoissonZeroAsymptotic
 import AnalyticNumberTheory.RiemannZeta.LogDerivativeLeft
 import AnalyticNumberTheory.RiemannZeta.CenteredPartialFractions
 import AnalyticNumberTheory.RiemannZeta.IntegratedArgument
@@ -120,6 +121,31 @@ $$`-\frac{\zeta'}{\zeta}(s)=\sum_{n\le x^2}\frac{\Lambda(n)w_x(n)}{n^s}
 {docstring AnalyticNumberTheory.PrimeDistribution.selberg_logDeriv_explicit_formula}
 
 {docstring AnalyticNumberTheory.PrimeDistribution.summable_selberg_zero_slopes}
+
+# 临界线上的 Poisson 零点和
+%%%
+tag := "critical-line-poisson-mass"
+file := "poisson-zero-sum"
+%%%
+
+{index}[Poisson 零点和]设黎曼猜想成立，写 $`s=\sigma+it`、$`\delta=\sigma-\tfrac12`。每个零点 $`\rho=\tfrac12+i\gamma` 对 $`\Re(1/(s-\rho))` 的贡献为 $`\delta/(\delta^2+(t-\gamma)^2)`。将这些项按重数相加，记为 $`F(s)`。当 $`\delta>0` 时各项都为正。满足 $`|t-\gamma|\le\delta` 的每个零点至少贡献 $`1/(2\delta)`。
+
+{docstring ZetaZeroEnumeration.poissonMass}
+
+在 $`s\ne 0` 且 $`\xi(s)\ne0` 处有 $`F(s)=\Re(\xi'/\xi)(s)`。证明对 ξ 的 Hadamard 展开取实部，并减去它在 $`1/2` 处的值。泛函方程 $`\xi(s)=\xi(1-s)` 给出 $`\xi'(1/2)=0`，而每个零点在该处的上述贡献也为零。这样便确定了展开中的实常数。
+
+{docstring deriv_xi_half}
+
+{docstring ZetaZeroEnumeration.re_logDeriv_xi_eq_poissonMass}
+
+把 ξ 的 Gamma 因子展开，可得
+$$`F(s)=\Re\frac{\zeta'}{\zeta}(s)+\frac12\log\frac{|t|}{2\pi}
++O\!\left(\frac1{|t|}\right).`
+这一余项对 $`0<\sigma\le2`、$`|t|\ge2` 内所有满足 $`\zeta(s)\ne0` 的点一致。即使 $`s` 接近零点，误差常数也相同。这里用到的 Gamma 估计是有界竖直带上 $`\Re\psi(z)=\log|\Im z|+O(1/|\Im z|)`，其中 $`\psi=\Gamma'/\Gamma`。
+
+{docstring poissonMass_sub_re_logDeriv_estimate}
+
+{docstring AnalyticNumberTheory.AnalyticTools.Gamma.abs_re_digamma_sub_log_height_le}
 
 # ζ 对数导数在左半平面的增长
 %%%

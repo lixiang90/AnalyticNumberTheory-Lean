@@ -10,7 +10,7 @@ import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeSums
 import AnalyticNumberTheory.ExponentialSums.PrimeContourWeights
 import AnalyticNumberTheory.ExponentialSums.SmoothedPrimeTotientBound
 import AnalyticNumberTheory.AdditiveNumberTheory.GaussCoefficientBounds
-import AnalyticNumberTheory.ExponentialSums.SmallDenominatorExpansion
+import AnalyticNumberTheory.ExponentialSums.SmallDenominatorWeights
 import AnalyticNumberTheory.PrimeDistribution.FixedModulusPolynomialMoments
 import VersoManual
 
@@ -408,6 +408,40 @@ $$`\left\lvert S\!\left(y,\frac aq+z\right)\right\rvert
 {docstring AnalyticNumberTheory.AdditiveNumberTheory.sum_rationalCharacterCoefficient_mul_char}
 
 {docstring AnalyticNumberTheory.AdditiveNumberTheory.norm_primeExpSum_shift_sub_character_expansion}
+
+# 小分母主弧上的三种素数和
+%%%
+tag := "small-denominator-prime-sums"
+file := "small-denominator-prime-sums"
+%%%
+
+{index}[小分母主弧]令 $`u=\sqrt{\log x}`。存在绝对常数 $`\eta,C>0`，使得对 $`x\ge2`、既约分数 $`a/q` 和实数 $`z`，只要 $`q\le e^{\eta u}` 且 $`x\lvert z\rvert\le e^{\eta u}`，就可以用同一个量控制三个素数指数和。写 $`\alpha=a/q+z` 并置
+
+$$`V(x,q,z)=\frac{x\log\log(10q)}{\sqrt q\,(1+x\lvert z\rvert)}.`
+
+则每个 $`1\le y\le x` 都满足
+
+$$`\left\lvert\sum_{n\le y}\Lambda(n)e(\alpha n)\right\rvert\le CV(x,q,z),
+\qquad \left\lvert\sum_{p\le y}(\log p)e(\alpha p)\right\rvert\le CV(x,q,z).`
+
+无权和还节省一个对数：
+
+$$`\left\lvert\sum_{p\le x} e(\alpha p)\right\rvert
+\le C\,\frac{V(x,q,z)}{1+\log x}.`
+
+这三个不等式包括 $`q=1`、$`z=0` 和负分子。在弧中心，频率因子等于一；离开中心时，它随 $`x\lvert z\rvert` 增大而衰减。
+
+{docstring smallDenominatorPrimeScale}
+
+{docstring primeExpSum_small_denominator}
+
+{docstring prime_sums_small_denominator}
+
+在{ref "small-denominator-expansion"}[小分母的两项估计]中选 $`4\eta\le b`。移到不等式的同一侧后，分母、弧宽和部分求和引入的因子合计至多是 $`e^{4\eta u}` 的常数倍，因而被 $`e^{-bu}` 吸收。去掉高次素数幂的代价为 $`O(\sqrt x)`。对素数作部分求和时，先分出 $`p\le\sqrt x`，其余项用对数权和的统一端点界估计。
+
+{docstring smallDenominator_error_absorption}
+
+{docstring sqrt_mul_log_le_smallDenominatorPrimeScale}
 
 # 有限 Poisson 求和与倒数相位
 %%%

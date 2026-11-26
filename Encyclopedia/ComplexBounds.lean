@@ -1,3 +1,4 @@
+import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.LogDerivativeResidues
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.WeightedArgumentPrinciple
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.HorizontalLogMean
 import AnalyticNumberTheory.AnalyticTools.ComplexAnalysis.Jensen
@@ -65,3 +66,32 @@ $$`\frac{1}{2\pi i}\int_{\partial R}g(s)\frac{f'(s)}{f(s)}\,ds
 证明先从 $`f` 中提出有限乘积 $`\prod_\rho(s-\rho)^{m_\rho}`。剩余因子在闭矩形上处处非零，其对数导数乘以 $`g` 后的边界积分为零。对其余各项 $`m_\rho g(s)/(s-\rho)` 使用柯西积分公式即可。
 
 {docstring factor_entire_finite_zeros}
+
+# 矩形留数与带 Cauchy 核的辐角原理
+%%%
+tag := "rectangular-simple-residues"
+file := "rectangular-simple-residues"
+%%%
+
+{index}[矩形围道的留数定理]设 $`F` 在闭矩形 $`R` 内除有限个内点 $`p` 外全纯，并且在每个 $`p` 的去心邻域中可以写成 $`r_p/(s-p)+H_p(s)`，其中 $`H_p` 在 $`p` 处解析。正向沿矩形的四边积分，得到
+
+$$`\int_{\partial R} F(s)\,ds=2\pi i\sum_{p\in R}r_p.`
+
+这个形式只需要知道每个极点附近的主部。例如把 $`F` 乘以在 $`p` 处解析的 $`g`，新的留数就是 $`r_p g(p)`。在 Lean 的表述中，可去奇点对应 $`r_p=0`。
+
+{docstring HasSimplePrincipalPartAt}
+
+{docstring HasSimplePrincipalPartAt.mul_analytic}
+
+{docstring rectangleBoundary_eq_sum_simpleResidues}
+
+若 $`f` 在 $`p` 处有 $`m` 阶零点，则局部可写为 $`f(s)=(s-p)^m v(s)`，其中 $`v(p)\ne0`。因此 $`f'/f` 的留数为 $`m`。在{ref "weighted-argument-principle"}[带权辐角原理]中允许权函数带有一个简单极点，取 $`q` 为矩形内满足 $`f(q)\ne0` 的点，就有
+
+$$`\frac1{2\pi i}\int_{\partial R}\frac{g(s)}{s-q}\frac{f'(s)}{f(s)}\,ds
+=g(q)\frac{f'(q)}{f(q)}+\sum_{p:f(p)=0}m_p\frac{g(p)}{p-q}.`
+
+例如 $`f(s)=s-2`，$`g(s)=1`，且矩形包住 $`q=0` 和 $`p=2` 时，两项为 $`-1/2` 与 $`1/2`，围道积分为零。
+
+{docstring hasSimplePrincipalPartAt_logDeriv}
+
+{docstring cauchy_weighted_argument_principle_rect}

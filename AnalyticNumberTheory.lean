@@ -153,6 +153,7 @@ import AnalyticNumberTheory.RiemannZeta.LogDerivativeLeft
 import AnalyticNumberTheory.RiemannZeta.ZeroCounting
 import AnalyticNumberTheory.RiemannZeta.ZeroFreeRegion
 import AnalyticNumberTheory.RiemannZeta.RiemannHypothesis
+import AnalyticNumberTheory.RiemannZeta.LogarithmUnderRH
 import AnalyticNumberTheory.DirichletLFunctions.Characters
 import AnalyticNumberTheory.DirichletLFunctions.GaussSums
 import AnalyticNumberTheory.DirichletLFunctions.CharacterSums

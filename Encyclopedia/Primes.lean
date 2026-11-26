@@ -1,5 +1,6 @@
 import AnalyticNumberTheory.PrimeDistribution.GoldstonTruncation
 import AnalyticNumberTheory.PrimeDistribution.GoldstonShortIntervals
+import AnalyticNumberTheory.PrimeDistribution.ChebyshevMeanSquare
 import AnalyticNumberTheory.PrimeDistribution.GoldstonZeroSum
 import AnalyticNumberTheory.PrimeDistribution.CramerPrimeGaps
 import AnalyticNumberTheory.PrimeDistribution.SmoothedZeroSums
@@ -744,3 +745,31 @@ $$`|\psi(x+h)-\psi(x)-h|\ll\frac{h}{g}+\sqrt{x}\log x\,(1+\log g).`
 给定精度，先选定足够大的 $`g`，再令 $`x\to\infty`，右边与 $`h` 的比值就能任意小。去掉高次素数幂损失 $`O(\sqrt{x})`，区间内素数的对数权重介于 $`\log x` 和 $`\log(2x)` 之间，因而依次得到 $`\theta` 和 $`\pi` 的结论。
 
 {docstring psi_interval_goldston_bound_of_rh}
+
+# Chebyshev 误差的对数均方
+%%%
+tag := "chebyshev-logarithmic-mean-square"
+file := "logarithmic-mean-square"
+%%%
+
+{index}[Chebyshev 误差的对数均方]假设{ref "riemann-hypothesis"}[黎曼猜想]，则
+$$`\int_1^X \left(\frac{\psi(x)-x}{x}\right)^2 dx\ll\log X.`
+左边也可写成 $`\int_1^X |(\psi(x)-x)/\sqrt{x}|^2\,dx/x`。因此按对数测度取平均时，平方根归一化后的误差有界。对照{ref "weak-mertens-zeros"}[弱 Mertens 假设]，两式对误差采用同样的归一化，却有不同的算术函数和假设。
+
+{docstring chebyshev_error_mean_square_of_rh}
+
+令 $`u=\log x`。在黎曼猜想下，截断显式公式中的每个零点项可以分解为 $`\sqrt{x}\,e^{i\gamma u}/\rho`，其中 $`\gamma=\Im\rho`。对任意有限零点集 $`S`，记
+$$`P_S(u)=\sum_{\rho\in S}\frac{m_\rho}{\rho}e^{i\gamma u}.`
+对每个 $`L\ge1` 均有 $`\int_0^L |P_S(u)|^2\,du\ll L`，常数对 $`S` 一致。这个零点指数和的估计本身无条件成立，也允许不同零点的纵坐标重合。
+
+{docstring sharpZetaZeroSum_eq_frequencyPolynomial_of_rh}
+
+{docstring zeroFrequencyPolynomial_mean_square}
+
+在 $`[0,L]` 上用高斯函数控制积分后，交叉项由核 $`(1+(\gamma-\gamma')^2)^{-1}` 控制。固定 $`\gamma` 时，按零点重数对 $`\gamma'` 求和的结果至多为 $`O(\log(|\gamma|+2))`。剩下的总和
+$$`\sum_{\rho\in S} \frac{m_\rho\log(|\gamma|+2)}{|\rho|^2}`
+由{ref "triangular-zero-sums"}[倒数平方的尾和]一致控制。最后在 $`1\le x\le X` 这段取同一个截断高度 $`T=X^8`，由{ref "goldston-truncation"}[高截断公式]估计余项，并令 $`L=\log X`。
+
+{docstring log_weighted_zero_square_bound}
+
+{docstring AnalyticNumberTheory.AnalyticTools.frequencyPolynomial_mean_square_kernel}
